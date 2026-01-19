@@ -1,0 +1,24 @@
+const COLORS = {
+  appBackground: '#F8F8FB',
+  lightPurple: '#757A97',
+  darkText: '#1D222B',
+  borderColor: '#E5E7EF',
+  appText: '#757A97',
+  white: '#FFFFFF',
+  inputBackground: '#E5E7EF',
+  grey: '#A5A9BE',
+  green: '#01B73B',
+  grayColor: '#9C9C9C',
+  Pink: '#F66ABF',
+  Linear: '#A441E6',
+  LightGrey: '#EEEEEE',
+  greyish: '#E5E7EF',
+  greyBackground: '#F2F3F7',
+  DarkGreen: '#11B810',
+  lightGreen: '#6CDE3E',
+  greyText: '#8790B5',
+  redColor: '#EB0101',
+  darkGreen: '#006337',
+};
+
+export default COLORS;

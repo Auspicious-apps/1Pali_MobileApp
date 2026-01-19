@@ -1,0 +1,209 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Montserrat-LightItalic.ttf",
+      "sha1": "581acfc143788f70c489e9e08b6009baf90adf8e"
+    },
+    {
+      "path": "src/assets/fonts/KodeMono-Regular.ttf",
+      "sha1": "b0205597a64cdd911906691f17fa67c7fe472fd4"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Medium.ttf",
+      "sha1": "77f3553415d858c653baea45aacab20196776334"
+    },
+    {
+      "path": "src/assets/fonts/Gabarito-Bold.ttf",
+      "sha1": "8086f8eb4a4cfdd951edc7454177acbaf34d087e"
+    },
+    {
+      "path": "src/assets/fonts/Gabarito-Medium.ttf",
+      "sha1": "ef54deab6b9015d1263d86ec1c70f130e2196772"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-BlackItalic.ttf",
+      "sha1": "2184485d3ab87b7cba93b2ac5d60de7144ae7b2b"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-Regular.ttf",
+      "sha1": "1adfe09cc152037c2dcd2562b8d16dbe24ae759f"
+    },
+    {
+      "path": "src/assets/fonts/KodeMono-SemiBold.ttf",
+      "sha1": "206302149b4bc6e611ec37483fda0804bbc546b3"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-SemiBoldItalic.ttf",
+      "sha1": "4b5ef9255371d286471110bf8cf9de5f9c9497f3"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-ExtraLightItalic.ttf",
+      "sha1": "e857ae45a81d788c12cdb7e9e0b37be33086d181"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-Black.ttf",
+      "sha1": "d6777ff17691642ff4c255e5e06443e27d453204"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-BoldItalic.ttf",
+      "sha1": "cd3789ae55cc702776afdd2fd1a81ae16c69fbf4"
+    },
+    {
+      "path": "src/assets/fonts/NeueMontreal-Medium.otf",
+      "sha1": "a1fde8e729ce0e78511dc692c8390836db6b8d92"
+    },
+    {
+      "path": "src/assets/fonts/NeueMontreal-Light.otf",
+      "sha1": "5177d0022e6ebb29eeb5afa31a81e10916f42c82"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Light.ttf",
+      "sha1": "3397cd98e51365c89e95cd1130e0141bda5051de"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-Bold.ttf",
+      "sha1": "3929894d6093792ffa827a26738340fffebdc36d"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-ThinItalic.ttf",
+      "sha1": "8d95f4a0cf9f73f72f6b436817a8d434f7ae4e65"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-LightItalic.ttf",
+      "sha1": "0269f974a382bc906cbe16d2c0ebcee1275213d1"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-ExtraLight.ttf",
+      "sha1": "cc7a24a862f1779bdbbf78a6984bb9ae9324a128"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Thin.ttf",
+      "sha1": "550e6e1d992369e97e9f00aa71ae482a6a6326d7"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Bold.ttf",
+      "sha1": "be7c1438070ab637e11716915e4e50903726dcc8"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-MediumItalic.ttf",
+      "sha1": "3a200dbe415e421ecaca38532d19380920217c39"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-BlackItalic.ttf",
+      "sha1": "3f86120ed3d28bb9aac0fed7a0290a0cfbeff531"
+    },
+    {
+      "path": "src/assets/fonts/Gabarito-SemiBold.ttf",
+      "sha1": "64be4c8699826bb4bfe1d5ea5d23530d7c22c95d"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-MediumItalic.ttf",
+      "sha1": "e4ac9223c819bab76106a3cb82e7479aac83f646"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-Italic.ttf",
+      "sha1": "6d877395d3e596ed6cb6f497095eb29ea7fbd385"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-BoldItalic.ttf",
+      "sha1": "ad3d8f845158fa36b5b52b6160a9f493a1bcf602"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-ExtraBoldItalic.ttf",
+      "sha1": "a7ed32a1b80e26198be41f8a26ad3cabadf55c5c"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-ExtraLight.ttf",
+      "sha1": "9d238629fa0488b21ba9138576ca0cc9bf390ff5"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-SemiBold.ttf",
+      "sha1": "79f74616d68b87d6cf89798fe72259036326567a"
+    },
+    {
+      "path": "src/assets/fonts/NeueMontreal-Italic.otf",
+      "sha1": "ae05937234562ca37a1f4a50f0cc68a9bd9d5913"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-ExtraLightItalic.ttf",
+      "sha1": "b665a8fc9b6d2a4c89ac87fc480561c98bfff4f8"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-Light.ttf",
+      "sha1": "d3e3789622ef9a2e837cf2be81b27bc4108fe49c"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-ExtraBold.ttf",
+      "sha1": "84f16776e2099d3b57d8ed239b76e6fa3284b2e7"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-Medium.ttf",
+      "sha1": "47a5f982433475630fe9ee100a6b8311eb774228"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-SemiBold.ttf",
+      "sha1": "52c29f5455878c1421edb7ebc0af61f5ddc7a2b4"
+    },
+    {
+      "path": "src/assets/fonts/NeueMontreal-BoldItalic.otf",
+      "sha1": "bb95301f855b9b4231c5e6f2b047a5964fbcb6a0"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Black.ttf",
+      "sha1": "e9abe094b65469f6b6a373b543ab7030dc145c7c"
+    },
+    {
+      "path": "src/assets/fonts/NeueMontreal-LightItalic.otf",
+      "sha1": "069c0ff2b5dda0fb56c78e18bc7d0ba46e9e0190"
+    },
+    {
+      "path": "src/assets/fonts/KodeMono-Medium.ttf",
+      "sha1": "c7879fe1ab51f1de8be561b105eb383f65eaf3da"
+    },
+    {
+      "path": "src/assets/fonts/index.ts",
+      "sha1": "33417c840d036a6d69edae324dc01913e3935f2c"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Regular.ttf",
+      "sha1": "ec13ef1f2c99f8780d6f2eb3f9f27ef89f30161b"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Italic.ttf",
+      "sha1": "aef4e6a1af1849644ce1e934b4ab9059e916d887"
+    },
+    {
+      "path": "src/assets/fonts/SourceSans3-ExtraBold.ttf",
+      "sha1": "9878167aa7bc2338262806eb04736f7ccc8f730a"
+    },
+    {
+      "path": "src/assets/fonts/Gabarito-ExtraBold.ttf",
+      "sha1": "0685393ab4e6eedf4044c8b88d1c34bca79b3b3f"
+    },
+    {
+      "path": "src/assets/fonts/KodeMono-Bold.ttf",
+      "sha1": "eef7a03b6d69d62b3a0ddc7e0bc9a9cabd5dc2a1"
+    },
+    {
+      "path": "src/assets/fonts/Gabarito-Regular.ttf",
+      "sha1": "9a72632ea52fe43351a8165840e3c173c2b5de86"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-SemiBoldItalic.ttf",
+      "sha1": "8893c19f6daee4348d1e8b2ce0bd4698a5dca0e5"
+    },
+    {
+      "path": "src/assets/fonts/Gabarito-Black.ttf",
+      "sha1": "25ef63137539ccf61492cc9945559517e7cb5736"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-ExtraBoldItalic.ttf",
+      "sha1": "96c173512f14118a97acf01279fa63bae70c6035"
+    },
+    {
+      "path": "src/assets/fonts/NeueMontreal-Bold.otf",
+      "sha1": "8a9ff2b61316994234dae5eaaaa2b99de1b29205"
+    }
+  ]
+}
