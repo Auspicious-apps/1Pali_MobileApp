@@ -14,6 +14,7 @@
 		125B660DF07A430D97FD4BD6 /* Gabarito-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE4B1B68856D4204982650D3 /* Gabarito-ExtraBold.ttf */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		15D9391D66264ED9BC91459F /* NeueMontreal-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8F83CD5330244C37AC100486 /* NeueMontreal-Medium.otf */; };
+		19A3F668C4472968CA18A77E /* Pods_OnePali.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04386EC5A64DE068DE9ED537 /* Pods_OnePali.framework */; };
 		1F65DB5828CB408F9C5F62D8 /* Montserrat-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9D5C8569F6664612B3A059EC /* Montserrat-LightItalic.ttf */; };
 		273F453637B94E92822B4B9B /* SourceSans3-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5FDF4CACB24847A38FB69072 /* SourceSans3-ExtraLight.ttf */; };
 		285425A5869F4258A1C027A8 /* KodeMono-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B883735FFB98460CA17C45CE /* KodeMono-SemiBold.ttf */; };
@@ -22,7 +23,6 @@
 		317A367205424E8785EF3576 /* SourceSans3-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5E4C5343618D4ED092010A2E /* SourceSans3-SemiBold.ttf */; };
 		35AABD16462C4302A1C6DA59 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EF6F942B74D04FA9BB46341B /* Montserrat-Bold.ttf */; };
 		372F0E7B90444DAC8DF384A6 /* SourceSans3-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D5962BB26FA408CB412AC51 /* SourceSans3-Italic.ttf */; };
-		3CA505D3E6780A071C7DB91A /* Pods_OnePali.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC223E8E989D734FF61AA9 /* Pods_OnePali.framework */; };
 		41F67C23806944D0B9EDC619 /* Montserrat-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D6A7392B001146EC87836D1C /* Montserrat-ExtraLight.ttf */; };
 		474EF2D1EF754BDFB62DECCD /* Montserrat-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCF43366F1A94191B59D3692 /* Montserrat-BlackItalic.ttf */; };
 		4935CCBF399C4C61A2BABC5D /* Montserrat-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AF1737593DD142028A2C5738 /* Montserrat-BoldItalic.ttf */; };
@@ -61,21 +61,22 @@
 		F83D8B12ABD04A2C83CE0A4C /* index.ts in Resources */ = {isa = PBXBuildFile; fileRef = 0995CF5E04BF4109A7D8BF14 /* index.ts */; };
 		FB30E6828E66421A83D7B465 /* Montserrat-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 46A07FA5DEFB454AB0921ED5 /* Montserrat-SemiBoldItalic.ttf */; };
 		FD7F2C611BCF4B49AD03EC1D /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EA480183B4C443ADA2284572 /* Montserrat-Light.ttf */; };
+		FDB5306B2F2106E1004387D3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FDB5306A2F2106E1004387D3 /* GoogleService-Info.plist */; };
 		FEB5606E8B614F5EBC70AE11 /* SourceSans3-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D158CD674C3B4443893B436B /* SourceSans3-Bold.ttf */; };
 		FF0350F72E2D4160B6E4E412 /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 51943907FF164A779751F818 /* Montserrat-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		00DC223E8E989D734FF61AA9 /* Pods_OnePali.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnePali.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		02CD9BBB96A1452FB70F88F9 /* Montserrat-ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ThinItalic.ttf"; path = "../src/assets/fonts/Montserrat-ThinItalic.ttf"; sourceTree = "<group>"; };
 		02DCC3A78F614DF0BD3C3CDA /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../src/assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
+		04386EC5A64DE068DE9ED537 /* Pods_OnePali.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnePali.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		069093C3482342FABF67412E /* Montserrat-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBoldItalic.ttf"; path = "../src/assets/fonts/Montserrat-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		0995CF5E04BF4109A7D8BF14 /* index.ts */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.ts; path = ../src/assets/fonts/index.ts; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* OnePali.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnePali.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OnePali/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OnePali/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = OnePali/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		18382C804C700BC2B680F1BE /* Pods-OnePali.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.debug.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.debug.xcconfig"; sourceTree = "<group>"; };
+		1788A2F1EC89B8B35B4470B9 /* Pods-OnePali.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.debug.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.debug.xcconfig"; sourceTree = "<group>"; };
 		19870DD9D9AC45468E02519C /* SourceSans3-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-ExtraBold.ttf"; path = "../src/assets/fonts/SourceSans3-ExtraBold.ttf"; sourceTree = "<group>"; };
 		2A497E42BB6045868E718B67 /* Montserrat-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-MediumItalic.ttf"; path = "../src/assets/fonts/Montserrat-MediumItalic.ttf"; sourceTree = "<group>"; };
 		2CCC5C7189384A7A9A5EC4D8 /* SourceSans3-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-Light.ttf"; path = "../src/assets/fonts/SourceSans3-Light.ttf"; sourceTree = "<group>"; };
@@ -104,6 +105,7 @@
 		9D5C8569F6664612B3A059EC /* Montserrat-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-LightItalic.ttf"; path = "../src/assets/fonts/Montserrat-LightItalic.ttf"; sourceTree = "<group>"; };
 		9DEF147BFB2B41EE84BF33D7 /* SourceSans3-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-ExtraBoldItalic.ttf"; path = "../src/assets/fonts/SourceSans3-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		9FF7FC4BC58A4B359B1FB394 /* KodeMono-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KodeMono-Bold.ttf"; path = "../src/assets/fonts/KodeMono-Bold.ttf"; sourceTree = "<group>"; };
+		A1A2555797A4F7429BCDBFE4 /* Pods-OnePali.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.release.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.release.xcconfig"; sourceTree = "<group>"; };
 		A5A9101AE8DF46B7AD6C4C87 /* SourceSans3-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-BoldItalic.ttf"; path = "../src/assets/fonts/SourceSans3-BoldItalic.ttf"; sourceTree = "<group>"; };
 		AA13A04CF3BD4724B99C5286 /* NeueMontreal-Italic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NeueMontreal-Italic.otf"; path = "../src/assets/fonts/NeueMontreal-Italic.otf"; sourceTree = "<group>"; };
 		AB743DB319AA41C9B13BE750 /* KodeMono-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KodeMono-Medium.ttf"; path = "../src/assets/fonts/KodeMono-Medium.ttf"; sourceTree = "<group>"; };
@@ -113,7 +115,6 @@
 		B883735FFB98460CA17C45CE /* KodeMono-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KodeMono-SemiBold.ttf"; path = "../src/assets/fonts/KodeMono-SemiBold.ttf"; sourceTree = "<group>"; };
 		BB1801948A3946A58D678AE7 /* Gabarito-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gabarito-Medium.ttf"; path = "../src/assets/fonts/Gabarito-Medium.ttf"; sourceTree = "<group>"; };
 		BCD312BFBEF2472FBC7B5EE4 /* Gabarito-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gabarito-Bold.ttf"; path = "../src/assets/fonts/Gabarito-Bold.ttf"; sourceTree = "<group>"; };
-		BF40CFBA163760DA4A72AC2B /* Pods-OnePali.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.release.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.release.xcconfig"; sourceTree = "<group>"; };
 		BF8874306E2D46FEB6341BF2 /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-SemiBold.ttf"; path = "../src/assets/fonts/Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
 		C7C83CE32C8043FA9C97EEF0 /* Montserrat-ExtraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraLightItalic.ttf"; path = "../src/assets/fonts/Montserrat-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
 		CAE973AE0977420EB1CE5646 /* Montserrat-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBold.ttf"; path = "../src/assets/fonts/Montserrat-ExtraBold.ttf"; sourceTree = "<group>"; };
@@ -128,6 +129,7 @@
 		EF6F942B74D04FA9BB46341B /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
 		F34503D8F5734654AF8B089B /* KodeMono-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KodeMono-Regular.ttf"; path = "../src/assets/fonts/KodeMono-Regular.ttf"; sourceTree = "<group>"; };
 		FCF43366F1A94191B59D3692 /* Montserrat-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-BlackItalic.ttf"; path = "../src/assets/fonts/Montserrat-BlackItalic.ttf"; sourceTree = "<group>"; };
+		FDB5306A2F2106E1004387D3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,7 +137,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3CA505D3E6780A071C7DB91A /* Pods_OnePali.framework in Frameworks */,
+				19A3F668C4472968CA18A77E /* Pods_OnePali.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +147,7 @@
 		13B07FAE1A68108700A75B9A /* OnePali */ = {
 			isa = PBXGroup;
 			children = (
+				FDB5306A2F2106E1004387D3 /* GoogleService-Info.plist */,
 				ED4E16082F20BE8600D05552 /* OnePali.entitlements */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
@@ -159,7 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				00DC223E8E989D734FF61AA9 /* Pods_OnePali.framework */,
+				04386EC5A64DE068DE9ED537 /* Pods_OnePali.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -255,8 +258,8 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				18382C804C700BC2B680F1BE /* Pods-OnePali.debug.xcconfig */,
-				BF40CFBA163760DA4A72AC2B /* Pods-OnePali.release.xcconfig */,
+				1788A2F1EC89B8B35B4470B9 /* Pods-OnePali.debug.xcconfig */,
+				A1A2555797A4F7429BCDBFE4 /* Pods-OnePali.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -268,14 +271,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "OnePali" */;
 			buildPhases = (
-				356D2387AFA5AFF4FAB7585A /* [CP] Check Pods Manifest.lock */,
+				BC54BB9B57C36D6F08C75C1F /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				60DC5F58202F5BA7871BEAFE /* [CP] Embed Pods Frameworks */,
-				4F761847A3746B660B299CB3 /* [CP] Copy Pods Resources */,
-				FA94605CDEDC9DE139F8D07A /* [CP-User] [RNFB] Core Configuration */,
+				2F99FD68A7FB6F71AF69366D /* [CP] Embed Pods Frameworks */,
+				73E860DA069D2DE59FF2C852 /* [CP] Copy Pods Resources */,
+				F681BBDE321BC39F3FD3DD98 /* [CP-User] [RNFB] Core Configuration */,
 			);
 			buildRules = (
 			);
@@ -375,6 +378,7 @@
 				76E0E3BD724E4FCA8743A15F /* SourceSans3-Light.ttf in Resources */,
 				66524BB0885E4B5E90586625 /* SourceSans3-Medium.ttf in Resources */,
 				317A367205424E8785EF3576 /* SourceSans3-SemiBold.ttf in Resources */,
+				FDB5306B2F2106E1004387D3 /* GoogleService-Info.plist in Resources */,
 				DCFCD302C2D645EB88FF47DC /* SourceSans3-ExtraBold.ttf in Resources */,
 				F83D8B12ABD04A2C83CE0A4C /* index.ts in Resources */,
 			);
@@ -399,7 +403,41 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"\\\"$WITH_ENVIRONMENT\\\" \\\"$REACT_NATIVE_XCODE\\\"\"\n";
 		};
-		356D2387AFA5AFF4FAB7585A /* [CP] Check Pods Manifest.lock */ = {
+		2F99FD68A7FB6F71AF69366D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		73E860DA069D2DE59FF2C852 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BC54BB9B57C36D6F08C75C1F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -421,41 +459,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4F761847A3746B660B299CB3 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		60DC5F58202F5BA7871BEAFE /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FA94605CDEDC9DE139F8D07A /* [CP-User] [RNFB] Core Configuration */ = {
+		F681BBDE321BC39F3FD3DD98 /* [CP-User] [RNFB] Core Configuration */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -484,13 +488,15 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18382C804C700BC2B680F1BE /* Pods-OnePali.debug.xcconfig */;
+			baseConfigurationReference = 1788A2F1EC89B8B35B4470B9 /* Pods-OnePali.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = OnePali/OnePali.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8R6XB7T4ZW;
 				ENABLE_BITCODE = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = OnePali/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -513,12 +519,14 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BF40CFBA163760DA4A72AC2B /* Pods-OnePali.release.xcconfig */;
+			baseConfigurationReference = A1A2555797A4F7429BCDBFE4 /* Pods-OnePali.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = OnePali/OnePali.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8R6XB7T4ZW;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = OnePali/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

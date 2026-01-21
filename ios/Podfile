@@ -17,27 +17,36 @@ end
 target 'OnePali' do
   config = use_native_modules!
 
-    use_frameworks! :linkage => :static
+  use_frameworks! :linkage => :static
   $RNFirebaseAsStaticFramework = true
 
-  # use_react_native!(
-  #   :path => config[:reactNativePath],
-  #   # An absolute path to your application root.
-  #   :app_path => "#{Pod::Config.instance.installation_root}/.."
-  # )
-
   use_react_native!(
-  :path => config[:reactNativePath],
-  :hermes_enabled => false,
-  :app_path => "#{Pod::Config.instance.installation_root}/.."
-)
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
 
   post_install do |installer|
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :mac_catalyst_enabled => false
     )
+
+    # 🔥 REQUIRED for macOS 26 + Xcode 16 + Hermes
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+        config.build_settings['COPY_PHASE_STRIP'] = 'NO'
+        config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'NO'
+      end
+    end
+
+    installer.aggregate_targets.each do |target|
+      target.user_project.native_targets.each do |nt|
+        nt.build_configurations.each do |config|
+          config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+        end
+      end
+    end
   end
 end
