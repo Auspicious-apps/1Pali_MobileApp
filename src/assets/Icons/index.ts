@@ -47,6 +47,9 @@ import WhiteBackArrow from './WhiteBackArrow.svg';
 import RedClose from './RedClose.svg';
 import DarkDice from './DarkDice.svg';
 import HeartFill from './HeartFill.svg';
+import GoogleIcon from "./GoogleIcon.svg";
+import Seedlock from "./Seedlock.svg";
+import WhiteClose from "./WhiteClose.svg";
  
 const ICONS = {
   diceIcon,
@@ -97,7 +100,10 @@ const ICONS = {
   WhiteBackArrow,
   RedClose,
   DarkDice,
-  HeartFill
+  HeartFill,
+  GoogleIcon,
+  Seedlock,
+  WhiteClose,
 };
 
 export default ICONS;

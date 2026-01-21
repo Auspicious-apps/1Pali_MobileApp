@@ -1,7 +1,7 @@
 const STORAGE_KEYS = {
-  isOnBoarded: 'isOnBoarded',
-  deviceId: 'deviceId',
-  fcmToken: 'fcmToken',
+  accessToken: "accessToken",
+  refreshToken: "refreshToken",
+  expiresIn: "expiresIn",
 };
 
 export default STORAGE_KEYS;

@@ -8,11 +8,11 @@ import { OnboardingProps } from '../../typings/routes';
 
 
 const texts = [
-  '1,000,000 people ',
-  '$1 each',
-  'once a month',
-  'for Palestine.',
-  'This is OnePali.',
+  "1,000,000 people ",
+  "donating $1 each",
+  "once a month",
+  "for Palestine.",
+  "This is OnePali.",
 ];
 
 const LETTER_DELAY = 40;

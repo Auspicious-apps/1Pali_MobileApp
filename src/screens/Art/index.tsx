@@ -6,7 +6,8 @@ import {
   FlatList,
   TouchableOpacity,
   Dimensions,
-} from 'react-native';
+  Platform,
+} from "react-native";
 import React, { FC } from 'react';
 import { ArtScreenProps } from '../../typings/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,12 +26,12 @@ const CARD_GAP = horizontalScale(12);
 const CARD_WIDTH = (SCREEN_WIDTH - SIDE_PADDING * 2 - CARD_GAP) / 2;
 
 const artData = [
-  { id: '1', image: IMAGES.FeedImage, month: 'January 2026' },
-  { id: '2', image: IMAGES.FeedImage, month: 'February 2026' },
-  { id: '3', image: IMAGES.FeedImage, month: 'March 2026' },
-  { id: '4', image: IMAGES.FeedImage, month: 'April 2026' },
-  { id: '5', image: IMAGES.FeedImage, month: 'April 2026' },
-  { id: '6', image: IMAGES.FeedImage, month: 'April 2026' },
+  { id: "1", image: IMAGES.FeedImage, month: "03.04.2025" },
+  { id: "2", image: IMAGES.FeedImage, month: "03.04.2025" },
+  { id: "3", image: IMAGES.FeedImage, month: "03.04.2025" },
+  { id: "4", image: IMAGES.FeedImage, month: "03.04.2025" },
+  { id: "5", image: IMAGES.FeedImage, month: "03.04.2025" },
+  { id: "6", image: IMAGES.FeedImage, month: "03.04.2025" },
 ];
 
 const Art: FC<ArtScreenProps> = ({navigation}) => {
@@ -59,10 +60,10 @@ const Art: FC<ArtScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         {/* Header */}
         <View style={styles.headerWrapper}>
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+          <Image source={IMAGES.LogoText} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText
@@ -77,10 +78,10 @@ const Art: FC<ArtScreenProps> = ({navigation}) => {
               fontFamily="SourceSansRegular"
               fontSize={15}
               color={COLORS.appText}
-              style={{ textAlign: 'center'  }}
+              style={{ textAlign: "center" }}
             >
-              New art uploaded on a daily basis. Share art to your socials to
-              unlock new badges.
+              New artwork is added monthly. Share these stories to receive your
+              Solidarity Markers.
             </CustomText>
           </View>
         </View>
@@ -88,7 +89,7 @@ const Art: FC<ArtScreenProps> = ({navigation}) => {
         {/* List */}
         <FlatList
           data={artData}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           renderItem={renderItem}
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
@@ -118,15 +119,16 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: horizontalScale(100),
-    height: verticalScale(59),
-    resizeMode: 'contain',
-    alignSelf: 'center',
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
 
   header: {
     marginVertical: verticalScale(32),
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   card: {
@@ -142,10 +144,10 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     height: hp(26),
     borderRadius: 14,
-    overflow: 'hidden',
-    alignSelf: 'center',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
+    overflow: "hidden",
+    alignSelf: "center",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
   },
 
   uploadBtn: {
@@ -154,6 +156,6 @@ const styles = StyleSheet.create({
 
   columnWrapper: {
     paddingHorizontal: SIDE_PADDING,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
 });

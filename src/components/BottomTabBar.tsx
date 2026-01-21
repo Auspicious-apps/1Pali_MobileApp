@@ -3,17 +3,15 @@ import React, { FC, useCallback, useRef } from 'react';
 import {
   Animated,
   FlatList,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ICONS from '../assets/Icons';
-import CustomIcon from './CustomIcon';
-import COLORS from '../utils/Colors';
-import { CustomText } from './CustomText';
+} from "react-native";
+import ICONS from "../assets/Icons";
+import COLORS from "../utils/Colors";
 import { horizontalScale, isAndroid, verticalScale } from '../utils/Metrics';
+import CustomIcon from "./CustomIcon";
+import { CustomText } from "./CustomText";
 
 type Tab = {
   name: string;
@@ -48,12 +46,29 @@ const tabs: Tab[] = [
   },
 ];
 const BottomTabBar: FC<BottomTabBarProps> = props => {
-  const { state, navigation} = props;
+  const { state, navigation } = props;
+  // Map detail/inner routes to their parent tab for highlighting
+  const routeToTab: Record<string, string> = {
+    home: "home",
+    updates: "updates",
+    art: "art",
+    account: "account",
+    updateDetail: "updates",
+    artDetail: "art",
+    termsConditions: "account",
+    privacyPolicy: "account",
+    receipts: "account",
+    badges: "account",
+    // Add more mappings if you add more detail/inner screens
+  };
   const currentRoute = state.routes[state.index].name;
+  const activeTab = routeToTab[currentRoute] || currentRoute;
   const scaleValue = useRef(new Animated.Value(1)).current;
 
-  const homeRoute = state.routes.find(r => r.name === 'home');
-  const currentNumber = (homeRoute?.params as any)?.number as string | undefined;
+  const homeRoute = state.routes.find((r) => r.name === "home");
+  const currentNumber = (homeRoute?.params as any)?.number as
+    | string
+    | undefined;
   const handleTabPress = useCallback(
     (tab: Tab) => {
       if (currentRoute !== tab.route) {
@@ -68,7 +83,7 @@ const BottomTabBar: FC<BottomTabBarProps> = props => {
   );
   const renderTab = useCallback(
     ({ item, index }: { item: Tab; index: number }) => {
-      const isActive = currentRoute === item.route;
+      const isActive = activeTab === item.route;
       return (
         <TouchableOpacity
           style={styles.tab}
@@ -82,27 +97,25 @@ const BottomTabBar: FC<BottomTabBarProps> = props => {
           />
           <CustomText
             fontSize={12}
-            fontWeight={isActive ? '500' : '400'}
+            fontWeight={isActive ? "500" : "400"}
             fontFamily="GabaritoRegular"
-            color={isActive ? 'rgba(0, 0, 0, 1)' : 'rgba(165, 169, 190, 1)'}
+            color={isActive ? "rgba(0, 0, 0, 1)" : "rgba(165, 169, 190, 1)"}
           >
             {item.name}
           </CustomText>
         </TouchableOpacity>
       );
     },
-    [handleTabPress, currentRoute, scaleValue],
+    [handleTabPress, activeTab, scaleValue],
   );
   return (
-    <View
-      style={styles.mainContainer}
-    >
+    <View style={styles.mainContainer}>
       <View style={styles.container}>
         <View style={styles.tabWrapper}>
           <FlatList
             data={tabs}
             renderItem={renderTab}
-            keyExtractor={item => item.route}
+            keyExtractor={(item) => item.route}
             horizontal
             showsHorizontalScrollIndicator={false}
             style={[styles.tabBar, {}]}

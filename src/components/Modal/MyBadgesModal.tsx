@@ -7,7 +7,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from 'react-native';
+  Platform,
+} from "react-native";
 import { BlurView } from '@react-native-community/blur';
 import { CustomText } from '../CustomText';
 import COLORS from '../../utils/Colors';
@@ -61,21 +62,29 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
       transparent
       animationType="fade"
       onRequestClose={closeModal}
+      statusBarTranslucent={Platform.OS === "android"}
     >
       <TouchableOpacity
         activeOpacity={1}
         onPress={closeModal}
-        style={{ flex: 1 }}
+        style={styles.modalBackdrop}
       >
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="light"
-          blurAmount={0.1}
-          reducedTransparencyFallbackColor="white"
-        />
+        {Platform.OS === "ios" ? (
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={1}
+          />
+        ) : (
+          <View style={styles.androidBackdrop} />
+        )}
 
         <View style={styles.overlay}>
-          <View style={styles.modalContainer}>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.modalContainer}
+            onPress={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <View style={styles.header}>
               <CustomText
@@ -94,7 +103,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
             {/* Badges list */}
             <FlatList
               data={badges.slice(0, visibleCount)}
-              keyExtractor={item => item.id.toString()}
+              keyExtractor={(item) => item.id.toString()}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
               renderItem={({ item }) => (
@@ -120,7 +129,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
                     <CustomText
                       fontFamily="SourceSansRegular"
                       fontSize={12}
-                      color={'#1D222B90'}
+                      color={"#1D222B90"}
                     >
                       {item.subtitle}
                     </CustomText>
@@ -135,7 +144,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
               onPress={handleSeeAll}
               style={styles.button}
             />
-          </View>
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
@@ -145,34 +154,48 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
 export default MyBadgesModal;
 
 const styles = StyleSheet.create({
+  modalBackdrop: {
+    flex: 1,
+  },
+  androidBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+  },
   overlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 2,
-    elevation: 6,
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   modalContainer: {
     backgroundColor: COLORS.white,
-    width: '100%',
+    width: "100%",
     borderRadius: 30,
     paddingTop: verticalScale(16),
     paddingHorizontal: horizontalScale(16),
     paddingBottom: verticalScale(24),
+    maxHeight: "80%",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: -2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: horizontalScale(16),
     paddingVertical: verticalScale(8),
   },
   closeIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: horizontalScale(8),
     top: verticalScale(5),
   },
@@ -180,15 +203,15 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(24),
   },
   badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingBottom: verticalScale(8),
   },
   badgeImage: {
     width: horizontalScale(75),
     height: verticalScale(75),
     marginRight: horizontalScale(12),
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   badgeTextContainer: {
     flex: 1,

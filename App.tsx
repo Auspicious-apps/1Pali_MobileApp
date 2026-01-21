@@ -5,24 +5,37 @@ import Toast from 'react-native-toast-message';
 import CustomToast from './src/components/CustomToast';
 import NetworkLogger from './src/components/NetworkLogger';
 import Routes from './src/routes';
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { Provider } from "react-redux";
+import { store } from "./src/redux/store";
+import CollectBadges from "./src/components/Modal/CollectBadges";
 
 LogBox.ignoreAllLogs();
 
 function App() {
+  GoogleSignin.configure({
+    webClientId:
+      "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
+  });
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <StatusBar barStyle={'light-content'} />
-        <Routes />
-        {__DEV__ && <NetworkLogger />}
-        <Toast
-          config={{
-            customToast: props => <CustomToast {...props} type={props?.type} />,
-          }}
-          position="top"
-          topOffset={50}
-        />
-      </SafeAreaProvider>
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <StatusBar barStyle={"light-content"} />
+          <Routes />
+          {/* <CollectBadges /> */}
+          {__DEV__ && <NetworkLogger />}
+          <Toast
+            config={{
+              customToast: (props) => (
+                <CustomToast {...props} type={props?.type} />
+              ),
+            }}
+            position="top"
+            topOffset={50}
+          />
+        </SafeAreaProvider>
+      </Provider>
     </GestureHandlerRootView>
   );
 }

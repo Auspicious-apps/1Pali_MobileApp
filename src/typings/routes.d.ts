@@ -58,8 +58,8 @@ export type ClaimSpotProps = NativeStackScreenProps<
   'claimSpot'
 >;
 export type MissionIntroProps = NativeStackScreenProps<
-  RootStackParams & OnBoardingStackParams,
-  'missionIntro'
+  RootStackParams & OnBoardingStackParams & MainStackParams & BottomStackParams,
+  "missionIntro"
 >;
 export type JoinOnePaliProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,

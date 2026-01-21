@@ -1,53 +1,80 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { FC, useState } from 'react'
-import { HomeScreenProps } from '../../typings/routes';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import IMAGES from '../../assets/Images';
-import { horizontalScale, hp, verticalScale, wp } from '../../utils/Metrics';
-import { CustomText } from '../../components/CustomText';
-import CustomIcon from '../../components/CustomIcon';
-import ICONS from '../../assets/Icons';
-import ProgressBar from '../../components/ProgressBar';
-import COLORS from '../../utils/Colors';
-import MyBadgesModal, { MyBadgeItem } from '../../components/Modal/MyBadgesModal';
+import React, { FC, useEffect, useState } from "react";
+import {
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
+import MyBadgesModal, {
+  MyBadgeItem,
+} from "../../components/Modal/MyBadgesModal";
+import ProgressBar from "../../components/ProgressBar";
+import { HomeScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import CollectBadges from "../../components/Modal/CollectBadges";
+import { useDispatch, useSelector } from "react-redux";
+import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
+import { RootState } from "../../redux/store";
 
-const Home : FC<HomeScreenProps> = ({navigation, route}) => {
-const number = route?.params?.number || '1948';
+const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
+  const number = route?.params?.number || "1948";
 
   const BADGES: MyBadgeItem[] = [
     {
       id: 1,
-      title: 'Seed',
-      subtitle: 'For supporting for 1 month',
+      title: "Seed",
+      subtitle: "Supporting for 1 month",
       image: IMAGES.seedsOne,
     },
     {
       id: 2,
-      title: 'Founder',
-      subtitle: 'For being part of the first 1000 users',
+      title: "Founder",
+      subtitle: "For being part of the first 1000 users",
       image: IMAGES.FounderSeed,
     },
     {
       id: 3,
-      title: 'Jaffa',
-      subtitle: 'Unlocked after contributing $2',
+      title: "Jaffa",
+      subtitle: "Unlocked after contributing $2",
       image: IMAGES.JaffaSeed,
     },
     {
       id: 4,
-      title: 'Echo',
-      subtitle: 'For sharing 1 piece of artwork',
+      title: "Echo",
+      subtitle: "For sharing 1 piece of artwork",
       image: IMAGES.EchoSeed,
     },
   ];
 
   const [isBadgesModalVisible, setIsBadgesModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<MyBadgeItem>(BADGES[0]);
+  const [showBadgesModal, setShowBadgesModal] = useState(false);
+
+  // const dispatch = useDispatch();
+
+  // const isAnyOtherModalOpen = isBadgesModalVisible;
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     if (!isAnyOtherModalOpen) {
+  //       dispatch(openCollectBadgesModal());
+  //     }
+  //   }, 4000);
+
+  //   return () => clearTimeout(timer);
+  // }, [isAnyOtherModalOpen]);
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <Image source={IMAGES.LogoText} style={styles.logo} />
         <View style={{ marginTop: verticalScale(30), gap: verticalScale(6) }}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -58,8 +85,8 @@ const number = route?.params?.number || '1948';
               style={{
                 width: horizontalScale(110),
                 height: verticalScale(110),
-                resizeMode: 'contain',
-                alignSelf: 'center',
+                resizeMode: "contain",
+                alignSelf: "center",
               }}
             />
           </TouchableOpacity>
@@ -68,7 +95,7 @@ const number = route?.params?.number || '1948';
               fontFamily="GabaritoRegular"
               fontSize={14}
               color={COLORS.darkText}
-              style={{ textAlign: 'center' }}
+              style={{ textAlign: "center" }}
             >
               {selectedBadge.title}
             </CustomText>
@@ -76,7 +103,7 @@ const number = route?.params?.number || '1948';
               fontFamily="GabaritoRegular"
               fontSize={14}
               color={COLORS.appText}
-              style={{ textAlign: 'center' }}
+              style={{ textAlign: "center" }}
             >
               {selectedBadge.subtitle}
             </CustomText>
@@ -87,7 +114,7 @@ const number = route?.params?.number || '1948';
             fontFamily="GabaritoSemiBold"
             fontSize={32}
             color="rgba(29, 34, 43, 1)"
-            style={{ textAlign: 'center' }}
+            style={{ textAlign: "center" }}
           >
             #{number}
           </CustomText>
@@ -96,7 +123,7 @@ const number = route?.params?.number || '1948';
             fontFamily="GabaritoMedium"
             fontSize={16}
             color="rgba(29, 34, 43, 1)"
-            style={{ textAlign: 'center', marginTop: 4 }}
+            style={{ textAlign: "center", marginTop: 4 }}
           >
             supporting this month
           </CustomText>
@@ -108,7 +135,7 @@ const number = route?.params?.number || '1948';
             fontFamily="GabaritoRegular"
             fontSize={14}
             color={COLORS.greyText}
-            style={{ textAlign: 'center' }}
+            style={{ textAlign: "center" }}
           >
             83,432/1,000,000 donors
           </CustomText>
@@ -117,15 +144,15 @@ const number = route?.params?.number || '1948';
           style={{
             marginTop: verticalScale(32),
             padding: verticalScale(16),
-            backgroundColor: 'rgba(226, 255, 227, 1)',
+            backgroundColor: "rgba(226, 255, 227, 1)",
             borderRadius: 12,
             width: wp(90),
-            alignItems: 'center',
+            alignItems: "center",
           }}
         >
           <View
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: verticalScale(-14),
               left: horizontalScale(0),
             }}
@@ -161,41 +188,41 @@ const number = route?.params?.number || '1948';
           isVisible={isBadgesModalVisible}
           setIsVisible={setIsBadgesModalVisible}
           badges={BADGES}
-          onSelectBadge={badge => setSelectedBadge(badge)}
+          onSelectBadge={(badge) => setSelectedBadge(badge)}
         />
       </SafeAreaView>
     </View>
   );
-}
+};
 
 export default Home;
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 1)",
   },
   safeArea: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: horizontalScale(20),
     // paddingTop: verticalScale(20),
   },
   logo: {
-    width: horizontalScale(100),
-    height: verticalScale(59),
-    resizeMode: 'contain',
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    backgroundColor: "rgba(255, 255, 255, 1)",
     borderRadius: 20,
     padding: 16,
     marginHorizontal: horizontalScale(10),
     marginTop: verticalScale(24),
     width: wp(90),
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 0,
@@ -205,8 +232,8 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: wp(3.2),
     marginTop: hp(4.8),
   },
@@ -216,24 +243,24 @@ const styles = StyleSheet.create({
     width: wp(20),
   },
   collabText: {
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: hp(2.7),
   },
   partnersRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: wp(7.7),
     marginTop: hp(1),
   },
   mecaImage: {
     width: wp(36),
     height: hp(6),
-    alignSelf: 'center',
-    resizeMode: 'contain',
+    alignSelf: "center",
+    resizeMode: "contain",
   },
   palirootImage: {
     width: wp(35.7),
     height: hp(3.3),
-    alignSelf: 'center',
-    resizeMode: 'contain',
+    alignSelf: "center",
+    resizeMode: "contain",
   },
 });

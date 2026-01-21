@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   ImageSourcePropType,
-} from 'react-native';
+  Platform,
+} from "react-native";
 import React, { FC, useState } from 'react';
 import IMAGES from '../../assets/Images';
 import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
@@ -27,91 +28,143 @@ type Badge = {
   unlocked: boolean;
 };
 
-const BADGES: Badge[] = [
-  { id: 1, label: 'Seed', months: '1 month', image: IMAGES.SpeakerBadge, unlocked: true },
-  { id: 2, label: 'Sprout', months: '3 months', image: IMAGES.Skrim, unlocked: false },
-  { id: 3, label: 'Sapling', months: '6 months', image: IMAGES.Skrim, unlocked: false },
-  { id: 4, label: 'Mature', months: '1 year', image: IMAGES.SpeakerBadge, unlocked: true },
-  { id: 5, label: 'Bloom', months: '2 years', image: IMAGES.Skrim, unlocked: false },
-  { id: 6, label: 'Harvest', months: '3 years', image: IMAGES.Skrim, unlocked: false },
-  { id: 7, label: 'Decay', months: '5 years', image: IMAGES.SpeakerBadge, unlocked: true },
-  { id: 8, label: 'Rebirth', months: '10 years', image: IMAGES.Skrim, unlocked: false },
-  { id: 9, label: 'Ecosystem', months: '20 years', image: IMAGES.Skrim, unlocked: false },
-];
-const ART_BADGES: Badge[] = [
+const GROWTH_BADGES: Badge[] = [
   {
     id: 1,
-    label: 'Voice',
-    months: '1 share',
-    image: IMAGES.SpeakerBadge,
+    label: "Seed",
+    months: "1 month",
+    image: IMAGES.seedsOne,
     unlocked: true,
   },
   {
     id: 2,
-    label: 'Echo',
-    months: '3 shares',
-    image: IMAGES.Skrim,
-    unlocked: false,
+    label: "Sprout",
+    months: "3 months",
+    image: IMAGES.SproutSeed,
+    unlocked: true,
   },
   {
     id: 3,
-    label: 'Messenger',
-    months: '6 shares',
-    image: IMAGES.Skrim,
-    unlocked: false,
+    label: "Sapling",
+    months: "6 months",
+    image: IMAGES.SaplingSeed,
+    unlocked: true,
   },
-
   {
     id: 4,
-    label: 'Ambassador',
-    months: '10 share',
-    image: IMAGES.SpeakerBadge,
+    label: "Rooted",
+    months: "12 months",
+    image: IMAGES.RootedSeed,
     unlocked: true,
   },
   {
     id: 5,
-    label: 'Visionary',
-    months: '15 shares',
-    image: IMAGES.Skrim,
-    unlocked: false,
+    label: "Branch",
+    months: "18 months",
+    image: IMAGES.BranchSeed,
+    unlocked: true,
   },
   {
     id: 6,
-    label: 'Virtuoso',
-    months: '20 shares',
-    image: IMAGES.Skrim,
-    unlocked: false,
+    label: "Trunk",
+    months: "24 months",
+    image: IMAGES.TrunkSeed,
+    unlocked: true,
   },
-
   {
     id: 7,
-    label: 'Influencer',
-    months: '2 shares',
-    image: IMAGES.SpeakerBadge,
+    label: "Bloom",
+    months: "3 years",
+    image: IMAGES.BloomSeed,
     unlocked: true,
   },
   {
     id: 8,
-    label: 'Advocate',
-    months: '7 shares',
-    image: IMAGES.Skrim,
-    unlocked: false,
+    label: "Eternal",
+    months: "5 years",
+    image: IMAGES.EternalSeed,
+    unlocked: true,
+  },
+];
+const ART_BADGES: Badge[] = [
+  {
+    id: 1,
+    label: "Voice",
+    months: "1 share",
+    image: IMAGES.VoiceSeed,
+    unlocked: true,
   },
   {
-    id: 9,
-    label: 'Pioneer',
-    months: '11 shares',
-    image: IMAGES.Skrim,
-    unlocked: false,
+    id: 2,
+    label: "Advocate",
+    months: "5 shares",
+    image: IMAGES.AdvocateSeed,
+    unlocked: true,
+  },
+  {
+    id: 3,
+    label: "Messenger",
+    months: "10 shares",
+    image: IMAGES.MessengerSeed,
+    unlocked: true,
+  },
+  {
+    id: 4,
+    label: "Ambassador",
+    months: "25 shares",
+    image: IMAGES.AmbassadorSeed,
+    unlocked: true,
+  },
+  {
+    id: 5,
+    label: "Bridge",
+    months: "50 shares",
+    image: IMAGES.BridgeSeed,
+    unlocked: true,
+  },
+];
+const IMPACT_BADGES: Badge[] = [
+  {
+    id: 1,
+    label: "Jaffa",
+    months: "$2 donated",
+    image: IMAGES.JaffaSeed,
+    unlocked: true,
+  },
+  {
+    id: 2,
+    label: "Watermelon",
+    months: "$4 donated",
+    image: IMAGES.WatermelonSeed,
+    unlocked: true,
+  },
+  {
+    id: 3,
+    label: "Tatreez",
+    months: "$13 donated",
+    image: IMAGES.TatreezSeed,
+    unlocked: true,
+  },
+  {
+    id: 4,
+    label: "Keffiyeh",
+    months: "$25 donated",
+    image: IMAGES.KeffiyehSeed,
+    unlocked: true,
+  },
+  {
+    id: 5,
+    label: "Key",
+    months: "$50 donated",
+    image: IMAGES.KeySeed,
+    unlocked: true,
   },
 ];
 
-
-
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
-  const [activeTab, setActiveTab] = useState<
-    'Growth' | 'Community' | 'Art' | 'Impact'
-  >('Growth');
+  const [activeTab, setActiveTab] = useState<"Growth" | "Art" | "Impact">(
+    "Growth",
+  );
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
@@ -119,8 +172,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
     switch (activeTab) {
       case 'Growth':
         return IMAGES.FounderSeed;
-      case 'Community':
-        return IMAGES.BadgeLogo;
       case 'Art':
         return IMAGES.EchoSeed;
       case 'Impact':
@@ -132,21 +183,21 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <FocusResetScrollView
           bounces={false}
           horizontal={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           contentContainerStyle={{
-            alignItems: 'center',
+            alignItems: "center",
           }}
         >
           <View style={styles.header}>
             <View style={styles.side}>
               <TouchableOpacity
-                onPress={() => navigation.navigate('account')}
+                onPress={() => navigation.navigate("account")}
                 activeOpacity={0.8}
               >
                 <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
@@ -154,7 +205,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.center}>
-              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+              <Image source={IMAGES.LogoText} style={styles.logo} />
             </View>
 
             <View style={styles.side} />
@@ -165,7 +216,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               fontFamily="GabaritoSemiBold"
               fontSize={32}
               color={COLORS.darkText}
-              style={{ textAlign: 'center' }}
+              style={{ textAlign: "center" }}
             >
               Badges
             </CustomText>
@@ -173,7 +224,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               fontFamily="SourceSansRegular"
               fontSize={14}
               color={COLORS.appText}
-              style={{ textAlign: 'center' }}
+              style={{ textAlign: "center" }}
             >
               Earn badges for your commitment and impact
             </CustomText>
@@ -189,39 +240,39 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 fontFamily="GabaritoRegular"
                 fontSize={16}
                 color={COLORS.darkText}
-                style={{ textAlign: 'center' }}
+                style={{ textAlign: "center" }}
               >
                 Founder
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={14}
-                color={'#1D222B50'}
-                style={{ textAlign: 'center' }}
+                color={"#1D222B50"}
+                style={{ textAlign: "center" }}
               >
-                You’re part of the first 1K members
+                You’re part of the first 1K donors
               </CustomText>
             </View>
           </View>
           <View
             style={{
-              flexDirection: 'row',
+              flexDirection: "row",
               gap: horizontalScale(24),
               marginTop: verticalScale(28),
             }}
           >
             <TouchableOpacity
-              onPress={() => setActiveTab('Growth')}
+              onPress={() => setActiveTab("Growth")}
               activeOpacity={0.8}
               style={{
-                alignItems: 'center',
+                alignItems: "center",
               }}
             >
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={18}
                 color={
-                  activeTab === 'Growth' ? COLORS.darkText : COLORS.appText
+                  activeTab === "Growth" ? COLORS.darkText : COLORS.appText
                 }
               >
                 Growth
@@ -229,51 +280,33 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => setActiveTab('Community')}
+              onPress={() => setActiveTab("Art")}
               activeOpacity={0.8}
               style={{
-                alignItems: 'center',
+                alignItems: "center",
               }}
             >
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={18}
-                color={
-                  activeTab === 'Community' ? COLORS.darkText : COLORS.appText
-                }
-              >
-                Community
-              </CustomText>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setActiveTab('Art')}
-              activeOpacity={0.8}
-              style={{
-                alignItems: 'center',
-              }}
-            >
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={18}
-                color={activeTab === 'Art' ? COLORS.darkText : COLORS.appText}
+                color={activeTab === "Art" ? COLORS.darkText : COLORS.appText}
               >
                 Art
               </CustomText>
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => setActiveTab('Impact')}
+              onPress={() => setActiveTab("Impact")}
               activeOpacity={0.8}
               style={{
-                alignItems: 'center',
+                alignItems: "center",
               }}
             >
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={18}
                 color={
-                  activeTab === 'Impact' ? COLORS.darkText : COLORS.appText
+                  activeTab === "Impact" ? COLORS.darkText : COLORS.appText
                 }
               >
                 Impact
@@ -282,25 +315,31 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           </View>
           <FlatList
             data={
-              activeTab === 'Growth' || activeTab === 'Community'
-                ? BADGES
-                : ART_BADGES
+              activeTab === "Growth"
+                ? GROWTH_BADGES
+                : activeTab === "Art"
+                ? ART_BADGES
+                : IMPACT_BADGES
             }
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             numColumns={3}
             scrollEnabled={false}
             contentContainerStyle={{
               marginTop: verticalScale(24),
               paddingBottom: verticalScale(16),
+              width: wp(90),
             }}
-            columnWrapperStyle={{ justifyContent: 'center' }}
+            columnWrapperStyle={{
+              justifyContent: "flex-start",
+              marginBottom: verticalScale(16),
+              paddingHorizontal: horizontalScale(8),
+            }}
             renderItem={({ item: badge }) => (
               <TouchableOpacity
                 style={{
-                  width: horizontalScale(110),
-                  alignItems: 'center',
-                  marginBottom: verticalScale(12),
-                  gap: verticalScale(4),
+                  width: wp(28),
+                  alignItems: "center",
+                  gap: verticalScale(8),
                 }}
                 activeOpacity={0.8}
                 onPress={() => {
@@ -313,14 +352,15 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   style={{
                     width: horizontalScale(66),
                     height: verticalScale(66),
+                    resizeMode: "contain",
                   }}
                 />
-                <View style={{}}>
+                <View style={{ alignItems: "center" }}>
                   <CustomText
                     fontFamily="GabaritoSemiBold"
                     fontSize={14}
                     color={COLORS.darkText}
-                    style={{ textAlign: 'center' }}
+                    style={{ textAlign: "center" }}
                   >
                     {badge.label}
                   </CustomText>
@@ -328,7 +368,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                     fontFamily="SourceSansRegular"
                     fontSize={12}
                     color={COLORS.appText}
-                    style={{ textAlign: 'center' }}
+                    style={{ textAlign: "center" }}
                   >
                     {badge.months}
                   </CustomText>
@@ -354,27 +394,28 @@ export default Badges;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 1)",
   },
   safeArea: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: horizontalScale(20),
   },
   logo: {
-    width: horizontalScale(100),
-    height: verticalScale(59),
-    resizeMode: 'contain',
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    backgroundColor: "rgba(255, 255, 255, 1)",
     borderRadius: 20,
     padding: horizontalScale(12),
     marginHorizontal: horizontalScale(10),
     marginTop: verticalScale(24),
     width: wp(90),
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 0,
@@ -382,19 +423,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 2,
     elevation: 6,
-    alignItems: 'center',
+    alignItems: "center",
     gap: verticalScale(8),
   },
   header: {
-    width: '100%',
-    flexDirection: 'row',
+    width: "100%",
+    flexDirection: "row",
   },
   side: {
-    width: horizontalScale(40), 
-    alignItems: 'flex-start',
+    width: horizontalScale(40),
+    alignItems: "flex-start",
   },
   center: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });

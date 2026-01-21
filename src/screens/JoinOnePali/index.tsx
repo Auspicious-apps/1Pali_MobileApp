@@ -1,38 +1,69 @@
-import { Image, StyleSheet, Text, View, Animated, Easing, TouchableOpacity } from 'react-native'
-import React, { FC, useState, useRef, useEffect, useMemo } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context';
-import IMAGES from '../../assets/Images';
-import { CustomText } from '../../components/CustomText';
-import COLORS from '../../utils/Colors';
-import { horizontalScale, hp, responsiveFontSize, verticalScale, wp } from '../../utils/Metrics';
-import { JoinOnePaliProps } from '../../typings/routes';
-import CustomSwitch from '../../components/CustomSwitch';
-import CustomMaskedText from '../../components/CustomMaskedText';
-import FONTS from '../../assets/fonts';
-import CustomIcon from '../../components/CustomIcon';
-import ICONS from '../../assets/Icons';
-import PrimaryButton from '../../components/PrimaryButton';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  Animated,
+  Easing,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import React, { FC, useState, useRef, useEffect, useMemo } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import IMAGES from "../../assets/Images";
+import { CustomText } from "../../components/CustomText";
+import COLORS from "../../utils/Colors";
+import {
+  horizontalScale,
+  hp,
+  responsiveFontSize,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
+import { JoinOnePaliProps } from "../../typings/routes";
+import CustomSwitch from "../../components/CustomSwitch";
+import CustomMaskedText from "../../components/CustomMaskedText";
+import FONTS from "../../assets/fonts";
+import CustomIcon from "../../components/CustomIcon";
+import ICONS from "../../assets/Icons";
+import PrimaryButton from "../../components/PrimaryButton";
 
-const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
+const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [enabled, setEnabled] = useState(true);
-  const number = route?.params?.number || '1948';
+  const number = route?.params?.number || "1948";
   // Animation setup
   const heading = "You’re almost in";
   const initialTimer = 60;
   const subheadingBase = `Number #${number} reserved for `;
-  const disclaimer = "By joining OnePali, you accept our Terms of Use and Privacy Policy";
+  const disclaimer =
+    "By joining OnePali, you accept our Terms of Use and Privacy Policy";
 
-  const headingLetters = useMemo(() => heading.split("").map((l) => l === " " ? "\u00A0" : l), []);
+  const headingLetters = useMemo(
+    () => heading.split("").map((l) => (l === " " ? "\u00A0" : l)),
+    [],
+  );
   const [timer, setTimer] = useState(initialTimer);
   const [timerStarted, setTimerStarted] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const subheading = `${subheadingBase}${timer}s`;
-  const subheadingLetters = useMemo(() => subheading.split("").map((l) => l === " " ? "\u00A0" : l), [subheading]);
-  const disclaimerLetters = useMemo(() => disclaimer.split("").map((l) => l === " " ? "\u00A0" : l), []);
+  const subheadingLetters = useMemo(
+    () => subheading.split("").map((l) => (l === " " ? "\u00A0" : l)),
+    [subheading],
+  );
+  const disclaimerLetters = useMemo(
+    () => disclaimer.split("").map((l) => (l === " " ? "\u00A0" : l)),
+    [],
+  );
 
-  const headingLetterAnims = useRef(headingLetters.map(() => new Animated.Value(100))).current;
-  const subheadingLetterAnims = useRef(subheadingLetters.map(() => new Animated.Value(100))).current;
-  const disclaimerLetterAnims = useRef(disclaimerLetters.map(() => new Animated.Value(100))).current;
+  const headingLetterAnims = useRef(
+    headingLetters.map(() => new Animated.Value(100)),
+  ).current;
+  const subheadingLetterAnims = useRef(
+    subheadingLetters.map(() => new Animated.Value(100)),
+  ).current;
+  const disclaimerLetterAnims = useRef(
+    disclaimerLetters.map(() => new Animated.Value(100)),
+  ).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
   const smallImpactAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
@@ -43,12 +74,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
   const [showImage, setShowImage] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('1');
+  const [selectedPlan, setSelectedPlan] = useState("1");
 
   const plans = [
-    { id: '1', label: '$1/mo' },
-    { id: '3', label: '$3/mo' },
-    { id: '5', label: '$5/mo' },
+    { id: "1", label: "$1/mo" },
+    { id: "3", label: "$3/mo" },
+    { id: "5", label: "$5/mo" },
   ];
 
   useEffect(() => {
@@ -57,24 +88,30 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
     const letterDelay = 20;
 
     // Animate heading letters
-    Animated.stagger(letterDelay, headingLetterAnims.map((anim) =>
-      Animated.timing(anim, {
-        toValue: 0,
-        duration: letterDuration,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      })
-    )).start(() => {
-      setShowSubheading(true);
-      // Animate subheading letters
-      Animated.stagger(letterDelay, subheadingLetterAnims.map((anim) =>
+    Animated.stagger(
+      letterDelay,
+      headingLetterAnims.map((anim) =>
         Animated.timing(anim, {
           toValue: 0,
           duration: letterDuration,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
-        })
-      )).start(() => {
+        }),
+      ),
+    ).start(() => {
+      setShowSubheading(true);
+      // Animate subheading letters
+      Animated.stagger(
+        letterDelay,
+        subheadingLetterAnims.map((anim) =>
+          Animated.timing(anim, {
+            toValue: 0,
+            duration: letterDuration,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ),
+      ).start(() => {
         setShowCard(true);
         // Animate card (Payment Plan section)
         Animated.timing(cardAnim, {
@@ -105,14 +142,17 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
               }).start(() => {
                 setShowDisclaimer(true);
                 // Animate disclaimer letters
-                Animated.stagger(letterDelay, disclaimerLetterAnims.map((anim) =>
-                  Animated.timing(anim, {
-                    toValue: 0,
-                    duration: letterDuration,
-                    easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
-                  })
-                )).start(() => {
+                Animated.stagger(
+                  letterDelay,
+                  disclaimerLetterAnims.map((anim) =>
+                    Animated.timing(anim, {
+                      toValue: 0,
+                      duration: letterDuration,
+                      easing: Easing.out(Easing.cubic),
+                      useNativeDriver: true,
+                    }),
+                  ),
+                ).start(() => {
                   setTimerStarted(true);
                 });
               });
@@ -144,15 +184,15 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+        <Image source={IMAGES.LogoText} style={styles.logo} />
         <View style={styles.headingContainer}>
           {/* Heading letters */}
           <View
             style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "center",
             }}
           >
             {headingLetters.map((letter, i) => (
@@ -180,9 +220,9 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
           {showSubheading && !isExpired && (
             <View
               style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
+                flexDirection: "row",
+                flexWrap: "wrap",
+                justifyContent: "center",
                 marginTop: 8,
               }}
             >
@@ -201,7 +241,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
                     fontFamily="GabaritoRegular"
                     fontSize={16}
                     color={COLORS.appText}
-                    style={{ textAlign: 'center' }}
+                    style={{ textAlign: "center" }}
                   >
                     {letter}
                   </CustomText>
@@ -214,7 +254,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
               fontFamily="GabaritoRegular"
               fontSize={16}
               color={COLORS.redColor}
-              style={{ textAlign: 'center', marginTop: 8 }}
+              style={{ textAlign: "center", marginTop: 8 }}
             >
               Number expired
             </CustomText>
@@ -244,7 +284,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
                   fontSize={22}
                   color={COLORS.darkText}
                 >
-                  OnePali Member
+                  OnePali Supporter
                 </CustomText>
               </View>
 
@@ -369,18 +409,18 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
                   }),
                 },
               ],
-              alignItems: 'center',
+              alignItems: "center",
             }}
           >
             <PrimaryButton
-              title={isExpired ? 'Choose a new number' : 'Join OnePali'}
+              title={isExpired ? "Choose a new number" : "Join OnePali"}
               onPress={() => {
                 if (isExpired) {
-                  navigation.navigate('claimSpot');
+                  navigation.navigate("claimSpot");
                 } else {
-                  navigation.navigate('MainStack', {
-                    screen: 'tabs',
-                    params: { screen: 'home', params: { number } },
+                  navigation.navigate("MainStack", {
+                    screen: "tabs",
+                    params: { screen: "home", params: { number } },
                   });
                 }
               }}
@@ -391,10 +431,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
         {showDisclaimer && !isExpired && (
           <View
             style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              width: wp(50),
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              width: Platform.OS === "ios" ? wp(50) : wp(53),
               marginTop: verticalScale(15),
             }}
           >
@@ -413,7 +453,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
                   fontFamily="GabaritoMedium"
                   fontSize={12}
                   color={COLORS.grayColor}
-                  style={{ textAlign: 'center' }}
+                  style={{ textAlign: "center" }}
                 >
                   {letter}
                 </CustomText>
@@ -424,39 +464,39 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation , route }) => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 export default JoinOnePali;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 1)",
   },
   safeArea: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: horizontalScale(20),
     paddingTop: verticalScale(20),
   },
   logo: {
-    width: horizontalScale(59),
-    height: verticalScale(59),
-    resizeMode: 'contain',
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
   },
   headingContainer: {
     marginTop: verticalScale(32),
-    alignItems: 'center',
+    alignItems: "center",
   },
   card: {
-    backgroundColor: 'rgba(248, 248, 251, 1)',
+    backgroundColor: "rgba(248, 248, 251, 1)",
     borderRadius: 20,
     padding: 16,
     marginHorizontal: horizontalScale(10),
     marginTop: verticalScale(16),
     width: wp(90),
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 0,
@@ -466,7 +506,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: verticalScale(12),
   },
 
@@ -477,37 +517,37 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(4),
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: horizontalScale(8),
     marginBottom: verticalScale(4),
   },
 
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   trialRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: horizontalScale(4),
   },
   toggleWrapper: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderWidth: 1,
     borderColor: COLORS.greyish,
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     borderRadius: 100,
     marginBottom: verticalScale(12),
-    width: '100%',
+    width: "100%",
     backgroundColor: COLORS.white,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   toggleItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: verticalScale(10),
     backgroundColor: COLORS.white,
   },
@@ -526,5 +566,4 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     color: COLORS.white,
   },
-  
 });

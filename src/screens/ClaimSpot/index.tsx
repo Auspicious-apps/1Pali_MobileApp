@@ -117,22 +117,24 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
           >
-            <View style={styles.content}>
-              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+            <View style={styles.logoContainer}>
+              <Image source={IMAGES.LogoText} style={styles.logo} />
+            </View>
 
+            <View style={styles.content}>
               <View style={styles.headingContainer}>
                 <CustomText
                   fontFamily="GabaritoSemiBold"
                   fontSize={42}
                   color={COLORS.darkText}
-                  style={{ textAlign: 'center' }}
+                  style={{ textAlign: "center" }}
                 >
                   Claim your number
                 </CustomText>
@@ -140,7 +142,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
                   fontFamily="GabaritoRegular"
                   fontSize={16}
                   color={COLORS.appText}
-                  style={{ textAlign: 'center' }}
+                  style={{ textAlign: "center" }}
                 >
                   Each number represents one person.
                 </CustomText>
@@ -243,14 +245,14 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
                     fontSize={12}
                     color={COLORS.grey}
                   >
-                    #Pick a number between 1 and 1,000,000
+                    Pick a number between 1 and 1,000,000.
                   </CustomText>
                 )}
               </View>
             </View>
 
             <PrimaryButton
-              title="Claim spot"
+              title="Claim number"
               onPress={handleReserveNumber}
               disabled={!available}
               isLoading={isLoading}

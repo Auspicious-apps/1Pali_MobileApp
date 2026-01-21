@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "72813689825",
+    "project_id": "pali-f4b0b",
+    "storage_bucket": "pali-f4b0b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72813689825:android:38b7f3e256a2c37afaf0a0",
+        "android_client_info": {
+          "package_name": "com.onepali"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72813689825-6a9uan8ksj1f9g49bq0dv6dvr1ick5j9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.onepali",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOz6jMCA9qIxquNESgmOVMm1b-HgJ-H6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

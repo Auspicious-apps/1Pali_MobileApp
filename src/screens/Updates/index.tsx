@@ -1,56 +1,63 @@
-import { Image, StyleSheet, View, FlatList, Touchable, TouchableOpacity } from 'react-native';
-import React, { FC } from 'react';
-import { UpdatesScreenProps } from '../../typings/routes';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import IMAGES from '../../assets/Images';
-import { horizontalScale, hp, verticalScale } from '../../utils/Metrics';
-import { CustomText } from '../../components/CustomText';
-import CustomIcon from '../../components/CustomIcon';
-import ICONS from '../../assets/Icons';
-import COLORS from '../../utils/Colors';
+import {
+  Image,
+  StyleSheet,
+  View,
+  FlatList,
+  Touchable,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import React, { FC } from "react";
+import { UpdatesScreenProps } from "../../typings/routes";
+import { SafeAreaView } from "react-native-safe-area-context";
+import IMAGES from "../../assets/Images";
+import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import { CustomText } from "../../components/CustomText";
+import CustomIcon from "../../components/CustomIcon";
+import ICONS from "../../assets/Icons";
+import COLORS from "../../utils/Colors";
 
 const updatesData = [
   {
-    id: '1',
-    title: 'Food baskets distributed to families in Khan Younis',
-    date: 'January 2026',
+    id: "1",
+    title: "Food baskets distributed to families in Khan Younis",
+    date: "January 2026",
     image: IMAGES.FeedImage,
   },
   {
-    id: '2',
-    title: 'Food baskets distributed to families in Khan Younis',
-    date: 'December 2025',
+    id: "2",
+    title: "Food baskets distributed to families in Khan Younis",
+    date: "December 2025",
     image: IMAGES.FeedImage,
   },
   {
-    id: '3',
-    title: 'Food baskets distributed to families in Khan Younis',
-    date: 'November 2025',
+    id: "3",
+    title: "Food baskets distributed to families in Khan Younis",
+    date: "November 2025",
     image: IMAGES.FeedImage,
   },
   {
-    id: '4',
-    title: 'Food baskets distributed to families in Khan Younis',
-    date: 'October 2025',
+    id: "4",
+    title: "Food baskets distributed to families in Khan Younis",
+    date: "October 2025",
     image: IMAGES.FeedImage,
   },
 ];
 
-const Updates: FC<UpdatesScreenProps> = ({navigation}) => {
-
+const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   const renderItem = ({ item }: any) => (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.8}
       onPress={() => {
-        navigation.navigate('updateDetail');
+        navigation.navigate("updateDetail");
       }}
     >
       <Image
         source={item.image}
         resizeMode="cover"
         style={{
-          width: '100%',
+          width: "100%",
           height: hp(36.5),
           borderTopLeftRadius: 12,
           borderTopRightRadius: 12,
@@ -68,7 +75,7 @@ const Updates: FC<UpdatesScreenProps> = ({navigation}) => {
             paddingVertical: verticalScale(4),
             paddingHorizontal: horizontalScale(8),
             backgroundColor: COLORS.greyBackground,
-            alignSelf: 'flex-start',
+            alignSelf: "flex-start",
             borderRadius: 16,
             marginTop: verticalScale(8),
           }}
@@ -86,7 +93,7 @@ const Updates: FC<UpdatesScreenProps> = ({navigation}) => {
             fontFamily="GabaritoRegular"
             fontSize={18}
             color={COLORS.darkText}
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           >
             {item.title}
           </CustomText>
@@ -100,14 +107,15 @@ const Updates: FC<UpdatesScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <Image source={IMAGES.LogoText} style={styles.logo} />
 
         <View style={styles.header}>
           <CustomText
             fontFamily="GabaritoSemiBold"
             fontSize={36}
-            color="rgba(29, 34, 43, 1)"
+            color={COLORS.darkText}
+            style={{ textAlign: "center" }}
           >
             Updates
           </CustomText>
@@ -124,7 +132,7 @@ const Updates: FC<UpdatesScreenProps> = ({navigation}) => {
         <FlatList
           data={updatesData}
           bounces={false}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
@@ -145,10 +153,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalScale(20),
   },
   logo: {
-    width: horizontalScale(100),
-    height: verticalScale(59),
-    resizeMode: 'contain',
-    alignSelf: 'center',
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   header: {
     marginTop: verticalScale(32),
@@ -166,14 +175,13 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     backgroundColor: COLORS.greyish,
     height: hp(36.5),
-    width: '100%',
+    width: "100%",
     borderRadius: 8,
   },
   cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: verticalScale(8),
   },
 });
-

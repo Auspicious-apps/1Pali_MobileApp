@@ -1,32 +1,35 @@
-import { StyleSheet } from 'react-native';
-import COLORS from '../../utils/Colors';
-import { horizontalScale, verticalScale } from '../../utils/Metrics';
+import { Platform, StyleSheet } from "react-native";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 1)",
   },
   safeArea: {
     flex: 1,
     paddingHorizontal: horizontalScale(20),
+    paddingVertical:
+      Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   appIcon: {
-    width: horizontalScale(59),
-    height: verticalScale(59),
-    alignSelf: 'center',
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    alignSelf: "center",
+    resizeMode: "contain",
   },
   header: {
     marginTop: verticalScale(30),
-    gap: verticalScale(12),
+    gap: verticalScale(8),
   },
   headerTitle: {
-    width: '90%',
-    textAlign: 'left',
+    width: "90%",
+    textAlign: "left",
   },
   centerText: {
-    textAlign: 'center',
+    textAlign: "center",
     color: COLORS.darkText,
   },
   infoCard: {
@@ -37,14 +40,18 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(40),
     paddingBottom: verticalScale(12),
   },
-  sectionContainer: {
-  },
+  sectionContainer: {},
   sectionDescription: {
     marginTop: verticalScale(6),
-    textAlign: 'center',
+    textAlign: "center",
+  },
+  FaqText: {
+    marginTop: verticalScale(24),
+    textAlign: "center",
+    textDecorationLine: "underline",
   },
   imageRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: horizontalScale(10),
     marginTop: verticalScale(12),
   },
@@ -65,7 +72,7 @@ const styles = StyleSheet.create({
     width: horizontalScale(260),
   },
   fundCardImage: {
-    width: '100%',
+    width: "100%",
     height: verticalScale(220),
     backgroundColor: COLORS.greyish,
     borderRadius: 12,
@@ -77,7 +84,7 @@ const styles = StyleSheet.create({
     width: horizontalScale(200),
     borderBottomWidth: 1,
     borderColor: COLORS.greyish,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginVertical: verticalScale(24),
   },
   sectionWrapper: {
@@ -92,9 +99,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   rowContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: horizontalScale(12),
-    width: '90%',
+    width: "90%",
   },
   innerDivider: {
     borderBottomWidth: 1,
@@ -102,18 +109,17 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(12),
   },
   bottomImage: {
-    width: '100%',
+    width: "100%",
     height: verticalScale(150),
     marginTop: verticalScale(16),
   },
   primaryButton: {
     marginTop: verticalScale(34),
-    width: '100%',
+    width: "100%",
   },
   contentContainer: {
-    paddingBottom: verticalScale(40),
+    paddingBottom: verticalScale(10),
   },
 });
-
 
 export default styles;

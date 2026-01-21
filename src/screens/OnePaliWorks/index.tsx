@@ -1,52 +1,52 @@
-import { View, Image } from 'react-native';
-import React, { FC } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import COLORS from '../../utils/Colors';
-import IMAGES from '../../assets/Images';
-import { CustomText } from '../../components/CustomText';
-import { horizontalScale, verticalScale } from '../../utils/Metrics';
-import { onePaliWorksProps } from '../../typings/routes';
-import { ScrollView } from 'react-native-gesture-handler';
-import styles from './styles';
-import CustomIcon from '../../components/CustomIcon';
-import ICONS from '../../assets/Icons';
-import PrimaryButton from '../../components/PrimaryButton';
-import FocusResetScrollView from '../../components/FocusResetScrollView';
+import { View, Image, Touchable } from "react-native";
+import React, { FC } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import COLORS from "../../utils/Colors";
+import IMAGES from "../../assets/Images";
+import { CustomText } from "../../components/CustomText";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { onePaliWorksProps } from "../../typings/routes";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import styles from "./styles";
+import CustomIcon from "../../components/CustomIcon";
+import ICONS from "../../assets/Icons";
+import PrimaryButton from "../../components/PrimaryButton";
+import FocusResetScrollView from "../../components/FocusResetScrollView";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
 const fundCards = [
   {
-    id: '1',
-    title: 'Claim your number',
-    description: 'Starts a $1 monthly subscription to hold your number.',
+    id: "1",
+    title: " 1. Claim your number",
+    description: "Starts a $1 monthly subscription to hold your number.",
     image: IMAGES.ClaimCard,
   },
   {
-    id: '2',
-    title: 'Support & Share',
+    id: "2",
+    title: " 2. Support & Share",
     description:
-      'Small monthly support fuels real impact—and sharing amplifies it.',
+      "Small monthly support fuels real impact—and sharing amplifies it.",
     image: IMAGES.SupportImage,
   },
   {
-    id: '3',
-    title: 'Stay in the Loop',
-    description: 'See where funds go and hear from the ground.',
+    id: "3",
+    title: " 3. Stay in the Loop",
+    description: "See where funds go and hear from the ground.",
     image: IMAGES.LoopImage,
   },
 ];
 
-const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
+const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <FocusResetScrollView
           showsVerticalScrollIndicator={false}
           bounces={false}
           contentContainerStyle={styles.contentContainer}
         >
-          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+          <Image source={IMAGES.LogoText} style={styles.appIcon} />
 
           {/* HEADER */}
           <View style={styles.header}>
@@ -59,7 +59,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
               One cause, one million supporters
             </CustomText>
             <CustomText
-              fontFamily="SourceSansRegular"
+              fontFamily="GabaritoRegular"
               fontSize={15}
               color={COLORS.appText}
             >
@@ -75,7 +75,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.fundsListContent}
           >
-            {fundCards.map(item => (
+            {fundCards.map((item) => (
               <View key={item.id} style={styles.fundCard}>
                 {item.image ? (
                   <Image source={item.image} style={styles.fundCardImage} />
@@ -104,6 +104,27 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
           <View style={styles.divider} />
 
           <View style={styles.sectionContainer}>
+            <View style={{ marginBottom: verticalScale(24) }}>
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={22}
+                style={styles.centerText}
+              >
+                What is OnePali?
+              </CustomText>
+
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={15}
+                color={COLORS.appText}
+                style={styles.sectionDescription}
+              >
+                OnePali is a community-driven initiative and digital platform
+                created to serve as a portal for individuals to provide
+                sustained humanitarian support to Palestine through small,
+                collective monthly donations.
+              </CustomText>
+            </View>
             <CustomText
               fontFamily="GabaritoMedium"
               fontSize={22}
@@ -129,7 +150,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
                   key={index}
                   source={img}
                   resizeMode="contain"
-                  style={[styles.image, { width: '48%' }]}
+                  style={[styles.image, { width: "48%" }]}
                 />
               ))}
             </View>
@@ -141,7 +162,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
               fontSize={22}
               style={styles.centerText}
             >
-              Who’s working on what?
+              Who’s involved?
             </CustomText>
             <View style={styles.whoCard}>
               <View style={styles.rowContainer}>
@@ -174,7 +195,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
                     fontSize={18}
                     color={COLORS.darkText}
                   >
-                    MECA
+                    Middle East Children’s Alliance
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
@@ -211,11 +232,20 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({navigation}) => {
                 directly in the app, so you can clearly see where contributions
                 are going.
               </CustomText>
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={15}
+                color={COLORS.darkText}
+                style={styles.FaqText}
+              >
+                See all FAQs at onepali.app
+              </CustomText>
             </View>
+
             <PrimaryButton
               title="Continue"
               onPress={() => {
-                navigation.navigate('claimSpot');
+                navigation.navigate("claimSpot");
               }}
               style={styles.primaryButton}
             />
