@@ -18,6 +18,10 @@ import ProgressBar from '../../components/ProgressBar';
 import { AccountScreenProps } from '../../typings/routes';
 import COLORS from '../../utils/Colors';
 import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { deleteLocalStorageData } from "../../utils/Helpers";
+import STORAGE_KEYS from "../../utils/Constants";
+import { Screen } from "react-native-screens";
 
 const BADGES = [
   { id: 1, image: IMAGES.Sprout1, label: 'Sprout' }, 
@@ -33,77 +37,91 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
 
   const ACCOUNT_OPTIONS = [
     {
-      id: 'member',
+      id: "member",
       icon: ICONS.HashIcon,
-      label: 'Member number',
+      label: "Member number",
       value: `#${memberNumber}`,
       onPress: undefined,
     },
     {
-      id: 'email',
+      id: "email",
       icon: ICONS.EmailIcon,
-      label: 'Email',
-      value: 'omarswidan@ymail.com',
+      label: "Email",
+      value: "omarswidan@ymail.com",
       onPress: undefined,
     },
     {
-      id: 'badges',
+      id: "badges",
       icon: ICONS.BadgesIcon,
-      label: 'Badges',
+      label: "Badges",
       arrow: true,
-      onPress: () => navigation.navigate('badges'),
+      onPress: () => navigation.navigate("badges"),
     },
     {
-      id: 'receipts',
+      id: "donations",
+      icon: ICONS.dollerIcon,
+      label: "Manage Donations",
+      arrow: true,
+      onPress: () => navigation.navigate("manageDonation"),
+    },
+    {
+      id: "receipts",
       icon: ICONS.ReceiptIcon,
-      label: 'Receipts',
+      label: "Receipts",
       arrow: true,
-      onPress: () => {navigation.navigate('receipts')},
+      onPress: () => {
+        navigation.navigate("receipts");
+      },
     },
     {
-      id: 'faqs',
+      id: "faqs",
       icon: ICONS.FAQsIcon,
-      label: 'FAQs',
+      label: "FAQs",
       arrow: true,
       onPress: () => {},
     },
     {
-      id: 'terms',
+      id: "terms",
       icon: ICONS.TermIcon,
-      label: 'Terms and Conditions',
+      label: "Terms and Conditions",
       arrow: true,
-      onPress: () => navigation.navigate('termsConditions'),
+      onPress: () => navigation.navigate("termsConditions"),
     },
     {
-      id: 'privacy',
+      id: "privacy",
       icon: ICONS.PrivacyIcon,
-      label: 'Privacy Policy',
+      label: "Privacy Policy",
       arrow: true,
       onPress: () => {
-        navigation.navigate('privacyPolicy');
+        navigation.navigate("privacyPolicy");
       },
     },
     {
-      id: 'signout',
+      id: "signout",
       icon: ICONS.SignoutIcon,
-      label: 'Sign Out',
+      label: "Sign Out",
       danger: true,
       onPress: () => {
-        Alert.alert(
-          'Sign out',
-          'Are you sure you want to sign out?',
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
+        Alert.alert("Sign out", "Are you sure you want to sign out?", [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Sign out",
+            style: "destructive",
+            // onPress: () => navigation.navigate('splash'),
+
+            onPress: async () => {
+              deleteLocalStorageData(STORAGE_KEYS.accessToken);
+              await GoogleSignin.signOut();
+              navigation.navigate("OnBoardingStack", {
+                screen: "missionIntro",
+                params: {},
+              });
             },
-            {
-              text: 'Sign out',
-              style: 'destructive',
-              onPress: () => navigation.navigate('splash'),
-            },
-          ],
-        );
+          },
+        ]);
       },
     },
   ];

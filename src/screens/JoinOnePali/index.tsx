@@ -7,6 +7,7 @@ import {
   Easing,
   TouchableOpacity,
   Platform,
+  Alert,
 } from "react-native";
 import React, { FC, useState, useRef, useEffect, useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,14 +28,27 @@ import FONTS from "../../assets/fonts";
 import CustomIcon from "../../components/CustomIcon";
 import ICONS from "../../assets/Icons";
 import PrimaryButton from "../../components/PrimaryButton";
+import { fetchData, postData } from "../../service/ApiService";
+import {
+  GetAllStripeePlansResponse,
+  Plan,
+} from "../../service/ApiResponses/GetAllStripePLans";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { PaymentMethod, useStripe } from "@stripe/stripe-react-native";
+import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
+import { ConfirmPaymentIntentResponse } from "../../service/ApiResponses/ConfirmPaymentIntent";
+import { RootState, useAppSelector } from "../../redux/store";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [enabled, setEnabled] = useState(true);
-  const number = route?.params?.number || "1948";
+  const { user, claimedNumber, reservationToken } = useAppSelector(
+    (state) => state.user,
+  );
+
   // Animation setup
   const heading = "You’re almost in";
-  const initialTimer = 60;
-  const subheadingBase = `Number #${number} reserved for `;
+  const initialTimer = undefined;
+  const subheadingBase = `Number #${claimedNumber} reserved for `;
   const disclaimer =
     "By joining OnePali, you accept our Terms of Use and Privacy Policy";
 
@@ -42,7 +56,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     () => heading.split("").map((l) => (l === " " ? "\u00A0" : l)),
     [],
   );
-  const [timer, setTimer] = useState(initialTimer);
+  const [timer, setTimer] = useState<any>(initialTimer);
   const [timerStarted, setTimerStarted] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const subheading = `${subheadingBase}${timer}s`;
@@ -74,13 +88,132 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [showImage, setShowImage] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState("1");
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
-  const plans = [
-    { id: "1", label: "$1/mo" },
-    { id: "3", label: "$3/mo" },
-    { id: "5", label: "$5/mo" },
-  ];
+  const handleSetupIntent = async () => {
+    try {
+      setIsLoading(true);
+      if (!selectedPlan) {
+        Alert.alert("Error", "Please select a plan");
+        return;
+      }
+
+      if (user && user.hasPaymentMethod) {
+        const confirmSetupIntentresponse = await postData(
+          ENDPOINTS.ConfirmSetupIntent,
+          {
+            // setupIntentId: setupIntentId,
+            priceId: selectedPlan,
+            reservationToken: reservationToken,
+          },
+        );
+
+        if (confirmSetupIntentresponse.data.success) {
+          navigation.navigate("MainStack", {
+            screen: "tabs",
+            params: { screen: "home", params: { number: claimedNumber! } },
+          });
+        }
+      } else {
+        const response = await postData<CreateSetupIntentResponse>(
+          ENDPOINTS.CreateSetupIntent,
+          {
+            priceId: selectedPlan,
+          },
+        );
+
+        const { clientSecret, customerId, setupIntentId } =
+          response?.data?.data || {};
+
+        const { error: initError } = await initPaymentSheet({
+          setupIntentClientSecret: clientSecret,
+          merchantDisplayName: "1Pali",
+          customerId: customerId,
+
+          googlePay: {
+            testEnv: true,
+            merchantCountryCode: "US",
+          },
+
+          applePay: {
+            merchantCountryCode: "US",
+          },
+        });
+
+        if (initError) {
+          throw new Error(
+            `Payment initialization failed: ${initError.message}`,
+          );
+        }
+
+        const { error: paymentError } = await presentPaymentSheet();
+
+        if (paymentError) {
+          Alert.alert("Payment failed", paymentError.message);
+          return;
+        }
+
+        if (!setupIntentId) {
+          throw new Error("Missing setup intent or payment method");
+        }
+
+        const confirmSetupIntentresponse =
+          await postData<ConfirmPaymentIntentResponse>(
+            ENDPOINTS.ConfirmSetupIntent,
+            {
+              priceId: selectedPlan,
+              reservationToken: reservationToken,
+              setupIntentId,
+            },
+          );
+
+        if (confirmSetupIntentresponse?.data?.success) {
+          if (confirmSetupIntentresponse.data.success) {
+            navigation.navigate("MainStack", {
+              screen: "tabs",
+              params: { screen: "home", params: { number: claimedNumber! } },
+            });
+          }
+        }
+      }
+    } catch (error: any) {
+      console.log("SetupIntent error:", error);
+      Alert.alert("Error", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getAllPlans = async () => {
+    try {
+      setLoadingPlans(true);
+
+      const response = await fetchData<GetAllStripeePlansResponse>(
+        ENDPOINTS.GetStripePlans,
+      );
+
+      if (response?.data?.data?.plans?.length) {
+        const activePlans = response?.data?.data?.plans.filter(
+          (plans) => plans?.active && plans?.interval === "month",
+        );
+
+        setPlans(activePlans);
+        setSelectedPlan(activePlans[0]?.id);
+      }
+    } catch (error) {
+      console.log("Error fetching plans:", error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllPlans();
+  }, []);
 
   useEffect(() => {
     // Animation timings for letters
@@ -168,7 +301,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     let interval: ReturnType<typeof setInterval> | undefined;
     if (timerStarted && timer > 0) {
       interval = setInterval(() => {
-        setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+        setTimer((prev: any) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
     return () => {
@@ -216,6 +349,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               </Animated.View>
             ))}
           </View>
+
           {/* Subheading letters */}
           {showSubheading && !isExpired && (
             <View
@@ -309,7 +443,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                           isSelected && styles.toggleTextActive,
                         ]}
                       >
-                        {plan.label}
+                        ${plan?.amount}/{plan?.interval}
                       </CustomText>
                     </TouchableOpacity>
                   );
@@ -418,12 +552,15 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 if (isExpired) {
                   navigation.navigate("claimSpot");
                 } else {
-                  navigation.navigate("MainStack", {
-                    screen: "tabs",
-                    params: { screen: "home", params: { number } },
-                  });
+                  // navigation.navigate("MainStack", {
+                  //   screen: "tabs",
+                  //   params: { screen: "home", params: { number } },
+                  // });
+                  handleSetupIntent();
+                  // PaymentIntent();
                 }
               }}
+              isLoading={isLoading}
               style={{ marginTop: verticalScale(20) }}
             />
           </Animated.View>

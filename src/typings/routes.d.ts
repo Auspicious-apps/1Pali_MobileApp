@@ -11,13 +11,8 @@ export type OnBoardingStackParams = {
   onboarding: undefined;
   onePaliWorks: undefined;
   claimSpot: undefined;
-  missionIntro: {
-    number: string;
-    reservationToken: string;
-    expiresAt?: string;
-    expiresInMs?: number;
-  };
-  joinOnePali: { number?: string } | undefined;
+  missionIntro: undefined;
+  joinOnePali: undefined;
 };
 
 export type MainStackParams = {
@@ -25,7 +20,7 @@ export type MainStackParams = {
 };
 
 export type BottomStackParams = {
-  home: { number?: string } | undefined;
+  home: { number?: number } | undefined;
   updates: undefined;
   art: undefined;
   account: { number?: string } | undefined;
@@ -35,15 +30,14 @@ export type BottomStackParams = {
   termsConditions: undefined;
   privacyPolicy: undefined;
   receipts: undefined;
+  manageDonation: undefined;
 };
 
 // SPLASH SCREEN
 export type SplashScreenProps = NativeStackScreenProps<
   RootStackParams,
-  'splash'
+  "splash"
 >;
-
-
 // ONBOARDING SCREENS
 export type OnboardingProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
@@ -107,4 +101,8 @@ export type PrivacyPolicyScreenProps = NativeStackScreenProps<
 export type ReceiptsScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
   'receipts'
+>;
+export type ManageDonationScreenProps = NativeStackScreenProps<
+  BottomStackParams & MainStackParams & RootStackParams,
+  "manageDonation"
 >;

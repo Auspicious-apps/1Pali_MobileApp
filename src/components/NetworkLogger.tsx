@@ -52,19 +52,19 @@ const styles = StyleSheet.create({
   container: {
     width: 45,
     height: 45,
-    position: 'absolute',
+    position: "absolute",
     left: 24,
     bottom: 80,
     borderRadius: 45,
-    backgroundColor: COLORS.Pink,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: COLORS.darkGreen,
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 1000,
   },
   content: {
     fontSize: 9,
-    textAlign: 'center',
-    color: 'white',
+    textAlign: "center",
+    color: "white",
   },
   contentContainer: {
     flex: 1,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   closeButtonTitle: {
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

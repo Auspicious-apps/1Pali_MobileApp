@@ -92,8 +92,8 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
     <View style={styles.container}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <FocusResetScrollView
           bounces={false}
@@ -103,7 +103,7 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: verticalScale(70),
               left: horizontalScale(20),
               zIndex: 10,
@@ -116,7 +116,7 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
               Icon={ICONS.WhiteBackArrow}
               height={24}
               width={24}
-              onPress={() => navigation.navigate('updates')}
+              onPress={() => navigation.navigate("updates")}
             />
           </TouchableOpacity>
           <Image
@@ -191,64 +191,64 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
               With your help, we can provide ongoing assistance and resources to
               those who need it most.
             </CustomText>
+
             <View
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: horizontalScale(16),
+                flexDirection: "row",
+                alignItems: "center",
+                gap: horizontalScale(12),
                 borderBottomWidth: 1,
                 borderBottomColor: COLORS.greyish,
-                paddingBottom: verticalScale(12),
+                paddingVertical: verticalScale(16),
               }}
             >
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setIsLiked(prev => !prev)}
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: horizontalScale(2),
+                }}
               >
-                <CustomIcon
-                  Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                  height={24}
-                  width={24}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.8}>
-                <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
-              </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setIsLiked((prev) => !prev)}
+                >
+                  <CustomIcon
+                    Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                    height={24}
+                    width={24}
+                  />
+                </TouchableOpacity>
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={16}
+                  color={COLORS.appText}
+                >
+                  0
+                </CustomText>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: horizontalScale(2),
+                }}
+              >
+                <TouchableOpacity activeOpacity={0.8}>
+                  <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
+                </TouchableOpacity>
+
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={16}
+                  color={COLORS.appText}
+                >
+                  4
+                </CustomText>
+              </View>
               <TouchableOpacity activeOpacity={0.8} onPress={handleShare}>
                 <CustomIcon Icon={ICONS.shareIcon} height={24} width={24} />
               </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: horizontalScale(8),
-                borderBottomWidth: 1,
-                borderBottomColor: COLORS.greyish,
-                paddingBottom: verticalScale(12),
-              }}
-            >
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={15}
-                color={COLORS.appText}
-              >
-                325 likes
-              </CustomText>
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={15}
-                color={COLORS.appText}
-              >
-                •
-              </CustomText>
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={15}
-                color={COLORS.appText}
-              >
-                120 comments
-              </CustomText>
             </View>
             <View style={styles.commentInputRow}>
               <View style={styles.commentInputWrapper}>
@@ -271,7 +271,7 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
 
             <FlatList
               data={commentsData}
-              keyExtractor={item => item.id}
+              keyExtractor={(item) => item.id}
               renderItem={renderCommentItem}
               scrollEnabled={false}
               contentContainerStyle={styles.commentsList}
@@ -289,7 +289,7 @@ export default UpdateDetail
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    backgroundColor: "rgba(255, 255, 255, 1)",
   },
   safeArea: {
     flex: 1,
@@ -299,19 +299,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   updateImage: {
-    width: '100%',
+    width: "100%",
     height: hp(42.9),
   },
   scrollContent: {
     paddingBottom: verticalScale(16),
   },
   commentInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: COLORS.greyish,
     paddingBottom: verticalScale(16),
-    width: '100%',
+    width: "100%",
   },
   commentInputWrapper: {
     flex: 1,
@@ -321,29 +321,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalScale(16),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: verticalScale(8),
   },
   commentInput: {
     fontFamily: FONTS.SourceSansRegular,
     fontSize: 14,
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
-    width: '80%',
+    width: "80%",
   },
   commentsList: {
     paddingBottom: verticalScale(8),
   },
   commentItem: {
     paddingVertical: verticalScale(12),
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: horizontalScale(12),
   },
   commentMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: horizontalScale(4),
   },
 });

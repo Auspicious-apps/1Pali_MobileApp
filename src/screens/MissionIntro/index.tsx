@@ -26,6 +26,10 @@ import ENDPOINTS from "../../service/ApiEndpoints";
 import { showCustomToast, storeLocalStorageData } from "../../utils/Helpers";
 import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
 import STORAGE_KEYS from "../../utils/Constants";
+import appleAuth from "@invertase/react-native-apple-authentication";
+import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { setUserData } from "../../redux/slices/UserSlice";
 
 const heading = "Join OnePali";
 const initialTimer = 60;
@@ -41,8 +45,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   ); // use non-breaking space for spaces
   const [timer, setTimer] = useState(initialTimer);
   const [timerStarted, setTimerStarted] = useState(false);
-  const number = route?.params?.number || "1948";
-  const subheading = `${subheadingBase}${number} reserved for ${timer}s`;
+
+    const { claimedNumber } = useAppSelector((state) => state.user);
+
+    const subheading = `${subheadingBase}${claimedNumber} reserved for ${timer}s`;
   const subheadingLetters = useMemo(
     () => subheading.split("").map((l) => (l === " " ? "\u00A0" : l)),
     [subheading],
@@ -72,6 +78,100 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  const handleAppleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      if (Platform.OS !== "ios") {
+        return;
+      }
+
+      if (!appleAuth.isSupported) {
+        Alert.alert("Not Supported", "Apple Sign-In not supported");
+        return;
+      }
+
+      const rawNonce = "Wfghrwrthhfjhreghfjyerwghliueghterui";
+
+      const appleResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        nonce: rawNonce,
+      });
+      const { identityToken, authorizationCode, user, nonce } = appleResponse;
+
+      console.log(" identityToken:", identityToken);
+      console.log(" authorizationCode:", authorizationCode);
+      console.log(" Apple user:", user);
+
+      if (!identityToken || !authorizationCode) {
+        showCustomToast("error", "Apple Sign-In failed");
+        return;
+      }
+
+      const apiResponse = await postData<AppleSigninResponse>(
+        ENDPOINTS.AppleSignin,
+        {
+          identityToken,
+          nonce: nonce,
+        },
+      );
+
+      console.log("API Response:", apiResponse?.data);
+      if (apiResponse?.data.success) {
+        const { tokens, user, isNewUser } = apiResponse?.data?.data;
+
+        dispatch(setUserData(apiResponse?.data?.data.user));
+
+        // Store all tokens in local storage
+        await storeLocalStorageData(
+          STORAGE_KEYS?.accessToken,
+          tokens?.accessToken,
+        );
+        await storeLocalStorageData(
+          STORAGE_KEYS?.refreshToken,
+          tokens.refreshToken,
+        );
+        await storeLocalStorageData(STORAGE_KEYS?.expiresIn, tokens?.expiresIn);
+        await storeLocalStorageData("userData", user);
+
+        console.log("Tokens and user data saved successfully");
+
+        // Navigate based on user state
+        if (isNewUser || !user.assignedNumber) {
+          navigation.navigate("joinOnePali");
+        } else {
+          if (user?.hasSubscription) {
+            navigation.navigate("MainStack", {
+              screen: "tabs",
+              params: {
+                screen: "home",
+                params: {
+                  number: user?.assignedNumber.toString(),
+                },
+              },
+            });
+          }
+        }
+      } else {
+        console.log(
+          "error",
+          apiResponse?.data?.message || "Apple Sign-In failed",
+        );
+      }
+    } catch (error: any) {
+      console.log("error", error);
+
+      if (error?.code === appleAuth.Error.CANCELED) {
+        console.log("User cancelled Apple Sign-In");
+        return;
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     if (isSigningIn) return;
@@ -111,13 +211,13 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
-            navigation.navigate("joinOnePali", { number });
+            navigation.navigate("joinOnePali");
           } else {
             navigation.navigate("MainStack", {
               screen: "tabs",
               params: {
                 screen: "home",
-                params: { number: user.assignedNumber.toString() },
+                params: { number: user.assignedNumber },
               },
             });
           }
@@ -365,9 +465,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     height: 22,
                     width: 16,
                   }}
-                  onPress={() => {
-                    navigation.navigate("joinOnePali", { number });
-                  }}
+                  onPress={handleAppleSignIn}
+                  isLoading={isLoading}
                   style={{ marginTop: verticalScale(20) }}
                 />
               )}

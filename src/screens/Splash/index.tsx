@@ -7,7 +7,10 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { SplashScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { getLocalStorageData } from "../../utils/Helpers";
+import {
+  getLocalStorageData,
+  storeLocalStorageData,
+} from "../../utils/Helpers";
 import { fetchData } from "../../service/ApiService";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { GetUserProfileResponse } from "../../service/ApiResponses/GetUserProfile";
@@ -17,20 +20,29 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+
   useEffect(() => {
     checkAuthenticationStatus();
   }, []);
 
   const checkAuthenticationStatus = async () => {
+    // await AsyncStorage.clear();
+
     try {
       // Check if all required tokens exist
       const accessToken = await getLocalStorageData(STORAGE_KEYS.accessToken);
       const refreshToken = await getLocalStorageData(STORAGE_KEYS.refreshToken);
       const expiresIn = await getLocalStorageData(STORAGE_KEYS.expiresIn);
+      console.log(accessToken);
 
-      if (accessToken && refreshToken && expiresIn) {
+      // await storeLocalStorageData(
+      //   STORAGE_KEYS.accessToken,
+      //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTcxYzQ5Yzk0ZjFhYzUzNGRkNmFmZWIiLCJlbWFpbCI6ImFwcHNtb2JpbGU0NDJAZ21haWwuY29tIiwicHJvdmlkZXIiOiJBUFBMRSIsImlhdCI6MTc2OTA3NjE1NH0.Fp-HVw70VCMaBEqDdfmp6kd8ulLpIGuSPziAaX53U14",
+      // );
+
+      if (accessToken) {
         console.log("All tokens found, checking user profile...");
-        await verifyUserProfile(accessToken);
+        await verifyUserProfile();
       } else {
         console.log("Missing tokens, showing get started flow");
         setIsCheckingAuth(false);
@@ -41,16 +53,12 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
     }
   };
 
-  const verifyUserProfile = async (accessToken: string) => {
+  const verifyUserProfile = async () => {
     try {
       const response = await fetchData<GetUserProfileResponse>(
         ENDPOINTS.GetUserProfile,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
       );
+
       if (response.data) {
         console.log("User profile verified, navigating to home");
         navigation.navigate("MainStack", {
@@ -59,6 +67,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             screen: "home",
           },
         });
+        // navigation.navigate("OnBoardingStack", { screen: "joinOnePali" });
       }
     } catch (error: any) {
       console.error("Error verifying user profile:", error);
@@ -77,6 +86,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const handleGetStarted = () => {
     navigation.navigate("OnBoardingStack", { screen: "onboarding" });
   };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.innerContainer}>

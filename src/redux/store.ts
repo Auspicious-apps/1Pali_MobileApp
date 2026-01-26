@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import CollectBadgesReducer from "./slices/CollectBadgesSlice";
+import userReducer from "./slices/UserSlice";
 
 export const store = configureStore({
   reducer: {
     collectBadges: CollectBadgesReducer,
+    user: userReducer,
   },
 });
 

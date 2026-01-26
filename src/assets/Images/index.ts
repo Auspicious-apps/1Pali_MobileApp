@@ -55,6 +55,7 @@ const IMAGES = {
   TatreezSeed: require("./TatreezSeed.png"),
   KeffiyehSeed: require("./KaffyehSeed.png"),
   KeySeed: require("./KeySeed.png"),
+  ImageLike: require("./ImageLike.png"),
 };
 
 export default IMAGES

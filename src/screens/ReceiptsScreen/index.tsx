@@ -119,7 +119,7 @@ const ReceiptsScreen : FC<ReceiptsScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <FocusResetScrollView
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -128,7 +128,7 @@ const ReceiptsScreen : FC<ReceiptsScreenProps> = ({navigation}) => {
           <View style={styles.header}>
             <View style={styles.side}>
               <TouchableOpacity
-                onPress={() => navigation.navigate('account')}
+                onPress={() => navigation.navigate("account")}
                 activeOpacity={0.8}
               >
                 <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
@@ -187,13 +187,13 @@ const ReceiptsScreen : FC<ReceiptsScreenProps> = ({navigation}) => {
               bounces={false}
               scrollEnabled={false}
               showsVerticalScrollIndicator={false}
-              keyExtractor={item => item.id}
+              keyExtractor={(item) => item.id}
               contentContainerStyle={styles.listContent}
               renderItem={({ item }) => (
                 <View style={styles.receiptRow}>
                   <View style={styles.receiptRowLeft}>
                     <CustomIcon
-                      Icon={ICONS.dollerIcon}
+                      Icon={ICONS.currncyDoller}
                       height={67}
                       width={67}
                     />

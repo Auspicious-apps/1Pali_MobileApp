@@ -23,8 +23,15 @@ import { fetchData, postData } from '../../service/ApiService';
 import ENDPOINTS from '../../service/ApiEndpoints';
 import { NumberCheckResponse } from '../../service/ApiResponses/NumberCheckResponse';
 import { ReserveSpecificNumberResponse } from '../../service/APIResponses/ReserveSpecificNumber';
+import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
+import { useAppDispatch } from "../../redux/store";
+import {
+  setClaimedNumber,
+  setReservationToken,
+} from "../../redux/slices/UserSlice";
 
 const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
+  const dispatch = useAppDispatch();
   const [number, setNumber] = useState('');
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState(false);
@@ -53,19 +60,39 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
     }, 700);
   };
 
-  const handleDicePress = () => {
-    if (typingTimeout.current) clearTimeout(typingTimeout.current);
-    if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
+const handleDicePress = async () => {
+  if (typingTimeout.current) clearTimeout(typingTimeout.current);
+  if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
 
-    const max = 1000000;
-    const randomEven = Math.floor(Math.random() * (max / 2)) * 2 + 2;
-    const randomNumber = String(randomEven);
+  setIsLoading(true);
+  setChecking(false);
+  setAvailable(false);
+  setUnavailable(false);
 
-    setNumber(randomNumber);
-    setChecking(false);
-    setAvailable(true);
-    setUnavailable(false);
-  };
+  try {
+    const response = await fetchData<ReserveNumberResponse>(
+      ENDPOINTS.RandomNumberReservation,
+    );
+
+    const generatedNumber = response?.data?.data?.number;
+
+    if (!generatedNumber) {
+      setUnavailable(true);
+      return;
+    }
+
+    const numString = String(generatedNumber);
+
+    setNumber(numString);
+
+    CheckNumberAvailable(numString);
+  } catch (error) {
+    console.error("Dice API Error:", error);
+    setUnavailable(true);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const CheckNumberAvailable = async (num: string) => {
     setIsLoading(true);
@@ -102,12 +129,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
         ENDPOINTS.ReserveSpecificNumber,
         { type: 'specific', number: Number(number) },
       );
-      navigation.navigate('missionIntro', {
-        number,
-        reservationToken: response.data.data?.reservationToken,
-        expiresAt: response.data.data?.expiresAt,
-        expiresInMs: response.data.data?.expiresInMs,
-      });
+      dispatch(setClaimedNumber(Number(number)));
+      dispatch(setReservationToken(response.data.data?.reservationToken));
+      navigation.navigate("missionIntro");
     } catch (e) {
       console.error('Error reserving number:', e);
     } finally {
