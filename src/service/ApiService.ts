@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   deleteLocalStorageData,
   getLocalStorageData,
   storeLocalStorageData,
 } from "../utils/Helpers";
-import STORAGE_KEYS from '../utils/Constants';
+import STORAGE_KEYS from "../utils/Constants";
 import { RefreshTokenResponse } from "./ApiResponses/RefreshToken";
 import ENDPOINTS from "./ApiEndpoints";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -26,19 +26,19 @@ const api = axios.create({
 // Refresh token function
 const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = await getLocalStorageData(STORAGE_KEYS.refreshToken);
-  
+
   if (!refreshToken) {
-    throw new Error('No refresh token available');
+    throw new Error("No refresh token available");
   }
 
   const response = await axios.post<ApiResponse<RefreshTokenResponse>>(
     `${api.defaults.baseURL}${ENDPOINTS.RefreshToken}`,
-    { refreshToken }
+    { refreshToken },
   );
 
   const newAccessToken = response.data.data.accessToken;
   const expiresIn = response.data.data.expiresIn;
-  
+
   await storeLocalStorageData(STORAGE_KEYS.accessToken, newAccessToken);
   await storeLocalStorageData(STORAGE_KEYS.expiresIn, expiresIn.toString());
 
@@ -47,7 +47,7 @@ const refreshAccessToken = async (): Promise<string> => {
 
 // Request interceptor to add auth token dynamically
 api.interceptors.request.use(
-  async config => {
+  async (config) => {
     const token = await getLocalStorageData(STORAGE_KEYS.accessToken);
 
     if (token) {
@@ -56,7 +56,7 @@ api.interceptors.request.use(
 
     return config;
   },
-  error => Promise.reject(error),
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor for error handling
@@ -109,8 +109,6 @@ api.interceptors.response.use(
   },
 );
 
-
-
 // API methods with optional headers and signal support
 export const fetchData = <T>(
   endpoint: string,
@@ -134,7 +132,7 @@ export const postFormData = <T>(
 ) =>
   api.post<ApiResponse<T>>(endpoint, data, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
       ...customHeaders,
     },
     signal,
@@ -161,7 +159,7 @@ export const putFormData = <T>(
 ) =>
   api.put<ApiResponse<T>>(endpoint, data, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
     signal,
   });

@@ -1,7 +1,7 @@
-import { Platform, StyleSheet } from 'react-native';
-import COLORS from '../../utils/Colors';
-import { horizontalScale, verticalScale } from '../../utils/Metrics';
-import FONTS from '../../assets/fonts';
+import { Platform, StyleSheet } from "react-native";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import FONTS from "../../assets/fonts";
 
 const styles = StyleSheet.create({
   container: {
@@ -70,6 +70,9 @@ const styles = StyleSheet.create({
   button: {
     marginTop: verticalScale(30),
     marginBottom: Platform.OS === "ios" ? verticalScale(10) : verticalScale(0),
+  },
+  signInText: {
+    textAlign: "center",
   },
 });
 

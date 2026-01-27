@@ -29,7 +29,11 @@ import STORAGE_KEYS from "../../utils/Constants";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { setUserData } from "../../redux/slices/UserSlice";
+import {
+  decrementReservationTimer,
+  setUserData,
+  startReservationTimer,
+} from "../../redux/slices/UserSlice";
 
 const heading = "Join OnePali";
 const initialTimer = 60;
@@ -38,17 +42,17 @@ const disclaimer =
   "By joining OnePali, you accept our Terms of Use and Privacy Policy";
 
 const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
+  const { reservationSeconds } = useAppSelector((state) => state.user);
+
   // Memoize letter arrays so they never change between renders
   const headingLetters = useMemo(
     () => heading.split("").map((l) => (l === " " ? "\u00A0" : l)),
     [],
   ); // use non-breaking space for spaces
-  const [timer, setTimer] = useState(initialTimer);
-  const [timerStarted, setTimerStarted] = useState(false);
 
-    const { claimedNumber } = useAppSelector((state) => state.user);
+  const { claimedNumber } = useAppSelector((state) => state.user);
 
-    const subheading = `${subheadingBase}${claimedNumber} reserved for ${timer}s`;
+  const subheading = `${subheadingBase}${claimedNumber} reserved for ${reservationSeconds}s`;
   const subheadingLetters = useMemo(
     () => subheading.split("").map((l) => (l === " " ? "\u00A0" : l)),
     [subheading],
@@ -102,10 +106,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
       });
       const { identityToken, authorizationCode, user, nonce } = appleResponse;
 
-      console.log(" identityToken:", identityToken);
-      console.log(" authorizationCode:", authorizationCode);
-      console.log(" Apple user:", user);
-
       if (!identityToken || !authorizationCode) {
         showCustomToast("error", "Apple Sign-In failed");
         return;
@@ -119,7 +119,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         },
       );
 
-      console.log("API Response:", apiResponse?.data);
       if (apiResponse?.data.success) {
         const { tokens, user, isNewUser } = apiResponse?.data?.data;
 
@@ -137,29 +136,19 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         await storeLocalStorageData(STORAGE_KEYS?.expiresIn, tokens?.expiresIn);
         await storeLocalStorageData("userData", user);
 
-        console.log("Tokens and user data saved successfully");
-
         // Navigate based on user state
-        if (isNewUser || !user.assignedNumber) {
-          navigation.navigate("joinOnePali");
-        } else {
-          if (user?.hasSubscription) {
-            navigation.navigate("MainStack", {
-              screen: "tabs",
-              params: {
-                screen: "home",
-                params: {
-                  number: user?.assignedNumber.toString(),
-                },
-              },
-            });
-          }
+
+        if (user.hasSubscription && user.hasSubscription) {
+          navigation.navigate("MainStack", {
+            screen: "tabs",
+            params: {
+              screen: "home",
+            },
+          });
+          return;
         }
-      } else {
-        console.log(
-          "error",
-          apiResponse?.data?.message || "Apple Sign-In failed",
-        );
+
+        navigation.navigate("joinOnePali");
       }
     } catch (error: any) {
       console.log("error", error);
@@ -217,7 +206,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               screen: "tabs",
               params: {
                 screen: "home",
-                params: { number: user.assignedNumber },
               },
             });
           }
@@ -318,27 +306,30 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   useNativeDriver: true,
                 }),
               ),
-            ).start(() => {
-              setTimerStarted(true);
-            });
+            ).start();
           });
         });
       });
     });
   }, []);
 
+  // Start reservation timer on mount
+  useEffect(() => {
+    if (reservationSeconds === null) {
+      dispatch(startReservationTimer(initialTimer));
+    }
+  }, []);
+
   // Timer countdown effect (must be a separate effect)
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (timerStarted && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [timerStarted, timer]);
+    if (reservationSeconds === null || reservationSeconds <= 0) return;
+
+    const interval = setInterval(() => {
+      dispatch(decrementReservationTimer());
+    }, 300000);
+
+    return () => clearInterval(interval);
+  }, [reservationSeconds]);
 
   return (
     <View style={styles.container}>

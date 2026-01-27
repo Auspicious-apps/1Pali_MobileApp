@@ -3722,7 +3722,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  hermes-engine: 95db9b20dcb0c079008fdaf521e0c984f2aea697
+  hermes-engine: 97724d1779589d0bf0ffdcfc53216b5de332470a
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NitroIap: 88300c68143c83af22b2c9329685b4b40043fa0d
   NitroModules: cf8804dafa637b6535c73fd113c3202b11307bfd

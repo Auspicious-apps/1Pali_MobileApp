@@ -1,18 +1,33 @@
+import { useStripe } from "@stripe/stripe-react-native";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
+  Alert,
   Animated,
   Easing,
-  TouchableOpacity,
+  Image,
   Platform,
-  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React, { FC, useState, useRef, useEffect, useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import FONTS from "../../assets/fonts";
+import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
+import PrimaryButton from "../../components/PrimaryButton";
+import { useAppSelector } from "../../redux/store";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { ConfirmPaymentIntentResponse } from "../../service/ApiResponses/ConfirmPaymentIntent";
+import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
+import {
+  GetAllStripeePlansResponse,
+  Plan,
+} from "../../service/ApiResponses/GetAllStripePLans";
+import { fetchData, postData } from "../../service/ApiService";
+import { JoinOnePaliProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import {
   horizontalScale,
@@ -21,33 +36,14 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import { JoinOnePaliProps } from "../../typings/routes";
-import CustomSwitch from "../../components/CustomSwitch";
-import CustomMaskedText from "../../components/CustomMaskedText";
-import FONTS from "../../assets/fonts";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
-import PrimaryButton from "../../components/PrimaryButton";
-import { fetchData, postData } from "../../service/ApiService";
-import {
-  GetAllStripeePlansResponse,
-  Plan,
-} from "../../service/ApiResponses/GetAllStripePLans";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { PaymentMethod, useStripe } from "@stripe/stripe-react-native";
-import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
-import { ConfirmPaymentIntentResponse } from "../../service/ApiResponses/ConfirmPaymentIntent";
-import { RootState, useAppSelector } from "../../redux/store";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [enabled, setEnabled] = useState(true);
-  const { user, claimedNumber, reservationToken } = useAppSelector(
-    (state) => state.user,
-  );
+  const { user, claimedNumber, reservationToken, reservationSeconds } =
+    useAppSelector((state) => state.user);
 
   // Animation setup
   const heading = "You’re almost in";
-  const initialTimer = undefined;
   const subheadingBase = `Number #${claimedNumber} reserved for `;
   const disclaimer =
     "By joining OnePali, you accept our Terms of Use and Privacy Policy";
@@ -56,10 +52,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     () => heading.split("").map((l) => (l === " " ? "\u00A0" : l)),
     [],
   );
-  const [timer, setTimer] = useState<any>(initialTimer);
-  const [timerStarted, setTimerStarted] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
-  const subheading = `${subheadingBase}${timer}s`;
+  const subheading = `${subheadingBase}${reservationSeconds}s`;
   const subheadingLetters = useMemo(
     () => subheading.split("").map((l) => (l === " " ? "\u00A0" : l)),
     [subheading],
@@ -106,7 +100,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         const confirmSetupIntentresponse = await postData(
           ENDPOINTS.ConfirmSetupIntent,
           {
-            // setupIntentId: setupIntentId,
             priceId: selectedPlan,
             reservationToken: reservationToken,
           },
@@ -175,7 +168,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           if (confirmSetupIntentresponse.data.success) {
             navigation.navigate("MainStack", {
               screen: "tabs",
-              params: { screen: "home", params: { number: claimedNumber! } },
+              params: { screen: "home" },
             });
           }
         }
@@ -285,9 +278,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                       useNativeDriver: true,
                     }),
                   ),
-                ).start(() => {
-                  setTimerStarted(true);
-                });
+                ).start();
               });
             });
           });
@@ -295,25 +286,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       });
     });
   }, []);
-
-  // Timer countdown effect (must be a separate effect)
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (timerStarted && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev: any) => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [timerStarted, timer]);
-
-  useEffect(() => {
-    if (timerStarted && timer === 0) {
-      setIsExpired(true);
-    }
-  }, [timerStarted, timer]);
 
   return (
     <View style={styles.container}>
@@ -552,12 +524,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 if (isExpired) {
                   navigation.navigate("claimSpot");
                 } else {
-                  // navigation.navigate("MainStack", {
-                  //   screen: "tabs",
-                  //   params: { screen: "home", params: { number } },
-                  // });
                   handleSetupIntent();
-                  // PaymentIntent();
                 }
               }}
               isLoading={isLoading}

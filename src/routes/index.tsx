@@ -1,33 +1,32 @@
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import "react-native-gesture-handler";
+import BottomTabBar from "../components/BottomTabBar";
+import Account from "../screens/Account";
+import Art from "../screens/Art";
+import ArtDetail from "../screens/ArtDetail";
+import Badges from "../screens/Badges";
+import ClaimSpot from "../screens/ClaimSpot";
+import Home from "../screens/Home";
+import JoinOnePali from "../screens/JoinOnePali";
+import ManageDonation from "../screens/ManageDonation";
+import MissionIntro from "../screens/MissionIntro";
+import Onboarding from "../screens/Onboarding";
+import OnePaliWorks from "../screens/OnePaliWorks";
+import PrivacyPolicy from "../screens/PrivacyPolicy";
+import ReceiptsScreen from "../screens/ReceiptsScreen";
 import Splash from "../screens/Splash";
+import TermsConditions from "../screens/TermsConditions";
+import UpdateDetail from "../screens/UpdateDetail";
+import Updates from "../screens/Updates";
 import {
   BottomStackParams,
   MainStackParams,
   OnBoardingStackParams,
   RootStackParams,
 } from "../typings/routes";
-import Onboarding from "../screens/Onboarding";
-import ClaimSpot from "../screens/ClaimSpot";
-import OnePaliWorks from "../screens/OnePaliWorks";
-import MissionIntro from "../screens/MissionIntro";
-import JoinOnePali from "../screens/JoinOnePali";
-import { SafeAreaView } from "react-native-safe-area-context";
-import BottomTabBar from "../components/BottomTabBar";
-import Home from "../screens/Home";
-import Updates from "../screens/Updates";
-import Art from "../screens/Art";
-import Account from "../screens/Account";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Badges from "../screens/Badges";
-import UpdateDetail from "../screens/UpdateDetail";
-import ArtDetail from "../screens/ArtDetail";
-import TermsConditions from "../screens/TermsConditions";
-import PrivacyPolicy from "../screens/PrivacyPolicy";
-import ReceiptsScreen from "../screens/ReceiptsScreen";
-import ManageDonation from "../screens/ManageDonation";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -81,18 +80,10 @@ export default function Routes() {
         }}
         tabBar={(props) => <BottomTabBar {...props} />}
       >
-        <Tabs.Screen
-          name="home"
-          component={Home}
-          initialParams={{ number: initialNumber }}
-        />
+        <Tabs.Screen name="home" component={Home} />
         <Tabs.Screen name="updates" component={Updates} />
         <Tabs.Screen name="art" component={Art} />
-        <Tabs.Screen
-          name="account"
-          component={Account}
-          initialParams={{ number: initialNumber }}
-        />
+        <Tabs.Screen name="account" component={Account} />
         <Tabs.Screen name="badges" component={Badges} />
         <Tabs.Screen name="updateDetail" component={UpdateDetail} />
         <Tabs.Screen name="artDetail" component={ArtDetail} />
@@ -115,9 +106,9 @@ export default function Routes() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={navigatorScreenOptions}>
-        <Stack.Screen name="MainStack" component={MainStack} />
         <Stack.Screen name="splash" component={Splash} />
         <Stack.Screen name="OnBoardingStack" component={OnBoardingStack} />
+        <Stack.Screen name="MainStack" component={MainStack} />
       </Stack.Navigator>
     </NavigationContainer>
   );

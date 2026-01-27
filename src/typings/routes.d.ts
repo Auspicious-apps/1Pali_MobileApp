@@ -1,5 +1,5 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NavigatorScreenParams } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type RootStackParams = {
   splash: undefined;
@@ -20,10 +20,10 @@ export type MainStackParams = {
 };
 
 export type BottomStackParams = {
-  home: { number?: number } | undefined;
+  home: undefined;
   updates: undefined;
   art: undefined;
-  account: { number?: string } | undefined;
+  account: undefined;
   badges: undefined;
   updateDetail: undefined;
   artDetail: undefined;
@@ -41,15 +41,15 @@ export type SplashScreenProps = NativeStackScreenProps<
 // ONBOARDING SCREENS
 export type OnboardingProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
-  'onboarding'
+  "onboarding"
 >;
 export type onePaliWorksProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
-  'onePaliWorks'
+  "onePaliWorks"
 >;
 export type ClaimSpotProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
-  'claimSpot'
+  "claimSpot"
 >;
 export type MissionIntroProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams & MainStackParams & BottomStackParams,
@@ -57,50 +57,50 @@ export type MissionIntroProps = NativeStackScreenProps<
 >;
 export type JoinOnePaliProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
-  'joinOnePali'
+  "joinOnePali"
 >;
 
 // ----------------   MAIN SCREENS ---------------------
- 
+
 export type HomeScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'home'
+  "home"
 >;
 export type UpdatesScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'updates'
+  "updates"
 >;
 export type ArtScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'art'
+  "art"
 >;
 export type AccountScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'account'
+  "account"
 >;
 export type BadgesScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'badges'
+  "badges"
 >;
 export type UpdateDetailScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'updateDetail'
+  "updateDetail"
 >;
 export type ArtDetailScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'artDetail'
+  "artDetail"
 >;
 export type TermsConditionsScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'termsConditions'
+  "termsConditions"
 >;
 export type PrivacyPolicyScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'privacyPolicy'
+  "privacyPolicy"
 >;
 export type ReceiptsScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
-  'receipts'
+  "receipts"
 >;
 export type ManageDonationScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,

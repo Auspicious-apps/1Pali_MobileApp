@@ -7,22 +7,22 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   TouchableOpacity,
-} from 'react-native';
-import React, { useState, useRef, FC } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import React, { useState, useRef, FC } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import IMAGES from '../../assets/Images';
-import COLORS from '../../utils/Colors';
-import { CustomText } from '../../components/CustomText';
-import CustomIcon from '../../components/CustomIcon';
-import ICONS from '../../assets/Icons';
-import PrimaryButton from '../../components/PrimaryButton';
-import styles from './styles';
-import { ClaimSpotProps } from '../../typings/routes';
-import { fetchData, postData } from '../../service/ApiService';
-import ENDPOINTS from '../../service/ApiEndpoints';
-import { NumberCheckResponse } from '../../service/ApiResponses/NumberCheckResponse';
-import { ReserveSpecificNumberResponse } from '../../service/APIResponses/ReserveSpecificNumber';
+import IMAGES from "../../assets/Images";
+import COLORS from "../../utils/Colors";
+import { CustomText } from "../../components/CustomText";
+import CustomIcon from "../../components/CustomIcon";
+import ICONS from "../../assets/Icons";
+import PrimaryButton from "../../components/PrimaryButton";
+import styles from "./styles";
+import { ClaimSpotProps } from "../../typings/routes";
+import { fetchData, postData } from "../../service/ApiService";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { NumberCheckResponse } from "../../service/ApiResponses/NumberCheckResponse";
+import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
 import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
 import { useAppDispatch } from "../../redux/store";
 import {
@@ -30,9 +30,9 @@ import {
   setReservationToken,
 } from "../../redux/slices/UserSlice";
 
-const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
+const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const [number, setNumber] = useState('');
+  const [number, setNumber] = useState("");
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
@@ -42,7 +42,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (text: string) => {
-    const numeric = text.replace(/[^0-9]/g, '');
+    const numeric = text.replace(/[^0-9]/g, "");
     setNumber(numeric);
 
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
@@ -60,39 +60,40 @@ const ClaimSpot: FC<ClaimSpotProps> = ({navigation}) => {
     }, 700);
   };
 
-const handleDicePress = async () => {
-  if (typingTimeout.current) clearTimeout(typingTimeout.current);
-  if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
+  const handleDicePress = async () => {
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
 
-  setIsLoading(true);
-  setChecking(false);
-  setAvailable(false);
-  setUnavailable(false);
+    setIsLoading(true);
+    setChecking(false);
+    setAvailable(false);
+    setUnavailable(false);
 
-  try {
-    const response = await fetchData<ReserveNumberResponse>(
-      ENDPOINTS.RandomNumberReservation,
-    );
+    try {
+      const response = await fetchData<ReserveNumberResponse>(
+        ENDPOINTS.GetRandomNumber,
+      );
 
-    const generatedNumber = response?.data?.data?.number;
+      const generatedNumber = response?.data?.data?.number;
 
-    if (!generatedNumber) {
+      if (!generatedNumber) {
+        setUnavailable(true);
+        return;
+      }
+
+      const numString = String(generatedNumber);
+
+      setNumber(numString);
+
+      setAvailable(true);
+      setUnavailable(false);
+    } catch (error) {
+      console.error("Dice API Error:", error);
       setUnavailable(true);
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    const numString = String(generatedNumber);
-
-    setNumber(numString);
-
-    CheckNumberAvailable(numString);
-  } catch (error) {
-    console.error("Dice API Error:", error);
-    setUnavailable(true);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const CheckNumberAvailable = async (num: string) => {
     setIsLoading(true);
@@ -127,13 +128,13 @@ const handleDicePress = async () => {
     try {
       const response = await postData<ReserveSpecificNumberResponse>(
         ENDPOINTS.ReserveSpecificNumber,
-        { type: 'specific', number: Number(number) },
+        { type: "specific", number: Number(number) },
       );
       dispatch(setClaimedNumber(Number(number)));
       dispatch(setReservationToken(response.data.data?.reservationToken));
       navigation.navigate("missionIntro");
     } catch (e) {
-      console.error('Error reserving number:', e);
+      console.error("Error reserving number:", e);
     } finally {
       setIsLoading(false);
     }
@@ -282,6 +283,22 @@ const handleDicePress = async () => {
               isLoading={isLoading}
               style={styles.button}
             />
+            <CustomText
+              fontFamily="MontserratRegular"
+              fontSize={12}
+              color={COLORS.grey}
+              style={styles.signInText}
+            >
+              Already have a account?{" "}
+              <CustomText
+                fontFamily="MontserratSemiBold"
+                fontSize={12}
+                color={COLORS.darkText}
+                onPress={() => navigation.navigate("missionIntro")}
+              >
+                Sign in
+              </CustomText>
+            </CustomText>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </SafeAreaView>

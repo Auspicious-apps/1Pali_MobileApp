@@ -1,8 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-import Toast from 'react-native-toast-message';
-import * as Keychain from 'react-native-keychain';
-import uuid from 'react-native-uuid';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import Toast from "react-native-toast-message";
+import * as Keychain from "react-native-keychain";
+import uuid from "react-native-uuid";
 
 export const getLocalStorageData = async (key: string) => {
   const value = await AsyncStorage.getItem(key);
@@ -38,7 +38,7 @@ export const useChangingText = (
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex(prev => (prev + 1) % messages.length);
+      setIndex((prev) => (prev + 1) % messages.length);
     }, interval);
 
     return () => clearInterval(timer);
@@ -50,38 +50,38 @@ export const useChangingText = (
 // Custom Toast Meessage
 
 export const showToast = (
-  type: 'success' | 'error' | 'info' | 'warning',
+  type: "success" | "error" | "info" | "warning",
   title: string,
   meessage?: string,
 ) => {
   switch (type) {
-    case 'success':
+    case "success":
       Toast.show({
-        type: 'success',
+        type: "success",
         text1: title,
         text2: meessage,
         topOffset: 100,
       });
       break;
-    case 'error':
+    case "error":
       Toast.show({
-        type: 'error',
+        type: "error",
         text1: title,
         text2: meessage,
         topOffset: 100,
       });
       break;
-    case 'info':
+    case "info":
       Toast.show({
-        type: 'info',
+        type: "info",
         text1: title,
         text2: meessage,
         topOffset: 100,
       });
       break;
-    case 'warning':
+    case "warning":
       Toast.show({
-        type: 'warning',
+        type: "warning",
         text1: title,
         text2: meessage,
         topOffset: 100,
@@ -92,17 +92,17 @@ export const showToast = (
   }
 };
 
-export const showCustomToast = (type: 'success' | 'error', message: string) => {
+export const showCustomToast = (type: "success" | "error", message: string) => {
   Toast.show({
-    type: 'customToast',
+    type: "customToast",
     text1: message,
     props: { type },
   });
 };
 
 // Define the unique service key for your custom ID
-const SERVICE_ID = 'com.myapp.revenuecat.habibirizz';
-const DUMMY_USERNAME = 'rc_user_identifier';
+const SERVICE_ID = "com.myapp.revenuecat.habibirizz";
+const DUMMY_USERNAME = "rc_user_identifier";
 
 export async function generateAndStoreUserID() {
   // 1. Generate a new, unique ID (UUID)
@@ -121,11 +121,11 @@ export async function generateAndStoreUserID() {
     );
 
     if (success) {
-      console.log('Successfully stored new App User ID:', newUserId);
+      console.log("Successfully stored new App User ID:", newUserId);
       return newUserId;
     }
   } catch (error) {
-    console.error('Failed to store App User ID in Keychain/Keystore:', error);
+    console.error("Failed to store App User ID in Keychain/Keystore:", error);
   }
   return null; // Return null on failure
 }
@@ -140,17 +140,48 @@ export async function retrieveUserID() {
     if (credentials && credentials.password) {
       // credentials.username will be 'rc_user_identifier'
       // credentials.password will be your stored UUID
-      console.log('Retrieved existing App User ID:', credentials?.password);
+      console.log("Retrieved existing App User ID:", credentials?.password);
       return credentials?.password;
     } else {
-      console.log('No App User ID found in secure storage.');
+      console.log("No App User ID found in secure storage.");
       return null; // No ID exists
     }
   } catch (error) {
     console.error(
-      'Failed to retrieve App User ID from Keychain/Keystore:',
+      "Failed to retrieve App User ID from Keychain/Keystore:",
       error,
     );
     return null;
   }
+}
+
+/**
+ * Converts a number into a readable string with suffixes (K, M, B, T)
+ * @param {number} num - The number to convert
+ * @param {number} digits - Number of decimal places to keep (default: 1)
+ */
+export function formatNumber(num: number, digits = 1) {
+  if (!num) return "0";
+
+  const lookup = [
+    { value: 1, symbol: "" },
+    { value: 1e3, symbol: "k" },
+    { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "B" },
+    { value: 1e12, symbol: "T" },
+  ];
+
+  // Regex to remove trailing zeros (e.g., 1.0k -> 1k)
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+
+  const item = lookup
+    .slice()
+    .reverse()
+    .find(function (item) {
+      return num >= item.value;
+    });
+
+  return item
+    ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol
+    : num.toPrecision(digits);
 }

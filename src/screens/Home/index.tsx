@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useState } from "react";
 import {
   Image,
   Platform,
@@ -15,17 +15,13 @@ import MyBadgesModal, {
   MyBadgeItem,
 } from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
+import { useAppSelector } from "../../redux/store";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import CollectBadges from "../../components/Modal/CollectBadges";
-import { useDispatch, useSelector } from "react-redux";
-import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
-import { RootState } from "../../redux/store";
+import { formatNumber } from "../../utils/Helpers";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
-  const number = route?.params?.number || "1948";
-
   const BADGES: MyBadgeItem[] = [
     {
       id: 1,
@@ -57,19 +53,9 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const [selectedBadge, setSelectedBadge] = useState<MyBadgeItem>(BADGES[0]);
   const [showBadgesModal, setShowBadgesModal] = useState(false);
 
-  // const dispatch = useDispatch();
+  const { badges, user } = useAppSelector((state) => state.user);
 
-  // const isAnyOtherModalOpen = isBadgesModalVisible;
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     if (!isAnyOtherModalOpen) {
-  //       dispatch(openCollectBadgesModal());
-  //     }
-  //   }, 4000);
-
-  //   return () => clearTimeout(timer);
-  // }, [isAnyOtherModalOpen]);
+  console.log(user, "opopo");
 
   return (
     <View style={styles.container}>
@@ -116,7 +102,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             color="rgba(29, 34, 43, 1)"
             style={{ textAlign: "center" }}
           >
-            #{number}
+            #{user?.assignedNumber}
           </CustomText>
 
           <CustomText
@@ -137,7 +123,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             color={COLORS.greyText}
             style={{ textAlign: "center" }}
           >
-            83,432/1,000,000 donors
+            {user?.globalStats.totalDonors}/1,000,000 donors
           </CustomText>
         </View>
         <View
@@ -164,7 +150,8 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             fontSize={16}
             color="rgba(0, 31, 1, 1)"
           >
-            $1.28M donated together
+            ${formatNumber(user?.globalStats.totalDonationsGenerated!)} donated
+            together
           </CustomText>
         </View>
         <View style={styles.dividerRow}>
