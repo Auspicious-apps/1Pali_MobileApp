@@ -22,6 +22,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { deleteLocalStorageData } from "../../utils/Helpers";
 import STORAGE_KEYS from "../../utils/Constants";
 import { Screen } from "react-native-screens";
+import { useAppSelector } from '../../redux/store';
 
 const BADGES = [
   { id: 1, image: IMAGES.Sprout1, label: 'Sprout' }, 
@@ -30,17 +31,14 @@ const BADGES = [
 ];
 
 const Account : FC<AccountScreenProps> = ({navigation, route}) => {
-
-  // Remove modal state, use system share sheet
-
-  const memberNumber = route?.params?.number || '1948';
+  const { badges, user } = useAppSelector((state) => state.user);
 
   const ACCOUNT_OPTIONS = [
     {
       id: "member",
       icon: ICONS.HashIcon,
       label: "Member number",
-      value: `#${memberNumber}`,
+      value: `#${user?.assignedNumber}`,
       onPress: undefined,
     },
     {
@@ -117,7 +115,6 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
               await GoogleSignin.signOut();
               navigation.navigate("OnBoardingStack", {
                 screen: "missionIntro",
-                params: {},
               });
             },
           },
@@ -188,7 +185,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
-                #{memberNumber}
+                #{user?.assignedNumber}
               </CustomText>
               <CustomText
                 fontFamily="SourceSansRegular"
@@ -196,7 +193,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                Member since Feb 12, 2026
+                Member since {new Date(user?.createdAt || "").toLocaleDateString()}
               </CustomText>
             </View>
             <View style={styles.card}>
@@ -223,14 +220,14 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                     fontSize={16}
                     color={COLORS.darkText}
                   >
-                    Sprout
+                    {badges?.growthBadges[0]?.badge.category}
                   </CustomText>
                   <CustomText
                     fontFamily="GabaritoRegular"
                     fontSize={16}
                     color={COLORS.appText}
                   >
-                    3 months
+                    {user?.totalDonations} months
                   </CustomText>
                 </View>
                 <View
@@ -240,16 +237,17 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                     right: horizontalScale(15),
                   }}
                 >
-                  {BADGES.map((badge, index) => (
+                  {badges?.growthBadges?.map((badge, index) => (
                     <Image
                       key={badge.id}
-                      source={badge.image}
+                      source={{ uri: badge.badge.iconPngUrl }}
                       style={{
                         width: horizontalScale(72),
                         height: verticalScale(72),
                         marginLeft: index === 0 ? 0 : -30,
                         borderRadius: 36,
-                        zIndex: BADGES.length - index,
+                        zIndex: badges?.growthBadges?.length - index,
+                        resizeMode: "contain",
                       }}
                     />
                   ))}
@@ -306,7 +304,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      $12
+                      {`$${user?.totalDonations}`}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
@@ -338,14 +336,14 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      Founder
+                      {badges?.communityBadge.badge?.name}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
                       fontSize={12}
                       color={COLORS.appText}
                     >
-                      First 1K donors
+                      First {badges?.communityBadge?.badge?.requirement?.userNumberMax} donors
                     </CustomText>
                   </View>
                 </View>
@@ -370,7 +368,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      3
+                      {user?.totalDonations}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"

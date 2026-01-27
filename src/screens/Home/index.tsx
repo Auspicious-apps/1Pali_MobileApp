@@ -12,7 +12,6 @@ import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import MyBadgesModal, {
-  MyBadgeItem,
 } from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
@@ -27,50 +26,33 @@ import {
 } from "../../service/ApiResponses/GetUserProfile";
 import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import CollectBadges from "../../components/Modal/CollectBadges";
+import { postData } from "../../service/ApiService";
+import ENDPOINTS from "../../service/ApiEndpoints";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
-  // const BADGES: MyBadgeItem[] = [
-  //   {
-  //     id: 1,
-  //     title: "Seed",
-  //     subtitle: "Supporting for 1 month",
-  //     image: IMAGES.seedsOne,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Founder",
-  //     subtitle: "For being part of the first 1000 users",
-  //     image: IMAGES.FounderSeed,
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Jaffa",
-  //     subtitle: "Unlocked after contributing $2",
-  //     image: IMAGES.JaffaSeed,
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Echo",
-  //     subtitle: "For sharing 1 piece of artwork",
-  //     image: IMAGES.EchoSeed,
-  //   },
-  // ];
+  
   const { badges, user } = useAppSelector((state) => state.user);
 
-  const [isBadgesModalVisible, setIsBadgesModalVisible] = useState(false);
-  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+  const[isBadgesSHeet, setIsBadgesSheet] = useState(false)
 
   const { collectibleBadges, isVisible } = useAppSelector(
     (state) => state.collectBadges,
   );
-  console.log(collectibleBadges, "IUYUTYU");
 
-  useEffect(() => {
-    if (collectibleBadges?.length > 0 && !isVisible) {
+
+
+useEffect(() => {
+  if (collectibleBadges && collectibleBadges.length > 0) {
+    const timer = setTimeout(() => {
       dispatch(openCollectBadgesModal());
-    }
-  }, [collectibleBadges]);
+    }, 1500); 
+
+    return () => clearTimeout(timer);
+  }
+}, [collectibleBadges, dispatch]);
+
+
 
   return (
     <View style={styles.container}>
@@ -79,10 +61,10 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
         <View style={{ marginTop: verticalScale(30), gap: verticalScale(6) }}>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setIsBadgesModalVisible(true)}
+            onPress={() => setIsBadgesSheet(true)}
           >
             <Image
-              source={{ uri: selectedBadge?.iconPngUrl }}
+              source={{ uri: badges?.growthBadges[0]?.badge?.iconPngUrl }}
               style={{
                 width: horizontalScale(110),
                 height: verticalScale(110),
@@ -98,7 +80,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               color={COLORS.darkText}
               style={{ textAlign: "center" }}
             >
-              {selectedBadge?.title}
+              {badges?.growthBadges[0].badge.name}
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
@@ -106,7 +88,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
-              {selectedBadge?.description}
+              {badges?.growthBadges[0].badge.description}
             </CustomText>
           </View>
         </View>
@@ -188,8 +170,8 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
         </View>
 
         <MyBadgesModal
-          isVisible={isBadgesModalVisible}
-          setIsVisible={setIsBadgesModalVisible}
+          isVisible={isBadgesSHeet}
+          setIsVisible={setIsBadgesSheet}
         />
 
         <CollectBadges />

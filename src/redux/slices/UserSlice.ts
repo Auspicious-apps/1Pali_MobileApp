@@ -12,7 +12,7 @@ interface UserState {
   user: GetUserProfileApiResponse | null;
   claimedNumber: number | null;
   reservationToken: string | null;
-  badges: Badges | [];
+  badges: Badges | null;
   reservationSeconds: number | null;
 }
 
@@ -20,7 +20,7 @@ const initialState: UserState = {
   user: null,
   claimedNumber: null,
   reservationToken: null,
-  badges: [],
+  badges: null,
   reservationSeconds: null,
 };
 

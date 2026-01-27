@@ -1,48 +1,51 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import {
   FlatList,
   Image,
+  ImageSourcePropType,
   Modal,
   StyleSheet,
   TouchableOpacity,
   View,
   Platform,
 } from "react-native";
-import { BlurView } from "@react-native-community/blur";
-import { CustomText } from "../CustomText";
-import COLORS from "../../utils/Colors";
-import CustomIcon from "../CustomIcon";
-import ICONS from "../../assets/Icons";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import PrimaryButton from "../PrimaryButton";
+import { BlurView } from '@react-native-community/blur';
+import { CustomText } from '../CustomText';
+import COLORS from '../../utils/Colors';
+import CustomIcon from '../CustomIcon';
+import ICONS from '../../assets/Icons';
+import { horizontalScale, hp, verticalScale } from '../../utils/Metrics';
+import PrimaryButton from '../PrimaryButton';
 import { useAppSelector } from "../../redux/store";
-
+ 
+export interface MyBadgeItem {
+  id: string | number;
+  title: string;
+  subtitle: string;
+  image: ImageSourcePropType;
+}
+ 
 interface MyBadgesModalProps {
   isVisible: boolean;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 }
-
+ 
 const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
   isVisible,
   setIsVisible,
 }) => {
+  const closeModal = () => {
+    setIsVisible(false);
+  };
+ 
   const { badges } = useAppSelector((state) => state.user);
-
+ 
   const badgeList = [
     ...(badges?.growthBadges || []),
     ...(badges?.impactBadges || []),
     ...(badges?.artBadges || []),
   ];
-
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const closeModal = () => {
-    setActiveIndex(null);
-    setIsVisible(false);
-  };
-
-  const activeBadge = activeIndex !== null ? badgeList[activeIndex] : null;
-
+ 
   return (
     <Modal
       visible={isVisible}
@@ -54,7 +57,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
       <TouchableOpacity
         activeOpacity={1}
         onPress={closeModal}
-        style={{ flex: 1 }}
+        style={styles.modalBackdrop}
       >
         {Platform.OS === "ios" ? (
           <BlurView
@@ -65,115 +68,95 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
         ) : (
           <View style={styles.androidBackdrop} />
         )}
-
+ 
         <View style={styles.overlay}>
           <TouchableOpacity
             activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
             style={styles.modalContainer}
+            onPress={(e) => e.stopPropagation()}
           >
-            {/* 🔹 HEADER */}
+            {/* Header */}
             <View style={styles.header}>
-              <CustomText fontFamily="GabaritoSemiBold" fontSize={18}>
-                {activeIndex === null ? "My Badges" : "Badge Details"}
-              </CustomText>
-
-              <TouchableOpacity
-                onPress={() =>
-                  activeIndex !== null ? setActiveIndex(null) : closeModal()
-                }
-                style={styles.closeIcon}
+              <CustomText
+                fontFamily="GabaritoSemiBold"
+                fontSize={18}
+                color={COLORS.darkText}
               >
+                My Badges
+              </CustomText>
+ 
+              <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
                 <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
               </TouchableOpacity>
             </View>
-
-            {/* 🔹 LIST VIEW */}
-            {activeIndex === null && (
-              <>
-                <FlatList
-                  data={badgeList}
-                  keyExtractor={(item) => item.id.toString()}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.listContent}
-                  renderItem={({ item, index }) => (
-                    <TouchableOpacity
-                      style={styles.badgeRow}
-                      activeOpacity={0.8}
-                      onPress={() => setActiveIndex(index)}
-                    >
-                      <Image
-                        source={{ uri: item.badge.iconPngUrl }}
-                        style={styles.badgeImage}
-                      />
-
-                      <View style={{ flex: 1 }}>
-                        <CustomText fontSize={18} fontFamily="GabaritoMedium">
-                          {item.badge.title}
-                        </CustomText>
-                        <CustomText
-                          fontSize={12}
-                          color="#1D222B90"
-                          numberOfLines={2}
-                        >
-                          {item.badge.description}
-                        </CustomText>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-
-                <PrimaryButton
-                  title="See all badges"
-                  onPress={closeModal}
-                  style={{ marginTop: hp(2.5) }}
-                />
-              </>
-            )}
-
-            {/* 🔹 DETAIL VIEW */}
-            {activeBadge && (
-              <View style={styles.detailContainer}>
-                <Image
-                  source={{ uri: activeBadge.badge.iconPngUrl }}
-                  style={styles.detailImage}
-                  resizeMode="contain"
-                />
-
-                <CustomText fontSize={18} fontFamily="GabaritoMedium">
-                  {activeBadge.badge.title}
-                </CustomText>
-
-                <CustomText fontSize={14} color="#1D222B80">
-                  Awarded for supporting{" "}
-                  {activeBadge.metadata?.consecutiveMonths
-                    ? `${activeBadge.metadata.consecutiveMonths} months`
-                    : "1 month"}
-                </CustomText>
-
-                <View style={styles.divider} />
-
-                <CustomText
-                  fontSize={16}
-                  style={{ width: "70%", textAlign: "center" }}
-                >
-                  {activeBadge.badge.description}
-                </CustomText>
-              </View>
-            )}
+ 
+            {/* Badges list */}
+            <FlatList
+              data={badgeList}
+              keyExtractor={(item) => item.id.toString()}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContent}
+              renderItem={({ item }) => {
+                const badge = item.badge;
+ 
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.badgeRow}
+                    onPress={closeModal}
+                  >
+                    <Image
+                      source={{ uri: badge.iconPngUrl }}
+                      style={styles.badgeImage}
+                    />
+ 
+                    <View style={styles.badgeTextContainer}>
+                      <CustomText
+                        fontFamily="GabaritoMedium"
+                        fontSize={18}
+                        color={COLORS.darkText}
+                      >
+                        {badge.title}
+                      </CustomText>
+ 
+                      <CustomText
+                        fontFamily="SourceSansRegular"
+                        fontSize={12}
+                        color="#1D222B90"
+                        numberOfLines={2}
+                      >
+                        {badge.description}
+                      </CustomText>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+ 
+            {/* See all button */}
+            <PrimaryButton
+              title="See all badges"
+              onPress={() => {
+                setIsVisible(false);
+              }}
+              style={styles.button}
+            />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
   );
 };
-
+ 
 export default MyBadgesModal;
-
+ 
 const styles = StyleSheet.create({
+  modalBackdrop: {
+    flex: 1,
+  },
   androidBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.8)",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
   },
   overlay: {
     flex: 1,
@@ -186,11 +169,26 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingTop: verticalScale(16),
     paddingHorizontal: horizontalScale(16),
-    paddingBottom: verticalScale(30),
+    paddingBottom: verticalScale(24),
     maxHeight: "80%",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: -2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   header: {
     alignItems: "center",
+    paddingHorizontal: horizontalScale(16),
     paddingVertical: verticalScale(8),
   },
   closeIcon: {
@@ -199,31 +197,23 @@ const styles = StyleSheet.create({
     top: verticalScale(5),
   },
   listContent: {
-    paddingTop: verticalScale(20),
+    paddingTop: verticalScale(24),
   },
   badgeRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingBottom: verticalScale(12),
+    paddingBottom: verticalScale(8),
   },
   badgeImage: {
-    width: horizontalScale(70),
-    height: verticalScale(70),
+    width: horizontalScale(75),
+    height: verticalScale(75),
     marginRight: horizontalScale(12),
+    resizeMode: "contain",
   },
-  detailContainer: {
-    alignItems: "center",
-    marginTop: verticalScale(30),
-    gap: verticalScale(12),
+  badgeTextContainer: {
+    flex: 1,
   },
-  detailImage: {
-    width: horizontalScale(70),
-    height: verticalScale(70),
-  },
-  divider: {
-    width: horizontalScale(100),
-    borderWidth: 1,
-    borderColor: COLORS.borderColor,
-    marginVertical: verticalScale(16),
+  button: {
+    marginTop: hp(2.5),
   },
 });

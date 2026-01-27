@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import {
+  Alert,
   Image,
   ImageBackground,
   ImageSourcePropType,
@@ -19,94 +20,84 @@ import PrimaryButton from "../PrimaryButton";
 import FONTS from "../../assets/fonts";
 import { useDispatch } from "react-redux";
 import { RootState, useAppSelector } from "../../redux/store";
-import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
-
-const badges = [
-  {
-    id: 1,
-    title: "Sprout",
-    description: "Awarded for supporting for 3 months!",
-    image: IMAGES.Sprout,
-    background: IMAGES.BadgeGreenBg,
-    type: "Growth Badge Unlocked",
-  },
-  {
-    id: 2,
-    title: "Voice",
-    description: "Awarded for sharing one piece of art!",
-    image: IMAGES.Voice,
-    background: IMAGES.BadgeBrownBg,
-    type: "Art Badge Unlocked",
-  },
-  {
-    id: 3,
-    title: "Impact",
-    description: "Awarded for donating $2 so far!",
-    image: IMAGES.Orange,
-    background: IMAGES.BadgePinkBg,
-    type: "Impact Badge Unlocked",
-  },
-  {
-    id: 4,
-    title: "1 Million",
-    description: "Awarded for being among 1M donors",
-    image: IMAGES.OneMillion,
-    background: IMAGES.BadgeBlackBg,
-    type: "1M Badge Unlocked ",
-  },
-];
+import { closeCollectBadgesModal, removeClaimedBadges } from "../../redux/slices/CollectBadgesSlice";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { postData } from "../../service/ApiService";
 
 const CollectBadges: React.FC = () => {
   const dispatch = useDispatch();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { isVisible, collectibleBadges } = useAppSelector(
     (state) => state.collectBadges,
   );
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [index, setIndex] = useState(0);
-  const badge = collectibleBadges[currentIndex];
 
-   if (!badge) return null;
+  const badge = collectibleBadges?.[currentIndex];
+  console.log(badge,'KLKLKLK');
+  
 
-   const getBg = () => {
-     switch (badge.badge.category) {
-       case "growth":
-         return IMAGES.BadgeGreenBg;
-       case "art":
-         return IMAGES.BadgeBrownBg;
-       case "impact":
-         return IMAGES.BadgePinkBg;
-       default:
-         return IMAGES.BadgeBlackBg;
-     }
-   };
+  if (!badge) return null;
 
-   const getHeader = () => {
-     switch (badge.badge.category) {
-       case "growth":
-         return "Growth Badge Unlocked";
-       case "art":
-         return "Art Badge Unlocked";
-       case "impact":
-         return "Impact Badge Unlocked";
-       default:
-         return "Badge Unlocked";
-     }
-   };
+  /* ---------------- UI Helpers ---------------- */
+  const getBg = () => {
+    switch (badge.badge.category) {
+      case "GROWTH":
+        return IMAGES.BadgeGreenBg;
+      case "ART":
+        return IMAGES.BadgeBrownBg;
+      case "IMPACT":
+        return IMAGES.BadgePinkBg;
+      default:
+        return IMAGES.BadgeBlackBg;
+    }
+  };
 
-    const onViewBadge = () => {
-      if (index < collectibleBadges.length - 1) {
-        setIndex(index + 1);
-      } else {
+  /* ---------------- Actions ---------------- */
+  const onViewBadge = async () => {
+
+    if (!badge?.id) return;
+
+    try {
+      setIsLoading(true);
+      const response = await postData(ENDPOINTS.CollectBadges, {
+        badgeId: badge.id,
+      });
+
+      if (response.data.success) {
+        dispatch(removeClaimedBadges(badge.id));
+       
+        if ((collectibleBadges?.length ?? 0) > 1) {
+        setCurrentIndex(0); 
+        }
+         else {
+          setCurrentIndex(0);
+        }
         dispatch(closeCollectBadgesModal());
-        setIndex(0);
       }
-    };
+      console.log("Badge collected successfully:", response);
+    } catch (e) {
+      console.error("Error collecting badge:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const closeModal = () => {
-      dispatch(closeCollectBadgesModal());
-      setCurrentIndex(0);
-    };
+  const closeModal = async () => {
+    if (badge?.badge?._id) {
+      // const success = await handleCollectBadges(badge.badge._id);
+
+      // if (success) {
+      //   if (currentIndex < (collectibleBadges?.length ?? 0) - 1) {
+      //     setCurrentIndex(prev => prev + 1);
+      //   } else {
+      //     setCurrentIndex(0);
+      //   }
+      // }
+    }
+
+    dispatch(closeCollectBadgesModal());
+  };
 
   return (
     <Modal
@@ -135,7 +126,7 @@ const CollectBadges: React.FC = () => {
               fontSize={18}
               color={COLORS.white}
             >
-              {getHeader()}
+              {badge.badge.category} 
             </CustomText>
 
             <TouchableOpacity
@@ -172,7 +163,7 @@ const CollectBadges: React.FC = () => {
               fontFamily="GabaritoMedium"
               fontSize={18}
               color={COLORS.white}
-              style={{ marginTop: verticalScale(8) }}
+              style={{ marginTop: verticalScale(8), textAlign: "center" }}
             >
               {badge.badge.description}
             </CustomText>
@@ -180,14 +171,18 @@ const CollectBadges: React.FC = () => {
 
           {/* Button */}
           <PrimaryButton
-            title={index < collectibleBadges.length - 1 ? "View Badge" : "Done"}
+            title="Collect Badge"
             onPress={onViewBadge}
+            disabled={isLoading}
             textStyle={{
               fontFamily: FONTS.MontserratSemiBold,
               fontSize: responsiveFontSize(16),
               color: COLORS.darkText,
             }}
-            style={styles.button}
+            style={{
+              ...styles.button,
+              opacity: isLoading ? 0.6 : 1,
+            }}
           />
         </ImageBackground>
       </View>
@@ -223,6 +218,5 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: COLORS.white,
-
   },
 });

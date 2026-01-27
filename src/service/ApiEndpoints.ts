@@ -10,6 +10,7 @@ const ENDPOINTS = {
   GetStripePlans: "api/v1/subscription/plans",
   CreateSetupIntent: "api/v1/subscription/setup-intent",
   ConfirmSetupIntent: "api/v1/subscription/confirm-setup-intent",
+  CollectBadges: "api/v1/badges/claim"
 };
 
 export default ENDPOINTS;
