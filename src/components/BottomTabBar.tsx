@@ -59,6 +59,7 @@ const BottomTabBar: FC<BottomTabBarProps> = props => {
     privacyPolicy: "account",
     receipts: "account",
     badges: "account",
+    manageDonation: "account",
     // Add more mappings if you add more detail/inner screens
   };
   const currentRoute = state.routes[state.index].name;

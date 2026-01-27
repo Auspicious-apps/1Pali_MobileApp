@@ -20,13 +20,13 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { getLocalStorageData } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import Badges from "../Badges";
+import { setCollectibleBadges } from "../../redux/slices/CollectBadgesSlice";
 
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
 
-  const { user } = useAppSelector((state) => state.user);
+  const { user, badges } = useAppSelector((state) => state.user);
 
   useEffect(() => {
     checkAuthenticationStatus();
@@ -39,7 +39,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       const refreshToken = await getLocalStorageData(STORAGE_KEYS.refreshToken);
       const expiresIn = await getLocalStorageData(STORAGE_KEYS.expiresIn);
 
-      console.log(accessToken);
+      console.log(accessToken, "kfjsdh");
 
       if (accessToken) {
         await verifyUserProfile();
@@ -61,6 +61,14 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       if (response.data.success) {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
+        dispatch(
+          setCollectibleBadges({
+            growthBadges: response.data.data.badges.growthBadges,
+            artBadges: response.data.data.badges.artBadges,
+            impactBadges: response.data.data.badges.impactBadges,
+          }),
+        );
+        
         if (
           response.data.data.hasSubscription &&
           response.data.data.assignedNumber
@@ -90,7 +98,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
 
   const handleGetStarted = () => {
     if (!user?.assignedNumber) {
-      navigation.replace("OnBoardingStack", { screen: "claimSpot" });
+      navigation.replace("OnBoardingStack", { screen: "onboarding" });
       return;
     }
     if (user?.assignedNumber && !user?.hasSubscription) {

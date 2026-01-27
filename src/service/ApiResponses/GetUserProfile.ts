@@ -57,7 +57,7 @@ export interface Badge {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-}
+} 
 
 export interface Requirement {
   consecutiveMonths: number;

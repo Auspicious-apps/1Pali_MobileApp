@@ -58,24 +58,55 @@ const badges = [
 
 const CollectBadges: React.FC = () => {
   const dispatch = useDispatch();
-  const isVisible = useAppSelector(
-    (state: RootState) => state.collectBadges.isVisible,
-  );
 
+  const { isVisible, collectibleBadges } = useAppSelector(
+    (state) => state.collectBadges,
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
-  const badge = badges[currentIndex];
-  
-  const closeModal = () => {
-    dispatch(closeCollectBadgesModal());
-    setCurrentIndex(0);
-  };
-  const onViewBadge = () => {
-    if (currentIndex < badges.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      closeModal();
-    }
-  };
+  const [index, setIndex] = useState(0);
+  const badge = collectibleBadges[currentIndex];
+
+   if (!badge) return null;
+
+   const getBg = () => {
+     switch (badge.badge.category) {
+       case "growth":
+         return IMAGES.BadgeGreenBg;
+       case "art":
+         return IMAGES.BadgeBrownBg;
+       case "impact":
+         return IMAGES.BadgePinkBg;
+       default:
+         return IMAGES.BadgeBlackBg;
+     }
+   };
+
+   const getHeader = () => {
+     switch (badge.badge.category) {
+       case "growth":
+         return "Growth Badge Unlocked";
+       case "art":
+         return "Art Badge Unlocked";
+       case "impact":
+         return "Impact Badge Unlocked";
+       default:
+         return "Badge Unlocked";
+     }
+   };
+
+    const onViewBadge = () => {
+      if (index < collectibleBadges.length - 1) {
+        setIndex(index + 1);
+      } else {
+        dispatch(closeCollectBadgesModal());
+        setIndex(0);
+      }
+    };
+
+    const closeModal = () => {
+      dispatch(closeCollectBadgesModal());
+      setCurrentIndex(0);
+    };
 
   return (
     <Modal
@@ -85,9 +116,7 @@ const CollectBadges: React.FC = () => {
       statusBarTranslucent
       onRequestClose={closeModal}
     >
-      <View
-        style={styles.overlay}
-      >
+      <View style={styles.overlay}>
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType="light"
@@ -95,7 +124,7 @@ const CollectBadges: React.FC = () => {
         />
 
         <ImageBackground
-          source={badge.background}
+          source={getBg()}
           resizeMode="cover"
           style={styles.container}
         >
@@ -106,7 +135,7 @@ const CollectBadges: React.FC = () => {
               fontSize={18}
               color={COLORS.white}
             >
-              {badge.type}
+              {getHeader()}
             </CustomText>
 
             <TouchableOpacity
@@ -124,7 +153,10 @@ const CollectBadges: React.FC = () => {
             style={{ alignItems: "center", flex: 1, justifyContent: "center" }}
           >
             {/* Badge Image */}
-            <Image source={badge.image} style={styles.badgeImage} />
+            <Image
+              source={{ uri: badge.badge.iconPngUrl }}
+              style={styles.badgeImage}
+            />
 
             {/* Text */}
             <CustomText
@@ -133,7 +165,7 @@ const CollectBadges: React.FC = () => {
               color={COLORS.white}
               style={{ marginTop: verticalScale(12) }}
             >
-              {badge.title}
+              {badge.badge.title}
             </CustomText>
 
             <CustomText
@@ -142,13 +174,13 @@ const CollectBadges: React.FC = () => {
               color={COLORS.white}
               style={{ marginTop: verticalScale(8) }}
             >
-              {badge.description}
+              {badge.badge.description}
             </CustomText>
           </View>
 
           {/* Button */}
           <PrimaryButton
-            title="View Badge"
+            title={index < collectibleBadges.length - 1 ? "View Badge" : "Done"}
             onPress={onViewBadge}
             textStyle={{
               fontFamily: FONTS.MontserratSemiBold,

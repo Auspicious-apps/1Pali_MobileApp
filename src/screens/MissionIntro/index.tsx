@@ -122,7 +122,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
       if (apiResponse?.data.success) {
         const { tokens, user, isNewUser } = apiResponse?.data?.data;
 
-        dispatch(setUserData(apiResponse?.data?.data.user));
+        dispatch(setUserData(apiResponse?.data?.data?.user));
 
         // Store all tokens in local storage
         await storeLocalStorageData(
@@ -326,7 +326,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
     const interval = setInterval(() => {
       dispatch(decrementReservationTimer());
-    }, 300000);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [reservationSeconds]);

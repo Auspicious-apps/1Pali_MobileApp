@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   Image,
   Platform,
@@ -15,47 +15,62 @@ import MyBadgesModal, {
   MyBadgeItem,
 } from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
-import { useAppSelector } from "../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { formatNumber } from "../../utils/Helpers";
+import {
+  Badge,
+  Badges,
+  GrowthBadge,
+} from "../../service/ApiResponses/GetUserProfile";
+import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
+import CollectBadges from "../../components/Modal/CollectBadges";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
-  const BADGES: MyBadgeItem[] = [
-    {
-      id: 1,
-      title: "Seed",
-      subtitle: "Supporting for 1 month",
-      image: IMAGES.seedsOne,
-    },
-    {
-      id: 2,
-      title: "Founder",
-      subtitle: "For being part of the first 1000 users",
-      image: IMAGES.FounderSeed,
-    },
-    {
-      id: 3,
-      title: "Jaffa",
-      subtitle: "Unlocked after contributing $2",
-      image: IMAGES.JaffaSeed,
-    },
-    {
-      id: 4,
-      title: "Echo",
-      subtitle: "For sharing 1 piece of artwork",
-      image: IMAGES.EchoSeed,
-    },
-  ];
-
-  const [isBadgesModalVisible, setIsBadgesModalVisible] = useState(false);
-  const [selectedBadge, setSelectedBadge] = useState<MyBadgeItem>(BADGES[0]);
-  const [showBadgesModal, setShowBadgesModal] = useState(false);
-
+  const dispatch = useAppDispatch();
+  // const BADGES: MyBadgeItem[] = [
+  //   {
+  //     id: 1,
+  //     title: "Seed",
+  //     subtitle: "Supporting for 1 month",
+  //     image: IMAGES.seedsOne,
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Founder",
+  //     subtitle: "For being part of the first 1000 users",
+  //     image: IMAGES.FounderSeed,
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Jaffa",
+  //     subtitle: "Unlocked after contributing $2",
+  //     image: IMAGES.JaffaSeed,
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "Echo",
+  //     subtitle: "For sharing 1 piece of artwork",
+  //     image: IMAGES.EchoSeed,
+  //   },
+  // ];
   const { badges, user } = useAppSelector((state) => state.user);
 
-  console.log(user, "opopo");
+  const [isBadgesModalVisible, setIsBadgesModalVisible] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+
+  const { collectibleBadges, isVisible } = useAppSelector(
+    (state) => state.collectBadges,
+  );
+  console.log(collectibleBadges, "IUYUTYU");
+
+  useEffect(() => {
+    if (collectibleBadges?.length > 0 && !isVisible) {
+      dispatch(openCollectBadgesModal());
+    }
+  }, [collectibleBadges]);
 
   return (
     <View style={styles.container}>
@@ -67,7 +82,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             onPress={() => setIsBadgesModalVisible(true)}
           >
             <Image
-              source={selectedBadge.image}
+              source={{ uri: selectedBadge?.iconPngUrl }}
               style={{
                 width: horizontalScale(110),
                 height: verticalScale(110),
@@ -83,7 +98,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               color={COLORS.darkText}
               style={{ textAlign: "center" }}
             >
-              {selectedBadge.title}
+              {selectedBadge?.title}
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
@@ -91,10 +106,11 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
-              {selectedBadge.subtitle}
+              {selectedBadge?.description}
             </CustomText>
           </View>
         </View>
+
         <View style={styles.card}>
           <CustomText
             fontFamily="GabaritoSemiBold"
@@ -123,7 +139,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             color={COLORS.greyText}
             style={{ textAlign: "center" }}
           >
-            {user?.globalStats.totalDonors}/1,000,000 donors
+            {user?.globalStats?.totalDonors}/1,000,000 donors
           </CustomText>
         </View>
         <View
@@ -150,7 +166,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             fontSize={16}
             color="rgba(0, 31, 1, 1)"
           >
-            ${formatNumber(user?.globalStats.totalDonationsGenerated!)} donated
+            ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} donated
             together
           </CustomText>
         </View>
@@ -174,9 +190,9 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
         <MyBadgesModal
           isVisible={isBadgesModalVisible}
           setIsVisible={setIsBadgesModalVisible}
-          badges={BADGES}
-          onSelectBadge={(badge) => setSelectedBadge(badge)}
         />
+
+        <CollectBadges />
       </SafeAreaView>
     </View>
   );
