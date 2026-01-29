@@ -1,47 +1,44 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
-  Alert,
+  Animated,
+  Dimensions,
+  FlatList,
   Image,
   ImageBackground,
-  ImageSourcePropType,
   Modal,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import ICONS from "../../assets/Icons";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { getUnViewedBadges } from "../../redux/slices/UserSlice";
 import IMAGES from "../../assets/Images";
-import COLORS from "../../utils/Colors";
-import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
-import { horizontalScale, hp, responsiveFontSize, verticalScale } from "../../utils/Metrics";
-import { BlurView } from "@react-native-community/blur";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import PrimaryButton from "../PrimaryButton";
-import FONTS from "../../assets/fonts";
-import { useDispatch } from "react-redux";
-import { RootState, useAppSelector } from "../../redux/store";
-import { closeCollectBadgesModal, removeClaimedBadges } from "../../redux/slices/CollectBadgesSlice";
-import ENDPOINTS from "../../service/ApiEndpoints";
+import { BlurView } from "@react-native-community/blur";
+import CustomIcon from "../CustomIcon";
+import ICONS from "../../assets/Icons";
+import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import { postData } from "../../service/ApiService";
+import ENDPOINTS from "../../service/ApiEndpoints";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const CollectBadges: React.FC = () => {
-  const dispatch = useDispatch();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const unViewedBadges = useAppSelector(getUnViewedBadges);
 
-  const { isVisible, collectibleBadges } = useAppSelector(
-    (state) => state.collectBadges,
-  );
+  console.log(unViewedBadges);
 
-  const badge = collectibleBadges?.[currentIndex];
-  console.log(badge,'KLKLKLK');
-  
+  const { isVisible } = useAppSelector((state) => state.collectBadges);
 
-  if (!badge) return null;
-
-  /* ---------------- UI Helpers ---------------- */
-  const getBg = () => {
-    switch (badge.badge.category) {
+  // Helper to get image based on category string
+  const getBgImage = (category: string) => {
+    switch (category) {
       case "GROWTH":
         return IMAGES.BadgeGreenBg;
       case "ART":
@@ -53,26 +50,14 @@ const CollectBadges: React.FC = () => {
     }
   };
 
-  /* ---------------- Actions ---------------- */
   const onViewBadge = async () => {
-
-    if (!badge?.id) return;
-
     try {
       setIsLoading(true);
       const response = await postData(ENDPOINTS.CollectBadges, {
-        badgeId: badge.id,
+        badgeId: [],
       });
 
       if (response.data.success) {
-        dispatch(removeClaimedBadges(badge.id));
-       
-        if ((collectibleBadges?.length ?? 0) > 1) {
-        setCurrentIndex(0); 
-        }
-         else {
-          setCurrentIndex(0);
-        }
         dispatch(closeCollectBadgesModal());
       }
       console.log("Badge collected successfully:", response);
@@ -83,30 +68,53 @@ const CollectBadges: React.FC = () => {
     }
   };
 
-  const closeModal = async () => {
-    if (badge?.badge?._id) {
-      // const success = await handleCollectBadges(badge.badge._id);
+  const renderItem = ({ item }: { item: any }) => (
+    <ImageBackground
+      source={getBgImage(item.badge.category)}
+      style={styles.cardContainer}
+    >
+      <View style={styles.header}>
+        <CustomText
+          fontFamily="GabaritoMedium"
+          fontSize={18}
+          color={COLORS.white}
+        >
+          {item.badge.category.charAt(0).toUpperCase() +
+            item.badge.category.slice(1).toLowerCase()}{" "}
+          badge unlocked
+        </CustomText>
+      </View>
 
-      // if (success) {
-      //   if (currentIndex < (collectibleBadges?.length ?? 0) - 1) {
-      //     setCurrentIndex(prev => prev + 1);
-      //   } else {
-      //     setCurrentIndex(0);
-      //   }
-      // }
-    }
+      <CustomText
+        fontFamily="GabaritoBold"
+        fontSize={36}
+        color={COLORS.white}
+        style={{ textAlign: "center", marginTop: verticalScale(24) }}
+      >
+        {item.badge.title}
+      </CustomText>
 
-    dispatch(closeCollectBadgesModal());
-  };
+      <View
+        style={{ alignItems: "center", flex: 1, marginTop: verticalScale(16) }}
+      >
+        <Image
+          source={{ uri: item.badge.iconPngUrl }}
+          style={styles.badgeImage}
+        />
+        <CustomText
+          fontFamily="GabaritoMedium"
+          fontSize={18}
+          color={COLORS.white}
+          style={{ marginTop: verticalScale(8), textAlign: "center" }}
+        >
+          {item.badge.description}
+        </CustomText>
+      </View>
+    </ImageBackground>
+  );
 
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={closeModal}
-    >
+    <Modal visible={isVisible} transparent animationType="fade">
       <View style={styles.overlay}>
         <BlurView
           style={StyleSheet.absoluteFill}
@@ -114,111 +122,82 @@ const CollectBadges: React.FC = () => {
           blurAmount={2}
         />
 
-        <ImageBackground
-          source={getBg()}
-          resizeMode="cover"
-          style={styles.container}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={18}
-              color={COLORS.white}
-            >
-              {badge.badge.category}
-            </CustomText>
+        <View style={styles.modalContent}>
+          <Animated.FlatList
+            data={unViewedBadges}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              { useNativeDriver: true }, // This is what caused the error with a normal FlatList
+            )}
+            scrollEventThrottle={16}
+          />
 
+          <View
+            style={{
+              position: "absolute",
+              right: horizontalScale(20),
+              top: verticalScale(15),
+            }}
+          >
             <TouchableOpacity
-              onPress={closeModal}
-              style={{
-                position: "absolute",
-                right: horizontalScale(0),
-                top: verticalScale(-5),
-              }}
+              onPress={() => dispatch(closeCollectBadgesModal())}
+              style={styles.closeBtn}
             >
               <CustomIcon Icon={ICONS.WhiteClose} height={30} width={30} />
             </TouchableOpacity>
           </View>
-          {/* Text */}
-          <CustomText
-            fontFamily="GabaritoBold"
-            fontSize={36}
-            color={COLORS.white}
-            style={{ textAlign: "center", marginTop: verticalScale(24) }}
-          >
-            {badge.badge.title}
-          </CustomText>
-          <View
-            style={{
-              alignItems: "center",
-              flex: 1,
-              marginTop: verticalScale(16),
-            }}
-          >
-            {/* Badge Image */}
-            <Image
-              source={{ uri: badge.badge.iconPngUrl }}
-              style={styles.badgeImage}
-            />
 
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={18}
-              color={COLORS.white}
-              style={{ marginTop: verticalScale(8), textAlign: "center" }}
-            >
-              {badge.badge.description}
-            </CustomText>
-          </View>
-
-          {/* Button */}
           <PrimaryButton
-            title="Collect Badge"
+            title="View Badge"
             onPress={onViewBadge}
             disabled={isLoading}
-            textStyle={{
-              fontFamily: FONTS.MontserratSemiBold,
-              fontSize: responsiveFontSize(16),
-              color: COLORS.darkText,
-            }}
+            textStyle={{ color: COLORS.darkText }}
             style={{
-              ...styles.button,
               opacity: isLoading ? 0.6 : 1,
+              position: "absolute",
+              bottom: verticalScale(20),
+              alignSelf: "center",
+              backgroundColor: COLORS.white,
             }}
           />
-        </ImageBackground>
+        </View>
       </View>
     </Modal>
   );
 };
 
-export default CollectBadges;
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  container: {
-    height: hp(57.5),
+  modalContent: {
+    backgroundColor: "transparent",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingHorizontal: horizontalScale(20),
-    paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(30),
     overflow: "hidden",
   },
-  header: {
-    alignItems: "center",
-    paddingHorizontal: 16,
+  cardContainer: {
+    width: SCREEN_WIDTH, // Essential for carousel
+    height: hp(57.5),
+    paddingTop: verticalScale(20),
   },
+  closeBtn: {},
   badgeImage: {
     width: horizontalScale(162),
     height: verticalScale(162),
     borderRadius: 60,
   },
-  button: {
-    backgroundColor: COLORS.white,
+  header: {
+    alignItems: "center",
+    paddingHorizontal: 16,
   },
 });
+
+export default CollectBadges;

@@ -31,6 +31,8 @@ import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import {
   decrementReservationTimer,
+  setBadges,
+  setClaimedNumber,
   setUserData,
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
@@ -111,7 +113,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         return;
       }
 
-      const apiResponse = await postData<AppleSigninResponse>(
+      const signInResponse = await postData<AppleSigninResponse>(
         ENDPOINTS.AppleSignin,
         {
           identityToken,
@@ -119,10 +121,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         },
       );
 
-      if (apiResponse?.data.success) {
-        const { tokens, user, isNewUser } = apiResponse?.data?.data;
-
-        dispatch(setUserData(apiResponse?.data?.data?.user));
+      if (signInResponse?.data.success) {
+        const { tokens, user, isNewUser } = signInResponse?.data?.data;
 
         // Store all tokens in local storage
         await storeLocalStorageData(
@@ -137,8 +137,13 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         await storeLocalStorageData("userData", user);
 
         // Navigate based on user state
-
         if (user.hasSubscription && user.hasSubscription) {
+          dispatch(setUserData(signInResponse.data.data.user.user));
+          dispatch(setBadges(signInResponse.data.data.user.user.badges));
+          dispatch(
+            setClaimedNumber(signInResponse.data.data.user.assignedNumber),
+          );
+
           navigation.navigate("MainStack", {
             screen: "tabs",
             params: {
@@ -202,6 +207,12 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           if (isNewUser || !user.assignedNumber) {
             navigation.navigate("joinOnePali");
           } else {
+            dispatch(setUserData(signinResponse.data.data.user.user));
+            dispatch(setBadges(signinResponse.data.data.user.user.badges));
+            dispatch(
+              setClaimedNumber(signinResponse.data.data.user.assignedNumber),
+            );
+
             navigation.navigate("MainStack", {
               screen: "tabs",
               params: {

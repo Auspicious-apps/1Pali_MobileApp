@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC } from "react";
 import {
   Alert,
   Image,
@@ -8,30 +8,37 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import ICONS from '../../assets/Icons';
-import IMAGES from '../../assets/Images';
-import CustomIcon from '../../components/CustomIcon';
-import { CustomText } from '../../components/CustomText';
-import FocusResetScrollView from '../../components/FocusResetScrollView';
-import ProgressBar from '../../components/ProgressBar';
-import { AccountScreenProps } from '../../typings/routes';
-import COLORS from '../../utils/Colors';
-import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
+import { SafeAreaView } from "react-native-safe-area-context";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
+import FocusResetScrollView from "../../components/FocusResetScrollView";
+import ProgressBar from "../../components/ProgressBar";
+import { AccountScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { deleteLocalStorageData } from "../../utils/Helpers";
 import STORAGE_KEYS from "../../utils/Constants";
 import { Screen } from "react-native-screens";
-import { useAppSelector } from '../../redux/store';
+import { useAppSelector } from "../../redux/store";
+import {
+  selectCommunityBadges,
+  selectGrowthBadges,
+} from "../../redux/slices/UserSlice";
 
 const BADGES = [
-  { id: 1, image: IMAGES.Sprout1, label: 'Sprout' }, 
-  { id: 2, image: IMAGES.Sprout2, label: 'First 1000' }, 
-  { id: 3, image: IMAGES.Sprout3, label: 'Megaphone' }, 
+  { id: 1, image: IMAGES.Sprout1, label: "Sprout" },
+  { id: 2, image: IMAGES.Sprout2, label: "First 1000" },
+  { id: 3, image: IMAGES.Sprout3, label: "Megaphone" },
 ];
 
-const Account : FC<AccountScreenProps> = ({navigation, route}) => {
+const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const { badges, user } = useAppSelector((state) => state.user);
+
+  const growthBadges = useAppSelector(selectGrowthBadges);
+  const communityBadges = useAppSelector(selectCommunityBadges);
 
   const ACCOUNT_OPTIONS = [
     {
@@ -45,7 +52,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
       id: "email",
       icon: ICONS.EmailIcon,
       label: "Email",
-      value: "omarswidan@ymail.com",
+      value: user?.email,
       onPress: undefined,
     },
     {
@@ -193,7 +200,8 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                Member since {new Date(user?.createdAt || "").toLocaleDateString()}
+                Member since{" "}
+                {new Date(user?.createdAt || "").toLocaleDateString()}
               </CustomText>
             </View>
             <View style={styles.card}>
@@ -220,14 +228,14 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                     fontSize={16}
                     color={COLORS.darkText}
                   >
-                    {badges?.growthBadges[0]?.badge.category}
+                    {growthBadges[0]?.badge.category}
                   </CustomText>
                   <CustomText
                     fontFamily="GabaritoRegular"
                     fontSize={16}
                     color={COLORS.appText}
                   >
-                    {user?.totalDonations} months
+                    {user?.consecutivePaidMonths} months
                   </CustomText>
                 </View>
                 <View
@@ -237,7 +245,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                     right: horizontalScale(15),
                   }}
                 >
-                  {badges?.growthBadges?.map((badge, index) => (
+                  {growthBadges?.map((badge, index) => (
                     <Image
                       key={badge.id}
                       source={{ uri: badge.badge.iconPngUrl }}
@@ -246,7 +254,7 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                         height: verticalScale(72),
                         marginLeft: index === 0 ? 0 : -30,
                         borderRadius: 36,
-                        zIndex: badges?.growthBadges?.length - index,
+                        zIndex: growthBadges?.length - index,
                         resizeMode: "contain",
                       }}
                     />
@@ -336,14 +344,15 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {badges?.communityBadge.badge?.name}
+                      {communityBadges?.[0]?.badge?.name}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
                       fontSize={12}
                       color={COLORS.appText}
+                      style={{ textAlign: "center" }}
                     >
-                      First {badges?.communityBadge?.badge?.requirement?.userNumberMax} donors
+                      {communityBadges?.[0]?.badge?.milestone}{" "}
                     </CustomText>
                   </View>
                 </View>
@@ -443,10 +452,9 @@ const Account : FC<AccountScreenProps> = ({navigation, route}) => {
       </SafeAreaView>
     </View>
   );
-}
+};
 
 export default Account;
-
 
 const styles = StyleSheet.create({
   container: {

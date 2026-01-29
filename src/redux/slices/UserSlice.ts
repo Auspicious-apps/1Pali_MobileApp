@@ -1,12 +1,9 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-  AppleSigninResponse,
-  User,
-} from "../../service/ApiResponses/AppleSignin";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   Badges,
   GetUserProfileApiResponse,
 } from "../../service/ApiResponses/GetUserProfile";
+import { RootState } from "../store";
 
 interface UserState {
   user: GetUserProfileApiResponse | null;
@@ -71,3 +68,26 @@ export const {
 } = userSlice.actions;
 
 export default userSlice.reducer;
+
+export const selectGrowthBadges = createSelector(
+  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  (badges) => badges?.badges.filter((b) => b.badge.category === "GROWTH") ?? [],
+);
+export const selectCommunityBadges = createSelector(
+  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  (badges) =>
+    badges?.badges.filter((b) => b.badge.category === "COMMUNITY") ?? [],
+);
+export const selectImpactBadges = createSelector(
+  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  (badges) => badges?.badges.filter((b) => b.badge.category === "IMPACT") ?? [],
+);
+export const selectArtBadges = createSelector(
+  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  (badges) => badges?.badges.filter((b) => b.badge.category === "ART") ?? [],
+);
+
+export const getUnViewedBadges = createSelector(
+  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  (badges) => badges?.badges.filter((b) => !b.isViewed) ?? [],
+);

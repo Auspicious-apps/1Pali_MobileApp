@@ -1,12 +1,21 @@
-// Type for user profile response
-export type GetUserProfileApiResponse = {
+export interface ConsfirmSetupIntentApiResponse {
+  paymentMethodSaved: boolean;
+  subscriptionId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  assignedNumber: number;
+  message: string;
+  user: User;
+}
+
+export interface User {
   id: string;
   email: string;
   name: string;
   profilePicture: string;
   provider: string;
   assignedNumber: number;
-  consecutivePaidMonths: string;
   joinedPosition: number;
   createdAt: string;
   totalDonations: number;
@@ -16,7 +25,7 @@ export type GetUserProfileApiResponse = {
   stripeCustomerId: string;
   globalStats: GlobalStats;
   badges: Badges;
-};
+}
 
 export interface GlobalStats {
   totalDonors: number;
@@ -47,7 +56,6 @@ export interface Badge2 {
   name: string;
   title: string;
   description: string;
-  milestone: string;
   iconPngUrl: string;
   requirement: Requirement;
   sortOrder: number;

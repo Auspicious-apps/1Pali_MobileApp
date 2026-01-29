@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   Platform,
   StyleSheet,
@@ -11,48 +12,40 @@ import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
-import MyBadgesModal, {
-} from "../../components/Modal/MyBadgesModal";
+import MyBadgesModal from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
+import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
+import {
+  getUnViewedBadges,
+  selectGrowthBadges,
+} from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { Badge } from "../../service/ApiResponses/GetUserProfile";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { formatNumber } from "../../utils/Helpers";
-import {
-  Badge,
-  Badges,
-  GrowthBadge,
-} from "../../service/ApiResponses/GetUserProfile";
-import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import CollectBadges from "../../components/Modal/CollectBadges";
-import { postData } from "../../service/ApiService";
-import ENDPOINTS from "../../service/ApiEndpoints";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
-  
+
   const { badges, user } = useAppSelector((state) => state.user);
+  const growthBadges = useAppSelector(selectGrowthBadges);
+  const unViewedBadges = useAppSelector(getUnViewedBadges);
 
-  const[isBadgesSHeet, setIsBadgesSheet] = useState(false)
+  const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
 
-  const { collectibleBadges, isVisible } = useAppSelector(
-    (state) => state.collectBadges,
-  );
-
-
-
-useEffect(() => {
-  if (collectibleBadges && collectibleBadges.length > 0) {
-    const timer = setTimeout(() => {
-      dispatch(openCollectBadgesModal());
-    }, 1500); 
-
-    return () => clearTimeout(timer);
-  }
-}, [collectibleBadges, dispatch]);
-
-
+  useEffect(() => {
+    if (badges && badges.badges.length > 0) {
+      const timer = setTimeout(() => {
+        if (unViewedBadges.length > 0) {
+          dispatch(openCollectBadgesModal());
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [unViewedBadges, dispatch]);
 
   return (
     <View style={styles.container}>
@@ -64,7 +57,7 @@ useEffect(() => {
             onPress={() => setIsBadgesSheet(true)}
           >
             <Image
-              source={{ uri: badges?.growthBadges[0]?.badge?.iconPngUrl }}
+              source={{ uri: growthBadges[0]?.badge?.iconPngUrl }}
               style={{
                 width: horizontalScale(110),
                 height: verticalScale(110),
@@ -80,7 +73,7 @@ useEffect(() => {
               color={COLORS.darkText}
               style={{ textAlign: "center" }}
             >
-              {badges?.growthBadges[0].badge.name}
+              {growthBadges[0]?.badge?.name}
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
@@ -88,7 +81,7 @@ useEffect(() => {
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
-              {badges?.growthBadges[0].badge.description}
+              {growthBadges[0]?.badge?.description}
             </CustomText>
           </View>
         </View>

@@ -20,13 +20,12 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { getLocalStorageData } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { setCollectibleBadges } from "../../redux/slices/CollectBadgesSlice";
 
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
 
-  const { user, badges } = useAppSelector((state) => state.user);
+  const { user } = useAppSelector((state) => state.user);
 
   useEffect(() => {
     checkAuthenticationStatus();
@@ -34,12 +33,12 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
 
   const checkAuthenticationStatus = async () => {
     try {
+      // await AsyncStorage.clear();
+
       // Check if all required tokens exist
       const accessToken = await getLocalStorageData(STORAGE_KEYS.accessToken);
       const refreshToken = await getLocalStorageData(STORAGE_KEYS.refreshToken);
       const expiresIn = await getLocalStorageData(STORAGE_KEYS.expiresIn);
-
-      console.log(accessToken, "kfjsdh");
 
       if (accessToken) {
         await verifyUserProfile();
@@ -61,14 +60,9 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       if (response.data.success) {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
-        dispatch(
-          setCollectibleBadges({
-            growthBadges: response.data.data.badges.growthBadges,
-            artBadges: response.data.data.badges.artBadges,
-            impactBadges: response.data.data.badges.impactBadges,
-          }),
-        );
-        
+
+        console.log(response.data.data);
+
         if (
           response.data.data.hasSubscription &&
           response.data.data.assignedNumber

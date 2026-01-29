@@ -18,9 +18,15 @@ import CustomIcon from "../../components/CustomIcon";
 import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
+import {
+  clearReservationTimer,
+  setBadges,
+  setClaimedNumber,
+  setUserData,
+} from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
-import { ConfirmPaymentIntentResponse } from "../../service/ApiResponses/ConfirmPaymentIntent";
+import { ConsfirmSetupIntentApiResponse } from "../../service/ApiResponses/ConfirmSetupIntentApiResponse";
 import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
 import {
   GetAllStripeePlansResponse,
@@ -36,7 +42,6 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import { clearReservationTimer } from "../../redux/slices/UserSlice";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -99,15 +104,24 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       }
 
       if (user && user.hasPaymentMethod) {
-        const confirmSetupIntentresponse = await postData(
-          ENDPOINTS.ConfirmSetupIntent,
-          {
-            priceId: selectedPlan,
-            reservationToken: reservationToken,
-          },
-        );
+        const confirmSetupIntentresponse =
+          await postData<ConsfirmSetupIntentApiResponse>(
+            ENDPOINTS.ConfirmSetupIntent,
+            {
+              priceId: selectedPlan,
+              reservationToken: reservationToken,
+            },
+          );
 
         if (confirmSetupIntentresponse.data.success) {
+          console.log(confirmSetupIntentresponse.data.data);
+          dispatch(setUserData(confirmSetupIntentresponse.data.data.user));
+          dispatch(setBadges(confirmSetupIntentresponse.data.data.user.badges));
+          dispatch(
+            setClaimedNumber(
+              confirmSetupIntentresponse.data.data.assignedNumber,
+            ),
+          );
           navigation.navigate("MainStack", {
             screen: "tabs",
             params: { screen: "home" },
@@ -157,7 +171,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         }
 
         const confirmSetupIntentresponse =
-          await postData<ConfirmPaymentIntentResponse>(
+          await postData<ConsfirmSetupIntentApiResponse>(
             ENDPOINTS.ConfirmSetupIntent,
             {
               priceId: selectedPlan,
@@ -168,6 +182,16 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
         if (confirmSetupIntentresponse?.data?.success) {
           if (confirmSetupIntentresponse.data.success) {
+            dispatch(setUserData(confirmSetupIntentresponse.data.data.user));
+            dispatch(
+              setBadges(confirmSetupIntentresponse.data.data.user.badges),
+            );
+            dispatch(
+              setClaimedNumber(
+                confirmSetupIntentresponse.data.data.assignedNumber,
+              ),
+            );
+
             navigation.navigate("MainStack", {
               screen: "tabs",
               params: { screen: "home" },
@@ -210,20 +234,20 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     getAllPlans();
   }, []);
 
- useEffect(() => {
-   if (reservationSeconds !== null && reservationSeconds <= 0) {
-     setIsExpired(true);
-     dispatch(clearReservationTimer());
-   }
- }, [reservationSeconds]);
+  useEffect(() => {
+    if (reservationSeconds !== null && reservationSeconds <= 0) {
+      setIsExpired(true);
+      dispatch(clearReservationTimer());
+    }
+  }, [reservationSeconds]);
 
- useEffect(() => {
-   if (isExpired) {
-     setShowCard(false);
-     setShowDisclaimer(false);
-     setShowButton(true);
-   }
- }, [isExpired]);
+  useEffect(() => {
+    if (isExpired) {
+      setShowCard(false);
+      setShowDisclaimer(false);
+      setShowButton(true);
+    }
+  }, [isExpired]);
 
   useEffect(() => {
     // Animation timings for letters
