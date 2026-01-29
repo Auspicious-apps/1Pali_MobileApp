@@ -1,68 +1,83 @@
+import React, { FC, useEffect, useState } from "react";
 import {
-  Image,
-  StyleSheet,
-  View,
+  ActivityIndicator,
   FlatList,
-  Touchable,
-  TouchableOpacity,
+  Image,
   Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React, { FC } from "react";
-import { UpdatesScreenProps } from "../../typings/routes";
 import { SafeAreaView } from "react-native-safe-area-context";
 import IMAGES from "../../assets/Images";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import { CustomText } from "../../components/CustomText";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import {
+  Blog,
+  GetUserBlogsResponse,
+} from "../../service/ApiResponses/GetUserBlogs";
+import { fetchData } from "../../service/ApiService";
+import { UpdatesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-
-const updatesData = [
-  {
-    id: "1",
-    title: "Food baskets distributed to families in Khan Younis",
-    date: "January 2026",
-    image: IMAGES.FeedImage,
-  },
-  {
-    id: "2",
-    title: "Food baskets distributed to families in Khan Younis",
-    date: "December 2025",
-    image: IMAGES.FeedImage,
-  },
-  {
-    id: "3",
-    title: "Food baskets distributed to families in Khan Younis",
-    date: "November 2025",
-    image: IMAGES.FeedImage,
-  },
-  {
-    id: "4",
-    title: "Food baskets distributed to families in Khan Younis",
-    date: "October 2025",
-    image: IMAGES.FeedImage,
-  },
-];
+import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 
 const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
-  const renderItem = ({ item }: any) => (
+  const [isLoading, setIsLoading] = useState(false);
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  const handleUserBlogs = async () => {
+    // Function to handle user blogs
+    try {
+      setIsLoading(true);
+      const blogsResponse = await fetchData<GetUserBlogsResponse>(
+        ENDPOINTS.GetBlogForUser,
+      );
+      if (blogsResponse?.data?.success) {
+        setBlogs(blogsResponse?.data?.data?.blogs);
+      }
+      console.log(blogsResponse?.data?.data, "HJJHGJHGHJ");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleUserBlogs();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={COLORS.darkText} />
+      </View>
+    );
+  }
+
+  const renderItem = ({ item }: { item: Blog }) => (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.8}
       onPress={() => {
-        navigation.navigate("updateDetail");
+        navigation.navigate("updateDetail", { blogId: item?.id });
       }}
     >
-      <Image
-        source={item.image}
-        resizeMode="cover"
-        style={{
-          width: "100%",
-          height: hp(36.5),
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-        }}
-      />
+      <View style={styles.imageWrapper}>
+        {imageLoading && (
+          <View style={styles.imageLoader}>
+            <ActivityIndicator size="small" color={COLORS.darkText} />
+          </View>
+        )}
+
+        <Image
+          source={{ uri: item.coverPhotoUrl }}
+          resizeMode="cover"
+          style={styles.cardImage}
+          onLoadEnd={() => setImageLoading(false)}
+        />
+      </View>
 
       <View
         style={{
@@ -85,7 +100,11 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
             fontSize={15}
             color={COLORS.appText}
           >
-            {item.date}
+            {item?.publishMonthYear ||
+              new Date(item.publishedAt).toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              })}
           </CustomText>
         </View>
         <View style={styles.cardFooter}>
@@ -97,9 +116,6 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
           >
             {item.title}
           </CustomText>
-          {/* <TouchableOpacity activeOpacity={0.8}>
-            <CustomIcon Icon={ICONS.UpwardIcon} height={40} width={40} />
-          </TouchableOpacity> */}
         </View>
       </View>
     </TouchableOpacity>
@@ -130,7 +146,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
         </View>
 
         <FlatList
-          data={updatesData}
+          data={blogs}
           bounces={false}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
@@ -183,5 +199,32 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: verticalScale(8),
+  },
+  imageWrapper: {
+    width: "100%",
+    height: hp(36.5),
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    overflow: "hidden",
+  },
+  cardImage: {
+    width: "100%",
+    height: hp(36.5),
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  imageLoader: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.greyBackground,
+  },
+
+  /* 🔹 FULL SCREEN LOADER */
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
   },
 });

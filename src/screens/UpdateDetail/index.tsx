@@ -1,87 +1,262 @@
-import { FlatList, Image, KeyboardAvoidingView, Platform, Share, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { FC, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import IMAGES from '../../assets/Images'
-import { horizontalScale, hp, verticalScale, wp } from '../../utils/Metrics'
-import CustomIcon from '../../components/CustomIcon'
-import ICONS from '../../assets/Icons'
-import { CustomText } from '../../components/CustomText'
-import COLORS from '../../utils/Colors'
-import { UpdateDetailScreenProps } from '../../typings/routes'
-import FocusResetScrollView from '../../components/FocusResetScrollView'
-import FONTS from '../../assets/fonts'
+import React, { FC, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Share,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import FONTS from "../../assets/fonts";
+import ICONS from "../../assets/Icons";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
+import FocusResetScrollView from "../../components/FocusResetScrollView";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { AddCommentToBlogResponse } from "../../service/ApiResponses/AddCommentToBlog";
+import {
+  Comment,
+  GetBlogByIdResponse,
+} from "../../service/ApiResponses/GetBlogById";
+import { LikeUnlikeBlogResponse } from "../../service/ApiResponses/LikeUnlikeResponse";
+import { fetchData, postData } from "../../service/ApiService";
+import { UpdateDetailScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import { ShareBlogResponse } from "../../service/ApiResponses/ShareBlogResponse";
+import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
 
-type Comment = {
-  id: string;
-  text: string;
-  time: string;
+const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
+  const { blogId } = route.params;
+  const [blogDetail, setBlogDetail] = useState<GetBlogByIdResponse>();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [commentText, setCommentText] = useState("");
+  const commentInputRef = useRef<TextInput>(null);
+  const [sharing, setSharing] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  const timeAgo = (date?: string) => {
+    if (!date) return "";
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
+
+  const sortCommentsByLatest = (comments?: Comment[]): Comment[] =>
+    [...(comments ?? [])].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  const renderSlide = ({ item }: { item: string }) => {
+    return (
+      <View style={styles.slideTextCont}>
+        <Image source={{ uri: item }} style={styles.image} />
+      </View>
+    );
+  };
+
+  const handleBlogDetail = async () => {
+    try {
+      const response = await fetchData<GetBlogByIdResponse>(
+        `${ENDPOINTS.GetBlogById}/${blogId}`,
+      );
+
+      console.log(response, "RESPONSE");
+
+      if (response?.data?.success) {
+        const data = response.data.data;
+
+        setBlogDetail({
+          ...data,
+          comments: sortCommentsByLatest(data.comments),
+        });
+        setIsLiked(response?.data?.data?.isLikedByUser);
+        setHasNext(data?.commentsPagination?.hasNext || false);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+const fetchBlogComments = async (pageNumber: number) => {
+  try {
+    setCommentsLoading(true);
+
+    const response = await fetchData<FetchBlogCommentsResponse>(
+      `${ENDPOINTS.GetBlogComments}/${blogId}/comments?page=${pageNumber}&limit=10`,
+    );
+
+    if (response?.data?.success) {
+      const data = response.data.data;
+
+      setBlogDetail((prev): any =>
+        prev
+          ? {
+              ...prev,
+              comments: [...prev.comments, ...data.comments],
+            }
+          : prev,
+      );
+
+      setHasNext(data.pagination.hasNext);
+      setPage(pageNumber);
+    }
+  } catch (error) {
+    console.log("Fetch comments error", error);
+  } finally {
+    setCommentsLoading(false);
+  }
 };
 
-const commentsData: Comment[] = [
-  {
-    id: '1951',
-    text: "Wow! This piece really captivates the viewer's attention!",
-    time: '15m ago',
-  },
-  {
-    id: '1950',
-    text: 'Incredible composition! The colors blend beautifully together!',
-    time: '30m ago',
-  },
-  {
-    id: '124',
-    text: 'Amazing work! The details are breathtaking, truly immersive!',
-    time: '1h ago',
-  },
-  {
-    id: '342',
-    text: 'Absolutely stunning! The scene feels so real and full of life <3',
-    time: '2h ago',
-  },
-];
 
-const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const handleLikeUnlike = async () => {
+    try {
+      const response = await postData<LikeUnlikeBlogResponse>(
+        `${ENDPOINTS.LikeUnlikeBlog}/${blogId}/like`,
+      );
+      console.log("RESS", response);
 
-   const handleShare = async () => {
-     try {
-       const artImage = Image.resolveAssetSource(IMAGES.FeedImage);
-       await Share.share({
-         title: 'Share Art',
-         message: 'OnePali supporter #1948. 1 of 1M supporters strong.',
-         url: artImage?.uri,
-       });
-     } catch (error) {
-       // ignore
-     }
-   };
+      if (response?.data?.data?.action) {
+        setIsLiked(response?.data?.data?.isLiked);
+        setBlogDetail((prev) =>
+          prev
+            ? { ...prev, likesCount: response?.data?.data?.likesCount }
+            : prev,
+        );
+      }
+    } catch (error) {
+      console.log("Like/Unlike error", error);
+    }
+  };
 
+  const handleSendComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      const response = await postData<AddCommentToBlogResponse>(
+        `${ENDPOINTS.AddCommentToBlog}/${blogId}/comments`,
+        { content: commentText.trim() },
+      );
+
+      if (response?.data?.data?.comments?.length) {
+        setBlogDetail((prev): any =>
+          prev
+            ? {
+                ...prev,
+                comments: sortCommentsByLatest(
+                  response?.data?.data?.comments as any,
+                ),
+                commentsCount: response?.data?.data?.pagination?.total,
+              }
+            : prev,
+        );
+
+        setCommentText("");
+        commentInputRef.current?.blur();
+      }
+    } catch (error) {
+      console.log("Add comment error", error);
+    }
+  };
+
+  const handleCommentIconPress = () => {
+    commentInputRef.current?.focus();
+  };
+
+  const handleShare = async () => {
+    if (sharing || !blogDetail) return;
+
+    try {
+      setSharing(true);
+
+      const result = await Share.share({
+        title: blogDetail.title,
+        message: `${blogDetail.title}\n\n${blogDetail?.excerpt || ""}\n\n${
+          blogDetail.coverPhotoUrl
+        }`,
+        url: blogDetail.coverPhotoUrl,
+      });
+
+      if (result.action === Share.sharedAction) {
+        const response = await postData<ShareBlogResponse>(
+          `${ENDPOINTS.ShareBlog}/${blogId}/share`,
+          { platform: "WHATSAPP" },
+        );
+
+        if (response?.data?.success) {
+          setBlogDetail((prev) =>
+            prev ? { ...prev, sharesCount: prev.sharesCount + 1 } : prev,
+          );
+        }
+      }
+    } catch (error) {
+      console.log("Share error", error);
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  useEffect(() => {
+    handleBlogDetail();
+  }, [blogId]);
+
+  useEffect(() => {
+    if (blogDetail?.coverPhotoUrl) {
+      setImageLoading(true);
+    }
+  }, [blogDetail?.coverPhotoUrl]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={COLORS.darkText} />
+      </View>
+    );
+  }
 
   const renderCommentItem = ({ item }: { item: Comment }) => (
     <View style={styles.commentItem}>
-      <View style={{ width: '100%', gap: verticalScale(2) }}>
+      <View style={{ width: "100%", gap: verticalScale(2) }}>
         <CustomText
           fontFamily="GabaritoMedium"
           fontSize={15}
           color={COLORS.darkText}
         >
-          #{item.id}
+          # {item?.user?.assignedNumber}
         </CustomText>
+
         <CustomText
           fontFamily="SourceSansRegular"
           fontSize={14}
           color={COLORS.darkText}
-          style={{ width: '100%' }}
         >
-          {item.text}
+          {item.content}
         </CustomText>
+
         <View style={styles.commentMetaRow}>
           <CustomText
             fontFamily="SourceSansRegular"
             fontSize={12}
             color={COLORS.appText}
           >
-            {item.time}
+            {timeAgo(item?.createdAt)}
           </CustomText>
         </View>
       </View>
@@ -93,13 +268,13 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <FocusResetScrollView
           bounces={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* BACK */}
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -111,19 +286,38 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
               borderColor: COLORS.white,
               borderRadius: 10,
             }}
+            onPress={() => navigation.navigate("tabs", { screen: "updates" })}
           >
-            <CustomIcon
-              Icon={ICONS.WhiteBackArrow}
-              height={24}
-              width={24}
-              onPress={() => navigation.navigate("updates")}
-            />
+            <CustomIcon Icon={ICONS.WhiteBackArrow} height={24} width={24} />
           </TouchableOpacity>
-          <Image
-            source={IMAGES.FeedImage}
-            style={styles.updateImage}
-            resizeMode="cover"
-          />
+
+          {/* IMAGE */}
+          <View>
+            {imageLoading && (
+              <View
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: hp(42.9),
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: COLORS.greyish,
+                  zIndex: 1,
+                }}
+              >
+                <ActivityIndicator size="small" color={COLORS.darkText} />
+              </View>
+            )}
+            <Image
+              source={{ uri: blogDetail?.coverPhotoUrl }}
+              style={styles.updateImage}
+              resizeMode="cover"
+              onLoadStart={() => setImageLoading(true)}
+              onLoadEnd={() => setImageLoading(false)}
+            />
+          </View>
+
+          {/* HEADER */}
           <View
             style={{
               marginTop: verticalScale(27),
@@ -136,16 +330,19 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
               fontSize={14}
               color={COLORS.appText}
             >
-              January 2026
+              {blogDetail?.publishMonthYear}
             </CustomText>
+
             <CustomText
               fontFamily="GabaritoSemiBold"
               fontSize={32}
               color={COLORS.darkText}
             >
-              Food baskets distributed to families in Khan Younis
+              {blogDetail?.title}
             </CustomText>
           </View>
+
+          {/* CONTENT */}
           <View
             style={{
               marginTop: verticalScale(16),
@@ -158,40 +355,38 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
               fontSize={15}
               color={COLORS.darkText}
             >
-              With your support, the Middle East Children's Alliance was able to
-              distribute food baskets to families in Khan Younis this January.
-              These baskets contained essential items that helped families
-              prepare nutritious meals.
-            </CustomText>
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
-              color={COLORS.darkText}
-            >
-              MECA is committed to continuing our support for families in need.
-              With your help, we can provide ongoing assistance and resources to
-              those who need it most.
-            </CustomText>
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
-              color={COLORS.darkText}
-            >
-              With your support, the Middle East Children's Alliance was able to
-              distribute food baskets to families in Khan Younis this January.
-              These baskets contained essential items that helped families
-              prepare nutritious meals.
-            </CustomText>
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
-              color={COLORS.darkText}
-            >
-              MECA is committed to continuing our support for families in need.
-              With your help, we can provide ongoing assistance and resources to
-              those who need it most.
+              {blogDetail?.content}
             </CustomText>
 
+            <View style={{ alignItems: "center" }}>
+              <FlatList
+                data={blogDetail?.photos || []}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item, index) => item + index}
+                renderItem={renderSlide}
+                onMomentumScrollEnd={(e) => {
+                  const index = Math.round(
+                    e.nativeEvent.contentOffset.x /
+                      Dimensions.get("window").width,
+                  );
+                  setActiveIndex(index);
+                }}
+              />
+
+              {/* DOTS */}
+              <View style={styles.dots}>
+                {blogDetail?.photos?.map((_, i) => (
+                  <View
+                    key={i}
+                    style={[styles.dot, activeIndex === i && styles.activeDot]}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* ACTIONS */}
             <View
               style={{
                 flexDirection: "row",
@@ -199,42 +394,40 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
                 gap: horizontalScale(12),
                 borderBottomWidth: 1,
                 borderBottomColor: COLORS.greyish,
-                paddingVertical: verticalScale(16),
+                paddingVertical: verticalScale(12),
               }}
             >
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: horizontalScale(2),
+                  gap: horizontalScale(4),
                 }}
               >
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => setIsLiked((prev) => !prev)}
-                >
+                <TouchableOpacity onPress={handleLikeUnlike}>
                   <CustomIcon
                     Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
                     height={24}
                     width={24}
                   />
                 </TouchableOpacity>
+
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={16}
                   color={COLORS.appText}
                 >
-                  0
+                  {blogDetail?.likesCount}
                 </CustomText>
               </View>
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: horizontalScale(2),
+                  gap: horizontalScale(4),
                 }}
               >
-                <TouchableOpacity activeOpacity={0.8}>
+                <TouchableOpacity onPress={handleCommentIconPress}>
                   <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
                 </TouchableOpacity>
 
@@ -243,25 +436,41 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
                   fontSize={16}
                   color={COLORS.appText}
                 >
-                  4
+                  {blogDetail?.commentsCount}
                 </CustomText>
               </View>
-              <TouchableOpacity activeOpacity={0.8} onPress={handleShare}>
-                <CustomIcon Icon={ICONS.shareIcon} height={24} width={24} />
-              </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: horizontalScale(4),
+                }}
+              >
+                <TouchableOpacity onPress={handleShare}>
+                  <CustomIcon Icon={ICONS.shareIcon} height={24} width={24} />
+                </TouchableOpacity>
+              </View>
             </View>
+
+            {/* COMMENT INPUT */}
             <View style={styles.commentInputRow}>
               <View style={styles.commentInputWrapper}>
                 <TextInput
+                  ref={commentInputRef}
+                  value={commentText}
+                  onChangeText={setCommentText}
                   placeholder="Add a comment..."
                   placeholderTextColor={COLORS.appText}
                   style={styles.commentInput}
                 />
-                <TouchableOpacity activeOpacity={0.8}>
+                <TouchableOpacity
+                  onPress={handleSendComment}
+                  activeOpacity={0.7}
+                >
                   <CustomText
                     fontFamily="GabaritoSemiBold"
                     fontSize={16}
-                    color="#4c80f2"
+                    color={commentText ? "#4c80f2" : COLORS.appText}
                   >
                     Send
                   </CustomText>
@@ -269,22 +478,43 @@ const UpdateDetail :FC<UpdateDetailScreenProps> = ({navigation}) => {
               </View>
             </View>
 
+            {/* COMMENTS */}
             <FlatList
-              data={commentsData}
+              data={blogDetail?.comments}
               keyExtractor={(item) => item.id}
               renderItem={renderCommentItem}
               scrollEnabled={false}
               contentContainerStyle={styles.commentsList}
             />
+
+            {hasNext && (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => fetchBlogComments(page + 1)}
+                disabled={commentsLoading}
+              >
+                {commentsLoading ? (
+                  <ActivityIndicator color={COLORS.darkText} />
+                ) : (
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={16}
+                    color={COLORS.darkGreen}
+                    style={{ textAlign: "center" }}
+                  >
+                    Load more comments
+                  </CustomText>
+                )}
+              </TouchableOpacity>
+            )}
           </View>
         </FocusResetScrollView>
       </KeyboardAvoidingView>
     </View>
   );
-}
+};
 
-export default UpdateDetail
-
+export default UpdateDetail;
 
 const styles = StyleSheet.create({
   container: {
@@ -346,5 +576,50 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: horizontalScale(4),
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+  },
+  card: {
+    width: wp(86),
+    height: hp(44),
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  slideTextCont: {
+    gap: verticalScale(10),
+    alignItems: "center",
+    width: wp(100) - verticalScale(40),
+  },
+  image: {
+    width: wp(100) - verticalScale(40),
+    height: hp(44),
+    resizeMode: "cover",
+    borderRadius: 20,
+  },
+  dots: {
+    flexDirection: "row",
+    marginTop: verticalScale(10),
+  },
+  dotContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: verticalScale(12),
+  },
+  dot: {
+    width: horizontalScale(7),
+    height: verticalScale(7),
+    borderRadius: 4,
+    backgroundColor: COLORS.greyish,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: COLORS.darkText,
+    width: horizontalScale(7),
+    height: verticalScale(7),
+    borderRadius: 4,
   },
 });

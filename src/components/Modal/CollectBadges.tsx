@@ -126,7 +126,7 @@ const CollectBadges: React.FC = () => {
               fontSize={18}
               color={COLORS.white}
             >
-              {badge.badge.category} 
+              {badge.badge.category}
             </CustomText>
 
             <TouchableOpacity
@@ -134,30 +134,33 @@ const CollectBadges: React.FC = () => {
               style={{
                 position: "absolute",
                 right: horizontalScale(0),
-                top: verticalScale(6),
+                top: verticalScale(-5),
               }}
             >
               <CustomIcon Icon={ICONS.WhiteClose} height={30} width={30} />
             </TouchableOpacity>
           </View>
+          {/* Text */}
+          <CustomText
+            fontFamily="GabaritoBold"
+            fontSize={36}
+            color={COLORS.white}
+            style={{ textAlign: "center", marginTop: verticalScale(24) }}
+          >
+            {badge.badge.title}
+          </CustomText>
           <View
-            style={{ alignItems: "center", flex: 1, justifyContent: "center" }}
+            style={{
+              alignItems: "center",
+              flex: 1,
+              marginTop: verticalScale(16),
+            }}
           >
             {/* Badge Image */}
             <Image
               source={{ uri: badge.badge.iconPngUrl }}
               style={styles.badgeImage}
             />
-
-            {/* Text */}
-            <CustomText
-              fontFamily="GabaritoBold"
-              fontSize={36}
-              color={COLORS.white}
-              style={{ marginTop: verticalScale(12) }}
-            >
-              {badge.badge.title}
-            </CustomText>
 
             <CustomText
               fontFamily="GabaritoMedium"
@@ -209,7 +212,6 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 12,
   },
   badgeImage: {
     width: horizontalScale(162),

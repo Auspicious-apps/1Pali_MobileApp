@@ -29,6 +29,7 @@ import {
   setClaimedNumber,
   setReservationToken,
 } from "../../redux/slices/UserSlice";
+import { verticalScale } from "../../utils/Metrics";
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -146,7 +147,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
             keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
           >
             <View style={styles.logoContainer}>
@@ -275,30 +276,31 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                 )}
               </View>
             </View>
-
-            <PrimaryButton
-              title="Claim number"
-              onPress={handleReserveNumber}
-              disabled={!available}
-              isLoading={isLoading}
-              style={styles.button}
-            />
-            <CustomText
-              fontFamily="MontserratRegular"
-              fontSize={12}
-              color={COLORS.grey}
-              style={styles.signInText}
-            >
-              Already have a account?{" "}
+            <View style={{ gap: Platform.OS == "ios" ? 0 : verticalScale(10) }}>
+              <PrimaryButton
+                title="Claim number"
+                onPress={handleReserveNumber}
+                disabled={!available}
+                isLoading={isLoading}
+                style={styles.button}
+              />
               <CustomText
-                fontFamily="MontserratSemiBold"
+                fontFamily="MontserratRegular"
                 fontSize={12}
-                color={COLORS.darkText}
-                onPress={() => navigation.navigate("missionIntro")}
+                color={COLORS.grey}
+                style={styles.signInText}
               >
-                Sign in
+                Already have a account?{" "}
+                <CustomText
+                  fontFamily="MontserratSemiBold"
+                  fontSize={12}
+                  color={COLORS.darkText}
+                  onPress={() => navigation.navigate("missionIntro")}
+                >
+                  Sign in
+                </CustomText>
               </CustomText>
-            </CustomText>
+            </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </SafeAreaView>

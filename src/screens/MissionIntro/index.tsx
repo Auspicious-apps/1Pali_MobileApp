@@ -469,7 +469,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 flexDirection: "row",
                 flexWrap: "wrap",
                 justifyContent: "center",
-                width: Platform.OS === "ios" ? wp(50) : wp(53),
+                width: Platform.OS === "ios" ? wp(50) : wp(50),
                 marginTop: verticalScale(15),
               }}
             >

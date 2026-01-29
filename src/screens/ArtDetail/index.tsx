@@ -1,5 +1,6 @@
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   Image,
@@ -21,40 +22,143 @@ import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
+import { fetchData, postData } from "../../service/ApiService";
+import { GetBlogByIdResponse } from "../../service/ApiResponses/GetBlogById";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import {
+  Comment,
+  GetArtByIdResponse,
+} from "../../service/ApiResponses/GetArtById";
+import { ArtCommentsResponse } from "../../service/ApiResponses/ArtComments";
+import { LikeUnlikeArtResponse } from "../../service/ApiResponses/LikeUnlikeArt";
+import { ShareArtResponse } from "../../service/ApiResponses/ShareArtResponse";
+import { FetchArtCommentsResponse } from "../../service/ApiResponses/FetchArtComments";
 
-type Comment = {
-  id: string;
-  text: string;
-  time: string;
-};
-
-const commentsData: Comment[] = [
-  {
-    id: "1951",
-    text: "Wow! This piece really captivates the viewer's attention!",
-    time: "15m ago",
-  },
-  {
-    id: "1950",
-    text: "Incredible composition! The colors blend beautifully together!",
-    time: "30m ago",
-  },
-  {
-    id: "124",
-    text: "Amazing work! The details are breathtaking, truly immersive!",
-    time: "1h ago",
-  },
-  {
-    id: "342",
-    text: "Absolutely stunning! The scene feels so real and full of life <3",
-    time: "2h ago",
-  },
-];
-
-const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
+const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [isLiked, setIsLiked] = useState(false);
   const lastTap = useRef<number>(0);
   const likeScale = useRef(new Animated.Value(0)).current;
+  const { ArtId } = route.params;
+  const [artDetail, setArtDetail] = useState<GetArtByIdResponse>();
+  const [loading, setLoading] = useState(true);
+  const [commentText, setCommentText] = useState("");
+  const commentInputRef = useRef<TextInput>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [sharing, setSharing] = useState(false);
+
+  const timeAgo = (date?: string) => {
+    if (!date) return "";
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
+
+  const handleArtDetail = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchData<GetArtByIdResponse>(
+        `${ENDPOINTS.GetArtById}/${ArtId}`,
+      );
+
+      if (response?.data?.success) {
+        const data = response.data.data;
+
+        setArtDetail({
+          ...data,
+          comments: data.comments,
+        });
+        setIsLiked(response?.data?.data?.isLikedByUser);
+        setComments(data.comments);
+        setPage(1);
+        setHasNext(response?.data?.data?.commentsPagination?.hasNext);
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchArtComments = async (pageNumber: number) => {
+    try {
+      setCommentsLoading(true);
+
+      const response = await fetchData<FetchArtCommentsResponse>(
+        `${ENDPOINTS.GetArtComments}/${ArtId}/comments?page=${pageNumber}&limit=10`,
+      );
+
+      if (response?.data?.success) {
+        const data = response.data.data;
+
+        setComments((prev): any => [...prev, ...data.comments]);
+        setHasNext(data.pagination.hasNext);
+        setPage(pageNumber);
+      }
+    } catch (error) {
+      console.log("Fetch comments error", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleSendComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      const response = await postData<ArtCommentsResponse>(
+        `${ENDPOINTS.CommentsOnArt}/${ArtId}/comments`,
+        { content: commentText.trim() },
+      );
+
+      if (response?.data?.data?.comments?.length) {
+        setArtDetail((prev): any =>
+          prev
+            ? {
+                ...prev,
+                comments: response?.data?.data?.comments,
+                commentsCount: response?.data?.data?.pagination?.total,
+              }
+            : prev,
+        );
+
+        setCommentText("");
+        commentInputRef.current?.blur();
+      }
+    } catch (error) {
+      console.log("Add comment error", error);
+    }
+  };
+
+  const handleCommentIconPress = () => {
+    commentInputRef.current?.focus();
+  };
+
+  const handleLikeUnlike = async () => {
+    try {
+      const response = await postData<LikeUnlikeArtResponse>(
+        `${ENDPOINTS.LikeUnlikeArt}/${ArtId}/like`,
+      );
+
+      if (response?.data?.data?.action) {
+        setIsLiked(response?.data?.data?.isLiked);
+        setArtDetail((prev) =>
+          prev
+            ? { ...prev, likesCount: response?.data?.data?.likesCount }
+            : prev,
+        );
+      }
+    } catch (error) {
+      console.log("Like/Unlike error", error);
+    }
+  };
 
   const triggerLikeAnimation = () => {
     likeScale.setValue(0);
@@ -78,25 +182,50 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
 
     if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
       if (!isLiked) {
-        setIsLiked(true);
+        handleLikeUnlike();
         triggerLikeAnimation();
       }
     }
     lastTap.current = now;
   };
 
-  const handleShare = async () => {
-    try {
-      const artImage = Image.resolveAssetSource(IMAGES.FeedImage);
-      await Share.share({
-        title: "Share Art",
-        message: "OnePali supporter #1948. 1 of 1M supporters strong.",
-        url: artImage?.uri,
-      });
-    } catch (error) {
-      // ignore
-    }
-  };
+ const handleShare = async () => {
+   if (sharing || !artDetail) return;
+
+   try {
+     setSharing(true);
+
+     const result = await Share.share({
+       title: artDetail.title,
+       message: `${artDetail.title}\n\n${artDetail?.description || ""}\n\n${
+         artDetail.mediaUrl
+       }`,
+       url: artDetail.mediaUrl,
+     });
+
+     if (result.action === Share.sharedAction) {
+       const response = await postData<ShareArtResponse>(
+         `${ENDPOINTS.ShareArt}/${ArtId}/share`,
+         { platform: "WHATSAPP" },
+       );
+
+       if (response?.data?.success) {
+         setArtDetail((prev) =>
+           prev
+             ? {
+                 ...prev,
+                 sharesCount: response?.data?.data?.sharesCount,
+               }
+             : prev,
+         );
+       }
+     }
+   } catch (error) {
+     console.log("Share error", error);
+   } finally {
+     setSharing(false);
+   }
+ };
 
   const renderCommentItem = ({ item }: { item: Comment }) => (
     <View style={styles.commentItem}>
@@ -106,7 +235,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
           fontSize={15}
           color={COLORS.darkText}
         >
-          #{item.id}
+          #{item?.user?.assignedNumber}
         </CustomText>
         <CustomText
           fontFamily="SourceSansRegular"
@@ -114,7 +243,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
           color={COLORS.darkText}
           style={{ width: "100%" }}
         >
-          {item.text}
+          {item?.content}
         </CustomText>
         <View style={styles.commentMetaRow}>
           <CustomText
@@ -122,34 +251,57 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
             fontSize={12}
             color={COLORS.appText}
           >
-            {item.time}
+            {timeAgo(item?.createdAt)}
           </CustomText>
         </View>
       </View>
     </View>
   );
 
+  useEffect(() => {
+    handleArtDetail();
+  }, [ArtId]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={COLORS.darkText} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity activeOpacity={0.8}>
-            <CustomIcon
-              Icon={ICONS.backArrow}
-              height={24}
-              width={24}
-              onPress={() => navigation.navigate("art")}
-            />
-          </TouchableOpacity>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={18}
-            color={COLORS.darkText}
-          >
-            03.04.2025
-          </CustomText>
-          <View />
+        <View style={styles.header}>
+          <View style={styles.side}>
+            <TouchableOpacity activeOpacity={0.8}>
+              <CustomIcon
+                Icon={ICONS.backArrow}
+                height={24}
+                width={24}
+                onPress={() => navigation.navigate("art")}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.center}>
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={18}
+              color={COLORS.darkText}
+            >
+              {artDetail?.createdAt
+                ?.slice(0, 10)
+                ?.split("-")
+                ?.reverse()
+                ?.join(".")}
+            </CustomText>
+          </View>
+
+          <View style={styles.side} />
         </View>
+
         <KeyboardAvoidingView
           style={styles.keyboardView}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -160,16 +312,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            {/* <Image
-              source={IMAGES.FeedImage}
-              style={styles.updateImage}
-              resizeMode="cover"
-            /> */}
-
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
               <View style={styles.imageWrapper}>
                 <Image
-                  source={IMAGES.FeedImage}
+                  source={{ uri: artDetail?.mediaUrl }}
                   style={styles.updateImage}
                   resizeMode="cover"
                 />
@@ -213,7 +359,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
               >
                 <TouchableOpacity
                   activeOpacity={0.8}
-                  onPress={() => setIsLiked((prev) => !prev)}
+                  onPress={handleLikeUnlike}
                 >
                   <CustomIcon
                     Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
@@ -226,7 +372,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
                   fontSize={16}
                   color={COLORS.appText}
                 >
-                  0
+                  {artDetail?.likesCount}
                 </CustomText>
               </View>
               <View
@@ -236,7 +382,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
                   gap: horizontalScale(2),
                 }}
               >
-                <TouchableOpacity activeOpacity={0.8}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleCommentIconPress}
+                >
                   <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
                 </TouchableOpacity>
 
@@ -245,7 +394,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
                   fontSize={16}
                   color={COLORS.appText}
                 >
-                  4
+                  {artDetail?.commentsCount}
                 </CustomText>
               </View>
               <TouchableOpacity activeOpacity={0.8} onPress={handleShare}>
@@ -262,14 +411,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
                 fontSize={24}
                 color={COLORS.darkText}
               >
-                Title
+                {artDetail?.title}
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={14}
                 color={COLORS.appText}
               >
-                Maya Hussein, 16 years old
+                {artDetail?.artistName}, {artDetail?.artistAge} years old
               </CustomText>
             </View>
             <View
@@ -283,14 +432,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
                 fontSize={14}
                 color={COLORS.darkText}
               >
-                Maya's brush danced across the canvas, as she brought the
-                vibrant streets of Ramallah to life with her watercolors.
-                Growing up in Palestine, she found solace in the beauty of her
-                surroundings, and her art became a reflection of the resilience
-                and hope that defined her community. With each delicate stroke,
-                Maya poured her heart and soul into her craft, creating pieces
-                that told the story of a land and its people, full of life,
-                love, and laughter.
+                {artDetail?.description}
               </CustomText>
 
               <View
@@ -300,11 +442,17 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
               <View style={styles.commentInputRow}>
                 <View style={styles.commentInputWrapper}>
                   <TextInput
+                    ref={commentInputRef}
+                    value={commentText}
+                    onChangeText={setCommentText}
                     placeholder="Add a comment..."
                     placeholderTextColor={COLORS.appText}
                     style={styles.commentInput}
                   />
-                  <TouchableOpacity activeOpacity={0.8}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleSendComment}
+                  >
                     <CustomText
                       fontFamily="GabaritoSemiBold"
                       fontSize={16}
@@ -317,12 +465,32 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation }) => {
               </View>
 
               <FlatList
-                data={commentsData}
+                data={comments}
                 keyExtractor={(item) => item.id}
                 renderItem={renderCommentItem}
                 scrollEnabled={false}
                 contentContainerStyle={styles.commentsList}
               />
+              {hasNext && (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => fetchArtComments(page + 1)}
+                  disabled={commentsLoading}
+                >
+                  {commentsLoading ? (
+                    <ActivityIndicator color={COLORS.darkText} />
+                  ) : (
+                    <CustomText
+                      fontFamily="SourceSansRegular"
+                      fontSize={16}
+                      color={COLORS.darkGreen}
+                      style={{ textAlign: "center" }}
+                    >
+                      Load more comments
+                    </CustomText>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           </FocusResetScrollView>
         </KeyboardAvoidingView>
@@ -342,10 +510,18 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: verticalScale(20),
   },
-  headerContainer: {
+
+  side: {
+    width: horizontalScale(40),
+    alignItems: "flex-start",
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+  },
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     width: "100%",
     paddingBottom: verticalScale(12),
     borderBottomWidth: 1,
@@ -416,5 +592,11 @@ const styles = StyleSheet.create({
     left: "40%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
   },
 });

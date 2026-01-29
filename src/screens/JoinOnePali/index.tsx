@@ -18,7 +18,7 @@ import CustomIcon from "../../components/CustomIcon";
 import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
-import { useAppSelector } from "../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { ConfirmPaymentIntentResponse } from "../../service/ApiResponses/ConfirmPaymentIntent";
 import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
@@ -36,8 +36,10 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
+import { clearReservationTimer } from "../../redux/slices/UserSlice";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
+  const dispatch = useAppDispatch();
   const [enabled, setEnabled] = useState(true);
   const { user, claimedNumber, reservationToken, reservationSeconds } =
     useAppSelector((state) => state.user);
@@ -108,7 +110,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         if (confirmSetupIntentresponse.data.success) {
           navigation.navigate("MainStack", {
             screen: "tabs",
-            params: { screen: "home", params: { number: claimedNumber! } },
+            params: { screen: "home" },
           });
         }
       } else {
@@ -207,6 +209,21 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   useEffect(() => {
     getAllPlans();
   }, []);
+
+ useEffect(() => {
+   if (reservationSeconds !== null && reservationSeconds <= 0) {
+     setIsExpired(true);
+     dispatch(clearReservationTimer());
+   }
+ }, [reservationSeconds]);
+
+ useEffect(() => {
+   if (isExpired) {
+     setShowCard(false);
+     setShowDisclaimer(false);
+     setShowButton(true);
+   }
+ }, [isExpired]);
 
   useEffect(() => {
     // Animation timings for letters
@@ -368,7 +385,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         </View>
 
         {/* Payment Plan section  */}
-        {showCard && (
+        {showImage && (
           <Animated.View
             style={{
               opacity: cardAnim,
@@ -390,7 +407,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                   fontSize={22}
                   color={COLORS.darkText}
                 >
-                  OnePali Supporter
+                  {isExpired ? "OnePali Membership" : "OnePali Supporter"}
                 </CustomText>
               </View>
 
@@ -538,7 +555,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               flexDirection: "row",
               flexWrap: "wrap",
               justifyContent: "center",
-              width: Platform.OS === "ios" ? wp(50) : wp(53),
+              width: Platform.OS === "ios" ? wp(50) : wp(50),
               marginTop: verticalScale(15),
             }}
           >

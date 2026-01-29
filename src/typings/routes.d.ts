@@ -25,8 +25,8 @@ export type BottomStackParams = {
   art: undefined;
   account: undefined;
   badges: undefined;
-  updateDetail: undefined;
-  artDetail: undefined;
+  updateDetail: { blogId: string };
+  artDetail: { ArtId: string };
   termsConditions: undefined;
   privacyPolicy: undefined;
   receipts: undefined;

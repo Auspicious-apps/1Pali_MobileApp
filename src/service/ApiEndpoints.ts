@@ -10,7 +10,19 @@ const ENDPOINTS = {
   GetStripePlans: "api/v1/subscription/plans",
   CreateSetupIntent: "api/v1/subscription/setup-intent",
   ConfirmSetupIntent: "api/v1/subscription/confirm-setup-intent",
-  CollectBadges: "api/v1/badges/claim"
+  CollectBadges: "api/v1/badges/claim",
+  GetBlogForUser: "api/v1/blogs",
+  GetBlogById: "api/v1/blogs",
+  LikeUnlikeBlog: "api/v1/blogs",
+  AddCommentToBlog: "api/v1/blogs",
+  ShareBlog: "api/v1/blogs",
+  GetArtForUser: "api/v1/art",
+  GetArtById: "api/v1/art",
+  CommentsOnArt: "api/v1/art",
+  LikeUnlikeArt: "api/v1/art",
+  ShareArt: "api/v1/art",
+  GetArtComments: "api/v1/art",
+  GetBlogComments: "api/v1/blogs",
 };
 
 export default ENDPOINTS;
