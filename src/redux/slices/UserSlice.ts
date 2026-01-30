@@ -53,6 +53,30 @@ const userSlice = createSlice({
     clearReservationTimer: (state) => {
       state.reservationSeconds = null;
     },
+
+    markAllBadgesViewed: (state) => {
+      const now = new Date().toISOString();
+
+      // 1️⃣ update standalone badges
+      if (state.badges) {
+        state.badges.badges = state.badges.badges.map((b) => ({
+          ...b,
+          isViewed: true,
+          viewedAt: now,
+        }));
+        state.badges.unviewedCount = 0;
+      }
+
+      // 2️⃣ update badges inside userData
+      if (state.user?.badges) {
+        state.user.badges.badges = state.user.badges.badges.map((b) => ({
+          ...b,
+          isViewed: true,
+          viewedAt: now,
+        }));
+        state.user.badges.unviewedCount = 0;
+      }
+    },
   },
 });
 
@@ -65,6 +89,7 @@ export const {
   startReservationTimer,
   decrementReservationTimer,
   clearReservationTimer,
+  markAllBadgesViewed,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -48,6 +48,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -314,10 +316,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           >
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
               <View style={styles.imageWrapper}>
+                {imageLoading && (
+                  <View style={styles.imageLoader}>
+                    <ActivityIndicator size="small" color={COLORS.darkText} />
+                  </View>
+                )}
+
                 <Image
                   source={{ uri: artDetail?.mediaUrl }}
                   style={styles.updateImage}
                   resizeMode="cover"
+                  onLoadStart={() => setImageLoading(true)}
+                  onLoadEnd={() => setImageLoading(false)}
                 />
 
                 {/* Like animation overlay */}
@@ -598,5 +608,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: COLORS.white,
+  },
+  imageLoader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.greyish,
+    zIndex: 10,
+    borderRadius: 20,
   },
 });

@@ -11,7 +11,14 @@ import {
   View,
 } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { getUnViewedBadges } from "../../redux/slices/UserSlice";
+import {
+  getUnViewedBadges,
+  markAllBadgesViewed,
+  selectArtBadges,
+  selectCommunityBadges,
+  selectGrowthBadges,
+  selectImpactBadges,
+} from "../../redux/slices/UserSlice";
 import IMAGES from "../../assets/Images";
 import { CustomText } from "../CustomText";
 import COLORS from "../../utils/Colors";
@@ -27,12 +34,15 @@ import ENDPOINTS from "../../service/ApiEndpoints";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const CollectBadges: React.FC = () => {
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useRef(new Animated.Value(0))?.current;
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
-
-  console.log(unViewedBadges);
+  const growthBadges = useAppSelector(selectGrowthBadges);
+  const communityBadges = useAppSelector(selectCommunityBadges);
+  const artBadges = useAppSelector(selectArtBadges);
+  const impactBadges = useAppSelector(selectImpactBadges);
 
   const { isVisible } = useAppSelector((state) => state.collectBadges);
 
@@ -53,13 +63,15 @@ const CollectBadges: React.FC = () => {
   const onViewBadge = async () => {
     try {
       setIsLoading(true);
-      const response = await postData(ENDPOINTS.CollectBadges, {
-        badgeId: [],
+      const response = await postData(ENDPOINTS.ViewedBadges, {
+        badgeIds: unViewedBadges.map((badge) => badge.id),
       });
 
       if (response.data.success) {
         dispatch(closeCollectBadgesModal());
+        dispatch(markAllBadgesViewed());
       }
+
       console.log("Badge collected successfully:", response);
     } catch (e) {
       console.error("Error collecting badge:", e);
@@ -101,14 +113,93 @@ const CollectBadges: React.FC = () => {
           source={{ uri: item.badge.iconPngUrl }}
           style={styles.badgeImage}
         />
+        <View style={styles.wrapper}>
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={14}
+            color={COLORS.white}
+            style={styles.text}
+          >
+            {(() => {
+              const category = item.badge.category;
+
+              if (category === "GROWTH") {
+                return `${growthBadges?.map(
+                  (item) => item?.badge?.requirement?.consecutiveMonths,
+                )} Months `;
+              }
+
+              if (category === "COMMUNITY") {
+                return `${communityBadges?.map(
+                  (item) => item?.badge?.requirement?.userNumberMax,
+                )} Donors`;
+              }
+
+              if (category === "ART") {
+                return `${artBadges?.map(
+                  (item) => item?.badge?.requirement?.totalDonations,
+                )}Share `;
+              }
+
+              if (category === "IMPACT") {
+                return `$${impactBadges?.map(
+                  (item) => item?.badge?.requirement?.totalDonations,
+                )} Donated`;
+              }
+
+              return "";
+            })()}
+          </CustomText>
+        </View>
+        <View style={styles.devider} />
         <CustomText
           fontFamily="GabaritoMedium"
           fontSize={18}
           color={COLORS.white}
-          style={{ marginTop: verticalScale(8), textAlign: "center" }}
+          style={{
+            textAlign: "center",
+            width: "70%",
+          }}
         >
           {item.badge.description}
         </CustomText>
+        <View style={styles.dotsContainer}>
+          {unViewedBadges.map((_: any, index: number) => {
+            const inputRange = [
+              (index - 1) * SCREEN_WIDTH,
+              index * SCREEN_WIDTH,
+              (index + 1) * SCREEN_WIDTH,
+            ];
+
+            const opacity = scrollX.interpolate({
+              inputRange,
+              outputRange: [0.3, 1, 0.3],
+              extrapolate: "clamp",
+            });
+
+            return (
+              <TouchableOpacity
+                key={index}
+                activeOpacity={0.8}
+                onPress={() =>
+                  flatListRef.current?.scrollToIndex({
+                    index,
+                    animated: true,
+                  })
+                }
+              >
+                <Animated.View
+                  style={[
+                    styles.dot,
+                    {
+                      opacity,
+                    },
+                  ]}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
     </ImageBackground>
   );
@@ -124,6 +215,7 @@ const CollectBadges: React.FC = () => {
 
         <View style={styles.modalContent}>
           <Animated.FlatList
+            ref={flatListRef}
             data={unViewedBadges}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
@@ -132,11 +224,10 @@ const CollectBadges: React.FC = () => {
             showsHorizontalScrollIndicator={false}
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: true }, // This is what caused the error with a normal FlatList
+              { useNativeDriver: false },
             )}
             scrollEventThrottle={16}
           />
-
           <View
             style={{
               position: "absolute",
@@ -160,9 +251,10 @@ const CollectBadges: React.FC = () => {
             style={{
               opacity: isLoading ? 0.6 : 1,
               position: "absolute",
-              bottom: verticalScale(20),
+              bottom: verticalScale(30),
               alignSelf: "center",
               backgroundColor: COLORS.white,
+              zIndex: 10000,
             }}
           />
         </View>
@@ -185,7 +277,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: SCREEN_WIDTH, // Essential for carousel
-    height: hp(57.5),
+    height: hp(70),
     paddingTop: verticalScale(20),
   },
   closeBtn: {},
@@ -197,6 +289,41 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     paddingHorizontal: 16,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: horizontalScale(8),
+    alignSelf: "center",
+    marginTop: verticalScale(24),
+  },
+
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 6,
+    backgroundColor: COLORS.white,
+  },
+  wrapper: {
+    paddingHorizontal: horizontalScale(14),
+    paddingVertical: verticalScale(6),
+    borderRadius: 30,
+    alignSelf: "center",
+    marginTop: verticalScale(16),
+    backgroundColor: "#FFFFFF10",
+    borderWidth: 2,
+    borderColor: "#FFFFFF50",
+  },
+  text: {
+    textAlign: "center",
+  },
+  devider: {
+    width: verticalScale(100),
+    borderBottomWidth: 1,
+    borderColor: "#FFFFFF50",
+    marginVertical: verticalScale(20),
+    alignSelf: "center",
   },
 });
 

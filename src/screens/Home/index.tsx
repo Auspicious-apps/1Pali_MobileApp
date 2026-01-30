@@ -173,7 +173,7 @@ console.log(growthBadges, "ipopoip");
           setIsVisible={setIsBadgesSheet}
         />
 
-        <CollectBadges />
+        <CollectBadges navigation={navigation} />
       </SafeAreaView>
     </View>
   );

@@ -23,6 +23,9 @@ const ENDPOINTS = {
   ShareArt: "api/v1/art",
   GetArtComments: "api/v1/art",
   GetBlogComments: "api/v1/blogs",
+  GetUserReceipts: "api/v1/receipts",
+  GetAllBadges: "api/v1/badges/all",
+  ViewedBadges: "api/v1/badges/mark-viewed",
 };
 
 export default ENDPOINTS;

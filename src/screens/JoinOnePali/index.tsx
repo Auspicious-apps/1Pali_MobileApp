@@ -269,20 +269,20 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     getAllPlans();
   }, []);
 
-  // useEffect(() => {
-  //   if (reservationSeconds !== null && reservationSeconds <= 0) {
-  //     setIsExpired(true);
-  //     dispatch(clearReservationTimer());
-  //   }
-  // }, [reservationSeconds]);
+  useEffect(() => {
+    if (reservationSeconds !== null && reservationSeconds <= 0) {
+      setIsExpired(true);
+      dispatch(clearReservationTimer());
+    }
+  }, [reservationSeconds]);
 
-  // useEffect(() => {
-  //   if (isExpired) {
-  //     setShowCard(false);
-  //     setShowDisclaimer(false);
-  //     setShowButton(true);
-  //   }
-  // }, [isExpired]);
+  useEffect(() => {
+    if (isExpired) {
+      setShowCard(false);
+      setShowDisclaimer(false);
+      setShowButton(true);
+    }
+  }, [isExpired]);
 
   useEffect(() => {
     // Animation timings for letters

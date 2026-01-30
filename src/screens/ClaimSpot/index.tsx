@@ -28,6 +28,7 @@ import { useAppDispatch } from "../../redux/store";
 import {
   setClaimedNumber,
   setReservationToken,
+  startReservationTimer,
 } from "../../redux/slices/UserSlice";
 import { verticalScale } from "../../utils/Metrics";
 
@@ -133,6 +134,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       );
       dispatch(setClaimedNumber(Number(number)));
       dispatch(setReservationToken(response.data.data?.reservationToken));
+      dispatch(startReservationTimer(60));
       navigation.navigate("missionIntro");
     } catch (e) {
       console.error("Error reserving number:", e);

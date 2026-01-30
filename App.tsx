@@ -9,6 +9,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Provider } from "react-redux";
 import { store } from "./src/redux/store";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { NetworkProvider } from "./src/Context/NetworkProvider";
 
 LogBox.ignoreAllLogs();
 
@@ -19,27 +20,29 @@ function App() {
   });
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <StripeProvider
-        publishableKey="pk_test_51SqHBdExhCC15nGQ18UmHov4F2tehEgOGbCE92V8NGizINZ26wFEz1wmsBR4feBelyBkuHGMc3GftNFAqSXwkTJw00oDSLVg4d"
-        merchantIdentifier="merchant.org.onepali.stripe.subscription"
-      >
-        <Provider store={store}>
-          <SafeAreaProvider>
-            <StatusBar barStyle={"light-content"} />
-            <Routes />
-            {__DEV__ && <NetworkLogger />}
-            <Toast
-              config={{
-                customToast: (props) => (
-                  <CustomToast {...props} type={props?.type} />
-                ),
-              }}
-              position="top"
-              topOffset={50}
-            />
-          </SafeAreaProvider>
-        </Provider>
-      </StripeProvider>
+      <NetworkProvider>
+        <StripeProvider
+          publishableKey="pk_test_51SqHBdExhCC15nGQ18UmHov4F2tehEgOGbCE92V8NGizINZ26wFEz1wmsBR4feBelyBkuHGMc3GftNFAqSXwkTJw00oDSLVg4d"
+          merchantIdentifier="merchant.org.onepali.stripe.subscription"
+        >
+          <Provider store={store}>
+            <SafeAreaProvider>
+              <StatusBar barStyle={"light-content"} />
+              <Routes />
+              {__DEV__ && <NetworkLogger />}
+              <Toast
+                config={{
+                  customToast: (props) => (
+                    <CustomToast {...props} type={props?.type} />
+                  ),
+                }}
+                position="top"
+                topOffset={50}
+              />
+            </SafeAreaProvider>
+          </Provider>
+        </StripeProvider>
+      </NetworkProvider>
     </GestureHandlerRootView>
   );
 }

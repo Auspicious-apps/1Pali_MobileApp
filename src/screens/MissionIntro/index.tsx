@@ -342,6 +342,16 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     return () => clearInterval(interval);
   }, [reservationSeconds]);
 
+  // redirect on expire
+  useEffect(() => {
+    if (reservationSeconds === 0) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "claimSpot" }],
+      });
+    }
+  }, [reservationSeconds]);
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>

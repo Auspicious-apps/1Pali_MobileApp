@@ -7,8 +7,9 @@ import {
   FlatList,
   ImageSourcePropType,
   Platform,
+  ActivityIndicator,
 } from "react-native";
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from "react";
 import IMAGES from '../../assets/Images';
 import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
 import COLORS from '../../utils/Colors';
@@ -19,147 +20,13 @@ import CustomIcon from '../../components/CustomIcon';
 import ICONS from '../../assets/Icons';
 import { BadgesScreenProps } from '../../typings/routes';
 import FocusResetScrollView from '../../components/FocusResetScrollView';
+import { fetchData } from "../../service/ApiService";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import {
+  Badge,
+  GetAllBadgesResponse,
+} from "../../service/ApiResponses/GetAllBadges";
 
-type Badge = {
-  id: number;
-  label: string;
-  months: string;
-  image: ImageSourcePropType;
-  unlocked: boolean;
-};
-
-const GROWTH_BADGES: Badge[] = [
-  {
-    id: 1,
-    label: "Seed",
-    months: "1 month",
-    image: IMAGES.seedsOne,
-    unlocked: true,
-  },
-  {
-    id: 2,
-    label: "Sprout",
-    months: "3 months",
-    image: IMAGES.SproutSeed,
-    unlocked: true,
-  },
-  {
-    id: 3,
-    label: "Sapling",
-    months: "6 months",
-    image: IMAGES.SaplingSeed,
-    unlocked: true,
-  },
-  {
-    id: 4,
-    label: "Rooted",
-    months: "12 months",
-    image: IMAGES.RootedSeed,
-    unlocked: true,
-  },
-  {
-    id: 5,
-    label: "Branch",
-    months: "18 months",
-    image: IMAGES.BranchSeed,
-    unlocked: true,
-  },
-  {
-    id: 6,
-    label: "Trunk",
-    months: "24 months",
-    image: IMAGES.TrunkSeed,
-    unlocked: true,
-  },
-  {
-    id: 7,
-    label: "Bloom",
-    months: "3 years",
-    image: IMAGES.BloomSeed,
-    unlocked: true,
-  },
-  {
-    id: 8,
-    label: "Eternal",
-    months: "5 years",
-    image: IMAGES.EternalSeed,
-    unlocked: true,
-  },
-];
-const ART_BADGES: Badge[] = [
-  {
-    id: 1,
-    label: "Voice",
-    months: "1 share",
-    image: IMAGES.VoiceSeed,
-    unlocked: true,
-  },
-  {
-    id: 2,
-    label: "Advocate",
-    months: "5 shares",
-    image: IMAGES.AdvocateSeed,
-    unlocked: true,
-  },
-  {
-    id: 3,
-    label: "Messenger",
-    months: "10 shares",
-    image: IMAGES.MessengerSeed,
-    unlocked: true,
-  },
-  {
-    id: 4,
-    label: "Ambassador",
-    months: "25 shares",
-    image: IMAGES.AmbassadorSeed,
-    unlocked: true,
-  },
-  {
-    id: 5,
-    label: "Bridge",
-    months: "50 shares",
-    image: IMAGES.BridgeSeed,
-    unlocked: true,
-  },
-];
-const IMPACT_BADGES: Badge[] = [
-  {
-    id: 1,
-    label: "Jaffa",
-    months: "$2 donated",
-    image: IMAGES.JaffaSeed,
-    unlocked: true,
-  },
-  {
-    id: 2,
-    label: "Watermelon",
-    months: "$4 donated",
-    image: IMAGES.WatermelonSeed,
-    unlocked: true,
-  },
-  {
-    id: 3,
-    label: "Tatreez",
-    months: "$13 donated",
-    image: IMAGES.TatreezSeed,
-    unlocked: true,
-  },
-  {
-    id: 4,
-    label: "Keffiyeh",
-    months: "$25 donated",
-    image: IMAGES.KeffiyehSeed,
-    unlocked: true,
-  },
-  {
-    id: 5,
-    label: "Key",
-    months: "$50 donated",
-    image: IMAGES.KeySeed,
-    unlocked: true,
-  },
-];
 
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<"Growth" | "Art" | "Impact">(
@@ -168,19 +35,60 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
-  const getHeaderBadgeImage = () => {
-    switch (activeTab) {
-      case 'Growth':
-        return IMAGES.FounderSeed;
-      case 'Art':
-        return IMAGES.EchoSeed;
-      case 'Impact':
-        return IMAGES.JaffaSeed;
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const filteredBadges = badges.filter(
+    (b) => b.category === activeTab.toUpperCase(),
+  );
+  const communityBadge = badges?.filter(
+    (badge) => badge.category === "COMMUNITY" && badge.isUnlocked,
+  )[0];
+
+  const getBadgeSubtitle = (badge: Badge) => {
+    switch (badge.category) {
+      case "GROWTH": {
+        const months = badge?.requirement?.consecutiveMonths ?? 0;
+        return `${months} month${months === 1 ? "" : "s"}`;
+      }
+
+      case "ART": {
+        const shares = badge?.requirement?.totalShares ?? 0;
+        return `${shares} share${shares === 1 ? "" : "s"}`;
+      }
+
+      case "IMPACT": {
+        const amount = badge?.requirement?.totalDonations ?? 0;
+        return `$${amount} donated`;
+      }
+
       default:
-        return IMAGES.BadgeLogo;
+        return "";
     }
   };
 
+ const fetchAllBadges = async () => {
+   try {
+     setLoading(true);
+     const res = await fetchData<GetAllBadgesResponse>(ENDPOINTS.GetAllBadges);
+     setBadges(res?.data?.data?.badges);
+   } catch (error) {
+     console.log("error", error);
+   } finally {
+     setLoading(false);
+   }
+ };
+
+  useEffect(() => {
+    fetchAllBadges();
+  }, []);
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={COLORS.darkText} />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -231,7 +139,9 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           </View>
           <View style={styles.card}>
             <Image
-              source={getHeaderBadgeImage()}
+              source={{
+                uri: communityBadge?.iconPngUrl,
+              }}
               resizeMode="contain"
               style={{ width: horizontalScale(72), height: verticalScale(72) }}
             />
@@ -242,7 +152,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
-                Founder
+                {communityBadge?.name}
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
@@ -250,7 +160,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 color={"#1D222B50"}
                 style={{ textAlign: "center" }}
               >
-                You’re part of the first 1K donors
+                {communityBadge?.milestone}
               </CustomText>
             </View>
           </View>
@@ -314,14 +224,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <FlatList
-            data={
-              activeTab === "Growth"
-                ? GROWTH_BADGES
-                : activeTab === "Art"
-                ? ART_BADGES
-                : IMPACT_BADGES
-            }
-            keyExtractor={(item) => item.id.toString()}
+            data={filteredBadges}
+            keyExtractor={(item) => item?.id}
             numColumns={3}
             scrollEnabled={false}
             contentContainerStyle={{
@@ -334,56 +238,62 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               marginBottom: verticalScale(16),
               paddingHorizontal: horizontalScale(8),
             }}
-            renderItem={({ item: badge }) => (
-              <TouchableOpacity
-                style={{
-                  width: wp(28),
-                  alignItems: "center",
-                  gap: verticalScale(8),
-                }}
-                activeOpacity={0.8}
-                onPress={() => {
-                  setSelectedBadge(badge);
-                  setIsBadgeModalVisible(true);
-                }}
-              >
-                <Image
-                  source={badge.image}
+            renderItem={({ item: badge }) => {
+              const isUnlocked = badge.isUnlocked;
+
+              console.log(isUnlocked);
+
+              return (
+                <TouchableOpacity
                   style={{
-                    width: horizontalScale(66),
-                    height: verticalScale(66),
-                    resizeMode: "contain",
+                    width: wp(28),
+                    alignItems: "center",
+                    gap: verticalScale(8),
                   }}
-                />
-                <View style={{ alignItems: "center" }}>
-                  <CustomText
-                    fontFamily="GabaritoSemiBold"
-                    fontSize={14}
-                    color={COLORS.darkText}
-                    style={{ textAlign: "center" }}
-                  >
-                    {badge.label}
-                  </CustomText>
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={12}
-                    color={COLORS.appText}
-                    style={{ textAlign: "center" }}
-                  >
-                    {badge.months}
-                  </CustomText>
-                </View>
-              </TouchableOpacity>
-            )}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setSelectedBadge(badge);
+                    setIsBadgeModalVisible(true);
+                  }}
+                >
+                  <Image
+                    source={{ uri: badge?.iconPngUrl }}
+                    style={{
+                      width: horizontalScale(66),
+                      height: verticalScale(66),
+                      resizeMode: "contain",
+                    }}
+                  />
+                  <View style={{ alignItems: "center" }}>
+                    <CustomText
+                      fontFamily="GabaritoSemiBold"
+                      fontSize={14}
+                      color={COLORS.darkText}
+                      style={{ textAlign: "center" }}
+                    >
+                      {badge?.title}
+                    </CustomText>
+                    <CustomText
+                      fontFamily="SourceSansRegular"
+                      fontSize={12}
+                      color={COLORS.appText}
+                      style={{ textAlign: "center" }}
+                    >
+                      {getBadgeSubtitle(badge)}
+                    </CustomText>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
           />
         </FocusResetScrollView>
       </SafeAreaView>
       <BadgesDetail
         isVisible={isBadgeModalVisible}
         setIsVisible={setIsBadgeModalVisible}
-        badgeLabel={selectedBadge?.label}
-        badgeMonths={selectedBadge?.months}
-        badgeImage={selectedBadge?.image}
+        badgeLabel={selectedBadge?.title}
+        badgeMonths={selectedBadge?.createdAt}
+        badgeImage={{ uri: selectedBadge?.iconPngUrl }}
       />
     </View>
   );
@@ -437,5 +347,11 @@ const styles = StyleSheet.create({
   center: {
     flex: 1,
     alignItems: "center",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
   },
 });

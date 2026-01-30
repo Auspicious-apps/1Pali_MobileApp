@@ -12,7 +12,7 @@ const getStylesByType = (type: string) => {
     case 'success':
       return {
         container: {
-          backgroundColor: COLORS.DarkGreen,
+          backgroundColor: COLORS.green,
           borderColor: COLORS.Linear,
         },
         icon: ICONS.LikedIcon,
