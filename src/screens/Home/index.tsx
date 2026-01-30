@@ -36,6 +36,10 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
 
+console.log(user);
+console.log(growthBadges, "ipopoip");
+
+
   useEffect(() => {
     if (badges && badges.badges.length > 0) {
       const timer = setTimeout(() => {
@@ -66,24 +70,26 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               }}
             />
           </TouchableOpacity>
-          <View>
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={14}
-              color={COLORS.darkText}
-              style={{ textAlign: "center" }}
-            >
-              {growthBadges[0]?.badge?.name}
-            </CustomText>
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={14}
-              color={COLORS.appText}
-              style={{ textAlign: "center" }}
-            >
-              {growthBadges[0]?.badge?.description}
-            </CustomText>
-          </View>
+          {growthBadges && growthBadges.length > 0 && (
+            <View>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={14}
+                color={COLORS.darkText}
+                style={{ textAlign: "center" }}
+              >
+                {growthBadges[0]?.badge?.name}
+              </CustomText>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={14}
+                color={COLORS.appText}
+                style={{ textAlign: "center" }}
+              >
+                {growthBadges[0]?.badge?.description}
+              </CustomText>
+            </View>
+          )}
         </View>
 
         <View style={styles.card}>

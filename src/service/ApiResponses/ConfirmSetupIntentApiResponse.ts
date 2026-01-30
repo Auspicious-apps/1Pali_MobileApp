@@ -17,6 +17,7 @@ export interface User {
   provider: string;
   assignedNumber: number;
   joinedPosition: number;
+  consecutivePaidMonths: string;
   createdAt: string;
   totalDonations: number;
   hasPaymentMethod: boolean;
@@ -57,6 +58,7 @@ export interface Badge2 {
   title: string;
   description: string;
   iconPngUrl: string;
+  milestone: string;
   requirement: Requirement;
   sortOrder: number;
   isPermanent: boolean;

@@ -42,6 +42,8 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
+import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
+import { AxiosResponse } from "axios";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -95,6 +97,36 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
+  const pollUserProfile = async (retries = 3): Promise<boolean> => {
+    try {
+      const profileResponse = await fetchData<GetUserProfileApiResponse>(
+        ENDPOINTS.GetUserProfile,
+      );
+
+      // Check if the subscription is active (adjust "active" based on your API's exact string)
+      if (profileResponse?.data?.data.subscriptionStatus === "ACTIVE") {
+        dispatch(setUserData(profileResponse?.data?.data));
+        dispatch(setBadges(profileResponse?.data?.data?.badges));
+        // You might need to update other pieces of state here
+        return true;
+      }
+
+      // If not active and we have retries left, wait 5 seconds and try again
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(() => resolve(true), 5000));
+        return await pollUserProfile(retries - 1);
+      }
+
+      return false; // All retries exhausted without "active" status
+    } catch (error) {
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(() => resolve(true), 5000));
+        return await pollUserProfile(retries - 1);
+      }
+      return false;
+    }
+  };
+
   const handleSetupIntent = async () => {
     try {
       setIsLoading(true);
@@ -114,18 +146,22 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           );
 
         if (confirmSetupIntentresponse.data.success) {
-          console.log(confirmSetupIntentresponse.data.data);
-          dispatch(setUserData(confirmSetupIntentresponse.data.data.user));
-          dispatch(setBadges(confirmSetupIntentresponse.data.data.user.badges));
-          dispatch(
-            setClaimedNumber(
-              confirmSetupIntentresponse.data.data.assignedNumber,
-            ),
-          );
-          navigation.navigate("MainStack", {
-            screen: "tabs",
-            params: { screen: "home" },
-          });
+          // Start polling instead of a single fetch
+          const isSubscriptionActive = await pollUserProfile(3);
+
+          if (isSubscriptionActive) {
+            // Only navigate once the backend confirms the sub is active
+            navigation.navigate("MainStack", {
+              screen: "tabs",
+              params: { screen: "home" },
+            });
+          } else {
+            Alert.alert(
+              "Subscription Pending",
+              "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
+            );
+            // Optionally navigate anyway or stay on screen
+          }
         }
       } else {
         const response = await postData<CreateSetupIntentResponse>(
@@ -180,22 +216,21 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             },
           );
 
-        if (confirmSetupIntentresponse?.data?.success) {
-          if (confirmSetupIntentresponse.data.success) {
-            dispatch(setUserData(confirmSetupIntentresponse.data.data.user));
-            dispatch(
-              setBadges(confirmSetupIntentresponse.data.data.user.badges),
-            );
-            dispatch(
-              setClaimedNumber(
-                confirmSetupIntentresponse.data.data.assignedNumber,
-              ),
-            );
+        if (confirmSetupIntentresponse.data.success) {
+          const isSubscriptionActive = await pollUserProfile(3);
 
+          if (isSubscriptionActive) {
+            // Only navigate once the backend confirms the sub is active
             navigation.navigate("MainStack", {
               screen: "tabs",
               params: { screen: "home" },
             });
+          } else {
+            Alert.alert(
+              "Subscription Pending",
+              "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
+            );
+            // Optionally navigate anyway or stay on screen
           }
         }
       }
@@ -234,20 +269,20 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     getAllPlans();
   }, []);
 
-  useEffect(() => {
-    if (reservationSeconds !== null && reservationSeconds <= 0) {
-      setIsExpired(true);
-      dispatch(clearReservationTimer());
-    }
-  }, [reservationSeconds]);
+  // useEffect(() => {
+  //   if (reservationSeconds !== null && reservationSeconds <= 0) {
+  //     setIsExpired(true);
+  //     dispatch(clearReservationTimer());
+  //   }
+  // }, [reservationSeconds]);
 
-  useEffect(() => {
-    if (isExpired) {
-      setShowCard(false);
-      setShowDisclaimer(false);
-      setShowButton(true);
-    }
-  }, [isExpired]);
+  // useEffect(() => {
+  //   if (isExpired) {
+  //     setShowCard(false);
+  //     setShowDisclaimer(false);
+  //     setShowButton(true);
+  //   }
+  // }, [isExpired]);
 
   useEffect(() => {
     // Animation timings for letters
