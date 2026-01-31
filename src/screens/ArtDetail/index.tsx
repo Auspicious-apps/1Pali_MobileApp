@@ -48,6 +48,12 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [hasNext, setHasNext] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [sendingComment, setSendingComment] = useState(false);
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const commentsSectionY = useRef(0);
+  const lastScrollY = useRef(0);
+  const manualOpen = useRef(false);
+  const likeRequestInProgress = useRef(false);
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -113,6 +119,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     if (!commentText.trim()) return;
 
     try {
+      setSendingComment(true);
       const response = await postData<ArtCommentsResponse>(
         `${ENDPOINTS.CommentsOnArt}/${ArtId}/comments`,
         { content: commentText.trim() },
@@ -134,29 +141,57 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       }
     } catch (error) {
       console.log("Add comment error", error);
+    } finally {
+      setSendingComment(false);
     }
   };
 
   const handleCommentIconPress = () => {
-    commentInputRef.current?.focus();
+    manualOpen.current = true;
+    setShowCommentInput(true);
+
+    setTimeout(() => {
+      commentInputRef.current?.focus();
+    }, 100);
   };
 
   const handleLikeUnlike = async () => {
+    if (likeRequestInProgress.current) return;
+
+    likeRequestInProgress.current = true;
+
+    const nextLiked = !isLiked;
+
+    setIsLiked(nextLiked);
+    setArtDetail((prev) =>
+      prev
+        ? {
+            ...prev,
+            likesCount: prev.likesCount + (nextLiked ? 1 : -1),
+          }
+        : prev,
+    );
+
     try {
       const response = await postData<LikeUnlikeArtResponse>(
         `${ENDPOINTS.LikeUnlikeArt}/${ArtId}/like`,
       );
 
-      if (response?.data?.data?.action) {
-        setIsLiked(response?.data?.data?.isLiked);
-        setArtDetail((prev) =>
-          prev
-            ? { ...prev, likesCount: response?.data?.data?.likesCount }
-            : prev,
-        );
-      }
+      console.log(response);
     } catch (error) {
       console.log("Like/Unlike error", error);
+
+      setIsLiked(!nextLiked);
+      setArtDetail((prev) =>
+        prev
+          ? {
+              ...prev,
+              likesCount: prev.likesCount + (nextLiked ? -1 : 1),
+            }
+          : prev,
+      );
+    } finally {
+      likeRequestInProgress.current = false;
     }
   };
 
@@ -181,11 +216,12 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     const DOUBLE_PRESS_DELAY = 300;
 
     if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      if (!isLiked) {
+      if (!isLiked && !likeRequestInProgress.current) {
         handleLikeUnlike();
         triggerLikeAnimation();
       }
     }
+
     lastTap.current = now;
   };
 
@@ -311,6 +347,22 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             bounces={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
+            scrollEventThrottle={16}
+            onScroll={(e) => {
+              const currentY = e.nativeEvent.contentOffset.y;
+              const isScrollingDown = currentY > lastScrollY.current;
+
+              if (isScrollingDown && currentY > 250) {
+                setShowCommentInput(true);
+                manualOpen.current = false;
+              }
+
+              if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
+                setShowCommentInput(false);
+              }
+
+              lastScrollY.current = currentY;
+            }}
           >
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
               <View style={styles.imageWrapper}>
@@ -430,6 +482,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               </CustomText>
             </View>
             <View
+              onLayout={(e) => {
+                commentsSectionY.current = e.nativeEvent.layout.y;
+              }}
               style={{
                 marginTop: verticalScale(16),
                 gap: verticalScale(16),
@@ -446,31 +501,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               <View
                 style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
               />
-
-              <View style={styles.commentInputRow}>
-                <View style={styles.commentInputWrapper}>
-                  <TextInput
-                    ref={commentInputRef}
-                    value={commentText}
-                    onChangeText={setCommentText}
-                    placeholder="Add a comment..."
-                    placeholderTextColor={COLORS.appText}
-                    style={styles.commentInput}
-                  />
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleSendComment}
-                  >
-                    <CustomText
-                      fontFamily="GabaritoSemiBold"
-                      fontSize={16}
-                      color="#4c80f2"
-                    >
-                      Send
-                    </CustomText>
-                  </TouchableOpacity>
-                </View>
-              </View>
 
               <FlatList
                 data={comments}
@@ -501,6 +531,47 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               )}
             </View>
           </FocusResetScrollView>
+          {showCommentInput && (
+            <>
+              <View
+                style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
+              />
+              <View style={styles.commentInputRow}>
+                <CustomIcon
+                  Icon={ICONS.GreyUserIcon}
+                  height={verticalScale(40)}
+                  width={horizontalScale(40)}
+                />
+                <View style={styles.commentInputWrapper}>
+                  <TextInput
+                    ref={commentInputRef}
+                    value={commentText}
+                    onChangeText={setCommentText}
+                    placeholder="Add a comment..."
+                    placeholderTextColor={COLORS.appText}
+                    style={styles.commentInput}
+                  />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleSendComment}
+                    disabled={sendingComment}
+                  >
+                    {sendingComment ? (
+                      <ActivityIndicator size="small" color="#4c80f2" />
+                    ) : (
+                      <CustomText
+                        fontFamily="GabaritoSemiBold"
+                        fontSize={16}
+                        color="#4c80f2"
+                      >
+                        Send
+                      </CustomText>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+          )}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
@@ -547,7 +618,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: verticalScale(20),
-    marginTop: verticalScale(10),
     paddingHorizontal: horizontalScale(20),
   },
   commentInputRow: {
@@ -555,7 +625,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: COLORS.greyish,
-    paddingBottom: verticalScale(16),
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: horizontalScale(20),
+    gap: horizontalScale(8),
   },
   commentInputWrapper: {
     flex: 1,
@@ -564,7 +636,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.greyish,
     paddingHorizontal: horizontalScale(16),
     paddingVertical: verticalScale(8),
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.light,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

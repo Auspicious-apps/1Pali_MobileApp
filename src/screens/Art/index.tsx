@@ -96,19 +96,12 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
     ),
     [navigation],
   );
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={COLORS.darkText} />
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
       <View style={styles.headerWrapper}>
-        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+        <Image source={IMAGES.LogoText} style={styles.logo} />
 
         <View style={styles.header}>
           <CustomText
@@ -130,85 +123,98 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
         </View>
       </View>
 
-      <ScrollView
-        bounces={false}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {artOfTheWeek && (
-          <TouchableOpacity
-            style={styles.weekCard}
-            activeOpacity={0.8}
-            onPress={() =>
-              navigation.navigate("artStack", {
-                screen: "artDetail",
-                params: { ArtId: artOfTheWeek?.id },
-              })
-            }
+      {loading ? (
+        <View style={styles.inlineLoader}>
+          <ActivityIndicator size="large" color={COLORS.darkText} />
+          <CustomText
+            fontFamily="SourceSansRegular"
+            fontSize={16}
+            color={COLORS.darkText}
           >
-            <View style={{ position: "relative" }}>
-              {weekImageLoading && (
-                <View
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: hp(47),
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: COLORS.greyish,
-                    borderRadius: 25,
-                    zIndex: 1,
-                  }}
-                >
-                  <ActivityIndicator size="small" color={COLORS.darkText} />
-                </View>
-              )}
+            Loading Arts
+          </CustomText>
+        </View>
+      ) : (
+        <ScrollView
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {artOfTheWeek && (
+            <TouchableOpacity
+              style={styles.weekCard}
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate("artStack", {
+                  screen: "artDetail",
+                  params: { ArtId: artOfTheWeek?.id },
+                })
+              }
+            >
+              <View style={{ position: "relative" }}>
+                {weekImageLoading && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: hp(47),
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor: COLORS.greyish,
+                      borderRadius: 25,
+                      zIndex: 1,
+                    }}
+                  >
+                    <ActivityIndicator size="small" color={COLORS.darkText} />
+                  </View>
+                )}
 
-              <Image
-                source={{ uri: artOfTheWeek?.mediaUrl }}
-                style={styles.weekImage}
-                onLoadStart={() => setWeekImageLoading(true)}
-                onLoadEnd={() => setWeekImageLoading(false)}
-              />
-            </View>
-
-            <View style={styles.weekContent}>
-              <View style={styles.weekBadge}>
-                <CustomText
-                  fontFamily="SourceSansMedium"
-                  fontSize={15}
-                  color={COLORS.greenish}
-                >
-                  Art of the Week
-                </CustomText>
+                <Image
+                  source={{ uri: artOfTheWeek?.mediaUrl }}
+                  style={styles.weekImage}
+                  onLoadStart={() => setWeekImageLoading(true)}
+                  onLoadEnd={() => setWeekImageLoading(false)}
+                />
               </View>
 
-              <CustomText
-                fontFamily="GabaritoMedium"
-                fontSize={18}
-                color={COLORS.darkText}
-                style={styles.weekTitle}
-              >
-                {artOfTheWeek?.title}
-              </CustomText>
-            </View>
-          </TouchableOpacity>
-        )}
+              <View style={styles.weekContent}>
+                <View style={styles.weekBadge}>
+                  <CustomText
+                    fontFamily="SourceSansMedium"
+                    fontSize={15}
+                    color={COLORS.greenish}
+                  >
+                    Art of the Week
+                  </CustomText>
+                </View>
 
-        <View style={{ marginBottom: verticalScale(20) }}>
-          {/* Grid List (NON-scrollable) */}
-          <FlatList
-            // data={[...gridArtworks,...gridArtworks]}
-            data={gridArtworks}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            numColumns={2}
-            scrollEnabled={false}
-            columnWrapperStyle={styles.columnWrapper}
-            contentContainerStyle={styles.listContent}
-          />
-        </View>
-      </ScrollView>
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={18}
+                  color={COLORS.darkText}
+                  style={styles.weekTitle}
+                >
+                  {artOfTheWeek?.title}
+                </CustomText>
+              </View>
+            </TouchableOpacity>
+          )}
+
+          <View style={{ marginBottom: verticalScale(20) }}>
+            {/* Grid List (NON-scrollable) */}
+            <FlatList
+              // data={[...gridArtworks,...gridArtworks]}
+              data={gridArtworks}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              numColumns={2}
+              scrollEnabled={false}
+              columnWrapperStyle={styles.columnWrapper}
+              contentContainerStyle={styles.listContent}
+            />
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -238,11 +244,11 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(32),
     marginBottom: verticalScale(20),
     alignItems: "center",
+    gap: verticalScale(8),
   },
 
   subtitle: {
     textAlign: "center",
-    marginTop: verticalScale(6),
   },
   weekCard: {
     backgroundColor: COLORS.white,
@@ -320,10 +326,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: SIDE_PADDING,
     justifyContent: "space-between",
   },
-  loaderContainer: {
+  inlineLoader: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.white,
+    marginTop: verticalScale(20),
+    gap: verticalScale(8),
   },
 });

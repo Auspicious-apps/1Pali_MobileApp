@@ -30,6 +30,7 @@ import {
   RootStackParams,
   UpdateStackParams,
 } from "../typings/routes";
+import FAQ from "../screens/FAQ";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -98,6 +99,7 @@ function AccountStackRoutes() {
       <AccountStack.Screen name="receipts" component={ReceiptsScreen} />
       <AccountStack.Screen name="manageDonation" component={ManageDonation} />
       <AccountStack.Screen name="badges" component={Badges} />
+      <AccountStack.Screen name="faq" component={FAQ} />
     </AccountStack.Navigator>
   );
 }

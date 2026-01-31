@@ -52,6 +52,7 @@ import Seedlock from "./Seedlock.svg";
 import WhiteClose from "./WhiteClose.svg";
 import currncyDoller from "./CurrencyDoller.svg";
 import InnerLockIcon from "./InnerLockIcon.svg";
+import GreyUserIcon from "./GreyUserIcon.svg";
  
 const ICONS = {
   diceIcon,
@@ -108,6 +109,7 @@ const ICONS = {
   WhiteClose,
   currncyDoller,
   InnerLockIcon,
+  GreyUserIcon,
 };
 
 export default ICONS;

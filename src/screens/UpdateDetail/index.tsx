@@ -45,6 +45,12 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [sendingComment, setSendingComment] = useState(false);
+  const [sliderLoading, setSliderLoading] = useState<Record<number, boolean>>(
+    {},
+  );
+
+
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -64,16 +70,33 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-  const renderSlide = ({ item }: { item: string }) => {
+  const renderSlide = ({ item, index }: { item: string; index: number }) => {
+    const isLoading = sliderLoading[index] !== false;
     return (
       <View style={styles.slideTextCont}>
-        <Image source={{ uri: item }} style={styles.image} />
+        {!isLoading && (
+          <View style={styles.sliderLoader}>
+            <ActivityIndicator size="small" color={COLORS.darkText} />
+          </View>
+        )}
+
+        <Image
+          source={{ uri: item }}
+          style={styles.image}
+          onLoadStart={() =>
+            setSliderLoading((prev) => ({ ...prev, [index]: true }))
+          }
+          onLoadEnd={() =>
+            setSliderLoading((prev) => ({ ...prev, [index]: false }))
+          }
+        />
       </View>
     );
   };
 
   const handleBlogDetail = async () => {
     try {
+      setIsLoading(true); 
       const response = await fetchData<GetBlogByIdResponse>(
         `${ENDPOINTS.GetBlogById}/${blogId}`,
       );
@@ -90,6 +113,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       }
     } catch (error) {
       console.log("error", error);
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -147,6 +172,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     if (!commentText.trim()) return;
 
     try {
+      setSendingComment(true);
       const response = await postData<AddCommentToBlogResponse>(
         `${ENDPOINTS.AddCommentToBlog}/${blogId}/comments`,
         { content: commentText.trim() },
@@ -170,6 +196,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       }
     } catch (error) {
       console.log("Add comment error", error);
+    } finally {
+      setSendingComment(false);
     }
   };
 
@@ -463,14 +491,19 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                 <TouchableOpacity
                   onPress={handleSendComment}
                   activeOpacity={0.7}
+                  disabled={sendingComment}
                 >
-                  <CustomText
-                    fontFamily="GabaritoSemiBold"
-                    fontSize={16}
-                    color={commentText ? "#4c80f2" : COLORS.appText}
-                  >
-                    Send
-                  </CustomText>
+                  {sendingComment ? (
+                    <ActivityIndicator size="small" color="#4c80f2" />
+                  ) : (
+                    <CustomText
+                      fontFamily="GabaritoSemiBold"
+                      fontSize={16}
+                      color={commentText ? "#4c80f2" : COLORS.appText}
+                    >
+                      Send
+                    </CustomText>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -618,5 +651,15 @@ const styles = StyleSheet.create({
     width: horizontalScale(7),
     height: verticalScale(7),
     borderRadius: 4,
+  },
+  sliderLoader: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.greyish,
+    zIndex: 1,
+    borderRadius: 20,
   },
 });

@@ -48,14 +48,6 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
     handleUserBlogs();
   }, []);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={COLORS.darkText} />
-      </View>
-    );
-  }
-
   const renderItem = ({ item }: { item: Blog }) => (
     <TouchableOpacity
       style={styles.card}
@@ -143,19 +135,33 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
             fontFamily="SourceSansRegular"
             fontSize={15}
             color={COLORS.appText}
+            style={{ textAlign: "center" }}
           >
             Updates from MECA on the ground, shared monthly.
           </CustomText>
         </View>
 
-        <FlatList
-          data={blogs}
-          bounces={false}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-        />
+        {isLoading ? (
+          <View style={styles.inlineLoader}>
+            <ActivityIndicator size="large" color={COLORS.darkText} />
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={16}
+              color={COLORS.darkText}
+            >
+              Loading Updates
+            </CustomText>
+          </View>
+        ) : (
+          <FlatList
+            data={blogs}
+            bounces={false}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
+        )}
       </SafeAreaView>
     </View>
   );
@@ -181,6 +187,7 @@ const styles = StyleSheet.create({
   header: {
     marginTop: verticalScale(32),
     marginBottom: verticalScale(24),
+    gap: verticalScale(8),
   },
   listContent: {
     paddingBottom: verticalScale(20),
@@ -222,12 +229,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: COLORS.greyBackground,
   },
-
-  /* 🔹 FULL SCREEN LOADER */
-  loaderContainer: {
+  inlineLoader: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.white,
+    marginTop: verticalScale(20),
+    gap: verticalScale(8),
   },
 });

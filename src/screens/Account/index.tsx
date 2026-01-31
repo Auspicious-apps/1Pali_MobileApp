@@ -84,7 +84,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       icon: ICONS.FAQsIcon,
       label: "FAQs",
       arrow: true,
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate("accountStack", { screen: "faq" });
+      },
     },
     {
       id: "terms",

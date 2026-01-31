@@ -36,6 +36,7 @@ export type AccountStackParams = {
   receipts: undefined;
   manageDonation: undefined;
   badges: undefined;
+  faq: undefined;
 };
 
 export type BottomStackParams = {
@@ -124,3 +125,4 @@ export type ManageDonationScreenProps = NativeStackScreenProps<
   AccountStackParams,
   "manageDonation"
 >;
+export type FaqScreenProps = NativeStackScreenProps<AccountStackParams, "faq">;

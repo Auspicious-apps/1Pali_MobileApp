@@ -48,7 +48,7 @@ const TermsConditions: FC<TermsConditionsScreenProps> = ({ navigation }) => {
             <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
           </TouchableOpacity>
 
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+          <Image source={IMAGES.LogoText} style={styles.logo} />
 
           <View style={{ width: 24 }} />
         </View>
@@ -761,8 +761,8 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(16),
   },
   logo: {
-    width: horizontalScale(90),
-    height: verticalScale(50),
+    width: horizontalScale(80),
+    height: verticalScale(70),
     resizeMode: "contain",
   },
   scrollContent: {
