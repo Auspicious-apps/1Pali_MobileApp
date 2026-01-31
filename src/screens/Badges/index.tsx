@@ -24,15 +24,20 @@ import { fetchData } from "../../service/ApiService";
 import { BadgesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { setBadgeData } from "../../redux/slices/BadgesSlice";
 
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
+  const dispatch = useAppDispatch();
+
   const [activeTab, setActiveTab] = useState<"Growth" | "Art" | "Impact">(
     "Growth",
   );
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
-  const [badges, setBadges] = useState<Badge[]>([]);
+  const { badges } = useAppSelector((state) => state.badges);
+
   const [loading, setLoading] = useState(false);
 
   const filteredBadges = badges.filter(
@@ -68,7 +73,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
     try {
       setLoading(true);
       const res = await fetchData<GetAllBadgesResponse>(ENDPOINTS.GetAllBadges);
-      setBadges(res?.data?.data?.badges);
+      dispatch(setBadgeData(res?.data?.data?.badges));
     } catch (error) {
       console.log("error", error);
     } finally {
@@ -77,7 +82,9 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchAllBadges();
+    if (badges.length === 0) {
+      fetchAllBadges();
+    }
   }, []);
   if (loading) {
     return (

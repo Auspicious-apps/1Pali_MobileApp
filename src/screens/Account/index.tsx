@@ -1,3 +1,4 @@
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import React, { FC } from "react";
 import {
   Alert,
@@ -15,30 +16,26 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import ProgressBar from "../../components/ProgressBar";
-import { AccountScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { deleteLocalStorageData } from "../../utils/Helpers";
-import STORAGE_KEYS from "../../utils/Constants";
-import { Screen } from "react-native-screens";
-import { useAppSelector } from "../../redux/store";
 import {
+  selectArtBadges,
   selectCommunityBadges,
   selectGrowthBadges,
+  selectImpactBadges,
 } from "../../redux/slices/UserSlice";
-
-const BADGES = [
-  { id: 1, image: IMAGES.Sprout1, label: "Sprout" },
-  { id: 2, image: IMAGES.Sprout2, label: "First 1000" },
-  { id: 3, image: IMAGES.Sprout3, label: "Megaphone" },
-];
+import { useAppSelector } from "../../redux/store";
+import { AccountScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import STORAGE_KEYS from "../../utils/Constants";
+import { deleteLocalStorageData } from "../../utils/Helpers";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const { badges, user } = useAppSelector((state) => state.user);
 
   const growthBadges = useAppSelector(selectGrowthBadges);
   const communityBadges = useAppSelector(selectCommunityBadges);
+  const artBadges = useAppSelector(selectArtBadges);
+  const impactBadges = useAppSelector(selectImpactBadges);
 
   const ACCOUNT_OPTIONS = [
     {
@@ -123,7 +120,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
 
             onPress: async () => {
               deleteLocalStorageData(STORAGE_KEYS.accessToken);
-              await GoogleSignin.signOut();
+              if (Platform.OS === "android") {
+                await GoogleSignin.signOut();
+              }
               navigation.navigate("OnBoardingStack", {
                 screen: "missionIntro",
               });
@@ -249,7 +248,12 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     right: horizontalScale(15),
                   }}
                 >
-                  {growthBadges?.map((badge, index) => (
+                  {[
+                    ...growthBadges.slice(0, 1),
+                    ...communityBadges,
+                    ...artBadges.slice(0, 1),
+                    ...impactBadges.slice(0, 1),
+                  ]?.map((badge, index) => (
                     <Image
                       key={badge.id}
                       source={{ uri: badge.badge.iconPngUrl }}
@@ -394,7 +398,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 </View>
               </View>
               {/* Progress Bar */}
-              <ProgressBar currentStep={1} totalSteps={10} />
+              <ProgressBar />
 
               <CustomText
                 fontFamily="GabaritoRegular"
@@ -402,7 +406,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 color={"#1D222B90"}
                 style={{ textAlign: "center" }}
               >
-                Sapling badge unlocked at 6 months
+                {user?.nextGrowthBadge.name} badge unlocked in{" "}
+                {user?.nextGrowthBadge.monthsRemaining} months
               </CustomText>
             </View>
 

@@ -29,15 +29,6 @@ const SIDE_PADDING = horizontalScale(20);
 const CARD_GAP = horizontalScale(12);
 const CARD_WIDTH = (SCREEN_WIDTH - SIDE_PADDING * 2 - CARD_GAP) / 2;
 
-const artData = [
-  { id: "1", image: IMAGES.FeedImage, month: "03.04.2025" },
-  { id: "2", image: IMAGES.FeedImage, month: "03.04.2025" },
-  { id: "3", image: IMAGES.FeedImage, month: "03.04.2025" },
-  { id: "4", image: IMAGES.FeedImage, month: "03.04.2025" },
-  { id: "5", image: IMAGES.FeedImage, month: "03.04.2025" },
-  { id: "6", image: IMAGES.FeedImage, month: "03.04.2025" },
-];
-
 const Art: FC<ArtScreenProps> = ({ navigation }) => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,20 +37,19 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
   const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
 
+  const getArtworkImage = (item?: Artwork) => {
+    if (!item) {
+      return undefined;
+    }
 
- const getArtworkImage = (item?: Artwork) => {
-   if (!item) {
-     return undefined;
-   }
-
-   if (item?.mediaType === "VIDEO") {
-     return item?.thumbnailUrl;
-   } else if (item?.mediaType === "IMAGE") {
-     return item?.mediaUrl;
-   } else {
-     return item?.mediaUrl;
-   }
- };
+    if (item?.mediaType === "VIDEO") {
+      return item?.thumbnailUrl;
+    } else if (item?.mediaType === "IMAGE") {
+      return item?.mediaUrl;
+    } else {
+      return item?.mediaUrl;
+    }
+  };
 
   const fetchUserArt = async () => {
     try {
@@ -219,7 +209,6 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
             <View style={{ marginBottom: verticalScale(20) }}>
               {/* Grid List (NON-scrollable) */}
               <FlatList
-                // data={[...gridArtworks,...gridArtworks]}
                 data={gridArtworks}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}

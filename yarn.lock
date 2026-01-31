@@ -2794,6 +2794,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/netinfo@npm:^11.4.1":
+  version: 11.4.1
+  resolution: "@react-native-community/netinfo@npm:11.4.1"
+  peerDependencies:
+    react-native: ">=0.59"
+  checksum: d347ae522da6b8c045d6378754d4928bdf23cc85b74571b91fa8a03fa168bdac5e3c65eb97eac0dd0c7cbd20e782f99d41b090fb79ce7d815cbaf6fb5d1abe37
+  languageName: node
+  linkType: hard
+
 "@react-native-firebase/app@npm:^23.8.3":
   version: 23.8.3
   resolution: "@react-native-firebase/app@npm:23.8.3"
@@ -3790,6 +3799,7 @@ __metadata:
     "@react-native-community/cli": 20.0.0
     "@react-native-community/cli-platform-android": 20.0.0
     "@react-native-community/cli-platform-ios": 20.0.0
+    "@react-native-community/netinfo": ^11.4.1
     "@react-native-firebase/app": ^23.8.3
     "@react-native-firebase/auth": ^23.8.3
     "@react-native-firebase/messaging": ^23.8.3
@@ -3817,6 +3827,7 @@ __metadata:
     react: 19.2.0
     react-i18next: ^16.5.1
     react-native: 0.83.1
+    react-native-blob-util: ^0.24.6
     react-native-dotenv: ^3.4.11
     react-native-gesture-handler: 2.28.0
     react-native-iap: 14.7.0
@@ -3832,6 +3843,7 @@ __metadata:
     react-native-svg-transformer: ^1.5.2
     react-native-toast-message: ^2.3.3
     react-native-uuid: ^2.0.3
+    react-native-video: ^6.19.0
     react-redux: ^9.2.0
     react-test-renderer: 19.2.0
     typescript: ^5.8.3
@@ -4284,6 +4296,13 @@ __metadata:
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
   checksum: 9706c088a283058a8a99e0bf91b0a2f75497f185980d9ffa8b304de1d9e58ebda7c72c07ebf01dadedaac5b2907b2c6f566f660d62bd336c3468e960403b9d65
+  languageName: node
+  linkType: hard
+
+"base-64@npm:0.1.0":
+  version: 0.1.0
+  resolution: "base-64@npm:0.1.0"
+  checksum: 5a42938f82372ab5392cbacc85a5a78115cbbd9dbef9f7540fa47d78763a3a8bd7d598475f0d92341f66285afd377509851a9bb5c67bbecb89686e9255d5b3eb
   languageName: node
   linkType: hard
 
@@ -6202,7 +6221,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^13.0.0":
+"glob@npm:13.0.0, glob@npm:^13.0.0":
   version: 13.0.0
   resolution: "glob@npm:13.0.0"
   dependencies:
@@ -9024,6 +9043,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-blob-util@npm:^0.24.6":
+  version: 0.24.6
+  resolution: "react-native-blob-util@npm:0.24.6"
+  dependencies:
+    base-64: 0.1.0
+    glob: 13.0.0
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: c4988062a6a4112cb30e46a354675ac7c015cd1776b040caa87ed47fa7ba273f3b7f235f37abc08d6ef14dca8694fa92e3812d8444eb1b97e433634af6e55504
+  languageName: node
+  linkType: hard
+
 "react-native-dotenv@npm:^3.4.11":
   version: 3.4.11
   resolution: "react-native-dotenv@npm:3.4.11"
@@ -9207,6 +9239,16 @@ __metadata:
   version: 2.0.3
   resolution: "react-native-uuid@npm:2.0.3"
   checksum: e47774481feaed5d38f75fb4b03f5189c03e7452038f1b0fa56677add8a8bdef64ec7ad5e83f9fa761d8788cac5c8e554ade07e82a2818145337df7c883e2124
+  languageName: node
+  linkType: hard
+
+"react-native-video@npm:^6.19.0":
+  version: 6.19.0
+  resolution: "react-native-video@npm:6.19.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: fd320422b57e850d907a8db2849cbd695a0d33c55ce45b603ad5b3e4133f19cac49ffad24bb87e6fc53e472f53d2d5a6799b10969347d116db204a741f5959ea
   languageName: node
   linkType: hard
 

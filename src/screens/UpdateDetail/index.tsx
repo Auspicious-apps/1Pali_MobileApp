@@ -46,11 +46,12 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [page, setPage] = useState(1);
   const [comments, setComments] = useState<Comment[]>([]);
   const [sendingComment, setSendingComment] = useState(false);
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const lastScrollY = useRef(0);
+  const manualOpen = useRef(false);
   const [sliderLoading, setSliderLoading] = useState<Record<number, boolean>>(
     {},
   );
-
-
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -74,12 +75,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     const isLoading = sliderLoading[index] !== false;
     return (
       <View style={styles.slideTextCont}>
-        {!isLoading && (
-          <View style={styles.sliderLoader}>
-            <ActivityIndicator size="small" color={COLORS.darkText} />
-          </View>
-        )}
-
         <Image
           source={{ uri: item }}
           style={styles.image}
@@ -96,7 +91,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   const handleBlogDetail = async () => {
     try {
-      setIsLoading(true); 
+      setIsLoading(true);
       const response = await fetchData<GetBlogByIdResponse>(
         `${ENDPOINTS.GetBlogById}/${blogId}`,
       );
@@ -113,7 +108,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       }
     } catch (error) {
       console.log("error", error);
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -128,16 +123,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
       if (response?.data?.success) {
         const data = response.data.data;
-
-        setBlogDetail((prev): any =>
-          prev
-            ? {
-                ...prev,
-                comments: [...prev.comments, ...data.comments],
-              }
-            : prev,
-        );
-
+        setComments((prev): any => [...prev, ...data.comments]);
         setHasNext(data.pagination.hasNext);
         setPage(pageNumber);
       }
@@ -153,7 +139,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       const response = await postData<LikeUnlikeBlogResponse>(
         `${ENDPOINTS.LikeUnlikeBlog}/${blogId}/like`,
       );
-      console.log("RESS", response);
 
       if (response?.data?.data?.action) {
         setIsLiked(response?.data?.data?.isLiked);
@@ -183,14 +168,12 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           prev
             ? {
                 ...prev,
-                comments: sortCommentsByLatest(
-                  response?.data?.data?.comments as any,
-                ),
+                comments: response?.data?.data?.comments,
                 commentsCount: response?.data?.data?.pagination?.total,
               }
             : prev,
         );
-
+        setComments(response?.data?.data?.comments as any);
         setCommentText("");
         commentInputRef.current?.blur();
       }
@@ -202,7 +185,12 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   };
 
   const handleCommentIconPress = () => {
-    commentInputRef.current?.focus();
+    manualOpen.current = true;
+    setShowCommentInput(true);
+
+    setTimeout(() => {
+      commentInputRef.current?.focus();
+    }, 100);
   };
 
   const handleShare = async () => {
@@ -241,6 +229,14 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   useEffect(() => {
     handleBlogDetail();
   }, [blogId]);
+
+  useEffect(() => {
+    if (blogDetail?.comments) {
+      setComments(blogDetail.comments);
+      setPage(1);
+      setHasNext(blogDetail?.commentsPagination?.hasNext || false);
+    }
+  }, [blogDetail]);
 
   useEffect(() => {
     if (blogDetail?.coverPhotoUrl) {
@@ -298,6 +294,22 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           bounces={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          scrollEventThrottle={16}
+          onScroll={(e) => {
+            const currentY = e.nativeEvent.contentOffset.y;
+            const isScrollingDown = currentY > lastScrollY.current;
+
+            if (isScrollingDown && currentY > 250) {
+              setShowCommentInput(true);
+              manualOpen.current = false;
+            }
+
+            if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
+              setShowCommentInput(false);
+            }
+
+            lastScrollY.current = currentY;
+          }}
         >
           {/* BACK */}
           <TouchableOpacity
@@ -477,46 +489,17 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               </View>
             </View>
 
-            {/* COMMENT INPUT */}
-            <View style={styles.commentInputRow}>
-              <View style={styles.commentInputWrapper}>
-                <TextInput
-                  ref={commentInputRef}
-                  value={commentText}
-                  onChangeText={setCommentText}
-                  placeholder="Add a comment..."
-                  placeholderTextColor={COLORS.appText}
-                  style={styles.commentInput}
-                />
-                <TouchableOpacity
-                  onPress={handleSendComment}
-                  activeOpacity={0.7}
-                  disabled={sendingComment}
-                >
-                  {sendingComment ? (
-                    <ActivityIndicator size="small" color="#4c80f2" />
-                  ) : (
-                    <CustomText
-                      fontFamily="GabaritoSemiBold"
-                      fontSize={16}
-                      color={commentText ? "#4c80f2" : COLORS.appText}
-                    >
-                      Send
-                    </CustomText>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-
             {/* COMMENTS */}
+            <View
+              style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
+            />
             <FlatList
-              data={blogDetail?.comments}
+              data={comments}
               keyExtractor={(item) => item.id}
               renderItem={renderCommentItem}
               scrollEnabled={false}
               contentContainerStyle={styles.commentsList}
             />
-
             {hasNext && (
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -539,6 +522,47 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             )}
           </View>
         </FocusResetScrollView>
+        {showCommentInput && (
+          <>
+            <View
+              style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
+            />
+            <View style={styles.commentInputRow}>
+              <CustomIcon
+                Icon={ICONS.GreyUserIcon}
+                height={verticalScale(40)}
+                width={horizontalScale(40)}
+              />
+              <View style={styles.commentInputWrapper}>
+                <TextInput
+                  ref={commentInputRef}
+                  value={commentText}
+                  onChangeText={setCommentText}
+                  placeholder="Add a comment..."
+                  placeholderTextColor={COLORS.appText}
+                  style={styles.commentInput}
+                />
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleSendComment}
+                  disabled={sendingComment}
+                >
+                  {sendingComment ? (
+                    <ActivityIndicator size="small" color="#4c80f2" />
+                  ) : (
+                    <CustomText
+                      fontFamily="GabaritoSemiBold"
+                      fontSize={16}
+                      color="#4c80f2"
+                    >
+                      Send
+                    </CustomText>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
+        )}
       </KeyboardAvoidingView>
     </View>
   );
@@ -570,28 +594,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: COLORS.greyish,
-    paddingBottom: verticalScale(16),
-    width: "100%",
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: horizontalScale(20),
+    gap: horizontalScale(8),
   },
   commentInputWrapper: {
     flex: 1,
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: COLORS.greyish,
-    paddingHorizontal: horizontalScale(16),
+    paddingHorizontal: horizontalScale(12),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.white,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginVertical: verticalScale(8),
   },
   commentInput: {
     fontFamily: FONTS.SourceSansRegular,
     fontSize: 14,
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
-    width: "80%",
+    flex: 1,
   },
   commentsList: {
     paddingBottom: verticalScale(8),

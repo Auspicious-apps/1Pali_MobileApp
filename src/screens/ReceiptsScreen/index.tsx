@@ -1,33 +1,33 @@
-import React, { FC, useEffect, useState, useRef } from "react";
+import dayjs from "dayjs";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
+  Modal,
   PermissionsAndroid,
   Platform,
   StyleSheet,
   TouchableOpacity,
-  View,
-  Modal,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
+import ReactNativeBlobUtil from "react-native-blob-util";
 import { SafeAreaView } from "react-native-safe-area-context";
-import IMAGES from "../../assets/Images";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import CustomIcon from "../../components/CustomIcon";
 import ICONS from "../../assets/Icons";
-import { ReceiptsScreenProps } from "../../typings/routes";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
-import COLORS from "../../utils/Colors";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
+import ENDPOINTS from "../../service/ApiEndpoints";
 import {
   GetUserReceiptResponse,
   ReceiptsData,
 } from "../../service/ApiResponses/RecieptApiResponse";
 import { fetchData } from "../../service/ApiService";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import dayjs from "dayjs";
-import ReactNativeBlobUtil from "react-native-blob-util";
+import { ReceiptsScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
 
 const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
   const [receipts, setReceipts] = useState<GetUserReceiptResponse[]>([]);
@@ -93,30 +93,49 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
       setDownloadingId(receiptId);
 
       if (Platform.OS === "android") {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        );
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) return;
+        try {
+          // Check permission first
+          const androidVersion = Platform.Version;
+          let permission =
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+          // Android 11+ requires MANAGE_EXTERNAL_STORAGE or use scoped storage
+          if (androidVersion >= 30) {
+            permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+          }
+
+          // First, check if permission is already granted
+          const hasPermission = await PermissionsAndroid.check(permission);
+
+          if (!hasPermission) {
+            // Request permission
+            const granted = await PermissionsAndroid.request(permission);
+
+            if (
+              granted !== PermissionsAndroid.RESULTS.GRANTED &&
+              granted !== PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
+            ) {
+              console.log("Permission denied");
+              return;
+            }
+
+            // If "never_ask_again", still proceed - the download manager might work
+            if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+              console.log(
+                "Permission set to never ask again, proceeding anyway",
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Permission check error:", error);
+        }
       }
 
       const { fs, config } = ReactNativeBlobUtil;
       const dir =
         Platform.OS === "ios" ? fs.dirs.DocumentDir : fs.dirs.DownloadDir;
-      const path = `${dir}/${receiptId}_${Date.now()}.pdf`;
-
-      await config({
-        fileCache: true,
-        path,
-        addAndroidDownloads:
-          Platform.OS === "android"
-            ? {
-                useDownloadManager: true,
-                notification: true,
-                path,
-                mime: "application/pdf",
-              }
-            : undefined,
-      }).fetch("GET", url);
+      const fileName = `Receipt_${receiptId}_${Date.now()}.pdf`;
+      const path = `${dir}/${fileName}`;
 
       if (Platform.OS === "ios") {
         ReactNativeBlobUtil.ios.previewDocument(path);
@@ -137,66 +156,65 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        {loading ? (
-          <View style={styles.fullScreenLoader}>
-            <ActivityIndicator size="large" color={COLORS.darkText} />
+        <FocusResetScrollView
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.header}>
+            <View style={styles.side}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("account")}
+                activeOpacity={0.8}
+              >
+                <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.center}>
+              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+            </View>
+            <View style={styles.side} />
           </View>
-        ) : (
-          <FocusResetScrollView
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            <View style={styles.header}>
-              <View style={styles.side}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("account")}
-                  activeOpacity={0.8}
-                >
-                  <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.center}>
-                <Image source={IMAGES.LogoText} style={styles.logo} />
-              </View>
-              <View style={styles.side} />
-            </View>
 
-            <View style={styles.titleContainer}>
-              <CustomText
-                fontFamily="GabaritoSemiBold"
-                fontSize={32}
-                color={COLORS.darkText}
-              >
-                Receipts
-              </CustomText>
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
-                color={COLORS.appText}
-                style={styles.subtitle}
-              >
-                Track your donations and export receipts
-              </CustomText>
-            </View>
-
-            {/* Year selector */}
-            <TouchableOpacity
-              ref={yearButtonRef}
-              style={styles.yearFilter}
-              onPress={measureAndToggleDropdown}
-              disabled={loading}
+          <View style={styles.titleContainer}>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={32}
+              color={COLORS.darkText}
             >
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={16}
-                color={COLORS.appText}
-              >
-                {selectedYear}
-              </CustomText>
-              <CustomIcon Icon={ICONS.DropdownIcon} height={24} width={24} />
-            </TouchableOpacity>
+              Receipts
+            </CustomText>
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={14}
+              color={COLORS.appText}
+              style={styles.subtitle}
+            >
+              Track your donations and export receipts
+            </CustomText>
+          </View>
 
+          {/* Year selector */}
+          <TouchableOpacity
+            ref={yearButtonRef}
+            style={styles.yearFilter}
+            onPress={measureAndToggleDropdown}
+            disabled={loading}
+          >
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={16}
+              color={COLORS.appText}
+            >
+              {selectedYear}
+            </CustomText>
+            <CustomIcon Icon={ICONS.DropdownIcon} height={24} width={24} />
+          </TouchableOpacity>
+          {loading ? (
+            <View style={styles.fullScreenLoader}>
+              <ActivityIndicator size="large" color={COLORS.darkText} />
+            </View>
+          ) : (
             <View style={styles.card}>
               {receipts.length === 0 ? (
                 <View style={styles.emptyState}>
@@ -282,8 +300,8 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
                 />
               )}
             </View>
-          </FocusResetScrollView>
-        )}
+          )}
+        </FocusResetScrollView>
 
         {/* Year dropdown */}
         {showYearDropdown && (
@@ -376,7 +394,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 2,
-    elevation: 6,
+    elevation: 3,
   },
   listContent: {},
   receiptRow: {

@@ -1,12 +1,16 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { useDispatch, useSelector } from 'react-redux';
+import { configureStore } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
+import BadgesReducer from "./slices/BadgesSlice";
 import CollectBadgesReducer from "./slices/CollectBadgesSlice";
 import userReducer from "./slices/UserSlice";
+import StripePlansReducer from "./slices/StripePlans";
 
 export const store = configureStore({
   reducer: {
     collectBadges: CollectBadgesReducer,
     user: userReducer,
+    badges: BadgesReducer,
+    stripePlans: StripePlansReducer,
   },
 });
 

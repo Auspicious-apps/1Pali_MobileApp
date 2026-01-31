@@ -12,6 +12,7 @@ import COLORS from "../utils/Colors";
 import { horizontalScale, isAndroid, verticalScale } from "../utils/Metrics";
 import CustomIcon from "./CustomIcon";
 import { CustomText } from "./CustomText";
+import { CommonActions } from "@react-navigation/native";
 
 type Tab = {
   name: string;
@@ -47,6 +48,7 @@ const tabs: Tab[] = [
 ];
 const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const { state, navigation } = props;
+
   // Map detail/inner routes to their parent tab for highlighting
   const routeToTab: Record<string, string> = {
     home: "home",
@@ -60,28 +62,31 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
     receipts: "account",
     badges: "account",
     manageDonation: "account",
-    // Add more mappings if you add more detail/inner screens
   };
+
   const currentRoute = state.routes[state.index].name;
   const activeTab = routeToTab[currentRoute] || currentRoute;
   const scaleValue = useRef(new Animated.Value(1)).current;
 
-  const homeRoute = state.routes.find((r) => r.name === "home");
-  const currentNumber = (homeRoute?.params as any)?.number as
-    | string
-    | undefined;
   const handleTabPress = useCallback(
     (tab: Tab) => {
-      if (currentRoute !== tab.route) {
-        if (currentNumber) {
-          navigation.navigate(tab.route, { number: currentNumber });
-        } else {
-          navigation.navigate(tab.route);
-        }
+      const isActive = activeTab === tab.route;
+      if (isActive) {
+        // If we are already on this tab, reset its internal stack to the first screen
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: tab.route }],
+          }),
+        );
+      } else {
+        // If we are switching tabs, navigate normally
+        navigation.navigate(tab.route);
       }
     },
-    [navigation, currentRoute, currentNumber],
+    [navigation, currentRoute, activeTab],
   );
+
   const renderTab = useCallback(
     ({ item, index }: { item: Tab; index: number }) => {
       const isActive = activeTab === item.route;

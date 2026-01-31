@@ -1,55 +1,62 @@
-import { StyleSheet, View } from 'react-native';
-import React from 'react';
-import { horizontalScale, verticalScale } from '../utils/Metrics';
-import COLORS from '../utils/Colors';
+import { StyleSheet, View, Dimensions } from "react-native";
+import React from "react";
+import { horizontalScale, verticalScale } from "../utils/Metrics";
+import COLORS from "../utils/Colors";
+import { useAppSelector } from "../redux/store";
 
-interface ProgressBarProps {
-  currentStep: number;
-  totalSteps: number;
-}
+const TOTAL_GOAL = 1000000;
+const MAX_STRIPES = 10;
+const STRIPE_WIDTH = horizontalScale(14.8);
+const STRIPE_GAP = horizontalScale(12);
+const CONTAINER_PADDING = horizontalScale(18);
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
-  currentStep,
-  totalSteps,
-}) => {
-  const clampedStep = Math.max(0, Math.min(currentStep, totalSteps));
-  const hasSteps = totalSteps > 0;
+const ProgressBar = () => {
+  const { user } = useAppSelector((state) => state.user);
 
-  // For steps >= 1 we grow the green pill from a minimum width (step 1)
-  // up to full width (last step), based purely on the index.
-  const minPercent = 18; // visual width for step 1
-  const maxPercent = 100;
+  // 1. Get the current count and CAP it at 1,000,000
+  // This ensures even if totalDonors is 1,500,000, we treat it as 1,000,000
+  const currentCount = Math.min(
+    user?.globalStats?.totalDonors || 0,
+    TOTAL_GOAL,
+  );
 
-  let progressPercent = 0;
+  // 2. Calculate stripes
+  const usersPerStripe = TOTAL_GOAL / MAX_STRIPES;
 
-  if (clampedStep > 0 && hasSteps) {
-    if (totalSteps === 1) {
-      progressPercent = maxPercent;
-    } else {
-      const ratio = (clampedStep - 1) / (totalSteps - 1);
-      progressPercent = minPercent + ratio * (maxPercent - minPercent);
-    }
-  }
+  // Using Math.floor ensures we only show a stripe when the threshold is fully met
+  // We clamp the activeStripes between 0 and 10 as a safety measure
+  const activeStripes = Math.min(
+    Math.floor(currentCount / usersPerStripe),
+    MAX_STRIPES,
+  );
+
+  // 3. Calculate exact pixel width
+  const calculateWidth = () => {
+    if (activeStripes === 0) return 0;
+    const stripesSpace = activeStripes * STRIPE_WIDTH;
+    const gapsSpace = (activeStripes - 1) * STRIPE_GAP;
+    // We add CONTAINER_PADDING * 2 because the stripes are padded on both sides
+    return CONTAINER_PADDING * 2 + stripesSpace + gapsSpace;
+  };
+
+  const progressWidth = calculateWidth();
 
   return (
     <View style={styles.progressOuter}>
       <View style={styles.progressInsetShadow} pointerEvents="none" />
 
       <View style={styles.progressTrack}>
-        {/* Step 0: single green dot */}
-        {clampedStep === 0 && <View style={styles.initialDot} />}
-
-        {/* Steps >= 1: growing green pill with candles */}
-        {clampedStep > 0 && (
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${progressPercent}%` },
-            ]}
-          >
-            {Array.from({ length: clampedStep }).map((_, index) => (
-              <View key={index} style={styles.progressHighlight} />
-            ))}
+        {/* State: Less than 1 stripe achieved */}
+        {activeStripes === 0 ? (
+          <View style={styles.initialCircle} />
+        ) : (
+          /* State: 1 or more stripes achieved */
+          <View style={[styles.progressFill, { width: progressWidth }]}>
+            <View style={styles.stripeContainer}>
+              {Array.from({ length: activeStripes }).map((_, index) => (
+                <View key={index} style={styles.progressHighlight} />
+              ))}
+            </View>
           </View>
         )}
       </View>
@@ -61,51 +68,45 @@ export default ProgressBar;
 
 const styles = StyleSheet.create({
   progressOuter: {
-    backgroundColor: '#F2F3F8',
+    backgroundColor: "#F2F3F8",
     borderRadius: 999,
-    paddingVertical: verticalScale(6),
-    paddingHorizontal: horizontalScale(2),
+    paddingVertical: verticalScale(4),
     marginVertical: verticalScale(12),
-    overflow: 'hidden',
   },
-
   progressInsetShadow: {
-    position: 'absolute',
+    position: "absolute",
     inset: 0,
     borderRadius: 999,
     borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.06)',
+    borderColor: "rgba(0,0,0,0.06)",
   },
-
   progressTrack: {
-    backgroundColor: '#F8F8FB',
     borderRadius: 100,
-    minHeight: verticalScale(32),
-    justifyContent: 'flex-start',
-    overflow: 'hidden',
+    justifyContent: "center",
     paddingHorizontal: horizontalScale(6),
+    paddingVertical: verticalScale(4),
   },
-
-  // Step 0 visual
-  initialDot: {
+  initialCircle: {
     width: verticalScale(32),
     height: verticalScale(32),
-    borderRadius: 20,
+    borderRadius: 100,
     backgroundColor: COLORS.DarkGreen,
   },
-
   progressFill: {
     height: verticalScale(33),
     backgroundColor: COLORS.DarkGreen,
     borderRadius: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: "center",
   },
-
+  stripeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: CONTAINER_PADDING,
+  },
   progressHighlight: {
-    width: horizontalScale(15),
-    height: verticalScale(30),
+    width: STRIPE_WIDTH,
+    height: verticalScale(28),
     backgroundColor: COLORS.lightGreen,
+    marginRight: STRIPE_GAP,
   },
 });

@@ -14,7 +14,11 @@ export type GetUserProfileApiResponse = {
   hasSubscription: boolean;
   subscriptionStatus: string;
   stripeCustomerId: string;
+  stripePriceId: string;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: string;
   globalStats: GlobalStats;
+  nextGrowthBadge: NextGrowthBadge;
   badges: Badges;
 };
 
@@ -71,4 +75,21 @@ export interface Metadata {
   achievedAt: string;
   userNumber?: number;
   consecutiveMonths?: number;
+}
+
+export interface NextGrowthBadge {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  iconPngUrl: string;
+  unlocksAt: number;
+  monthsRemaining: number;
+  currentProgress: number;
+  requirement: Requirement2;
+  progressPercentage: number;
+}
+
+export interface Requirement2 {
+  consecutiveMonths: number;
 }

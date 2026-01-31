@@ -18,20 +18,18 @@ import CustomIcon from "../../components/CustomIcon";
 import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
+import { setStripePlans } from "../../redux/slices/StripePlans";
 import {
   clearReservationTimer,
   setBadges,
-  setClaimedNumber,
   setUserData,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { ConsfirmSetupIntentApiResponse } from "../../service/ApiResponses/ConfirmSetupIntentApiResponse";
 import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
-import {
-  GetAllStripeePlansResponse,
-  Plan,
-} from "../../service/ApiResponses/GetAllStripePLans";
+import { GetAllStripeePlansResponse } from "../../service/ApiResponses/GetAllStripePLans";
+import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
 import { fetchData, postData } from "../../service/ApiService";
 import { JoinOnePaliProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
@@ -42,14 +40,13 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
-import { AxiosResponse } from "axios";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const [enabled, setEnabled] = useState(true);
   const { user, claimedNumber, reservationToken, reservationSeconds } =
     useAppSelector((state) => state.user);
+  const { stripePlans } = useAppSelector((state) => state.stripePlans);
 
   // Animation setup
   const heading = "You’re almost in";
@@ -91,7 +88,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [showImage, setShowImage] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [plans, setPlans] = useState<Plan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -255,7 +251,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           (plans) => plans?.active && plans?.interval === "month",
         );
 
-        setPlans(activePlans);
+        dispatch(setStripePlans(activePlans));
         setSelectedPlan(activePlans[0]?.id);
       }
     } catch (error) {
@@ -471,7 +467,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               </View>
 
               <View style={styles.toggleWrapper}>
-                {plans.map((plan, index) => {
+                {stripePlans.map((plan, index) => {
                   const isSelected = selectedPlan === plan.id;
                   const isFirst = index === 0;
                   return (

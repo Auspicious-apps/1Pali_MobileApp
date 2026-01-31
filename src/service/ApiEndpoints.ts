@@ -26,6 +26,7 @@ const ENDPOINTS = {
   GetUserReceipts: "api/v1/receipts",
   GetAllBadges: "api/v1/badges/all",
   ViewedBadges: "api/v1/badges/mark-viewed",
+  UpdatePlan: "api/v1/subscription/update-plan",
 };
 
 export default ENDPOINTS;

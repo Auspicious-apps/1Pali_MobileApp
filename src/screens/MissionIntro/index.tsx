@@ -138,10 +138,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
         // Navigate based on user state
         if (user.hasSubscription && user.hasSubscription) {
-          dispatch(setUserData(signInResponse.data.data.user.user));
-          dispatch(setBadges(signInResponse.data.data.user.user.badges));
+          dispatch(setUserData(signInResponse.data?.data?.user?.user));
+          dispatch(setBadges(signInResponse.data?.data?.user?.user?.badges));
           dispatch(
-            setClaimedNumber(signInResponse.data.data.user.assignedNumber),
+            setClaimedNumber(signInResponse.data?.data?.user?.assignedNumber),
           );
 
           navigation.navigate("MainStack", {

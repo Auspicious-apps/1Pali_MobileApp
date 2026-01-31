@@ -140,7 +140,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               }
             : prev,
         );
-
+        setComments(response?.data?.data?.comments as any);
         setCommentText("");
         commentInputRef.current?.blur();
       }
