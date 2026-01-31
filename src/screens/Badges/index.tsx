@@ -11,7 +11,12 @@ import {
 } from "react-native";
 import React, { FC, useEffect, useState } from "react";
 import IMAGES from '../../assets/Images';
-import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
+import {
+  deviceWidth,
+  horizontalScale,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 import COLORS from '../../utils/Colors';
 import { CustomText } from '../../components/CustomText';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,7 +25,7 @@ import CustomIcon from '../../components/CustomIcon';
 import ICONS from '../../assets/Icons';
 import { BadgesScreenProps } from '../../typings/routes';
 import FocusResetScrollView from '../../components/FocusResetScrollView';
-import { fetchData } from "../../service/ApiService";
+import { fetchData, postData } from "../../service/ApiService";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import {
   Badge,
@@ -138,13 +143,24 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             </CustomText>
           </View>
           <View style={styles.card}>
-            <Image
-              source={{
-                uri: communityBadge?.iconPngUrl,
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedBadge(communityBadge);
+                setIsBadgeModalVisible(true);
               }}
-              resizeMode="contain"
-              style={{ width: horizontalScale(72), height: verticalScale(72) }}
-            />
+              activeOpacity={0.8}
+            >
+              <Image
+                source={{
+                  uri: communityBadge?.iconPngUrl,
+                }}
+                resizeMode="contain"
+                style={{
+                  width: horizontalScale(72),
+                  height: verticalScale(72),
+                }}
+              />
+            </TouchableOpacity>
             <View>
               <CustomText
                 fontFamily="GabaritoRegular"
@@ -239,9 +255,9 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               paddingHorizontal: horizontalScale(8),
             }}
             renderItem={({ item: badge }) => {
-              const isUnlocked = badge.isUnlocked;
+              const isUnlocked = badge?.isUnlocked;
 
-              console.log(isUnlocked);
+              console.log(isUnlocked, "jkkjkjjjjjljlj");
 
               return (
                 <TouchableOpacity
@@ -252,18 +268,32 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   }}
                   activeOpacity={0.8}
                   onPress={() => {
+                    if (!isUnlocked) return;
                     setSelectedBadge(badge);
                     setIsBadgeModalVisible(true);
                   }}
                 >
-                  <Image
-                    source={{ uri: badge?.iconPngUrl }}
-                    style={{
-                      width: horizontalScale(66),
-                      height: verticalScale(66),
-                      resizeMode: "contain",
-                    }}
-                  />
+                  <View
+                    style={{ alignItems: "center", justifyContent: "center" }}
+                  >
+                    <Image
+                      source={{ uri: badge?.iconPngUrl }}
+                      style={{
+                        width: horizontalScale(66),
+                        height: verticalScale(66),
+                        resizeMode: "contain",
+                      }}
+                    />
+                    {!isUnlocked && (
+                      <View style={{ position: "absolute", opacity: 0.8 }}>
+                        <CustomIcon
+                          Icon={ICONS.InnerLockIcon}
+                          height={verticalScale(56)}
+                          width={horizontalScale(56)}
+                        />
+                      </View>
+                    )}
+                  </View>
                   <View style={{ alignItems: "center" }}>
                     <CustomText
                       fontFamily="GabaritoSemiBold"
@@ -292,8 +322,9 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
         isVisible={isBadgeModalVisible}
         setIsVisible={setIsBadgeModalVisible}
         badgeLabel={selectedBadge?.title}
-        badgeMonths={selectedBadge?.createdAt}
+        badgeMonths={selectedBadge?.milestone}
         badgeImage={{ uri: selectedBadge?.iconPngUrl }}
+        badgeDescription={selectedBadge?.description}
       />
     </View>
   );

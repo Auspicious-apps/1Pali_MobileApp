@@ -51,6 +51,7 @@ import GoogleIcon from "./GoogleIcon.svg";
 import Seedlock from "./Seedlock.svg";
 import WhiteClose from "./WhiteClose.svg";
 import currncyDoller from "./CurrencyDoller.svg";
+import InnerLockIcon from "./InnerLockIcon.svg";
  
 const ICONS = {
   diceIcon,
@@ -106,6 +107,7 @@ const ICONS = {
   Seedlock,
   WhiteClose,
   currncyDoller,
+  InnerLockIcon,
 };
 
 export default ICONS;

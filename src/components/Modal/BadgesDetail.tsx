@@ -21,6 +21,7 @@ interface BadgesDetailModalProps {
   badgeLabel?: string;
   badgeMonths?: string;
   badgeImage?: ImageSourcePropType;
+  badgeDescription: string | undefined;
 }
 
 const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
@@ -29,13 +30,14 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   badgeLabel,
   badgeMonths,
   badgeImage,
+  badgeDescription,
 }) => {
   const closeModal = () => setIsVisible(false);
 
-  const displayLabel = badgeLabel ?? 'Seed';
+  const displayLabel = badgeLabel ?? "Seed";
   const displaySubtitle = badgeMonths
     ? `Awarded for supporting for ${badgeMonths}`
-    : 'Awarded for supporting for 1 month';
+    : "Awarded for supporting for 1 month";
 
   return (
     <Modal
@@ -73,7 +75,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               <TouchableOpacity
                 onPress={closeModal}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: horizontalScale(8),
                   top: verticalScale(8),
                 }}
@@ -90,7 +92,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                 style={styles.badgeImage}
               />
 
-              <View style={{ alignItems: 'center' }}>
+              <View style={{ alignItems: "center" }}>
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={18}
@@ -102,7 +104,8 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={14}
-                  color={'#1D222B80'}
+                  color={"#1D222B80"}
+                  style={{ textAlign: "center" }}
                 >
                   {displaySubtitle}
                 </CustomText>
@@ -119,7 +122,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               color={COLORS.darkText}
               style={styles.description}
             >
-              You’ve planted a promise. The journey begins today.
+              {badgeDescription}
             </CustomText>
           </View>
         </View>
@@ -133,9 +136,9 @@ export default BadgesDetail;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "flex-end",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 0,
@@ -146,36 +149,36 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: COLORS.white,
-    width: '100%',
+    width: "100%",
     borderRadius: 30,
     paddingTop: verticalScale(10),
     paddingHorizontal: horizontalScale(16),
     paddingBottom: verticalScale(50),
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   badgeSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: verticalScale(24),
     gap: verticalScale(12),
   },
   badgeImage: {
     width: horizontalScale(66),
     height: verticalScale(66),
+    resizeMode: "cover",
   },
   divider: {
     marginVertical: verticalScale(16),
     width: horizontalScale(100),
-    alignSelf: 'center',
+    alignSelf: "center",
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
   description: {
-    textAlign: 'center',
-    width: '60%',
-    alignSelf: 'center',
+    textAlign: "center",
+    alignSelf: "center",
   },
 });
