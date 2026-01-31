@@ -32,6 +32,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import Video from "react-native-video";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -54,6 +55,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const lastScrollY = useRef(0);
   const manualOpen = useRef(false);
   const likeRequestInProgress = useRef(false);
+
+
+  const isVideo = artDetail?.mediaType === "VIDEO";
+
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -372,13 +377,33 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   </View>
                 )}
 
-                <Image
-                  source={{ uri: artDetail?.mediaUrl }}
-                  style={styles.updateImage}
-                  resizeMode="cover"
-                  onLoadStart={() => setImageLoading(true)}
-                  onLoadEnd={() => setImageLoading(false)}
-                />
+                {artDetail?.mediaType === "IMAGE" && (
+                  <Image
+                    source={{ uri: artDetail.mediaUrl }}
+                    style={styles.updateImage}
+                    resizeMode="cover"
+                    onLoadStart={() => setImageLoading(true)}
+                    onLoadEnd={() => setImageLoading(false)}
+                  />
+                )}
+
+                {/* VIDEO */}
+                {artDetail?.mediaType === "VIDEO" && (
+                  <View style={styles.mediaWrapper}>
+                    <Video
+                      source={{ uri: artDetail.mediaUrl }}
+                      poster={artDetail.thumbnailUrl}
+                      posterResizeMode="cover"
+                      resizeMode="cover"
+                      controls
+                      repeat
+                      style={{ width: "100%", height: "100%" }}
+                      onLoadStart={() => setImageLoading(true)}
+                      onLoad={() => setImageLoading(false)}
+                      onError={(e) => console.log("Video error", e)}
+                    />
+                  </View>
+                )}
 
                 {/* Like animation overlay */}
                 <Animated.View
@@ -690,5 +715,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.greyish,
     zIndex: 10,
     borderRadius: 20,
+  },
+  mediaWrapper: {
+    width: "100%",
+    height: hp(49),
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: COLORS.greyish,
   },
 });

@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   Platform,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -119,49 +120,59 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <Image source={IMAGES.LogoText} style={styles.logo} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          contentContainerStyle={{
+            paddingBottom: verticalScale(20),
+            flexGrow: 1,
+          }}
+        >
+          <Image source={IMAGES.LogoText} style={styles.logo} />
 
-        <View style={styles.header}>
-          <CustomText
-            fontFamily="GabaritoSemiBold"
-            fontSize={36}
-            color={COLORS.darkText}
-            style={{ textAlign: "center" }}
-          >
-            Updates
-          </CustomText>
+          <View style={styles.header}>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={36}
+              color={COLORS.darkText}
+              style={{ textAlign: "center" }}
+            >
+              Updates
+            </CustomText>
 
-          <CustomText
-            fontFamily="SourceSansRegular"
-            fontSize={15}
-            color={COLORS.appText}
-            style={{ textAlign: "center" }}
-          >
-            Updates from MECA on the ground, shared monthly.
-          </CustomText>
-        </View>
-
-        {isLoading ? (
-          <View style={styles.inlineLoader}>
-            <ActivityIndicator size="large" color={COLORS.darkText} />
             <CustomText
               fontFamily="SourceSansRegular"
-              fontSize={16}
-              color={COLORS.darkText}
+              fontSize={15}
+              color={COLORS.appText}
+              style={{ textAlign: "center" }}
             >
-              Loading Updates
+              Updates from MECA on the ground, shared monthly.
             </CustomText>
           </View>
-        ) : (
-          <FlatList
-            data={blogs}
-            bounces={false}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-          />
-        )}
+
+          {isLoading ? (
+            <View style={styles.inlineLoader}>
+              <ActivityIndicator size="large" color={COLORS.darkText} />
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={16}
+                color={COLORS.darkText}
+              >
+                Loading Updates
+              </CustomText>
+            </View>
+          ) : (
+            <FlatList
+              data={blogs}
+              bounces={false}
+              scrollEnabled={false}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContent}
+            />
+          )}
+        </ScrollView>
       </SafeAreaView>
     </View>
   );

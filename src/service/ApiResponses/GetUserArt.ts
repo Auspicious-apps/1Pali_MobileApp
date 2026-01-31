@@ -6,12 +6,15 @@ export interface GetUserArtResponse {
 export interface Artwork {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   mediaUrl: string;
-  thumbnailUrl: any;
+  thumbnailUrl?: string;
   slug: string;
   medium: any;
   dimensions: any;
+  artistAge?: number;
+  artistName?: string;
+  mediaType: string;
   tags: any[];
   status: string;
   publishedAt?: string;
@@ -22,6 +25,16 @@ export interface Artwork {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
+  commentsPagination: CommentsPagination;
+}
+
+export interface CommentsPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface Pagination {
@@ -32,3 +45,4 @@ export interface Pagination {
   hasNext: boolean;
   hasPrevious: boolean;
 }
+
