@@ -60,14 +60,15 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       icon: ICONS.BadgesIcon,
       label: "Badges",
       arrow: true,
-      onPress: () => navigation.navigate("badges"),
+      onPress: () => navigation.navigate("accountStack", { screen: "badges" }),
     },
     {
       id: "donations",
       icon: ICONS.dollerIcon,
       label: "Manage Donations",
       arrow: true,
-      onPress: () => navigation.navigate("manageDonation"),
+      onPress: () =>
+        navigation.navigate("accountStack", { screen: "manageDonation" }),
     },
     {
       id: "receipts",
@@ -75,7 +76,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       label: "Receipts",
       arrow: true,
       onPress: () => {
-        navigation.navigate("receipts");
+        navigation.navigate("accountStack", { screen: "receipts" });
       },
     },
     {
@@ -90,7 +91,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       icon: ICONS.TermIcon,
       label: "Terms and Conditions",
       arrow: true,
-      onPress: () => navigation.navigate("termsConditions"),
+      onPress: () =>
+        navigation.navigate("accountStack", { screen: "termsConditions" }),
     },
     {
       id: "privacy",
@@ -98,7 +100,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       label: "Privacy Policy",
       arrow: true,
       onPress: () => {
-        navigation.navigate("privacyPolicy");
+        navigation.navigate("accountStack", { screen: "privacyPolicy" });
       },
     },
     {
@@ -262,7 +264,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={() => {
-                      navigation.navigate("badges");
+                      navigation.navigate("accountStack", { screen: "badges" });
                     }}
                   >
                     <CustomIcon

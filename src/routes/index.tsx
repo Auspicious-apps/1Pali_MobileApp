@@ -22,57 +22,88 @@ import TermsConditions from "../screens/TermsConditions";
 import UpdateDetail from "../screens/UpdateDetail";
 import Updates from "../screens/Updates";
 import {
+  AccountStackParams,
+  ArtStackParams,
   BottomStackParams,
   MainStackParams,
   OnBoardingStackParams,
   RootStackParams,
+  UpdateStackParams,
 } from "../typings/routes";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
   createNativeStackNavigator<OnBoardingStackParams>();
+
 const Main = createNativeStackNavigator<MainStackParams>();
 const Tabs = createBottomTabNavigator<BottomStackParams>();
 
+const UpdateStack = createNativeStackNavigator<UpdateStackParams>();
+const ArtStack = createNativeStackNavigator<ArtStackParams>();
+const AccountStack = createNativeStackNavigator<AccountStackParams>();
+
+const navigatorScreenOptions = {
+  headerShown: false,
+  animation: "ios_from_right" as const,
+};
+
+function OnBoardingStack() {
+  return (
+    <OnBoardingStackNavigator.Navigator screenOptions={navigatorScreenOptions}>
+      <OnBoardingStackNavigator.Screen
+        name="onboarding"
+        component={Onboarding}
+      />
+      <OnBoardingStackNavigator.Screen
+        name="onePaliWorks"
+        component={OnePaliWorks}
+      />
+      <OnBoardingStackNavigator.Screen name="claimSpot" component={ClaimSpot} />
+      <OnBoardingStackNavigator.Screen
+        name="missionIntro"
+        component={MissionIntro}
+      />
+      <OnBoardingStackNavigator.Screen
+        name="joinOnePali"
+        component={JoinOnePali}
+      />
+    </OnBoardingStackNavigator.Navigator>
+  );
+}
+
+function UpdatesStack() {
+  return (
+    <UpdateStack.Navigator screenOptions={navigatorScreenOptions}>
+      <UpdateStack.Screen name="updates" component={Updates} />
+      <UpdateStack.Screen name="updateDetail" component={UpdateDetail} />
+    </UpdateStack.Navigator>
+  );
+}
+
+function ArtStackRoutes() {
+  return (
+    <ArtStack.Navigator screenOptions={navigatorScreenOptions}>
+      <ArtStack.Screen name="art" component={Art} />
+      <ArtStack.Screen name="artDetail" component={ArtDetail} />
+    </ArtStack.Navigator>
+  );
+}
+
+function AccountStackRoutes() {
+  return (
+    <AccountStack.Navigator screenOptions={navigatorScreenOptions}>
+      <AccountStack.Screen name="account" component={Account} />
+      <AccountStack.Screen name="termsConditions" component={TermsConditions} />
+      <AccountStack.Screen name="privacyPolicy" component={PrivacyPolicy} />
+      <AccountStack.Screen name="receipts" component={ReceiptsScreen} />
+      <AccountStack.Screen name="manageDonation" component={ManageDonation} />
+      <AccountStack.Screen name="badges" component={Badges} />
+    </AccountStack.Navigator>
+  );
+}
+
 export default function Routes() {
-  const navigatorScreenOptions = {
-    headerShown: false,
-    animation: "ios_from_right" as const,
-  };
-
-  function OnBoardingStack() {
-    return (
-      <OnBoardingStackNavigator.Navigator
-        screenOptions={navigatorScreenOptions}
-      >
-        <OnBoardingStackNavigator.Screen
-          name="onboarding"
-          component={Onboarding}
-        />
-        <OnBoardingStackNavigator.Screen
-          name="onePaliWorks"
-          component={OnePaliWorks}
-        />
-        <OnBoardingStackNavigator.Screen
-          name="claimSpot"
-          component={ClaimSpot}
-        />
-        <OnBoardingStackNavigator.Screen
-          name="missionIntro"
-          component={MissionIntro}
-        />
-        <OnBoardingStackNavigator.Screen
-          name="joinOnePali"
-          component={JoinOnePali}
-        />
-      </OnBoardingStackNavigator.Navigator>
-    );
-  }
-
   const tabStack: React.FC<any> = ({ route }) => {
-    const nestedParams = route?.params as any;
-    const initialNumber = nestedParams?.params?.number;
-
     return (
       <Tabs.Navigator
         screenOptions={{
@@ -81,16 +112,9 @@ export default function Routes() {
         tabBar={(props) => <BottomTabBar {...props} />}
       >
         <Tabs.Screen name="home" component={Home} />
-        <Tabs.Screen name="updates" component={Updates} />
-        <Tabs.Screen name="art" component={Art} />
-        <Tabs.Screen name="account" component={Account} />
-        <Tabs.Screen name="badges" component={Badges} />
-        <Tabs.Screen name="updateDetail" component={UpdateDetail} />
-        <Tabs.Screen name="artDetail" component={ArtDetail} />
-        <Tabs.Screen name="termsConditions" component={TermsConditions} />
-        <Tabs.Screen name="privacyPolicy" component={PrivacyPolicy} />
-        <Tabs.Screen name="receipts" component={ReceiptsScreen} />
-        <Tabs.Screen name="manageDonation" component={ManageDonation} />
+        <Tabs.Screen name="updatesStack" component={UpdatesStack} />
+        <Tabs.Screen name="artStack" component={ArtStackRoutes} />
+        <Tabs.Screen name="accountStack" component={AccountStackRoutes} />
       </Tabs.Navigator>
     );
   };

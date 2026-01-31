@@ -78,8 +78,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         `${ENDPOINTS.GetBlogById}/${blogId}`,
       );
 
-      console.log(response, "RESPONSE");
-
       if (response?.data?.success) {
         const data = response.data.data;
 
@@ -95,36 +93,35 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     }
   };
 
-const fetchBlogComments = async (pageNumber: number) => {
-  try {
-    setCommentsLoading(true);
+  const fetchBlogComments = async (pageNumber: number) => {
+    try {
+      setCommentsLoading(true);
 
-    const response = await fetchData<FetchBlogCommentsResponse>(
-      `${ENDPOINTS.GetBlogComments}/${blogId}/comments?page=${pageNumber}&limit=10`,
-    );
-
-    if (response?.data?.success) {
-      const data = response.data.data;
-
-      setBlogDetail((prev): any =>
-        prev
-          ? {
-              ...prev,
-              comments: [...prev.comments, ...data.comments],
-            }
-          : prev,
+      const response = await fetchData<FetchBlogCommentsResponse>(
+        `${ENDPOINTS.GetBlogComments}/${blogId}/comments?page=${pageNumber}&limit=10`,
       );
 
-      setHasNext(data.pagination.hasNext);
-      setPage(pageNumber);
-    }
-  } catch (error) {
-    console.log("Fetch comments error", error);
-  } finally {
-    setCommentsLoading(false);
-  }
-};
+      if (response?.data?.success) {
+        const data = response.data.data;
 
+        setBlogDetail((prev): any =>
+          prev
+            ? {
+                ...prev,
+                comments: [...prev.comments, ...data.comments],
+              }
+            : prev,
+        );
+
+        setHasNext(data.pagination.hasNext);
+        setPage(pageNumber);
+      }
+    } catch (error) {
+      console.log("Fetch comments error", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
   const handleLikeUnlike = async () => {
     try {
@@ -286,7 +283,7 @@ const fetchBlogComments = async (pageNumber: number) => {
               borderColor: COLORS.white,
               borderRadius: 10,
             }}
-            onPress={() => navigation.navigate("tabs", { screen: "updates" })}
+            onPress={() => navigation.goBack()}
           >
             <CustomIcon Icon={ICONS.WhiteBackArrow} height={24} width={24} />
           </TouchableOpacity>

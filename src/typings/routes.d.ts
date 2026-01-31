@@ -19,18 +19,30 @@ export type MainStackParams = {
   tabs: NavigatorScreenParams<BottomStackParams>;
 };
 
-export type BottomStackParams = {
-  home: undefined;
+export type UpdateStackParams = {
   updates: undefined;
-  art: undefined;
-  account: undefined;
-  badges: undefined;
   updateDetail: { blogId: string };
+};
+
+export type ArtStackParams = {
+  art: undefined;
   artDetail: { ArtId: string };
+};
+
+export type AccountStackParams = {
+  account: undefined;
   termsConditions: undefined;
   privacyPolicy: undefined;
   receipts: undefined;
   manageDonation: undefined;
+  badges: undefined;
+};
+
+export type BottomStackParams = {
+  home: undefined;
+  updatesStack: NavigatorScreenParams<UpdateStackParams>;
+  artStack: NavigatorScreenParams<ArtStackParams>;
+  accountStack: NavigatorScreenParams<AccountStackParams>;
 };
 
 // SPLASH SCREEN
@@ -38,6 +50,7 @@ export type SplashScreenProps = NativeStackScreenProps<
   RootStackParams,
   "splash"
 >;
+
 // ONBOARDING SCREENS
 export type OnboardingProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
@@ -61,7 +74,6 @@ export type JoinOnePaliProps = NativeStackScreenProps<
 >;
 
 // ----------------   MAIN SCREENS ---------------------
-
 export type HomeScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
   "home"
@@ -78,31 +90,37 @@ export type AccountScreenProps = NativeStackScreenProps<
   BottomStackParams & MainStackParams & RootStackParams,
   "account"
 >;
-export type BadgesScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
-  "badges"
->;
+
+// ----------------   UPDATES SCREENS ---------------------
 export type UpdateDetailScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
+  UpdateStackParams,
   "updateDetail"
 >;
+
+// ----------------   ART SCREENS ---------------------
 export type ArtDetailScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
+  ArtStackParams,
   "artDetail"
 >;
+
+// ----------------   ACCOUNT SCREENS ---------------------
+export type BadgesScreenProps = NativeStackScreenProps<
+  AccountStackParams,
+  "badges"
+>;
 export type TermsConditionsScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
+  AccountStackParams,
   "termsConditions"
 >;
 export type PrivacyPolicyScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
+  AccountStackParams,
   "privacyPolicy"
 >;
 export type ReceiptsScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
+  AccountStackParams,
   "receipts"
 >;
 export type ManageDonationScreenProps = NativeStackScreenProps<
-  BottomStackParams & MainStackParams & RootStackParams,
+  AccountStackParams,
   "manageDonation"
 >;

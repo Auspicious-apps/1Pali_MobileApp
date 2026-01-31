@@ -46,7 +46,6 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
         setIsCheckingAuth(false);
       }
       console.log(accessToken);
-      
     } catch (error) {
       console.error("Error checking authentication:", error);
       setIsCheckingAuth(false);

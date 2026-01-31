@@ -1,37 +1,29 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  ImageSourcePropType,
-  Platform,
-  ActivityIndicator,
-} from "react-native";
 import React, { FC, useEffect, useState } from "react";
-import IMAGES from '../../assets/Images';
 import {
-  deviceWidth,
-  horizontalScale,
-  verticalScale,
-  wp,
-} from "../../utils/Metrics";
-import COLORS from '../../utils/Colors';
-import { CustomText } from '../../components/CustomText';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import BadgesDetail from '../../components/Modal/BadgesDetail';
-import CustomIcon from '../../components/CustomIcon';
-import ICONS from '../../assets/Icons';
-import { BadgesScreenProps } from '../../typings/routes';
-import FocusResetScrollView from '../../components/FocusResetScrollView';
-import { fetchData, postData } from "../../service/ApiService";
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
+import FocusResetScrollView from "../../components/FocusResetScrollView";
+import BadgesDetail from "../../components/Modal/BadgesDetail";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import {
   Badge,
   GetAllBadgesResponse,
 } from "../../service/ApiResponses/GetAllBadges";
-
+import { fetchData } from "../../service/ApiService";
+import { BadgesScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<"Growth" | "Art" | "Impact">(
@@ -72,17 +64,17 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
     }
   };
 
- const fetchAllBadges = async () => {
-   try {
-     setLoading(true);
-     const res = await fetchData<GetAllBadgesResponse>(ENDPOINTS.GetAllBadges);
-     setBadges(res?.data?.data?.badges);
-   } catch (error) {
-     console.log("error", error);
-   } finally {
-     setLoading(false);
-   }
- };
+  const fetchAllBadges = async () => {
+    try {
+      setLoading(true);
+      const res = await fetchData<GetAllBadgesResponse>(ENDPOINTS.GetAllBadges);
+      setBadges(res?.data?.data?.badges);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchAllBadges();
@@ -110,7 +102,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           <View style={styles.header}>
             <View style={styles.side}>
               <TouchableOpacity
-                onPress={() => navigation.navigate("account")}
+                onPress={() => navigation.goBack()}
+                style={{ padding: horizontalScale(8) }}
                 activeOpacity={0.8}
               >
                 <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
@@ -257,8 +250,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             renderItem={({ item: badge }) => {
               const isUnlocked = badge?.isUnlocked;
 
-              console.log(isUnlocked, "jkkjkjjjjjljlj");
-
               return (
                 <TouchableOpacity
                   style={{
@@ -363,7 +354,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 2,
-    elevation: 6,
+    elevation: 3,
     alignItems: "center",
     gap: verticalScale(8),
   },

@@ -36,10 +36,6 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
 
-console.log(user);
-console.log(growthBadges, "ipopoip");
-
-
   useEffect(() => {
     if (badges && badges.badges.length > 0) {
       const timer = setTimeout(() => {
@@ -173,7 +169,7 @@ console.log(growthBadges, "ipopoip");
           setIsVisible={setIsBadgesSheet}
         />
 
-        <CollectBadges navigation={navigation} />
+        <CollectBadges />
       </SafeAreaView>
     </View>
   );
@@ -213,7 +209,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 2,
-    elevation: 6,
+    elevation: 2,
   },
   dividerRow: {
     flexDirection: "row",

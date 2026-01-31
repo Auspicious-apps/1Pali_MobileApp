@@ -1,5 +1,5 @@
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import React, { FC, useCallback, useRef } from 'react';
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import React, { FC, useCallback, useRef } from "react";
 import {
   Animated,
   FlatList,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import ICONS from "../assets/Icons";
 import COLORS from "../utils/Colors";
-import { horizontalScale, isAndroid, verticalScale } from '../utils/Metrics';
+import { horizontalScale, isAndroid, verticalScale } from "../utils/Metrics";
 import CustomIcon from "./CustomIcon";
 import { CustomText } from "./CustomText";
 
@@ -21,31 +21,31 @@ type Tab = {
 };
 const tabs: Tab[] = [
   {
-    name: 'Home',
+    name: "Home",
     icon: ICONS.homeIcon,
     activIcon: ICONS.homeActive,
-    route: 'home',
+    route: "home",
   },
   {
-    name: 'Updates',
+    name: "Updates",
     icon: ICONS.heart,
     activIcon: ICONS.heartActive,
-    route: 'updates',
+    route: "updatesStack",
   },
   {
-    name: 'Art',
+    name: "Art",
     icon: ICONS.artIcon,
     activIcon: ICONS.ArtActive,
-    route: 'art',
+    route: "artStack",
   },
   {
-    name: 'Account',
+    name: "Account",
     icon: ICONS.accountIcon,
     activIcon: ICONS.AccountActive,
-    route: 'account',
+    route: "accountStack",
   },
 ];
-const BottomTabBar: FC<BottomTabBarProps> = props => {
+const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const { state, navigation } = props;
   // Map detail/inner routes to their parent tab for highlighting
   const routeToTab: Record<string, string> = {
@@ -131,7 +131,7 @@ export default BottomTabBar;
 const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: COLORS.white,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 0,
@@ -142,9 +142,9 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: COLORS.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: verticalScale(15),
     borderTopLeftRadius: verticalScale(20),
     borderTopRightRadius: verticalScale(20),
@@ -159,24 +159,24 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     flexGrow: 1,
-    justifyContent: 'space-around',
+    justifyContent: "space-around",
   },
   tab: {
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    alignSelf: 'center',
+    alignItems: "center",
+    justifyContent: "flex-end",
+    alignSelf: "center",
     zIndex: 99,
     gap: verticalScale(5),
   },
   middleButton: {
-    position: 'absolute',
+    position: "absolute",
     backgroundColor: COLORS.white,
     borderRadius: 30,
     height: 48,
     width: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1001, // Ensure it’s above the tab bar
-    boxShadow: '0px 4px 12px 0px #FF003B80',
+    boxShadow: "0px 4px 12px 0px #FF003B80",
   },
 });

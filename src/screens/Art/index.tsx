@@ -39,40 +39,44 @@ const artData = [
 ];
 
 const Art: FC<ArtScreenProps> = ({ navigation }) => {
-   const [artworks, setArtworks] = useState<Artwork[]>([]);
-   const [loading, setLoading] = useState(true);
-   const [weekImageLoading, setWeekImageLoading] = useState(true);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [weekImageLoading, setWeekImageLoading] = useState(true);
 
+  const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
+  const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
 
-   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
-   const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
+  const fetchUserArt = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchData<GetUserArtResponse>(
+        ENDPOINTS.GetArtForUser,
+      );
 
-   const fetchUserArt = async () => {
-     try {
-       setLoading(true);
-       const response = await fetchData<GetUserArtResponse>(
-         ENDPOINTS.GetArtForUser,
-       );
+      const data = response?.data?.data?.artworks ?? [];
+      setArtworks(data);
+    } catch (error) {
+      console.error("Error fetching user art:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-       const data = response?.data?.data?.artworks ?? [];
-       setArtworks(data);
-     } catch (error) {
-       console.error("Error fetching user art:", error);
-     } finally {
-       setLoading(false);
-     }
-   };
-
-   useEffect(() => {
-     fetchUserArt();
-   }, []);
+  useEffect(() => {
+    fetchUserArt();
+  }, []);
 
   const renderItem = useCallback(
     ({ item }: { item: Artwork }) => (
       <TouchableOpacity
         activeOpacity={0.85}
         style={styles.cardContainer}
-        onPress={() => navigation.navigate("artDetail", { ArtId: item?.id })}
+        onPress={() => {
+          navigation.navigate("artStack", {
+            screen: "artDetail",
+            params: { ArtId: item?.id },
+          });
+        }}
       >
         <ImageBackground
           source={{ uri: item?.mediaUrl }}
@@ -136,7 +140,10 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
             style={styles.weekCard}
             activeOpacity={0.8}
             onPress={() =>
-              navigation.navigate("artDetail", { ArtId: artOfTheWeek?.id })
+              navigation.navigate("artStack", {
+                screen: "artDetail",
+                params: { ArtId: artOfTheWeek?.id },
+              })
             }
           >
             <View style={{ position: "relative" }}>

@@ -33,7 +33,7 @@ import ENDPOINTS from "../../service/ApiEndpoints";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const CollectBadges: React.FC = () => {
+const CollectBadges = () => {
   const scrollX = useRef(new Animated.Value(0))?.current;
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -163,43 +163,6 @@ const CollectBadges: React.FC = () => {
         >
           {item.badge.description}
         </CustomText>
-        <View style={styles.dotsContainer}>
-          {unViewedBadges.map((_: any, index: number) => {
-            const inputRange = [
-              (index - 1) * SCREEN_WIDTH,
-              index * SCREEN_WIDTH,
-              (index + 1) * SCREEN_WIDTH,
-            ];
-
-            const opacity = scrollX.interpolate({
-              inputRange,
-              outputRange: [0.3, 1, 0.3],
-              extrapolate: "clamp",
-            });
-
-            return (
-              <TouchableOpacity
-                key={index}
-                activeOpacity={0.8}
-                onPress={() =>
-                  flatListRef.current?.scrollToIndex({
-                    index,
-                    animated: true,
-                  })
-                }
-              >
-                <Animated.View
-                  style={[
-                    styles.dot,
-                    {
-                      opacity,
-                    },
-                  ]}
-                />
-              </TouchableOpacity>
-            );
-          })}
-        </View>
       </View>
     </ImageBackground>
   );
@@ -236,12 +199,57 @@ const CollectBadges: React.FC = () => {
             }}
           >
             <TouchableOpacity
-              onPress={() => dispatch(closeCollectBadgesModal())}
+              onPress={async () => {
+                dispatch(closeCollectBadgesModal());
+                const response = await postData(ENDPOINTS.ViewedBadges, {
+                  badgeIds: unViewedBadges.map((badge) => badge.id),
+                });
+              }}
               style={styles.closeBtn}
             >
               <CustomIcon Icon={ICONS.WhiteClose} height={30} width={30} />
             </TouchableOpacity>
           </View>
+
+          {unViewedBadges.length > 1 && (
+            <View style={styles.dotsContainer}>
+              {unViewedBadges.map((_: any, index: number) => {
+                const inputRange = [
+                  (index - 1) * SCREEN_WIDTH,
+                  index * SCREEN_WIDTH,
+                  (index + 1) * SCREEN_WIDTH,
+                ];
+
+                const opacity = scrollX.interpolate({
+                  inputRange,
+                  outputRange: [0.3, 1, 0.3],
+                  extrapolate: "clamp",
+                });
+
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    activeOpacity={0.8}
+                    onPress={() =>
+                      flatListRef.current?.scrollToIndex({
+                        index,
+                        animated: true,
+                      })
+                    }
+                  >
+                    <Animated.View
+                      style={[
+                        styles.dot,
+                        {
+                          opacity,
+                        },
+                      ]}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
 
           <PrimaryButton
             title="View Badge"
@@ -296,7 +304,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: horizontalScale(8),
     alignSelf: "center",
-    marginTop: verticalScale(24),
+    position: "absolute",
+    bottom: verticalScale(100),
   },
 
   dot: {

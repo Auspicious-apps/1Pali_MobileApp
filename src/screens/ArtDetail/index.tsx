@@ -18,21 +18,20 @@ import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import { ArtDetailScreenProps } from "../../typings/routes";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
-import { fetchData, postData } from "../../service/ApiService";
-import { GetBlogByIdResponse } from "../../service/ApiResponses/GetBlogById";
 import ENDPOINTS from "../../service/ApiEndpoints";
+import { ArtCommentsResponse } from "../../service/ApiResponses/ArtComments";
+import { FetchArtCommentsResponse } from "../../service/ApiResponses/FetchArtComments";
 import {
   Comment,
   GetArtByIdResponse,
 } from "../../service/ApiResponses/GetArtById";
-import { ArtCommentsResponse } from "../../service/ApiResponses/ArtComments";
 import { LikeUnlikeArtResponse } from "../../service/ApiResponses/LikeUnlikeArt";
 import { ShareArtResponse } from "../../service/ApiResponses/ShareArtResponse";
-import { FetchArtCommentsResponse } from "../../service/ApiResponses/FetchArtComments";
+import { fetchData, postData } from "../../service/ApiService";
+import { ArtDetailScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -49,7 +48,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [hasNext, setHasNext] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
-
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -191,43 +189,43 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     lastTap.current = now;
   };
 
- const handleShare = async () => {
-   if (sharing || !artDetail) return;
+  const handleShare = async () => {
+    if (sharing || !artDetail) return;
 
-   try {
-     setSharing(true);
+    try {
+      setSharing(true);
 
-     const result = await Share.share({
-       title: artDetail.title,
-       message: `${artDetail.title}\n\n${artDetail?.description || ""}\n\n${
-         artDetail.mediaUrl
-       }`,
-       url: artDetail.mediaUrl,
-     });
+      const result = await Share.share({
+        title: artDetail.title,
+        message: `${artDetail.title}\n\n${artDetail?.description || ""}\n\n${
+          artDetail.mediaUrl
+        }`,
+        url: artDetail.mediaUrl,
+      });
 
-     if (result.action === Share.sharedAction) {
-       const response = await postData<ShareArtResponse>(
-         `${ENDPOINTS.ShareArt}/${ArtId}/share`,
-         { platform: "WHATSAPP" },
-       );
+      if (result.action === Share.sharedAction) {
+        const response = await postData<ShareArtResponse>(
+          `${ENDPOINTS.ShareArt}/${ArtId}/share`,
+          { platform: "WHATSAPP" },
+        );
 
-       if (response?.data?.success) {
-         setArtDetail((prev) =>
-           prev
-             ? {
-                 ...prev,
-                 sharesCount: response?.data?.data?.sharesCount,
-               }
-             : prev,
-         );
-       }
-     }
-   } catch (error) {
-     console.log("Share error", error);
-   } finally {
-     setSharing(false);
-   }
- };
+        if (response?.data?.success) {
+          setArtDetail((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  sharesCount: response?.data?.data?.sharesCount,
+                }
+              : prev,
+          );
+        }
+      }
+    } catch (error) {
+      console.log("Share error", error);
+    } finally {
+      setSharing(false);
+    }
+  };
 
   const renderCommentItem = ({ item }: { item: Comment }) => (
     <View style={styles.commentItem}>
@@ -282,7 +280,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 Icon={ICONS.backArrow}
                 height={24}
                 width={24}
-                onPress={() => navigation.navigate("art")}
+                onPress={() => navigation.goBack()}
               />
             </TouchableOpacity>
           </View>

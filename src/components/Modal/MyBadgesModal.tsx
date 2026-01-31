@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from "react";
 import {
   FlatList,
   Image,
@@ -9,43 +9,39 @@ import {
   View,
   Platform,
 } from "react-native";
-import { BlurView } from '@react-native-community/blur';
-import { CustomText } from '../CustomText';
-import COLORS from '../../utils/Colors';
-import CustomIcon from '../CustomIcon';
-import ICONS from '../../assets/Icons';
-import { horizontalScale, hp, verticalScale } from '../../utils/Metrics';
-import PrimaryButton from '../PrimaryButton';
+import { BlurView } from "@react-native-community/blur";
+import { CustomText } from "../CustomText";
+import COLORS from "../../utils/Colors";
+import CustomIcon from "../CustomIcon";
+import ICONS from "../../assets/Icons";
+import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import PrimaryButton from "../PrimaryButton";
 import { useAppSelector } from "../../redux/store";
- 
+import { useNavigation } from "@react-navigation/native";
+
 export interface MyBadgeItem {
   id: string | number;
   title: string;
   subtitle: string;
   image: ImageSourcePropType;
 }
- 
+
 interface MyBadgesModalProps {
   isVisible: boolean;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 }
- 
+
 const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
   isVisible,
   setIsVisible,
 }) => {
+  const navigation = useNavigation<any>();
   const closeModal = () => {
     setIsVisible(false);
   };
- 
+
   const { badges } = useAppSelector((state) => state.user);
- 
-  const badgeList = [
-    ...(badges?.growthBadges || []),
-    ...(badges?.impactBadges || []),
-    ...(badges?.artBadges || []),
-  ];
- 
+
   return (
     <Modal
       visible={isVisible}
@@ -68,7 +64,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
         ) : (
           <View style={styles.androidBackdrop} />
         )}
- 
+
         <View style={styles.overlay}>
           <TouchableOpacity
             activeOpacity={1}
@@ -84,21 +80,21 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
               >
                 My Badges
               </CustomText>
- 
+
               <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
                 <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
               </TouchableOpacity>
             </View>
- 
+
             {/* Badges list */}
             <FlatList
-              data={badgeList}
+              data={badges?.badges}
               keyExtractor={(item) => item.id.toString()}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
               renderItem={({ item }) => {
                 const badge = item.badge;
- 
+
                 return (
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -109,7 +105,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
                       source={{ uri: badge.iconPngUrl }}
                       style={styles.badgeImage}
                     />
- 
+
                     <View style={styles.badgeTextContainer}>
                       <CustomText
                         fontFamily="GabaritoMedium"
@@ -118,26 +114,29 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
                       >
                         {badge.title}
                       </CustomText>
- 
+
                       <CustomText
                         fontFamily="SourceSansRegular"
                         fontSize={12}
                         color="#1D222B90"
                         numberOfLines={2}
                       >
-                        {badge.description}
+                        {badge.milestone}
                       </CustomText>
                     </View>
                   </TouchableOpacity>
                 );
               }}
             />
- 
+
             {/* See all button */}
             <PrimaryButton
               title="See all badges"
               onPress={() => {
                 setIsVisible(false);
+                setTimeout(() => {
+                  navigation.navigate("accountStack", { screen: "badges" });
+                }, 300);
               }}
               style={styles.button}
             />
@@ -147,9 +146,9 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
     </Modal>
   );
 };
- 
+
 export default MyBadgesModal;
- 
+
 const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
