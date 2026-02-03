@@ -3,7 +3,6 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useRef, useState } from "react";
 import {
   Animated,
-  Dimensions,
   FlatList,
   Image,
   ImageBackground,
@@ -18,10 +17,6 @@ import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
   markAllBadgesViewed,
-  selectArtBadges,
-  selectCommunityBadges,
-  selectGrowthBadges,
-  selectImpactBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -39,10 +34,6 @@ const CollectBadges = () => {
   const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
-  const growthBadges = useAppSelector(selectGrowthBadges);
-  const communityBadges = useAppSelector(selectCommunityBadges);
-  const artBadges = useAppSelector(selectArtBadges);
-  const impactBadges = useAppSelector(selectImpactBadges);
 
   const { isVisible } = useAppSelector((state) => state.collectBadges);
 
@@ -164,8 +155,6 @@ const CollectBadges = () => {
       </View>
     </ImageBackground>
   );
-
-  console.log(unViewedBadges);
 
   return (
     <Modal visible={isVisible} transparent animationType="fade">
