@@ -125,4 +125,7 @@ export type ManageDonationScreenProps = NativeStackScreenProps<
   AccountStackParams,
   "manageDonation"
 >;
-export type FaqScreenProps = NativeStackScreenProps<AccountStackParams, "faq">;
+export type FaqScreenProps = NativeStackScreenProps<
+  AccountStackParams & BottomStackParams & MainStackParams & RootStackParams,
+  "faq"
+>;

@@ -40,7 +40,7 @@ const fundCards = [
 const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <FocusResetScrollView
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -60,7 +60,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
-              fontSize={15}
+              fontSize={16}
               color={COLORS.appText}
             >
               OnePali is built on people showing up together. Each member
@@ -94,6 +94,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                   fontFamily="SourceSansRegular"
                   fontSize={15}
                   color={COLORS.appText}
+                  style={{ lineHeight: verticalScale(15) }}
                 >
                   {item.description}
                 </CustomText>
@@ -104,7 +105,9 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           <View style={styles.divider} />
 
           <View style={styles.sectionContainer}>
-            <View style={{ marginBottom: verticalScale(24) }}>
+            <View
+              style={{ marginBottom: verticalScale(24), gap: verticalScale(8) }}
+            >
               <CustomText
                 fontFamily="GabaritoMedium"
                 fontSize={22}
@@ -125,24 +128,26 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 collective monthly donations.
               </CustomText>
             </View>
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={22}
-              style={styles.centerText}
-            >
-              Where funds are directed?
-            </CustomText>
+            <View style={{ gap: verticalScale(8) }}>
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={22}
+                style={styles.centerText}
+              >
+                Where funds are directed?
+              </CustomText>
 
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
-              color={COLORS.appText}
-              style={styles.sectionDescription}
-            >
-              100% of funds raised through OnePali are directed to Gaza through
-              the Middle East Children’s Alliance (MECA), who work directly on
-              the ground.
-            </CustomText>
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={15}
+                color={COLORS.appText}
+                style={styles.sectionDescription}
+              >
+                100% of funds raised through OnePali are directed to Gaza
+                through the Middle East Children’s Alliance (MECA), who work
+                directly on the ground.
+              </CustomText>
+            </View>
 
             <View style={styles.imageRow}>
               {fundImages.map((img, index) => (
@@ -179,6 +184,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                     fontFamily="SourceSansRegular"
                     fontSize={15}
                     color={COLORS.appText}
+                    style={{ lineHeight: verticalScale(17) }}
                   >
                     Organizes the collective and facilitates monthly
                     contributions.
@@ -201,6 +207,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                     fontFamily="SourceSansRegular"
                     fontSize={15}
                     color={COLORS.appText}
+                    style={{ lineHeight: verticalScale(17) }}
                   >
                     Distributes aid on the ground and shares updates directly in
                     OnePali.
@@ -232,25 +239,40 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 directly in the app, so you can clearly see where contributions
                 are going.
               </CustomText>
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={15}
-                color={COLORS.darkText}
-                style={styles.FaqText}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  navigation.navigate("MainStack", {
+                    screen: "tabs",
+                    params: {
+                      screen: "accountStack",
+                      params: {
+                        screen: "faq",
+                      },
+                    },
+                  });
+                }}
               >
-                See all FAQs at onepali.app
-              </CustomText>
+                <CustomText
+                  fontFamily="SourceSansRegular"
+                  fontSize={15}
+                  color={COLORS.darkText}
+                  style={styles.FaqText}
+                >
+                  See all FAQs at onepali.app
+                </CustomText>
+              </TouchableOpacity>
             </View>
-
-            <PrimaryButton
-              title="Continue"
-              onPress={() => {
-                navigation.replace("claimSpot");
-              }}
-              style={styles.primaryButton}
-            />
           </View>
         </FocusResetScrollView>
+
+        <PrimaryButton
+          title="Continue"
+          onPress={() => {
+            navigation.replace("claimSpot");
+          }}
+          style={styles.primaryButton}
+        />
       </SafeAreaView>
     </View>
   );

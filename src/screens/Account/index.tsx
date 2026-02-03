@@ -133,15 +133,16 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
     },
   ];
 
-  const renderRow = (item: any) => {
+  const renderRow = (item: any, index: number, total: number) => {
     const Container = item.onPress ? TouchableOpacity : View;
+    const isLastItem = index === total - 1;
 
     return (
       <Container
         key={item.id}
         onPress={item.onPress}
         activeOpacity={0.7}
-        style={styles.row}
+        style={[styles.row, isLastItem && { borderBottomWidth: 0 }]}
       >
         <View style={styles.leftRow}>
           <CustomIcon Icon={item.icon} height={24} width={24} />
@@ -385,14 +386,16 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {user?.totalDonations}
+                      {user?.consecutivePaidMonths}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
                       fontSize={12}
                       color={COLORS.appText}
                     >
-                      Months
+                      {Number(user?.consecutivePaidMonths!) > 1
+                        ? "Months"
+                        : "Month"}
                     </CustomText>
                   </View>
                 </View>
@@ -420,7 +423,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
               }}
             >
               <View style={styles.listContainer}>
-                {ACCOUNT_OPTIONS.map(renderRow)}
+                {ACCOUNT_OPTIONS.map((item, index) =>
+                  renderRow(item, index, ACCOUNT_OPTIONS.length),
+                )}
               </View>
             </View>
           </View>

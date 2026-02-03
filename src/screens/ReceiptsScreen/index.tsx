@@ -171,7 +171,7 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.center}>
-              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+              <Image source={IMAGES.LogoText} style={styles.logo} />
             </View>
             <View style={styles.side} />
           </View>

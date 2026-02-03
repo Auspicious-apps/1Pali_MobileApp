@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: COLORS.appBackground,
   },
   safeArea: {
     flex: 1,
@@ -17,20 +17,17 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  logoContainer: {
-    alignItems: "center",
-    paddingTop: Platform.OS === "ios" ? verticalScale(10) : verticalScale(20),
-    paddingBottom: verticalScale(10),
-    backgroundColor: "rgba(255, 255, 255, 1)",
-  },
-  content: {
-    flex: 1,
-    alignItems: "center",
-  },
+  header: { width: "100%", flexDirection: "row" },
   logo: {
     width: horizontalScale(80),
     height: verticalScale(70),
     resizeMode: "contain",
+  },
+  side: { width: horizontalScale(40), alignItems: "flex-start" },
+  center: { flex: 1, alignItems: "center" },
+  content: {
+    flex: 1,
+    alignItems: "center",
   },
   headingContainer: {
     marginTop: Platform.OS === "ios" ? verticalScale(40) : verticalScale(40),
@@ -73,6 +70,7 @@ const styles = StyleSheet.create({
   },
   signInText: {
     textAlign: "center",
+    marginBottom: verticalScale(6),
   },
 });
 

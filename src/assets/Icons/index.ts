@@ -53,6 +53,7 @@ import WhiteClose from "./WhiteClose.svg";
 import currncyDoller from "./CurrencyDoller.svg";
 import InnerLockIcon from "./InnerLockIcon.svg";
 import GreyUserIcon from "./GreyUserIcon.svg";
+import ArrowLeft from "./ArrowLeft.svg";
  
 const ICONS = {
   diceIcon,
@@ -110,6 +111,7 @@ const ICONS = {
   currncyDoller,
   InnerLockIcon,
   GreyUserIcon,
+  ArrowLeft,
 };
 
 export default ICONS;

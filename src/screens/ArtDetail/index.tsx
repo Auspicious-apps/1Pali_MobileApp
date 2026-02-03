@@ -33,6 +33,7 @@ import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import Video from "react-native-video";
+import RNFS from "react-native-fs";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -55,10 +56,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const lastScrollY = useRef(0);
   const manualOpen = useRef(false);
   const likeRequestInProgress = useRef(false);
-
-
-  const isVideo = artDetail?.mediaType === "VIDEO";
-
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -236,27 +233,44 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     try {
       setSharing(true);
 
+      let localUri = artDetail.mediaUrl;
+
+      // If it's a remote URL → try to download to cache (helps Story appear more often)
+      if (artDetail.mediaUrl.startsWith("http")) {
+        const filename =
+          artDetail.mediaUrl.split("/").pop() ||
+          `art-${ArtId}.${artDetail.mediaType === "VIDEO" ? "mp4" : "jpg"}`;
+        localUri = `${RNFS.CachesDirectoryPath}/${filename}`;
+
+        const exists = await RNFS.exists(localUri);
+        if (!exists) {
+          await RNFS.downloadFile({
+            fromUrl: artDetail.mediaUrl,
+            toFile: localUri,
+          }).promise;
+        }
+      }
+
       const result = await Share.share({
         title: artDetail.title,
-        message: `${artDetail.title}\n\n${artDetail?.description || ""}\n\n${
-          artDetail.mediaUrl
-        }`,
-        url: artDetail.mediaUrl,
+        message: `${artDetail.title}\n\n${
+          artDetail?.description || ""
+        }\n\nCreated by ${artDetail?.artistName}`,
+        url: localUri, // ← local file path → better Story chance
       });
 
       if (result.action === Share.sharedAction) {
+        // You can try to detect if it was Instagram, but it's unreliable
+        // For now – send generic or keep your WHATSAPP logic
         const response = await postData<ShareArtResponse>(
           `${ENDPOINTS.ShareArt}/${ArtId}/share`,
-          { platform: "WHATSAPP" },
+          { platform: "APP_SHARE_SHEET" }, // or try to guess from result.activityType
         );
 
         if (response?.data?.success) {
           setArtDetail((prev) =>
             prev
-              ? {
-                  ...prev,
-                  sharesCount: response?.data?.data?.sharesCount,
-                }
+              ? { ...prev, sharesCount: response.data.data.sharesCount }
               : prev,
           );
         }
@@ -719,7 +733,7 @@ const styles = StyleSheet.create({
   mediaWrapper: {
     width: "100%",
     height: hp(49),
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: "hidden",
     backgroundColor: COLORS.greyish,
   },

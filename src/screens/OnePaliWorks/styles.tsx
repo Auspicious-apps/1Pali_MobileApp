@@ -6,13 +6,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: COLORS.appBackground,
   },
   safeArea: {
     flex: 1,
     paddingHorizontal: horizontalScale(20),
-    paddingVertical:
-      Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
+    paddingBottom:
+      Platform.OS === "ios" ? verticalScale(20) : verticalScale(10),
+    paddingTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   appIcon: {
     width: horizontalScale(80),
@@ -27,6 +28,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     width: "90%",
     textAlign: "left",
+    lineHeight: verticalScale(35),
   },
   centerText: {
     textAlign: "center",
@@ -42,8 +44,8 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {},
   sectionDescription: {
-    marginTop: verticalScale(6),
     textAlign: "center",
+    lineHeight: verticalScale(18),
   },
   FaqText: {
     marginTop: verticalScale(24),
@@ -53,7 +55,7 @@ const styles = StyleSheet.create({
   imageRow: {
     flexDirection: "row",
     gap: horizontalScale(10),
-    marginTop: verticalScale(12),
+    marginTop: verticalScale(16),
   },
   image: {
     height: verticalScale(150),
@@ -66,10 +68,11 @@ const styles = StyleSheet.create({
     padding: verticalScale(12),
     borderWidth: 1,
     borderColor: COLORS.LightGrey,
-    marginTop: verticalScale(27),
+    marginTop: verticalScale(16),
     borderRadius: 12,
     backgroundColor: COLORS.white,
     width: horizontalScale(260),
+    gap: verticalScale(4),
   },
   fundCardImage: {
     width: "100%",
@@ -114,11 +117,10 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(16),
   },
   primaryButton: {
-    marginTop: verticalScale(34),
-    width: "100%",
+    marginTop: verticalScale(10),
   },
   contentContainer: {
-    paddingBottom: verticalScale(10),
+    paddingBottom: verticalScale(24),
   },
 });
 

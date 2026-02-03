@@ -47,11 +47,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
       onRequestClose={closeModal}
     >
       {/* 🔹 Blur Background */}
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={closeModal}
-        style={{ flex: 1 }}
-      >
+      <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType="light"

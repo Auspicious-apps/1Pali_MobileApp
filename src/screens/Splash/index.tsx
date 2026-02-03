@@ -151,7 +151,6 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
           title={isCheckingAuth ? "Checking..." : "Get Started"}
           onPress={isCheckingAuth ? () => {} : handleGetStarted}
           style={styles.button}
-          isLoading={isCheckingAuth}
           disabled={isCheckingAuth}
         />
       </SafeAreaView>
@@ -164,7 +163,7 @@ export default Splash;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: COLORS.appBackground,
     justifyContent: "center",
     alignItems: "center",
   },

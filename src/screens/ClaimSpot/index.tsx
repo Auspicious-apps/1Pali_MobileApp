@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useRef, FC } from "react";
+import React, { useState, useRef, FC, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import IMAGES from "../../assets/Images";
@@ -31,6 +31,8 @@ import {
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
 import { verticalScale } from "../../utils/Metrics";
+import HapticFeedback from "react-native-haptic-feedback";
+
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -42,25 +44,41 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const checkingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+  const [inputDisabled, setInputDisabled] = useState(false);
 
-  const handleChange = (text: string) => {
-    const numeric = text.replace(/[^0-9]/g, "");
-    setNumber(numeric);
+  const showClaimTitle = checking || available || unavailable;
 
-    if (typingTimeout.current) clearTimeout(typingTimeout.current);
-    if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
-
-    if (!numeric.length) {
-      setAvailable(false);
-      setUnavailable(false);
-      setChecking(false);
-      return;
-    }
-
-    typingTimeout.current = setTimeout(() => {
-      CheckNumberAvailable(numeric);
-    }, 700);
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
   };
+
+
+ const handleChange = (text: string) => {
+   const numeric = text.replace(/[^0-9]/g, "");
+
+   if (numeric.length > number.length) {
+     HapticFeedback.trigger("impactLight", hapticOptions);
+   }
+
+   setNumber(numeric);
+
+   if (typingTimeout.current) clearTimeout(typingTimeout.current);
+   if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
+
+   if (!numeric.length) {
+     setAvailable(false);
+     setUnavailable(false);
+     setChecking(false);
+     return;
+   }
+
+   typingTimeout.current = setTimeout(() => {
+     CheckNumberAvailable(numeric);
+   }, 700);
+ };
+
 
   const handleDicePress = async () => {
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
@@ -126,7 +144,10 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   // Reserve the specific number via API and navigate on success
   const handleReserveNumber = async () => {
     setIsLoading(true);
-    if (!available || !number) return;
+      if (checking || !available || !number) return;
+      setInputDisabled(true);
+      inputRef.current?.blur();
+      Keyboard.dismiss();
     try {
       const response = await postData<ReserveSpecificNumberResponse>(
         ENDPOINTS.ReserveSpecificNumber,
@@ -138,11 +159,21 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       navigation.navigate("missionIntro");
     } catch (e) {
       console.error("Error reserving number:", e);
+      setInputDisabled(false);
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(
+    React.useCallback(() => {
+      const timeout = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300); // small delay helps on iOS
+
+      return () => clearTimeout(timeout);
+    }, []),
+  );
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -152,8 +183,19 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
           >
-            <View style={styles.logoContainer}>
-              <Image source={IMAGES.LogoText} style={styles.logo} />
+            <View style={styles.header}>
+              <View style={styles.side}>
+                <TouchableOpacity
+                  onPress={() => navigation.replace("onePaliWorks")}
+                  activeOpacity={0.8}
+                >
+                  <CustomIcon Icon={ICONS.backArrow} height={40} width={40} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.center}>
+                <Image source={IMAGES.LogoText} style={styles.logo} />
+              </View>
+              <View style={styles.side} />
             </View>
 
             <View style={styles.content}>
@@ -162,9 +204,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   fontFamily="GabaritoSemiBold"
                   fontSize={42}
                   color={COLORS.darkText}
-                  style={{ textAlign: "center" }}
+                  style={{ textAlign: "center", lineHeight: verticalScale(40) }}
                 >
-                  Claim your number
+                  {showClaimTitle ? "Claim your number" : "Choose your number"}
                 </CustomText>
                 <CustomText
                   fontFamily="GabaritoRegular"
@@ -172,7 +214,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   color={COLORS.appText}
                   style={{ textAlign: "center" }}
                 >
-                  Each number represents one person.
+                  {showClaimTitle
+                    ? "Each number represents one person."
+                    : "Pick between 1 and 1,000,000."}
                 </CustomText>
               </View>
 
@@ -186,12 +230,14 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   </CustomText>
 
                   <TextInput
+                    ref={inputRef}
                     style={styles.textInput}
                     value={number}
                     onChangeText={handleChange}
                     keyboardType="number-pad"
                     inputMode="numeric"
                     maxLength={7}
+                    editable={!checking && !inputDisabled}
                   />
 
                   {checking || !number.length ? (
@@ -273,7 +319,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     fontSize={12}
                     color={COLORS.grey}
                   >
-                    Pick a number between 1 and 1,000,000.
+                    Each number represents one supporter.
                   </CustomText>
                 )}
               </View>

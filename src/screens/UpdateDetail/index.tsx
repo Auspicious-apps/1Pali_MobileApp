@@ -30,6 +30,7 @@ import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { ShareBlogResponse } from "../../service/ApiResponses/ShareBlogResponse";
 import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
+import RNFS from "react-native-fs";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const { blogId } = route.params;
@@ -193,39 +194,100 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     }, 100);
   };
 
+  // const handleShare = async () => {
+  //   if (sharing || !blogDetail) return;
+
+  //   try {
+  //     setSharing(true);
+
+  //     const result = await Share.share({
+  //       title: blogDetail.title,
+  //       message: `${blogDetail.title}\n\n${blogDetail?.excerpt || ""}\n\n${
+  //         blogDetail.coverPhotoUrl
+  //       }`,
+  //       url: blogDetail.coverPhotoUrl,
+  //     });
+
+  //     if (result.action === Share.sharedAction) {
+  //       const response = await postData<ShareBlogResponse>(
+  //         `${ENDPOINTS.ShareBlog}/${blogId}/share`,
+  //         { platform: "WHATSAPP" },
+  //       );
+
+  //       if (response?.data?.success) {
+  //         setBlogDetail((prev) =>
+  //           prev ? { ...prev, sharesCount: prev.sharesCount + 1 } : prev,
+  //         );
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log("Share error", error);
+  //   } finally {
+  //     setSharing(false);
+  //   }
+  // };
   const handleShare = async () => {
     if (sharing || !blogDetail) return;
 
     try {
       setSharing(true);
 
+      let shareUrl = blogDetail.coverPhotoUrl;
+      let localFilePath: string | undefined;
+
+      // If it's a remote URL → download to cache folder (increases chance Instagram offers Story)
+      if (blogDetail.coverPhotoUrl?.startsWith("http")) {
+        const extension = blogDetail.coverPhotoUrl.includes(".png")
+          ? "png"
+          : "jpg";
+        const fileName = `blog-${blogId}.${extension}`;
+        localFilePath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+        // Check if already downloaded (avoid re-download every time)
+        const fileExists = await RNFS.exists(localFilePath);
+
+        if (!fileExists) {
+          await RNFS.downloadFile({
+            fromUrl: blogDetail.coverPhotoUrl,
+            toFile: localFilePath,
+          }).promise;
+        }
+
+        shareUrl = `file://${localFilePath}`; // important: file:// prefix for local sharing
+      }
+
       const result = await Share.share({
         title: blogDetail.title,
-        message: `${blogDetail.title}\n\n${blogDetail?.excerpt || ""}\n\n${
-          blogDetail.coverPhotoUrl
-        }`,
-        url: blogDetail.coverPhotoUrl,
+        message: `${blogDetail.title}\n\n${
+          blogDetail?.excerpt || ""
+        }\n\nRead more: ${blogDetail.coverPhotoUrl || ""}`,
+        url: shareUrl,
       });
 
       if (result.action === Share.sharedAction) {
+        // Optional: increment share count on backend
+        // You can try to make platform more generic since we don't know exact app chosen
         const response = await postData<ShareBlogResponse>(
           `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-          { platform: "WHATSAPP" },
+          { platform: "APP_SHARE_SHEET" }, // or keep "WHATSAPP" if you want – but it's not accurate anymore
         );
 
         if (response?.data?.success) {
           setBlogDetail((prev) =>
-            prev ? { ...prev, sharesCount: prev.sharesCount + 1 } : prev,
+            prev ? { ...prev, sharesCount: (prev.sharesCount || 0) + 1 } : prev,
           );
         }
       }
-    } catch (error) {
-      console.log("Share error", error);
+    } catch (error: any) {
+      console.log("Share error:", error);
+      // Optional: show toast/alert if not canceled by user
+      if (!error?.message?.includes("canceled")) {
+        // You can add Alert.alert here if you import Alert
+      }
     } finally {
       setSharing(false);
     }
   };
-
   useEffect(() => {
     handleBlogDetail();
   }, [blogId]);
@@ -490,9 +552,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             </View>
 
             {/* COMMENTS */}
-            <View
-              style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
-            />
             <FlatList
               data={comments}
               keyExtractor={(item) => item.id}
@@ -605,7 +664,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.greyish,
     paddingHorizontal: horizontalScale(12),
     paddingVertical: verticalScale(8),
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.light,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
