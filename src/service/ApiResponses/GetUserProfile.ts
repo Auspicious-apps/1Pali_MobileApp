@@ -10,6 +10,7 @@ export type GetUserProfileApiResponse = {
   joinedPosition: number;
   createdAt: string;
   totalDonations: number;
+  defaultPaymentMethodId: string;
   hasPaymentMethod: boolean;
   hasSubscription: boolean;
   subscriptionStatus: string;

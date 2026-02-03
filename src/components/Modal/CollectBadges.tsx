@@ -173,6 +173,7 @@ const CollectBadges = () => {
             keyExtractor={(item) => item.id}
             horizontal
             pagingEnabled
+            bounces={false}
             showsHorizontalScrollIndicator={false}
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: scrollX } } }],
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: "transparent",
+    backgroundColor: "white",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     overflow: "hidden",

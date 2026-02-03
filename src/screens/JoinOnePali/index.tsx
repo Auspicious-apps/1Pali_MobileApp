@@ -56,7 +56,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
   const [isExpired, setIsExpired] = useState(false);
 
-  const [showSubheading, setShowSubheading] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -218,11 +217,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         return;
       }
 
-      if (user && user.hasPaymentMethod) {
+      if (user && user.hasPaymentMethod && user.defaultPaymentMethodId) {
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
-            ENDPOINTS.ConfirmSetupIntent,
+            ENDPOINTS.ConfirmApplePaySetupIntent,
             {
+              paymentMethodId: user.defaultPaymentMethodId,
               priceId: selectedPlan,
               reservationToken: reservationToken,
             },
@@ -417,7 +417,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 : `Number #${claimedNumber} reserved for ${reservationSeconds}s`}
             </CustomText>
           </View>
-          {showSubheading && isExpired && (
+          {isExpired && (
             <CustomText
               fontFamily="GabaritoRegular"
               fontSize={16}
