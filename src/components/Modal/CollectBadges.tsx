@@ -1,3 +1,5 @@
+import { BlurView } from "@react-native-community/blur";
+import { useNavigation } from "@react-navigation/native";
 import React, { useRef, useState } from "react";
 import {
   Animated,
@@ -10,7 +12,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
   markAllBadgesViewed,
@@ -19,20 +23,14 @@ import {
   selectGrowthBadges,
   selectImpactBadges,
 } from "../../redux/slices/UserSlice";
-import IMAGES from "../../assets/Images";
-import { CustomText } from "../CustomText";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { postData } from "../../service/ApiService";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import PrimaryButton from "../PrimaryButton";
-import { BlurView } from "@react-native-community/blur";
 import CustomIcon from "../CustomIcon";
-import ICONS from "../../assets/Icons";
-import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
-import { postData } from "../../service/ApiService";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { useNavigation } from "@react-navigation/native";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+import { CustomText } from "../CustomText";
+import PrimaryButton from "../PrimaryButton";
 
 const CollectBadges = () => {
   const navigation = useNavigation<any>();
@@ -65,18 +63,18 @@ const CollectBadges = () => {
   const onViewBadge = async () => {
     try {
       setIsLoading(true);
+
+      dispatch(closeCollectBadgesModal());
+      dispatch(markAllBadgesViewed());
+      navigation.navigate("accountStack", { screen: "badges" });
+
       const response = await postData(ENDPOINTS.ViewedBadges, {
         badgeIds: unViewedBadges.map((badge) => badge.id),
       });
 
       if (response.data.success) {
-        dispatch(closeCollectBadgesModal());
-        dispatch(markAllBadgesViewed());
+        console.log("Badge collected successfully:", response);
       }
-
-      console.log("Badge collected successfully:", response);
-
-      navigation.navigate("BadgeDetail");
     } catch (e) {
       console.error("Error collecting badge:", e);
     } finally {
@@ -128,27 +126,23 @@ const CollectBadges = () => {
               const category = item.badge.category;
 
               if (category === "GROWTH") {
-                return `${growthBadges?.map(
-                  (item) => item?.badge?.requirement?.consecutiveMonths,
-                )} Months `;
+                return `${item?.badge?.requirement?.consecutiveMonths} Month${
+                  item?.badge?.requirement?.consecutiveMonths! > 1 ? "s" : ""
+                } `;
               }
 
               if (category === "COMMUNITY") {
-                return `${communityBadges?.map(
-                  (item) => item?.badge?.requirement?.userNumberMax,
-                )} Donors`;
+                return `${item?.badge?.requirement?.userNumberMax} Donors`;
               }
 
               if (category === "ART") {
-                return `${artBadges?.map(
-                  (item) => item?.badge?.requirement?.totalDonations,
-                )}Share `;
+                return `${item?.badge?.requirement?.totalShares} Share${
+                  item.badge?.requirement?.totalShares! > 1 ? "s" : ""
+                }`;
               }
 
               if (category === "IMPACT") {
-                return `$${impactBadges?.map(
-                  (item) => item?.badge?.requirement?.totalDonations,
-                )} Donated`;
+                return `${item?.badge?.requirement?.totalDonations} Donated`;
               }
 
               return "";
@@ -170,6 +164,8 @@ const CollectBadges = () => {
       </View>
     </ImageBackground>
   );
+
+  console.log(unViewedBadges);
 
   return (
     <Modal visible={isVisible} transparent animationType="fade">
@@ -288,7 +284,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cardContainer: {
-    width: SCREEN_WIDTH, // Essential for carousel
+    width: wp(100), // Essential for carousel
     height: hp(70),
     paddingTop: verticalScale(20),
   },

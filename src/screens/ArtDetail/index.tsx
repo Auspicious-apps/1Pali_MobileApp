@@ -34,8 +34,11 @@ import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import Video from "react-native-video";
 import RNFS from "react-native-fs";
+import { useAppDispatch } from "../../redux/store";
+import { addNewArtBadge } from "../../redux/slices/UserSlice";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
+  const dispatch = useAppDispatch();
   const [isLiked, setIsLiked] = useState(false);
   const lastTap = useRef<number>(0);
   const likeScale = useRef(new Animated.Value(0)).current;
@@ -273,6 +276,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               ? { ...prev, sharesCount: response.data.data.sharesCount }
               : prev,
           );
+          if (response.data.data.newBadges?.length) {
+            dispatch(addNewArtBadge(response.data.data.newBadges as any));
+          }
         }
       }
     } catch (error) {

@@ -68,6 +68,7 @@ export interface Requirement {
   userNumberMin?: number;
   userNumberMax?: number;
   consecutiveMonths?: number;
+  totalShares?: number;
 }
 
 export interface Metadata {

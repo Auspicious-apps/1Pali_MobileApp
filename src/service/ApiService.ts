@@ -18,8 +18,8 @@ type ApiResponse<T> = {
 
 // Create the Axios instance
 const api = axios.create({
-  baseURL: "https://onepali-backend.onrender.com/",
-  // baseURL: "https://hydrometric-untimeous-ayaan.ngrok-free.dev/",
+  // baseURL: "https://onepali-backend.onrender.com/",
+  baseURL: "https://hydrometric-untimeous-ayaan.ngrok-free.dev/",
   // timeout: 10000,
 });
 

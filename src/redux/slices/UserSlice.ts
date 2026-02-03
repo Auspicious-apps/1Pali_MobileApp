@@ -1,5 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  Badge,
   Badges,
   GetUserProfileApiResponse,
 } from "../../service/ApiResponses/GetUserProfile";
@@ -41,7 +42,7 @@ const userSlice = createSlice({
       state.badges = action.payload;
     },
     startReservationTimer: (state, action: PayloadAction<number>) => {
-      console.log(action.payload, 'OPOPOP');
+      console.log(action.payload, "OPOPOP");
 
       state.reservationSeconds = action.payload;
     },
@@ -77,6 +78,26 @@ const userSlice = createSlice({
         state.user.badges.unviewedCount = 0;
       }
     },
+
+    addNewArtBadge: (state, action: PayloadAction<Badge[]>) => {
+      if (state.badges) {
+        const existingBadgeIds = new Set(state.badges.badges.map((b) => b.id));
+        const newBadges = action.payload.filter(
+          (b) => !existingBadgeIds.has(b.id),
+        );
+
+        state.badges.badges = [...state.badges.badges, ...newBadges];
+        state.badges.totalBadges += newBadges.length;
+        state.badges.unviewedCount += newBadges.length;
+      } else {
+        state.badges = {
+          userId: state.user?.id!,
+          badges: action.payload,
+          totalBadges: action.payload.length,
+          unviewedCount: action.payload.length,
+        };
+      }
+    },
   },
 });
 
@@ -90,6 +111,7 @@ export const {
   decrementReservationTimer,
   clearReservationTimer,
   markAllBadgesViewed,
+  addNewArtBadge,
 } = userSlice.actions;
 
 export default userSlice.reducer;
