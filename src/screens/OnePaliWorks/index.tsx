@@ -239,20 +239,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 directly in the app, so you can clearly see where contributions
                 are going.
               </CustomText>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => {
-                  navigation.navigate("MainStack", {
-                    screen: "tabs",
-                    params: {
-                      screen: "accountStack",
-                      params: {
-                        screen: "faq",
-                      },
-                    },
-                  });
-                }}
-              >
+              <TouchableOpacity activeOpacity={0.8}>
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={15}
