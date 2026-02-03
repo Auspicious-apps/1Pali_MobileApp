@@ -215,9 +215,9 @@ const CollectBadges = () => {
             <View style={styles.dotsContainer}>
               {unViewedBadges.map((_: any, index: number) => {
                 const inputRange = [
-                  (index - 1) * SCREEN_WIDTH,
-                  index * SCREEN_WIDTH,
-                  (index + 1) * SCREEN_WIDTH,
+                  (index - 1) * wp(100),
+                  index * wp(100),
+                  (index + 1) * wp(100),
                 ];
 
                 const opacity = scrollX.interpolate({
