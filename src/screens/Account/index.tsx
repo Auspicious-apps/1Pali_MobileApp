@@ -116,8 +116,6 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
           {
             text: "Sign out",
             style: "destructive",
-            // onPress: () => navigation.navigate('splash'),
-
             onPress: async () => {
               deleteLocalStorageData(STORAGE_KEYS.accessToken);
               if (Platform.OS === "android") {
@@ -403,15 +401,17 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
               {/* Progress Bar */}
               <ProgressBar />
 
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={14}
-                color={"#1D222B90"}
-                style={{ textAlign: "center" }}
-              >
-                {user?.nextGrowthBadge.name} badge unlocked in{" "}
-                {user?.nextGrowthBadge.monthsRemaining} months
-              </CustomText>
+              {user?.nextGrowthBadge && (
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={14}
+                  color={"#1D222B90"}
+                  style={{ textAlign: "center" }}
+                >
+                  {user?.nextGrowthBadge?.name} badge unlocked in{" "}
+                  {user?.nextGrowthBadge?.monthsRemaining} months
+                </CustomText>
+              )}
             </View>
 
             <View

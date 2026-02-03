@@ -3829,7 +3829,9 @@ __metadata:
     react-native: 0.83.1
     react-native-blob-util: ^0.24.6
     react-native-dotenv: ^3.4.11
+    react-native-fs: ^2.20.0
     react-native-gesture-handler: 2.28.0
+    react-native-haptic-feedback: ^2.3.3
     react-native-iap: 14.7.0
     react-native-image-picker: ^8.2.1
     react-native-keychain: ^10.0.0
@@ -3839,6 +3841,7 @@ __metadata:
     react-native-reanimated: 3.19.0
     react-native-safe-area-context: ^5.5.2
     react-native-screens: ^4.19.0
+    react-native-share: ^12.2.4
     react-native-svg: ^15.15.1
     react-native-svg-transformer: ^1.5.2
     react-native-toast-message: ^2.3.3
@@ -4299,7 +4302,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base-64@npm:0.1.0":
+"base-64@npm:0.1.0, base-64@npm:^0.1.0":
   version: 0.1.0
   resolution: "base-64@npm:0.1.0"
   checksum: 5a42938f82372ab5392cbacc85a5a78115cbbd9dbef9f7540fa47d78763a3a8bd7d598475f0d92341f66285afd377509851a9bb5c67bbecb89686e9255d5b3eb
@@ -9067,6 +9070,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-fs@npm:^2.20.0":
+  version: 2.20.0
+  resolution: "react-native-fs@npm:2.20.0"
+  dependencies:
+    base-64: ^0.1.0
+    utf8: ^3.0.0
+  peerDependencies:
+    react-native: "*"
+    react-native-windows: "*"
+  peerDependenciesMeta:
+    react-native-windows:
+      optional: true
+  checksum: 0be9bb9a5c13b501d0a3006efc3aa5c0b5b211456ee04718297f4e522532f3527f1daa220bd67d3b82d819ed8fdab8f64b7d6e0d7b768c1fd1d8ec9122d94316
+  languageName: node
+  linkType: hard
+
 "react-native-gesture-handler@npm:2.28.0":
   version: 2.28.0
   resolution: "react-native-gesture-handler@npm:2.28.0"
@@ -9078,6 +9097,15 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 7bcd7db784b12565fdd5916bbebc2d3511a63159ca553d33e430008940ba7d209f1e85ef02968a920ed19c414fabe7d2c18cc0e967dd4889aae266788562d1e9
+  languageName: node
+  linkType: hard
+
+"react-native-haptic-feedback@npm:^2.3.3":
+  version: 2.3.3
+  resolution: "react-native-haptic-feedback@npm:2.3.3"
+  peerDependencies:
+    react-native: ">=0.60.0"
+  checksum: 5ff12aaf44fa1cad8ab3d9c58046a11c631c6622955120294060efc51c625203ee4cd7ccb565663c12b27552ebbb7034a386000d9da738b9eea5ff62d58b14c0
   languageName: node
   linkType: hard
 
@@ -9193,6 +9221,13 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 7fcecd7d710708476ecb431b0e33efce7fa950d2731ef8f3fa2cbb6c57cd3adeffe1b1d4b29e9449cb72e4bc8b72e57498c9c6286b49e66665ca11ff853381fd
+  languageName: node
+  linkType: hard
+
+"react-native-share@npm:^12.2.4":
+  version: 12.2.5
+  resolution: "react-native-share@npm:12.2.5"
+  checksum: 585c1ace5f224e98b95e62308c8e9b02fae93b8bbcd3c397bd1b8bbd3936c674401df458fa8c87da1d5dba98a5d94080d9b768f7c3bffe908996d2ac91156562
   languageName: node
   linkType: hard
 
@@ -10590,6 +10625,13 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: 61a62e910713adfaf91bdb72ff2cd30e5ba83687accaf3b6e75a903b45bf635f5722e3694af30d83a03e92cb533c0a5c699298d2fef639a03ffc86b469f4eee2
+  languageName: node
+  linkType: hard
+
+"utf8@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "utf8@npm:3.0.0"
+  checksum: cb89a69ad9ab393e3eae9b25305b3ff08bebca9adc839191a34f90777eb2942f86a96369d2839925fea58f8f722f7e27031d697f10f5f39690f8c5047303e62d
   languageName: node
   linkType: hard
 

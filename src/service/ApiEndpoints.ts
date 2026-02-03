@@ -9,7 +9,10 @@ const ENDPOINTS = {
   GetRandomNumber: "api/v1/numbers/random",
   GetStripePlans: "api/v1/subscription/plans",
   CreateSetupIntent: "api/v1/subscription/setup-intent",
+  CreateApplePaySetupIntent: "api/v1/subscription/apple-pay/setup-intent",
   ConfirmSetupIntent: "api/v1/subscription/confirm-setup-intent",
+  ConfirmApplePaySetupIntent:
+    "/api/v1/subscription/apple-pay/confirm-setup-intent",
   CollectBadges: "api/v1/badges/claim",
   GetBlogForUser: "api/v1/blogs",
   GetBlogById: "api/v1/blogs",

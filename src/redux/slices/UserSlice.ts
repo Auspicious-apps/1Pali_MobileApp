@@ -41,6 +41,8 @@ const userSlice = createSlice({
       state.badges = action.payload;
     },
     startReservationTimer: (state, action: PayloadAction<number>) => {
+      console.log(action.payload, 'OPOPOP');
+
       state.reservationSeconds = action.payload;
     },
 
@@ -57,7 +59,6 @@ const userSlice = createSlice({
     markAllBadgesViewed: (state) => {
       const now = new Date().toISOString();
 
-      // 1️⃣ update standalone badges
       if (state.badges) {
         state.badges.badges = state.badges.badges.map((b) => ({
           ...b,
@@ -67,7 +68,6 @@ const userSlice = createSlice({
         state.badges.unviewedCount = 0;
       }
 
-      // 2️⃣ update badges inside userData
       if (state.user?.badges) {
         state.user.badges.badges = state.user.badges.badges.map((b) => ({
           ...b,

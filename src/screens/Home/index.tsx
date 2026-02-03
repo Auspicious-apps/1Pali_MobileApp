@@ -108,7 +108,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           </CustomText>
 
           {/* Progress Bar */}
-          <ProgressBar currentStep={1} totalSteps={10} />
+          <ProgressBar />
 
           <CustomText
             fontFamily="GabaritoRegular"

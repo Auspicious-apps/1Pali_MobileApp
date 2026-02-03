@@ -33,7 +33,6 @@ import {
 import { verticalScale } from "../../utils/Metrics";
 import HapticFeedback from "react-native-haptic-feedback";
 
-
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const [number, setNumber] = useState("");
@@ -54,31 +53,29 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     ignoreAndroidSystemSettings: false,
   };
 
+  const handleChange = (text: string) => {
+    const numeric = text.replace(/[^0-9]/g, "");
 
- const handleChange = (text: string) => {
-   const numeric = text.replace(/[^0-9]/g, "");
+    if (numeric.length > number.length) {
+      HapticFeedback.trigger("impactLight", hapticOptions);
+    }
 
-   if (numeric.length > number.length) {
-     HapticFeedback.trigger("impactLight", hapticOptions);
-   }
+    setNumber(numeric);
 
-   setNumber(numeric);
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
 
-   if (typingTimeout.current) clearTimeout(typingTimeout.current);
-   if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
+    if (!numeric.length) {
+      setAvailable(false);
+      setUnavailable(false);
+      setChecking(false);
+      return;
+    }
 
-   if (!numeric.length) {
-     setAvailable(false);
-     setUnavailable(false);
-     setChecking(false);
-     return;
-   }
-
-   typingTimeout.current = setTimeout(() => {
-     CheckNumberAvailable(numeric);
-   }, 700);
- };
-
+    typingTimeout.current = setTimeout(() => {
+      CheckNumberAvailable(numeric);
+    }, 700);
+  };
 
   const handleDicePress = async () => {
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
@@ -144,10 +141,10 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   // Reserve the specific number via API and navigate on success
   const handleReserveNumber = async () => {
     setIsLoading(true);
-      if (checking || !available || !number) return;
-      setInputDisabled(true);
-      inputRef.current?.blur();
-      Keyboard.dismiss();
+    if (checking || !available || !number) return;
+    setInputDisabled(true);
+    inputRef.current?.blur();
+    Keyboard.dismiss();
     try {
       const response = await postData<ReserveSpecificNumberResponse>(
         ENDPOINTS.ReserveSpecificNumber,
@@ -155,8 +152,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       );
       dispatch(setClaimedNumber(Number(number)));
       dispatch(setReservationToken(response.data.data?.reservationToken));
-      dispatch(startReservationTimer(60));
-      navigation.navigate("missionIntro");
+      dispatch(startReservationTimer(300));
+      navigation.navigate("missionIntro", { showNumber: true });
     } catch (e) {
       console.error("Error reserving number:", e);
       setInputDisabled(false);
@@ -165,15 +162,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     }
   };
 
-  useEffect(
-    React.useCallback(() => {
-      const timeout = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 300); // small delay helps on iOS
-
-      return () => clearTimeout(timeout);
-    }, []),
-  );
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -237,6 +225,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     keyboardType="number-pad"
                     inputMode="numeric"
                     maxLength={7}
+                    autoFocus
                     editable={!checking && !inputDisabled}
                   />
 

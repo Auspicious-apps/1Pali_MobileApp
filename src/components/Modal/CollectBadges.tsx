@@ -30,10 +30,12 @@ import ICONS from "../../assets/Icons";
 import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import { postData } from "../../service/ApiService";
 import ENDPOINTS from "../../service/ApiEndpoints";
+import { useNavigation } from "@react-navigation/native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const CollectBadges = () => {
+  const navigation = useNavigation<any>();
   const scrollX = useRef(new Animated.Value(0))?.current;
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +75,8 @@ const CollectBadges = () => {
       }
 
       console.log("Badge collected successfully:", response);
+
+      navigation.navigate("BadgeDetail");
     } catch (e) {
       console.error("Error collecting badge:", e);
     } finally {

@@ -1,9 +1,13 @@
-import { useStripe } from "@stripe/stripe-react-native";
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import {
+  confirmPlatformPaySetupIntent,
+  isPlatformPaySupported,
+  PlatformPay,
+  PlatformPayButton,
+  useStripe,
+} from "@stripe/stripe-react-native";
+import React, { FC, useEffect, useState } from "react";
 import {
   Alert,
-  Animated,
-  Easing,
   Image,
   Platform,
   StyleSheet,
@@ -27,6 +31,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { ConsfirmSetupIntentApiResponse } from "../../service/ApiResponses/ConfirmSetupIntentApiResponse";
+import { CreateApplePaySetupIntentApiResponse } from "../../service/ApiResponses/CreateApplePaySetupIntentApiResponse";
 import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
 import { GetAllStripeePlansResponse } from "../../service/ApiResponses/GetAllStripePLans";
 import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
@@ -47,6 +52,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const { user, claimedNumber, reservationToken, reservationSeconds } =
     useAppSelector((state) => state.user);
   const { stripePlans } = useAppSelector((state) => state.stripePlans);
+  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
 
   const [isExpired, setIsExpired] = useState(false);
 
@@ -55,10 +61,9 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
- const [showCard, setShowCard] = useState(false);
- const [showDisclaimer, setShowDisclaimer] = useState(false);
- const [showButton, setShowButton] = useState(false);
-
+  const [showCard, setShowCard] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showButton, setShowButton] = useState(false);
 
   const pollUserProfile = async (retries = 3): Promise<boolean> => {
     try {
@@ -205,6 +210,123 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   };
 
+  const handleAppleSetupIntent = async () => {
+    try {
+      setIsLoading(true);
+      if (!selectedPlan) {
+        Alert.alert("Error", "Please select a plan");
+        return;
+      }
+
+      if (user && user.hasPaymentMethod) {
+        const confirmSetupIntentresponse =
+          await postData<ConsfirmSetupIntentApiResponse>(
+            ENDPOINTS.ConfirmSetupIntent,
+            {
+              priceId: selectedPlan,
+              reservationToken: reservationToken,
+            },
+          );
+
+        if (confirmSetupIntentresponse.data.success) {
+          // Start polling instead of a single fetch
+          const isSubscriptionActive = await pollUserProfile(3);
+
+          if (isSubscriptionActive) {
+            // Only navigate once the backend confirms the sub is active
+            navigation.navigate("MainStack", {
+              screen: "tabs",
+              params: { screen: "home" },
+            });
+          } else {
+            Alert.alert(
+              "Subscription Pending",
+              "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
+            );
+            // Optionally navigate anyway or stay on screen
+          }
+        }
+      } else {
+        const response = await postData<CreateApplePaySetupIntentApiResponse>(
+          ENDPOINTS.CreateApplePaySetupIntent,
+          {
+            priceId: selectedPlan,
+          },
+        );
+
+        const { clientSecret, amount, currency } = response?.data?.data || {};
+
+        const { error: initError, setupIntent } =
+          await confirmPlatformPaySetupIntent(clientSecret, {
+            applePay: {
+              cartItems: [
+                {
+                  label: "1Pali Supporter Membership",
+                  amount: amount.toString(),
+                  paymentType: PlatformPay.PaymentType.Immediate,
+                },
+              ],
+              merchantCountryCode: "US",
+              currencyCode: currency,
+              requiredShippingAddressFields: [
+                PlatformPay.ContactField.PostalAddress,
+              ],
+              requiredBillingContactFields: [
+                PlatformPay.ContactField.PhoneNumber,
+              ],
+            },
+            googlePay: {
+              amount: amount,
+              allowCreditCards: true,
+              isEmailRequired: true,
+              currencyCode: currency,
+              label: "1Pali Supporter Membership",
+              merchantCountryCode: "US",
+              testEnv: true,
+            },
+          });
+
+        if (initError) {
+          throw new Error(
+            `Payment initialization failed: ${initError.message}`,
+          );
+        }
+
+        const confirmSetupIntentresponse =
+          await postData<ConsfirmSetupIntentApiResponse>(
+            ENDPOINTS.ConfirmApplePaySetupIntent,
+            {
+              paymentMethodId: setupIntent?.paymentMethod?.id,
+              priceId: selectedPlan,
+              reservationToken: reservationToken,
+            },
+          );
+
+        if (confirmSetupIntentresponse.data.success) {
+          const isSubscriptionActive = await pollUserProfile(3);
+
+          if (isSubscriptionActive) {
+            // Only navigate once the backend confirms the sub is active
+            navigation.navigate("MainStack", {
+              screen: "tabs",
+              params: { screen: "home" },
+            });
+          } else {
+            Alert.alert(
+              "Subscription Pending",
+              "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
+            );
+          }
+        }
+      }
+    } catch (error: any) {
+      console.log("SetupIntent error:", error);
+      Alert.alert("Error", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getAllPlans = async () => {
     try {
       setLoadingPlans(true);
@@ -231,6 +353,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   useEffect(() => {
     getAllPlans();
   }, []);
+
+  useEffect(() => {
+    (async function () {
+      setIsApplePaySupported(await isPlatformPaySupported());
+    })();
+  }, [isPlatformPaySupported]);
 
   useEffect(() => {
     if (reservationSeconds !== null && reservationSeconds <= 0) {
@@ -412,20 +540,39 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             }}
           />
         )}
-        <PrimaryButton
-          title={isExpired ? "Choose a new number" : "Join OnePali"}
-          onPress={() => {
-            if (isExpired) {
-              navigation.navigate("claimSpot");
-            } else {
-              handleSetupIntent();
-            }
-          }}
-          isLoading={isLoading}
-          style={{
-            marginTop: isExpired ? verticalScale(24) : verticalScale(12),
-          }}
-        />
+        {isApplePaySupported ? (
+          isLoading ? (
+            <PrimaryButton
+              title={""}
+              onPress={() => {}}
+              isLoading={isLoading}
+              style={{ marginTop: verticalScale(20) }}
+            />
+          ) : (
+            <PlatformPayButton
+              onPress={handleAppleSetupIntent}
+              style={{
+                width: wp(90),
+                height: hp(6),
+                borderRadius: 10,
+                marginTop: verticalScale(20),
+              }}
+            />
+          )
+        ) : (
+          <PrimaryButton
+            title={isExpired ? "Choose a new number" : "Join OnePali"}
+            onPress={() => {
+              if (isExpired) {
+                navigation.navigate("claimSpot");
+              } else {
+                handleSetupIntent();
+              }
+            }}
+            isLoading={isLoading}
+            style={{ marginTop: verticalScale(20) }}
+          />
+        )}
         {!isExpired && (
           <View
             style={{

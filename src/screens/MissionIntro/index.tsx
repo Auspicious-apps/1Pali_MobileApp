@@ -37,9 +37,10 @@ import {
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
 
-const initialTimer = 60;
+const initialTimer = 300;
 
 const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
+  const { showNumber } = route.params || {};
   const { reservationSeconds } = useAppSelector((state) => state.user);
   const { claimedNumber } = useAppSelector((state) => state.user);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -239,16 +240,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     return () => clearInterval(interval);
   }, [reservationSeconds]);
 
-  // redirect on expire
-  // useEffect(() => {
-  //   if (reservationSeconds === 0) {
-  //     navigation.reset({
-  //       index: 0,
-  //       routes: [{ name: "claimSpot" }],
-  //     });
-  //   }
-  // }, [reservationSeconds]);
-
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -264,14 +255,16 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             Join OnePali
           </CustomText>
 
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={16}
-            color={COLORS.grayColor}
-            style={{ textAlign: "center", marginTop: 8 }}
-          >
-            Number #{claimedNumber} reserved for {reservationSeconds}s
-          </CustomText>
+          {showNumber && (
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={16}
+              color={COLORS.grayColor}
+              style={{ textAlign: "center", marginTop: 8 }}
+            >
+              Number #{claimedNumber} reserved for {reservationSeconds}s
+            </CustomText>
+          )}
         </View>
 
         <Image

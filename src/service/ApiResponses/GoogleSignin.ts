@@ -38,6 +38,10 @@ export interface User2 {
   stripeCustomerId: string;
   globalStats: GlobalStats;
   badges: Badges;
+  stripePriceId: string;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: string;
+  nextGrowthBadge: NextGrowthBadge;
 }
 
 export interface GlobalStats {
@@ -99,4 +103,21 @@ export interface Tokens {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
+}
+
+export interface NextGrowthBadge {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  iconPngUrl: string;
+  unlocksAt: number;
+  monthsRemaining: number;
+  currentProgress: number;
+  requirement: Requirement2;
+  progressPercentage: number;
+}
+
+export interface Requirement2 {
+  consecutiveMonths: number;
 }
