@@ -71,7 +71,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       );
 
       // Check if the subscription is active (adjust "active" based on your API's exact string)
-      if (profileResponse?.data?.data.subscriptionStatus === "ACTIVE") {
+      if (
+        profileResponse?.data?.data.subscriptionStatus === "ACTIVE" &&
+        profileResponse.data.data.badges.badges.find(
+          (badge) => badge.badge.category === "GROWTH",
+        )
+      ) {
         dispatch(setUserData(profileResponse?.data?.data));
         dispatch(setBadges(profileResponse?.data?.data?.badges));
         // You might need to update other pieces of state here
