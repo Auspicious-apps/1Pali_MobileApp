@@ -3838,6 +3838,7 @@ __metadata:
     react-native-linear-gradient: ^2.8.3
     react-native-network-logger: ^2.0.1
     react-native-nitro-modules: 0.31.10
+    react-native-raw-bottom-sheet: ^3.0.0
     react-native-reanimated: 3.19.0
     react-native-safe-area-context: ^5.5.2
     react-native-screens: ^4.19.0
@@ -9174,6 +9175,13 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 1c8d2f12ff29b6733c784c5fd0dedcbec4ceec9f82eb49f49e7734f31b9367346938010dcacf69bf695a352e36fec5aa23fd57b8091f6acd78c3d9a61e14ea7f
+  languageName: node
+  linkType: hard
+
+"react-native-raw-bottom-sheet@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "react-native-raw-bottom-sheet@npm:3.0.0"
+  checksum: bd8cb9fff9240d1d09279910498efb26df80631f697fd7d93352f1247f30880d6ec6d1c978822f59d1cd375b03c9dad48d6f520935fde13b7ae35ec8305a2694
   languageName: node
   linkType: hard
 

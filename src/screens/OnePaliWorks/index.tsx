@@ -1,17 +1,17 @@
-import { View, Image, Touchable } from "react-native";
 import React, { FC } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import COLORS from "../../utils/Colors";
-import IMAGES from "../../assets/Images";
-import { CustomText } from "../../components/CustomText";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
-import { onePaliWorksProps } from "../../typings/routes";
+import { Image, View } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import styles from "./styles";
-import CustomIcon from "../../components/CustomIcon";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
-import PrimaryButton from "../../components/PrimaryButton";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
+import PrimaryButton from "../../components/PrimaryButton";
+import { onePaliWorksProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { verticalScale } from "../../utils/Metrics";
+import styles from "./styles";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -256,7 +256,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
         <PrimaryButton
           title="Continue"
           onPress={() => {
-            navigation.replace("claimSpot");
+            navigation.navigate("claimSpot");
           }}
           style={styles.primaryButton}
         />

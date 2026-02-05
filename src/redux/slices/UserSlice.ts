@@ -1,10 +1,17 @@
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import {
   Badge,
   Badges,
   GetUserProfileApiResponse,
 } from "../../service/ApiResponses/GetUserProfile";
 import { RootState } from "../store";
+import { fetchData } from "../../service/ApiService";
+import ENDPOINTS from "../../service/ApiEndpoints";
 
 interface UserState {
   user: GetUserProfileApiResponse | null;
@@ -21,6 +28,21 @@ const initialState: UserState = {
   badges: null,
   reservationSeconds: null,
 };
+
+export const fetchUserProfile = createAsyncThunk<
+  GetUserProfileApiResponse,
+  void,
+  { rejectValue: string }
+>("user/fetchUserProfile", async (_, { rejectWithValue }) => {
+  try {
+    const res = await fetchData<GetUserProfileApiResponse>(
+      ENDPOINTS.GetUserProfile,
+    );
+    return res.data.data;
+  } catch (error: any) {
+    return rejectWithValue(error?.message || "Failed to fetch user profile");
+  }
+});
 
 const userSlice = createSlice({
   name: "user",
@@ -98,6 +120,21 @@ const userSlice = createSlice({
         };
       }
     },
+
+    updatePlan: (state, action: PayloadAction<any>) => {
+      if (state.user) {
+        state.user.stripePriceId = action.payload;
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserProfile.pending, (state) => {})
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.badges = action.payload.badges;
+      })
+      .addCase(fetchUserProfile.rejected, (state, action) => {});
   },
 });
 
@@ -112,6 +149,7 @@ export const {
   clearReservationTimer,
   markAllBadgesViewed,
   addNewArtBadge,
+  updatePlan,
 } = userSlice.actions;
 
 export default userSlice.reducer;

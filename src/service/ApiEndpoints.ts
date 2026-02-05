@@ -30,6 +30,7 @@ const ENDPOINTS = {
   GetAllBadges: "api/v1/badges/all",
   ViewedBadges: "api/v1/badges/mark-viewed",
   UpdatePlan: "api/v1/subscription/update-plan",
+  cancelPlan: "api/v1/subscription/cancel",
 };
 
 export default ENDPOINTS;

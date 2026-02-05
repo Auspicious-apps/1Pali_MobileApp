@@ -1,3 +1,4 @@
+import { BlurView } from "@react-native-community/blur";
 import React, { FC, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,10 +12,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import BadgeIcon from "../../components/BadgeIcon";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import BadgesDetail from "../../components/Modal/BadgesDetail";
+import { setBadgeData } from "../../redux/slices/BadgesSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import {
   Badge,
@@ -24,8 +28,6 @@ import { fetchData } from "../../service/ApiService";
 import { BadgesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { setBadgeData } from "../../redux/slices/BadgesSlice";
 
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -150,11 +152,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               }}
               activeOpacity={0.8}
             >
-              <Image
-                source={{
-                  uri: communityBadge?.iconPngUrl,
-                }}
-                resizeMode="contain"
+              <BadgeIcon
+                badge={communityBadge?.name}
                 style={{
                   width: horizontalScale(72),
                   height: verticalScale(72),
@@ -176,7 +175,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 color={"#1D222B50"}
                 style={{ textAlign: "center" }}
               >
-                {communityBadge?.milestone}
+                For being part of {communityBadge?.milestone.toLowerCase()}
               </CustomText>
             </View>
           </View>
@@ -274,22 +273,43 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   <View
                     style={{ alignItems: "center", justifyContent: "center" }}
                   >
-                    <Image
-                      source={{ uri: badge?.iconPngUrl }}
+                    <BadgeIcon
+                      badge={badge?.name}
                       style={{
                         width: horizontalScale(75),
                         height: verticalScale(75),
                         resizeMode: "contain",
                       }}
                     />
+
                     {!isUnlocked && (
-                      <View style={{ position: "absolute", opacity: 0.8 }}>
-                        <CustomIcon
-                          Icon={ICONS.InnerLockIcon}
-                          height={verticalScale(66)}
-                          width={horizontalScale(66)}
+                      <>
+                        <View
+                          style={{
+                            position: "absolute",
+                            opacity: 0.6,
+                            zIndex: 2,
+                            backgroundColor: "#1d222b8a",
+                          }}
                         />
-                      </View>
+                        <View style={{ position: "absolute", zIndex: 3 }}>
+                          <CustomIcon
+                            Icon={ICONS.LockIcon}
+                            height={verticalScale(24)}
+                            width={horizontalScale(24)}
+                          />
+                        </View>
+
+                        <BlurView
+                          style={{
+                            position: "absolute",
+                            width: horizontalScale(65),
+                            height: verticalScale(65),
+                            borderRadius: horizontalScale(33),
+                          }}
+                          blurAmount={1}
+                        />
+                      </>
                     )}
                   </View>
                   <View style={{ alignItems: "center" }}>
@@ -321,7 +341,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
         setIsVisible={setIsBadgeModalVisible}
         badgeLabel={selectedBadge?.title}
         badgeMonths={selectedBadge?.milestone}
-        badgeImage={{ uri: selectedBadge?.iconPngUrl }}
         badgeDescription={selectedBadge?.description}
       />
     </View>

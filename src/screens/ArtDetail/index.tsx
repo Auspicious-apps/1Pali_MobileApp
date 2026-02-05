@@ -40,7 +40,6 @@ import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
 import ShareLib from "react-native-share";
 import PrimaryButton from "../../components/PrimaryButton";
 
-
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const [isLiked, setIsLiked] = useState(false);
@@ -125,7 +124,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       console.log("Share failed:", err);
     }
   };
-
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -227,44 +225,43 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     }, 100);
   };
 
- const handleLikeUnlike = async () => {
-   setIsLiked((prevLiked) => {
-     const nextLiked = !prevLiked;
+  const handleLikeUnlike = async () => {
+    setIsLiked((prevLiked) => {
+      const nextLiked = !prevLiked;
 
-     setArtDetail((prev) =>
-       prev
-         ? {
-             ...prev,
-             likesCount: prev.likesCount + (nextLiked ? 1 : -1),
-           }
-         : prev,
-     );
+      setArtDetail((prev) =>
+        prev
+          ? {
+              ...prev,
+              likesCount: prev.likesCount + (nextLiked ? 1 : -1),
+            }
+          : prev,
+      );
 
-     pendingLikeState.current = nextLiked;
-     return nextLiked;
-   });
+      pendingLikeState.current = nextLiked;
+      return nextLiked;
+    });
 
-   if (likeRequestInProgress.current) return;
+    if (likeRequestInProgress.current) return;
 
-   likeRequestInProgress.current = true;
+    likeRequestInProgress.current = true;
 
-   try {
-     while (pendingLikeState.current !== null) {
-       const desiredState = pendingLikeState.current;
-       pendingLikeState.current = null;
+    try {
+      while (pendingLikeState.current !== null) {
+        const desiredState = pendingLikeState.current;
+        pendingLikeState.current = null;
 
-       await postData<LikeUnlikeArtResponse>(
-         `${ENDPOINTS.LikeUnlikeArt}/${ArtId}/like`,
-       );
-     }
-   } catch (error) {
-     // optional rollback — or refetch count
-     console.log("Like sync error", error);
-   } finally {
-     likeRequestInProgress.current = false;
-   }
- };
-
+        await postData<LikeUnlikeArtResponse>(
+          `${ENDPOINTS.LikeUnlikeArt}/${ArtId}/like`,
+        );
+      }
+    } catch (error) {
+      // optional rollback — or refetch count
+      console.log("Like sync error", error);
+    } finally {
+      likeRequestInProgress.current = false;
+    }
+  };
 
   const triggerLikeAnimation = () => {
     likeScale.setValue(0);

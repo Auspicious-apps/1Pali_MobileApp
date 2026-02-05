@@ -20,6 +20,7 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { getLocalStorageData } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -62,13 +63,12 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
 
-        console.log(response.data.data);
-
         if (
           response.data.data.hasSubscription &&
           response.data.data.assignedNumber
         ) {
           dispatch(setClaimedNumber(response.data.data.assignedNumber));
+          dispatch(setSelectedPlanId(response.data.data.stripePriceId));
           navigation.replace("MainStack", {
             screen: "tabs",
             params: { screen: "home" },
@@ -147,12 +147,14 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
           </View>
         </View>
 
-        <PrimaryButton
-          title={isCheckingAuth ? "Checking..." : "Get Started"}
-          onPress={isCheckingAuth ? () => {} : handleGetStarted}
-          style={styles.button}
-          disabled={isCheckingAuth}
-        />
+        {!isCheckingAuth && (
+          <PrimaryButton
+            title={isCheckingAuth ? "Checking..." : "Get Started"}
+            onPress={isCheckingAuth ? () => {} : handleGetStarted}
+            style={styles.button}
+            disabled={isCheckingAuth}
+          />
+        )}
       </SafeAreaView>
     </View>
   );

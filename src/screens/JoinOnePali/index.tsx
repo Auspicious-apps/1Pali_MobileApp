@@ -22,7 +22,10 @@ import CustomIcon from "../../components/CustomIcon";
 import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
-import { setStripePlans } from "../../redux/slices/StripePlans";
+import {
+  setSelectedPlanId,
+  setStripePlans,
+} from "../../redux/slices/StripePlans";
 import {
   clearReservationTimer,
   setBadges,
@@ -79,6 +82,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       ) {
         dispatch(setUserData(profileResponse?.data?.data));
         dispatch(setBadges(profileResponse?.data?.data?.badges));
+        dispatch(setSelectedPlanId(profileResponse.data.data.stripePriceId));
+
         // You might need to update other pieces of state here
         return true;
       }

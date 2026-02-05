@@ -26,8 +26,9 @@ import { useAppSelector } from "../../redux/store";
 import { AccountScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { deleteLocalStorageData } from "../../utils/Helpers";
+import { deleteLocalStorageData, formatDate } from "../../utils/Helpers";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import BadgeIcon from "../../components/BadgeIcon";
 
 const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const { badges, user } = useAppSelector((state) => state.user);
@@ -202,8 +203,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                Member since{" "}
-                {new Date(user?.createdAt || "").toLocaleDateString()}
+                Member since {formatDate(user?.createdAt!)}
               </CustomText>
             </View>
             <View style={styles.card}>
@@ -262,9 +262,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     ...artBadges.slice(0, 1),
                     ...impactBadges.slice(0, 1),
                   ]?.map((badge, index) => (
-                    <Image
+                    <BadgeIcon
                       key={badge.id}
-                      source={{ uri: badge.badge.iconPngUrl }}
+                      badge={badge.badge.name}
                       style={{
                         width: horizontalScale(72),
                         height: verticalScale(72),

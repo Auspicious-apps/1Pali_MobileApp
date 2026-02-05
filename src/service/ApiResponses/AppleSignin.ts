@@ -37,6 +37,7 @@ export interface User2 {
   stripeCustomerId: string;
   globalStats: GlobalStats;
   badges: Badges;
+  defaultPaymentMethodId: string;
   stripePriceId: string;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string;

@@ -1,12 +1,14 @@
 import React, { FC, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
@@ -14,7 +16,11 @@ import CustomIcon from "../../components/CustomIcon";
 import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
-import { setStripePlans } from "../../redux/slices/StripePlans";
+import {
+  setSelectedPlanId,
+  setStripePlans,
+} from "../../redux/slices/StripePlans";
+import { fetchUserProfile } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { GetAllStripeePlansResponse } from "../../service/ApiResponses/GetAllStripePLans";
@@ -27,15 +33,15 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import Toast from "react-native-toast-message";
 
 const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.user);
-  const { stripePlans } = useAppSelector((state) => state.stripePlans);
+  const { stripePlans, selectedPlanId } = useAppSelector(
+    (state) => state.stripePlans,
+  );
 
   const [enabled, setEnabled] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState("");
   const [loadingPlans, setLoadingPlans] = useState(false);
 
   const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
@@ -44,10 +50,15 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     setIsUpdatingPlan(true);
     try {
       const planChangeResponse = await postData(ENDPOINTS.UpdatePlan, {
-        newPriceId: selectedPlan,
+        newPriceId: selectedPlanId,
       });
 
       if (planChangeResponse?.data?.success) {
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Your donation plan has been updated.",
+        });
       }
     } catch (error) {
       console.log("Error updating plan:", error);
@@ -72,6 +83,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
       if (response?.data?.data?.plans?.length) {
         const activePlans = response?.data?.data?.plans;
         dispatch(setStripePlans(activePlans));
+        dispatch(fetchUserProfile());
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
@@ -85,12 +97,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
       getAllPlans();
     }
   }, [stripePlans]);
-
-  useEffect(() => {
-    if (user) {
-      setSelectedPlan(user?.stripePriceId);
-    }
-  }, [user]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -164,13 +170,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
             <View style={styles.toggleWrapper}>
               {stripePlans.map((plan, index) => {
-                const isSelected = selectedPlan === plan.id;
+                const isSelected = selectedPlanId === plan.id;
                 const isFirst = index === 0;
                 return (
                   <TouchableOpacity
                     key={plan.id}
                     activeOpacity={0.8}
-                    onPress={() => setSelectedPlan(plan.id)}
+                    onPress={() => dispatch(setSelectedPlanId(plan.id))}
                     style={[
                       styles.toggleItem,
                       !isFirst && styles.toggleItemDivider,
@@ -233,11 +239,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   fontSize={14}
                   style={{ color: COLORS.appText }}
                 >
-                  {user?.cancelAtPeriodEnd
-                    ? "Your subscription will end on " +
-                      new Date(user?.currentPeriodEnd).toLocaleDateString()
-                    : "Your next billing date is " +
-                      new Date(user?.currentPeriodEnd!).toLocaleDateString()}
+                  Sure, I’ll cover the $0.43 processing fee
                 </CustomText>
               </View>
 
@@ -250,27 +252,83 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 trackColorOff={[COLORS.grey, COLORS.grey]}
               />
             </View>
+            <CustomText
+              fontFamily="SourceSansMedium"
+              fontSize={14}
+              style={{ color: COLORS.appText, marginTop: verticalScale(20) }}
+            >
+              {user?.cancelAtPeriodEnd
+                ? "Your subscription will end on " +
+                  new Date(user?.currentPeriodEnd).toLocaleDateString()
+                : "Your next billing date is " +
+                  new Date(user?.currentPeriodEnd!).toLocaleDateString()}
+            </CustomText>
 
             {/* Save Button */}
             <PrimaryButton
               title={
-                selectedPlan === user?.stripePriceId
+                selectedPlanId === user?.stripePriceId
                   ? "Current donation"
                   : "Update donation"
               }
               onPress={handlePlanChange}
-              disabled={selectedPlan === user?.stripePriceId}
+              disabled={selectedPlanId === user?.stripePriceId}
               style={styles.saveButton}
               isLoading={isUpdatingPlan}
             />
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={16}
-              color={COLORS.darkRed}
-              style={{ textAlign: "center", marginTop: verticalScale(12) }}
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  "Cancel Monthly Donation",
+                  "Are you sure you want to cancel your monthly donation?",
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Confirm",
+                      style: "destructive",
+                      onPress: async () => {
+                        try {
+                          const response = await postData(
+                            ENDPOINTS.cancelPlan,
+                            {},
+                          );
+
+                          if (response?.data?.success) {
+                            Toast.show({
+                              type: "success",
+                              text1: "Success",
+                              text2:
+                                "Your monthly donation has been cancelled.",
+                            });
+                            dispatch(fetchUserProfile());
+                          }
+                        } catch (error) {
+                          console.log("Error cancelling subscription:", error);
+                          Toast.show({
+                            type: "error",
+                            text1: "Error",
+                            text2:
+                              "There was an error cancelling your donation. Please try again.",
+                          });
+                        }
+                      },
+                    },
+                  ],
+                );
+              }}
             >
-              Cancel Monthly Donation
-            </CustomText>
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={16}
+                color={COLORS.darkRed}
+                style={{ textAlign: "center", marginTop: verticalScale(12) }}
+              >
+                Cancel Monthly Donation
+              </CustomText>
+            </TouchableOpacity>
           </View>
         </>
       )}

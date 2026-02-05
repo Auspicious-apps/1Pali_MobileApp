@@ -1,26 +1,18 @@
-import React, { Dispatch, SetStateAction } from 'react';
-import {
-  Image,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ImageSourcePropType,
-} from 'react-native';
-import { BlurView } from '@react-native-community/blur';
-import { CustomText } from '../CustomText';
-import COLORS from '../../utils/Colors';
-import CustomIcon from '../CustomIcon';
-import ICONS from '../../assets/Icons';
-import IMAGES from '../../assets/Images';
-import { horizontalScale, verticalScale } from '../../utils/Metrics';
+import { BlurView } from "@react-native-community/blur";
+import React, { Dispatch, SetStateAction } from "react";
+import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import ICONS from "../../assets/Icons";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import BadgeIcon from "../BadgeIcon";
+import CustomIcon from "../CustomIcon";
+import { CustomText } from "../CustomText";
 
 interface BadgesDetailModalProps {
   isVisible: boolean;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
   badgeLabel?: string;
   badgeMonths?: string;
-  badgeImage?: ImageSourcePropType;
   badgeDescription: string | undefined;
 }
 
@@ -29,7 +21,6 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   setIsVisible,
   badgeLabel,
   badgeMonths,
-  badgeImage,
   badgeDescription,
 }) => {
   const closeModal = () => setIsVisible(false);
@@ -76,9 +67,8 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
 
             {/* Badge Info */}
             <View style={styles.badgeSection}>
-              <Image
-                source={badgeImage ?? IMAGES.ChangedSplash}
-                resizeMode="contain"
+              <BadgeIcon
+                badge={badgeLabel ?? "speaker"}
                 style={styles.badgeImage}
               />
 

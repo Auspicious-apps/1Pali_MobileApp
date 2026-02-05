@@ -1,23 +1,24 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import { BlurView } from "@react-native-community/blur";
+import { useNavigation } from "@react-navigation/native";
+import React, { Dispatch, SetStateAction } from "react";
 import {
   FlatList,
-  Image,
   ImageSourcePropType,
   Modal,
+  Platform,
+  Pressable,
   StyleSheet,
   TouchableOpacity,
   View,
-  Platform,
 } from "react-native";
-import { BlurView } from "@react-native-community/blur";
-import { CustomText } from "../CustomText";
-import COLORS from "../../utils/Colors";
-import CustomIcon from "../CustomIcon";
 import ICONS from "../../assets/Icons";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import PrimaryButton from "../PrimaryButton";
 import { useAppSelector } from "../../redux/store";
-import { useNavigation } from "@react-navigation/native";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import BadgeIcon from "../BadgeIcon";
+import CustomIcon from "../CustomIcon";
+import { CustomText } from "../CustomText";
+import PrimaryButton from "../PrimaryButton";
 
 export interface MyBadgeItem {
   id: string | number;
@@ -57,7 +58,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
       >
         {Platform.OS === "ios" ? (
           <BlurView
-            style={StyleSheet.absoluteFill}
+            style={[StyleSheet.absoluteFill]}
             blurType="light"
             blurAmount={1}
           />
@@ -66,10 +67,10 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
         )}
 
         <View style={styles.overlay}>
-          <TouchableOpacity
-            activeOpacity={1}
+          <View
             style={styles.modalContainer}
-            onPress={(e) => e.stopPropagation()}
+            onStartShouldSetResponder={() => true} // Capture touch events
+            onResponderRelease={(e) => e.stopPropagation()} // Prevent propagation
           >
             {/* Header */}
             <View style={styles.header}>
@@ -96,15 +97,8 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
                 const badge = item.badge;
 
                 return (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.badgeRow}
-                    onPress={closeModal}
-                  >
-                    <Image
-                      source={{ uri: badge.iconPngUrl }}
-                      style={styles.badgeImage}
-                    />
+                  <View style={styles.badgeRow}>
+                    <BadgeIcon badge={badge.name} style={styles.badgeImage} />
 
                     <View style={styles.badgeTextContainer}>
                       <CustomText
@@ -117,14 +111,14 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
 
                       <CustomText
                         fontFamily="SourceSansMedium"
-                        fontSize={14}
+                        fontSize={15}
                         color="#1D222B90"
                         numberOfLines={2}
                       >
                         {badge.milestone}
                       </CustomText>
                     </View>
-                  </TouchableOpacity>
+                  </View>
                 );
               }}
             />
@@ -140,7 +134,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
               }}
               style={styles.button}
             />
-          </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     </Modal>

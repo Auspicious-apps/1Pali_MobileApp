@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
 import {
-  Alert,
   Image,
   Platform,
   StyleSheet,
@@ -10,8 +9,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import BadgeIcon from "../../components/BadgeIcon";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
+import CollectBadges from "../../components/Modal/CollectBadges";
 import MyBadgesModal from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
 import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
@@ -20,12 +21,10 @@ import {
   selectGrowthBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { Badge } from "../../service/ApiResponses/GetUserProfile";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import CollectBadges from "../../components/Modal/CollectBadges";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -56,8 +55,8 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.8}
             onPress={() => setIsBadgesSheet(true)}
           >
-            <Image
-              source={{ uri: growthBadges[0]?.badge?.iconPngUrl }}
+            <BadgeIcon
+              badge={growthBadges[0]?.badge?.name}
               style={{
                 width: horizontalScale(110),
                 height: verticalScale(110),
@@ -76,14 +75,6 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               >
                 {growthBadges[0]?.badge?.name}
               </CustomText>
-              {/* <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={14}
-                color={COLORS.appText}
-                style={{ textAlign: "center" }}
-              >
-                {growthBadges[0]?.badge?.description}
-              </CustomText> */}
             </View>
           )}
         </View>

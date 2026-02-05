@@ -4,7 +4,6 @@ import React, { useRef, useState } from "react";
 import {
   Animated,
   FlatList,
-  Image,
   ImageBackground,
   Modal,
   StyleSheet,
@@ -23,6 +22,7 @@ import ENDPOINTS from "../../service/ApiEndpoints";
 import { postData } from "../../service/ApiService";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
 import PrimaryButton from "../PrimaryButton";
@@ -75,7 +75,7 @@ const CollectBadges = () => {
 
   const renderItem = ({ item }: { item: any }) => (
     <ImageBackground
-      source={getBgImage(item.badge.category)}
+      source={getBgImage(item?.badge?.category)}
       style={styles.cardContainer}
     >
       <View style={styles.header}>
@@ -84,8 +84,8 @@ const CollectBadges = () => {
           fontSize={18}
           color={COLORS.white}
         >
-          {item.badge.category.charAt(0).toUpperCase() +
-            item.badge.category.slice(1).toLowerCase()}{" "}
+          {item?.badge?.category.charAt(0).toUpperCase() +
+            item?.badge?.category.slice(1).toLowerCase()}{" "}
           badge unlocked
         </CustomText>
       </View>
@@ -96,16 +96,13 @@ const CollectBadges = () => {
         color={COLORS.white}
         style={{ textAlign: "center", marginTop: verticalScale(24) }}
       >
-        {item.badge.title}
+        {item?.badge?.title}
       </CustomText>
 
       <View
         style={{ alignItems: "center", flex: 1, marginTop: verticalScale(16) }}
       >
-        <Image
-          source={{ uri: item.badge.iconPngUrl }}
-          style={styles.badgeImage}
-        />
+        <BadgeIcon badge={item?.badge?.name} style={styles.badgeImage} />
         <View style={styles.wrapper}>
           <CustomText
             fontFamily="GabaritoRegular"
@@ -128,7 +125,7 @@ const CollectBadges = () => {
 
               if (category === "ART") {
                 return `${item?.badge?.requirement?.totalShares} Share${
-                  item.badge?.requirement?.totalShares! > 1 ? "s" : ""
+                  item?.badge?.requirement?.totalShares! > 1 ? "s" : ""
                 }`;
               }
 
@@ -150,7 +147,7 @@ const CollectBadges = () => {
             width: "70%",
           }}
         >
-          {item.badge.description}
+          {item?.badge?.description}
         </CustomText>
       </View>
     </ImageBackground>

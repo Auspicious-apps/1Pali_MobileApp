@@ -174,7 +174,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
             <View style={styles.header}>
               <View style={styles.side}>
                 <TouchableOpacity
-                  onPress={() => navigation.replace("onePaliWorks")}
+                  onPress={() => navigation.goBack()}
                   activeOpacity={0.8}
                 >
                   <CustomIcon Icon={ICONS.backArrow} height={40} width={40} />

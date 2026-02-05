@@ -40,6 +40,7 @@ export interface User2 {
   badges: Badges;
   stripePriceId: string;
   cancelAtPeriodEnd: boolean;
+  defaultPaymentMethodId: string;
   currentPeriodEnd: string;
   nextGrowthBadge: NextGrowthBadge;
 }
