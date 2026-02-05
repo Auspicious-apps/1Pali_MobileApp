@@ -62,6 +62,10 @@ import FacebookIcon from "./Facebook.svg";
 import WhatsAppIcon from "./whatsapp.svg";
 import MessageIcon from "./messages.svg";
 import MoreIcon from "./MoreIcon.svg";
+import SimpleUserIcon from "./SimpleUserIcon.svg";
+import close from "./close.svg";
+import fullScreen from "./fullscreen.svg";
+import download from "./download.svg";
  
 const ICONS = {
   diceIcon,
@@ -128,6 +132,10 @@ const ICONS = {
   WhatsAppIcon,
   MessageIcon,
   MoreIcon,
+  SimpleUserIcon,
+  close,
+  fullScreen,
+  download,
 };
 
 export default ICONS;

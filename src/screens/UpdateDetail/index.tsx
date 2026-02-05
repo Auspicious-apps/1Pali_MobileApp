@@ -35,6 +35,8 @@ import { ShareBlogResponse } from "../../service/ApiResponses/ShareBlogResponse"
 import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
 import RNFS from "react-native-fs";
 import IMAGES from "../../assets/Images";
+import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
+import ShareLib from "react-native-share";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const { blogId } = route.params;
@@ -60,8 +62,87 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
    const lastTap = useRef<number>(0);
    const likeScale = useRef(new Animated.Value(0)).current;
    const likeRequestInProgress = useRef(false);
-   const pendingLikeState = useRef<boolean | null>(null);
+  const [OpenModal, setOpenModal] = useState(false);
 
+  const prepareMedia = async () => {
+    if (!blogDetail?.coverPhotoUrl) return null;
+
+    let uri = blogDetail.coverPhotoUrl;
+
+    if (!uri.startsWith("http")) return uri;
+
+    try {
+      const extension = uri.includes(".png") ? ".png" : ".jpg";
+      const path = `${RNFS.CachesDirectoryPath}/blog-${blogId}${extension}`;
+
+      const exists = await RNFS.exists(path);
+
+      if (!exists) {
+        await RNFS.downloadFile({
+          fromUrl: uri,
+          toFile: path,
+        }).promise;
+      }
+
+      return "file://" + path;
+    } catch (e) {
+      console.log("Media prep failed:", e);
+      return uri; // fallback to remote URL
+    }
+  };
+
+  const shareToApp = async (platform: ShareType) => {
+    if (!blogDetail) return;
+
+    try {
+      setSharing(true);
+
+      const uri = await prepareMedia();
+      if (!uri) return;
+
+      const baseOptions = {
+        url: uri,
+        message: blogDetail.title || "",
+        type: "image/jpeg",
+      };
+
+      if (platform === "more" || platform === "message") {
+        await ShareLib.open(baseOptions);
+      } else {
+        const socialMap = {
+          instagram: ShareLib.Social.INSTAGRAM,
+          facebook: ShareLib.Social.FACEBOOK,
+          whatsapp: ShareLib.Social.WHATSAPP,
+        };
+
+        await ShareLib.shareSingle({
+          ...baseOptions,
+          social: socialMap[platform],
+        });
+      }
+      const response = await postData<ShareBlogResponse>(
+        `${ENDPOINTS.ShareBlog}/${blogId}/share`,
+        { platform },
+      );
+
+      if (response?.data?.success) {
+        setBlogDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                sharesCount: response.data.data.sharesCount,
+              }
+            : prev,
+        );
+      }
+    } catch (err: any) {
+      if (!err?.message?.includes("cancel")) {
+        console.log("Share failed:", err);
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -572,65 +653,83 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: horizontalScale(12),
                 borderBottomWidth: 1,
                 borderBottomColor: COLORS.greyish,
                 paddingVertical: verticalScale(12),
+                justifyContent: "space-between",
               }}
             >
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: horizontalScale(4),
+                  gap: horizontalScale(12),
                 }}
               >
-                <TouchableOpacity onPress={handleLikeUnlike}>
-                  <CustomIcon
-                    Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                    height={24}
-                    width={24}
-                  />
-                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(4),
+                  }}
+                >
+                  <TouchableOpacity onPress={handleLikeUnlike}>
+                    <CustomIcon
+                      Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                      height={24}
+                      width={24}
+                    />
+                  </TouchableOpacity>
 
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
+                  >
+                    {blogDetail?.likesCount}
+                  </CustomText>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(4),
+                  }}
+                >
+                  <TouchableOpacity onPress={handleCommentIconPress}>
+                    <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
+                  </TouchableOpacity>
+
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
+                  >
+                    {blogDetail?.commentsCount}
+                  </CustomText>
+                </View>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  setOpenModal(true);
+                }}
+                style={styles.ShareButton}
+                disabled={sharing}
+              >
+                {/* <CustomIcon
+                  Icon={ICONS.NavigationIcon}
+                  height={24}
+                  width={24}
+                /> */}
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={16}
-                  color={COLORS.appText}
+                  color={COLORS.greyish}
                 >
-                  {blogDetail?.likesCount}
+                  Share Updates
                 </CustomText>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: horizontalScale(4),
-                }}
-              >
-                <TouchableOpacity onPress={handleCommentIconPress}>
-                  <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
-                </TouchableOpacity>
-
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={16}
-                  color={COLORS.appText}
-                >
-                  {blogDetail?.commentsCount}
-                </CustomText>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: horizontalScale(4),
-                }}
-              >
-                <TouchableOpacity onPress={handleShare}>
-                  <CustomIcon Icon={ICONS.shareIcon} height={24} width={24} />
-                </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* COMMENTS */}
@@ -690,7 +789,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               ]}
             >
               <CustomIcon
-                Icon={ICONS.BlackUserIcon}
+                Icon={ICONS.SimpleUserIcon}
                 height={verticalScale(40)}
                 width={horizontalScale(40)}
               />
@@ -703,24 +802,28 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   placeholderTextColor={COLORS.appText}
                   style={styles.commentInput}
                 />
-              </View>
-              {commentText.trim().length > 0 && (
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={handleSendComment}
                   disabled={sendingComment}
                 >
                   {sendingComment ? (
-                    <ActivityIndicator size="small" color="#4c80f2" />
+                    <ActivityIndicator size="small" color={COLORS.darkText} />
                   ) : (
-                    <CustomIcon Icon={ICONS.sendIcon} height={40} width={40} />
+                    <CustomIcon Icon={ICONS.sendIcon} height={24} width={42} />
                   )}
                 </TouchableOpacity>
-              )}
+              </View>
             </View>
           </>
         )}
       </KeyboardAvoidingView>
+      <ShareArtModal
+        visible={OpenModal}
+        onClose={() => setOpenModal(false)}
+        onShare={shareToApp}
+        mediaUrl={blogDetail?.coverPhotoUrl}
+      />
     </View>
   );
 };
@@ -760,7 +863,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0,
     borderColor: COLORS.greyish,
-    paddingHorizontal: horizontalScale(12),
+    paddingLeft: horizontalScale(12),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.light,
     flexDirection: "row",
@@ -849,5 +952,14 @@ const styles = StyleSheet.create({
     left: "40%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  ShareButton: {
+    backgroundColor: COLORS.darkText,
+    paddingHorizontal: horizontalScale(12),
+    paddingVertical: horizontalScale(8),
+    borderRadius: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: horizontalScale(3),
   },
 });

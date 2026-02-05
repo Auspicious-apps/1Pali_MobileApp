@@ -77,7 +77,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
             {/* Badge Info */}
             <View style={styles.badgeSection}>
               <Image
-                source={badgeImage ?? IMAGES.SpeakerBadge}
+                source={badgeImage ?? IMAGES.ChangedSplash}
                 resizeMode="contain"
                 style={styles.badgeImage}
               />
@@ -112,7 +112,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               color={COLORS.darkText}
               style={styles.description}
             >
-              {badgeDescription}
+              {badgeDescription?.replace(/\. /g, ".\n")}
             </CustomText>
           </View>
         </View>

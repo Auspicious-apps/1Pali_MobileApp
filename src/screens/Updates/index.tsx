@@ -51,7 +51,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
 
   const renderItem = ({ item }: { item: Blog }) => (
     <TouchableOpacity
-      style={styles.card}
+      style={styles.weekCard}
       activeOpacity={0.8}
       onPress={() => {
         navigation.navigate("updatesStack", {
@@ -75,20 +75,14 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
         />
       </View>
 
-      <View
-        style={{
-          padding: horizontalScale(12),
-          paddingBottom: verticalScale(16),
-        }}
-      >
+      <View style={{ paddingTop: verticalScale(12) }}>
         <View
           style={{
             paddingVertical: verticalScale(4),
             paddingHorizontal: horizontalScale(8),
             backgroundColor: COLORS.greyBackground,
             alignSelf: "flex-start",
-            borderRadius: 16,
-            marginTop: verticalScale(8),
+            borderRadius: 6,
           }}
         >
           <CustomText
@@ -186,7 +180,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: horizontalScale(20),
+    paddingHorizontal: horizontalScale(16),
   },
   logo: {
     width: horizontalScale(80),
@@ -204,10 +198,17 @@ const styles = StyleSheet.create({
     paddingBottom: verticalScale(20),
     gap: verticalScale(12),
   },
-  card: {
-    borderWidth: 1,
-    borderColor: COLORS.LightGrey,
-    borderRadius: 12,
+  weekCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 30,
+    padding: verticalScale(16),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    elevation: 5,
+    marginTop: verticalScale(12),
+    marginHorizontal: horizontalScale(4),
   },
   imagePlaceholder: {
     backgroundColor: COLORS.greyish,
@@ -223,16 +224,14 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     width: "100%",
-    height: hp(36.5),
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    height: hp(47),
     overflow: "hidden",
   },
   cardImage: {
     width: "100%",
-    height: hp(36.5),
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    height: hp(47),
+    borderRadius: 25,
+    resizeMode: "cover",
   },
   imageLoader: {
     ...StyleSheet.absoluteFillObject,

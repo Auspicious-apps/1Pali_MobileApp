@@ -154,7 +154,7 @@ export default function ShareArtModal({ visible, onClose , onShare , mediaType ,
               key={item.id}
               style={{ alignItems: "center" }}
               activeOpacity={0.8}
-              onPress={() => onShare(item.type)}
+              onPress={() => onShare(item?.type)}
             >
               <CustomIcon Icon={item.icon} width={40} height={40} />
 

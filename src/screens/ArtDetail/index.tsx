@@ -38,6 +38,7 @@ import { useAppDispatch } from "../../redux/store";
 import { addNewArtBadge } from "../../redux/slices/UserSlice";
 import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
 import ShareLib from "react-native-share";
+import PrimaryButton from "../../components/PrimaryButton";
 
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
@@ -64,6 +65,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const likeRequestInProgress = useRef(false);
   const pendingLikeState = useRef<boolean | null>(null);
   const [OpenModal, setOpenModal] = useState(false);
+  const [uiIndex, setUiIndex] = useState(0);
+  const mediaLoadedRef = useRef(false);
 
   const prepareMedia = async () => {
     if (!artDetail) return null;
@@ -385,7 +388,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   useEffect(() => {
     handleArtDetail();
   }, [ArtId]);
-
   if (loading) {
     return (
       <SafeAreaView style={styles.loaderContainer}>
@@ -396,337 +398,438 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <View style={styles.header}>
-          <View style={styles.side}>
-            <TouchableOpacity activeOpacity={0.8}>
-              <CustomIcon
-                Icon={ICONS.backArrow}
-                height={26}
-                width={26}
-                onPress={() => navigation.goBack()}
-              />
-            </TouchableOpacity>
-          </View>
+      {uiIndex === 1 ? (
+        <View style={styles.fullscreenContainer}>
+          <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+            {/* ===== HEADER ===== */}
 
-          <View style={styles.center}>
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={18}
-              color={COLORS.darkText}
-            >
-              {artDetail?.createdAt
-                ?.slice(0, 10)
-                ?.split("-")
-                ?.reverse()
-                ?.join(".")}
-            </CustomText>
-          </View>
+            <View style={styles.fsHeader}>
+              <View style={{ width: horizontalScale(20) }} />
 
-          <View style={styles.side} />
-        </View>
-
-        <KeyboardAvoidingView
-          style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
-        >
-          <FocusResetScrollView
-            bounces={false}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.scrollContent,
-              showCommentInput && { paddingBottom: verticalScale(20) },
-            ]}
-            scrollEventThrottle={16}
-            onScroll={(e) => {
-              const currentY = e.nativeEvent.contentOffset.y;
-              const diff = currentY - lastScrollY.current;
-
-              if (diff > 5) {
-                setShowCommentInput(true);
-                manualOpen.current = false;
-              } else if (diff < -5 && !manualOpen.current) {
-                setShowCommentInput(false);
-              }
-
-              lastScrollY.current = currentY;
-            }}
-          >
-            <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
-              <View style={styles.imageWrapper}>
-                {imageLoading && (
-                  <View style={styles.imageLoader}>
-                    <ActivityIndicator size="small" color={COLORS.darkText} />
-                  </View>
-                )}
-
-                {artDetail?.mediaType === "IMAGE" && (
-                  <Image
-                    source={{ uri: artDetail.mediaUrl }}
-                    style={styles.updateImage}
-                    resizeMode="cover"
-                    onLoadStart={() => setImageLoading(true)}
-                    onLoadEnd={() => setImageLoading(false)}
-                  />
-                )}
-
-                {/* VIDEO */}
-                {artDetail?.mediaType === "VIDEO" && (
-                  <View style={styles.mediaWrapper}>
-                    <Video
-                      source={{ uri: artDetail.mediaUrl }}
-                      poster={artDetail.thumbnailUrl}
-                      posterResizeMode="cover"
-                      resizeMode="cover"
-                      controls
-                      repeat
-                      style={{ width: "100%", height: "100%" }}
-                      onLoadStart={() => setImageLoading(true)}
-                      onLoad={() => setImageLoading(false)}
-                      onError={(e) => console.log("Video error", e)}
-                    />
-                  </View>
-                )}
-
-                {/* Like animation overlay */}
-                <Animated.View
-                  style={[
-                    styles.likeOverlay,
-                    {
-                      transform: [{ scale: likeScale }],
-                      opacity: likeScale,
-                    },
-                  ]}
-                >
-                  <Image
-                    source={IMAGES.ImageLike}
-                    style={{
-                      width: horizontalScale(99),
-                      height: verticalScale(87),
-                      resizeMode: "contain",
-                    }}
-                  />
-                </Animated.View>
-              </View>
-            </TouchableWithoutFeedback>
-            <View
-              style={{
-                justifyContent: "space-between",
-                flexDirection: "row",
-                alignItems: "center",
-                paddingTop: verticalScale(12),
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: horizontalScale(12),
-                }}
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={16}
+                color={COLORS.darkText}
               >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: horizontalScale(2),
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleLikeUnlike}
-                  >
-                    <CustomIcon
-                      Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                      height={24}
-                      width={24}
-                    />
-                  </TouchableOpacity>
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
-                  >
-                    {artDetail?.likesCount}
-                  </CustomText>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: horizontalScale(2),
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleCommentIconPress}
-                  >
-                    <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
-                  </TouchableOpacity>
+                {artDetail?.createdAt
+                  ?.slice(0, 10)
+                  ?.split("-")
+                  ?.reverse()
+                  ?.join(".")}
+              </CustomText>
 
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
-                  >
-                    {artDetail?.commentsCount}
-                  </CustomText>
-                </View>
+              <TouchableOpacity onPress={() => setUiIndex(0)}>
+                <CustomIcon Icon={ICONS.close} width={24} height={24} />
+              </TouchableOpacity>
+            </View>
+
+            {/* ===== IMAGE WRAPPER ===== */}
+
+            <View style={styles.fsImageWrapper}>
+              {artDetail?.mediaType === "VIDEO" ? (
+                <Video
+                  source={{ uri: artDetail.mediaUrl }}
+                  resizeMode="cover"
+                  repeat
+                  controls
+                  style={styles.fsImage}
+                />
+              ) : (
+                <Image
+                  source={{ uri: artDetail?.mediaUrl }}
+                  resizeMode="cover"
+                  style={styles.fsImage}
+                />
+              )}
+
+              {/* ===== FLOATING BUTTONS ===== */}
+
+              <View style={styles.fsFloatingActions}>
+                <TouchableOpacity style={{}} activeOpacity={0.8}>
+                  <CustomIcon
+                    Icon={ICONS.download}
+                    width={horizontalScale(66)}
+                    height={verticalScale(56)}
+                  />
+                </TouchableOpacity>
+                <PrimaryButton
+                  title={" Share Art"}
+                  onPress={() => {
+                    setOpenModal(true);
+                  }}
+                  style={styles.saveButton}
+                />
               </View>
+            </View>
+          </SafeAreaView>
+        </View>
+      ) : (
+        <>
+          <SafeAreaView style={styles.safeArea} edges={["top"]}>
+            <View style={styles.header}>
+              <View style={styles.side}>
+                <TouchableOpacity activeOpacity={0.8}>
+                  <CustomIcon
+                    Icon={ICONS.backArrow}
+                    height={26}
+                    width={26}
+                    onPress={() => navigation.goBack()}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.center}>
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={18}
+                  color={COLORS.darkText}
+                >
+                  {artDetail?.createdAt
+                    ?.slice(0, 10)
+                    ?.split("-")
+                    ?.reverse()
+                    ?.join(".")}
+                </CustomText>
+              </View>
+
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => {
-                  setOpenModal(true);
-                }}
-                style={styles.ShareButton}
-                disabled={sharing}
+                onPress={() => setUiIndex((prev) => (prev === 0 ? 1 : 0))}
               >
-                {/* <CustomIcon
+                <CustomIcon Icon={ICONS.fullScreen} width={24} height={24} />
+              </TouchableOpacity>
+            </View>
+            <KeyboardAvoidingView
+              style={styles.keyboardView}
+              behavior={Platform.OS === "ios" ? "padding" : undefined}
+              keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+            >
+              <FocusResetScrollView
+                bounces={false}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                  styles.scrollContent,
+                  showCommentInput && { paddingBottom: verticalScale(20) },
+                ]}
+                scrollEventThrottle={16}
+                onScroll={(e) => {
+                  const currentY = e.nativeEvent.contentOffset.y;
+                  const diff = currentY - lastScrollY.current;
+
+                  if (diff > 5) {
+                    setShowCommentInput(true);
+                    manualOpen.current = false;
+                  } else if (diff < -5 && !manualOpen.current) {
+                    setShowCommentInput(false);
+                  }
+
+                  lastScrollY.current = currentY;
+                }}
+              >
+                <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+                  <View style={styles.imageWrapper}>
+                    {imageLoading && (
+                      <View style={styles.imageLoader}>
+                        <ActivityIndicator
+                          size="small"
+                          color={COLORS.darkText}
+                        />
+                      </View>
+                    )}
+
+                    {artDetail?.mediaType === "IMAGE" && (
+                      <Image
+                        source={{ uri: artDetail.mediaUrl }}
+                        style={styles.updateImage}
+                        resizeMode="cover"
+                        onLoadStart={() => {
+                          if (!mediaLoadedRef.current) {
+                            setImageLoading(true);
+                          }
+                        }}
+                        onLoadEnd={() => {
+                          mediaLoadedRef.current = true;
+                          setImageLoading(false);
+                        }}
+                      />
+                    )}
+
+                    {/* VIDEO */}
+                    {artDetail?.mediaType === "VIDEO" && (
+                      <View style={styles.mediaWrapper}>
+                        <Video
+                          source={{ uri: artDetail.mediaUrl }}
+                          poster={artDetail.thumbnailUrl}
+                          posterResizeMode="cover"
+                          resizeMode="cover"
+                          controls
+                          repeat
+                          style={{ width: "100%", height: "100%" }}
+                          onLoadStart={() => {
+                            if (!mediaLoadedRef.current) {
+                              setImageLoading(true);
+                            }
+                          }}
+                          onLoad={() => {
+                            mediaLoadedRef.current = true;
+                            setImageLoading(false);
+                          }}
+                          onError={(e) => console.log("Video error", e)}
+                        />
+                      </View>
+                    )}
+
+                    {/* Like animation overlay */}
+                    <Animated.View
+                      style={[
+                        styles.likeOverlay,
+                        {
+                          transform: [{ scale: likeScale }],
+                          opacity: likeScale,
+                        },
+                      ]}
+                    >
+                      <Image
+                        source={IMAGES.ImageLike}
+                        style={{
+                          width: horizontalScale(99),
+                          height: verticalScale(87),
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </Animated.View>
+                  </View>
+                </TouchableWithoutFeedback>
+                <View
+                  style={{
+                    justifyContent: "space-between",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    paddingTop: verticalScale(12),
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(12),
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: horizontalScale(2),
+                      }}
+                    >
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={handleLikeUnlike}
+                      >
+                        <CustomIcon
+                          Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                          height={24}
+                          width={24}
+                        />
+                      </TouchableOpacity>
+                      <CustomText
+                        fontFamily="GabaritoMedium"
+                        fontSize={16}
+                        color={COLORS.appText}
+                      >
+                        {artDetail?.likesCount}
+                      </CustomText>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: horizontalScale(2),
+                      }}
+                    >
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={handleCommentIconPress}
+                      >
+                        <CustomIcon
+                          Icon={ICONS.chatIcon}
+                          height={24}
+                          width={24}
+                        />
+                      </TouchableOpacity>
+
+                      <CustomText
+                        fontFamily="GabaritoMedium"
+                        fontSize={16}
+                        color={COLORS.appText}
+                      >
+                        {artDetail?.commentsCount}
+                      </CustomText>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setOpenModal(true);
+                    }}
+                    style={styles.ShareButton}
+                    disabled={sharing}
+                  >
+                    {/* <CustomIcon
                   Icon={ICONS.NavigationIcon}
                   height={24}
                   width={24}
                 /> */}
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={16}
-                  color={COLORS.greyish}
-                >
-                  Share Art
-                </CustomText>
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                marginTop: verticalScale(16),
-              }}
-            >
-              <CustomText
-                fontFamily="GabaritoSemiBold"
-                fontSize={24}
-                color={COLORS.darkText}
-              >
-                {artDetail?.title}
-              </CustomText>
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={14}
-                color={COLORS.appText}
-              >
-                {artDetail?.artistName}, {artDetail?.artistAge} years old
-              </CustomText>
-            </View>
-            <View
-              onLayout={(e) => {
-                commentsSectionY.current = e.nativeEvent.layout.y;
-              }}
-              style={{
-                marginTop: verticalScale(16),
-                gap: verticalScale(16),
-              }}
-            >
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
-                color={COLORS.darkText}
-              >
-                {artDetail?.description}
-              </CustomText>
-
-              <View
-                style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
-              />
-
-              <FlatList
-                data={comments}
-                keyExtractor={(item) => item.id}
-                renderItem={renderCommentItem}
-                scrollEnabled={false}
-                contentContainerStyle={styles.commentsList}
-                ListEmptyComponent={
-                  !commentsLoading ? (
                     <CustomText
-                      fontFamily="SourceSansMedium"
+                      fontFamily="GabaritoMedium"
                       fontSize={16}
-                      color={COLORS.appText}
-                      style={{ textAlign: "center", marginVertical: 12 }}
+                      color={COLORS.greyish}
                     >
-                      No comments yet
+                      Share Art
                     </CustomText>
-                  ) : null
-                }
-              />
-              {hasNext && (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => fetchArtComments(page + 1)}
-                  disabled={commentsLoading}
-                >
-                  {commentsLoading ? (
-                    <ActivityIndicator color={COLORS.darkText} />
-                  ) : (
-                    <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={16}
-                      color={COLORS.darkGreen}
-                      style={{ textAlign: "center" }}
-                    >
-                      Load more comments
-                    </CustomText>
-                  )}
-                </TouchableOpacity>
-              )}
-            </View>
-          </FocusResetScrollView>
-          {showCommentInput && (
-            <>
-              <View
-                style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
-              />
-              <View style={styles.commentInputRow}>
-                <CustomIcon
-                  Icon={ICONS.BlackUserIcon}
-                  height={verticalScale(40)}
-                  width={horizontalScale(40)}
-                />
-                <View style={styles.commentInputWrapper}>
-                  <TextInput
-                    ref={commentInputRef}
-                    value={commentText}
-                    onChangeText={setCommentText}
-                    placeholder="Add a comment..."
-                    placeholderTextColor={COLORS.appText}
-                    style={styles.commentInput}
-                  />
-                </View>
-                {commentText.trim().length > 0 && (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleSendComment}
-                    disabled={sendingComment}
-                  >
-                    {sendingComment ? (
-                      <ActivityIndicator size="small" color="#4c80f2" />
-                    ) : (
-                      <CustomIcon
-                        Icon={ICONS.sendIcon}
-                        height={40}
-                        width={40}
-                      />
-                    )}
                   </TouchableOpacity>
-                )}
-              </View>
-            </>
-          )}
-        </KeyboardAvoidingView>
-        <ShareArtModal
-          visible={OpenModal}
-          onClose={() => setOpenModal(false)}
-          onShare={shareToApp}
-          mediaUrl={artDetail?.mediaUrl}
-          mediaType={artDetail?.mediaType}
-        />
-      </SafeAreaView>
+                </View>
+                <View
+                  style={{
+                    marginTop: verticalScale(16),
+                  }}
+                >
+                  <CustomText
+                    fontFamily="GabaritoSemiBold"
+                    fontSize={24}
+                    color={COLORS.darkText}
+                  >
+                    {artDetail?.title}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={14}
+                    color={COLORS.appText}
+                  >
+                    {artDetail?.artistName}, {artDetail?.artistAge} years old
+                  </CustomText>
+                </View>
+                <View
+                  onLayout={(e) => {
+                    commentsSectionY.current = e.nativeEvent.layout.y;
+                  }}
+                  style={{
+                    marginTop: verticalScale(16),
+                    gap: verticalScale(16),
+                  }}
+                >
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={14}
+                    color={COLORS.darkText}
+                  >
+                    {artDetail?.description}
+                  </CustomText>
+
+                  <View
+                    style={{
+                      borderBottomWidth: 1,
+                      borderColor: COLORS.greyish,
+                    }}
+                  />
+
+                  <FlatList
+                    data={comments}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderCommentItem}
+                    scrollEnabled={false}
+                    contentContainerStyle={styles.commentsList}
+                    ListEmptyComponent={
+                      !commentsLoading ? (
+                        <CustomText
+                          fontFamily="SourceSansMedium"
+                          fontSize={16}
+                          color={COLORS.appText}
+                          style={{ textAlign: "center", marginVertical: 12 }}
+                        >
+                          No comments yet
+                        </CustomText>
+                      ) : null
+                    }
+                  />
+                  {hasNext && (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => fetchArtComments(page + 1)}
+                      disabled={commentsLoading}
+                    >
+                      {commentsLoading ? (
+                        <ActivityIndicator color={COLORS.darkText} />
+                      ) : (
+                        <CustomText
+                          fontFamily="SourceSansRegular"
+                          fontSize={16}
+                          color={COLORS.darkGreen}
+                          style={{ textAlign: "center" }}
+                        >
+                          Load more comments
+                        </CustomText>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </FocusResetScrollView>
+              {showCommentInput && (
+                <>
+                  <View
+                    style={{
+                      borderBottomWidth: 1,
+                      borderColor: COLORS.greyish,
+                    }}
+                  />
+                  <View style={styles.commentInputRow}>
+                    <CustomIcon
+                      Icon={ICONS.SimpleUserIcon}
+                      height={verticalScale(40)}
+                      width={horizontalScale(40)}
+                    />
+                    <View style={styles.commentInputWrapper}>
+                      <TextInput
+                        ref={commentInputRef}
+                        value={commentText}
+                        onChangeText={setCommentText}
+                        placeholder="Add a comment..."
+                        placeholderTextColor={COLORS.appText}
+                        style={styles.commentInput}
+                      />
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={handleSendComment}
+                        disabled={sendingComment}
+                      >
+                        {sendingComment ? (
+                          <ActivityIndicator
+                            size="small"
+                            color={COLORS.darkText}
+                          />
+                        ) : (
+                          <CustomIcon
+                            Icon={ICONS.sendIcon}
+                            height={24}
+                            width={24}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </>
+              )}
+            </KeyboardAvoidingView>
+          </SafeAreaView>
+        </>
+      )}
+      <ShareArtModal
+        visible={OpenModal}
+        onClose={() => setOpenModal(false)}
+        onShare={shareToApp}
+        mediaUrl={artDetail?.mediaUrl}
+        mediaType={artDetail?.mediaType}
+      />
     </View>
   );
 };
@@ -744,7 +847,6 @@ const styles = StyleSheet.create({
   },
 
   side: {
-    width: horizontalScale(40),
     alignItems: "flex-start",
   },
   center: {
@@ -787,7 +889,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.greyish,
-    paddingHorizontal: horizontalScale(16),
+    paddingRight: horizontalScale(8),
+    paddingLeft: horizontalScale(16),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.light,
     flexDirection: "row",
@@ -799,7 +902,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
-    width: "80%",
+    width: "88%",
   },
   commentsList: {
     paddingBottom: verticalScale(8),
@@ -859,5 +962,43 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: horizontalScale(3),
+  },
+
+  fullscreenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+
+  fsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderColor: COLORS.greyish,
+  },
+
+  fsImageWrapper: {
+    flex: 1,
+  },
+
+  fsImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+
+  fsFloatingActions: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    paddingHorizontal: horizontalScale(16),
+    gap: verticalScale(8),
+  },
+  saveButton: {
+    flex: 1,
   },
 });
