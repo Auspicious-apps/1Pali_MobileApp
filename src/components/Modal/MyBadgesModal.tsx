@@ -46,7 +46,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={closeModal}
       statusBarTranslucent={Platform.OS === "android"}
     >
@@ -116,8 +116,8 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
                       </CustomText>
 
                       <CustomText
-                        fontFamily="SourceSansRegular"
-                        fontSize={12}
+                        fontFamily="SourceSansMedium"
+                        fontSize={14}
                         color="#1D222B90"
                         numberOfLines={2}
                       >

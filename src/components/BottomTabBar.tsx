@@ -1,8 +1,10 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import React, { FC, useCallback, useRef } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
+  Keyboard,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -48,6 +50,26 @@ const tabs: Tab[] = [
 ];
 const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const { state, navigation } = props;
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardVisible(true),
+    );
+
+    const hideSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  
 
   // Map detail/inner routes to their parent tab for highlighting
   const routeToTab: Record<string, string> = {
@@ -67,6 +89,8 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const currentRoute = state.routes[state.index].name;
   const activeTab = routeToTab[currentRoute] || currentRoute;
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+
 
   const handleTabPress = useCallback(
     (tab: Tab) => {
@@ -98,12 +122,12 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
         >
           <CustomIcon
             Icon={isActive ? item.activIcon : item.icon}
-            height={20}
-            width={20}
+            height={24}
+            width={24}
           />
           <CustomText
             fontSize={12}
-            fontWeight={isActive ? "500" : "400"}
+            fontWeight={isActive ? "500" : "500"}
             fontFamily="GabaritoRegular"
             color={isActive ? "rgba(0, 0, 0, 1)" : "rgba(165, 169, 190, 1)"}
           >
@@ -115,7 +139,14 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
     [handleTabPress, activeTab, scaleValue],
   );
   return (
-    <View style={styles.mainContainer}>
+    <View
+      style={[
+        styles.mainContainer,
+        keyboardVisible && {
+          display: Platform.OS === "android" ? "none" : undefined,
+        },
+      ]}
+    >
       <View style={styles.container}>
         <View style={styles.tabWrapper}>
           <FlatList
@@ -123,6 +154,10 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
             renderItem={renderTab}
             keyExtractor={(item) => item.route}
             horizontal
+            scrollEnabled={false}
+            bounces={false}
+            alwaysBounceHorizontal={false}
+            overScrollMode="never"
             showsHorizontalScrollIndicator={false}
             style={[styles.tabBar, {}]}
             contentContainerStyle={styles.tabContent}

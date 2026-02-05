@@ -36,6 +36,9 @@ import Video from "react-native-video";
 import RNFS from "react-native-fs";
 import { useAppDispatch } from "../../redux/store";
 import { addNewArtBadge } from "../../redux/slices/UserSlice";
+import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
+import ShareLib from "react-native-share";
+
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -59,6 +62,67 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const lastScrollY = useRef(0);
   const manualOpen = useRef(false);
   const likeRequestInProgress = useRef(false);
+  const pendingLikeState = useRef<boolean | null>(null);
+  const [OpenModal, setOpenModal] = useState(false);
+
+  const prepareMedia = async () => {
+    if (!artDetail) return null;
+
+    let uri = artDetail.mediaUrl;
+
+    if (uri.startsWith("http")) {
+      const ext = artDetail.mediaType === "VIDEO" ? ".mp4" : ".jpg";
+
+      const path = `${RNFS.CachesDirectoryPath}/art-${ArtId}${ext}`;
+
+      const exists = await RNFS.exists(path);
+
+      if (!exists) {
+        await RNFS.downloadFile({
+          fromUrl: uri,
+          toFile: path,
+        }).promise;
+      }
+
+      uri = "file://" + path;
+    }
+
+    return uri;
+  };
+
+  const shareToApp = async (platform: ShareType) => {
+    try {
+      const uri = await prepareMedia();
+      if (!uri) return;
+
+      const baseOptions = {
+        url: uri,
+        message: artDetail?.title || "",
+        type: artDetail?.mediaType === "VIDEO" ? "video/mp4" : "image/jpeg",
+      };
+
+      if (platform === "more" || platform === "message") {
+        await ShareLib.open(baseOptions);
+        return;
+      }
+
+      const socialMap = {
+        instagram: ShareLib.Social.INSTAGRAM,
+        facebook: ShareLib.Social.FACEBOOK,
+        whatsapp: ShareLib.Social.WHATSAPP,
+      };
+
+      await ShareLib.shareSingle({
+        ...baseOptions,
+        social: socialMap[platform],
+      });
+
+      console.log("Shared →", platform);
+    } catch (err) {
+      console.log("Share failed:", err);
+    }
+  };
+
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -160,45 +224,44 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     }, 100);
   };
 
-  const handleLikeUnlike = async () => {
-    if (likeRequestInProgress.current) return;
+ const handleLikeUnlike = async () => {
+   setIsLiked((prevLiked) => {
+     const nextLiked = !prevLiked;
 
-    likeRequestInProgress.current = true;
+     setArtDetail((prev) =>
+       prev
+         ? {
+             ...prev,
+             likesCount: prev.likesCount + (nextLiked ? 1 : -1),
+           }
+         : prev,
+     );
 
-    const nextLiked = !isLiked;
+     pendingLikeState.current = nextLiked;
+     return nextLiked;
+   });
 
-    setIsLiked(nextLiked);
-    setArtDetail((prev) =>
-      prev
-        ? {
-            ...prev,
-            likesCount: prev.likesCount + (nextLiked ? 1 : -1),
-          }
-        : prev,
-    );
+   if (likeRequestInProgress.current) return;
 
-    try {
-      const response = await postData<LikeUnlikeArtResponse>(
-        `${ENDPOINTS.LikeUnlikeArt}/${ArtId}/like`,
-      );
+   likeRequestInProgress.current = true;
 
-      console.log(response);
-    } catch (error) {
-      console.log("Like/Unlike error", error);
+   try {
+     while (pendingLikeState.current !== null) {
+       const desiredState = pendingLikeState.current;
+       pendingLikeState.current = null;
 
-      setIsLiked(!nextLiked);
-      setArtDetail((prev) =>
-        prev
-          ? {
-              ...prev,
-              likesCount: prev.likesCount + (nextLiked ? -1 : 1),
-            }
-          : prev,
-      );
-    } finally {
-      likeRequestInProgress.current = false;
-    }
-  };
+       await postData<LikeUnlikeArtResponse>(
+         `${ENDPOINTS.LikeUnlikeArt}/${ArtId}/like`,
+       );
+     }
+   } catch (error) {
+     // optional rollback — or refetch count
+     console.log("Like sync error", error);
+   } finally {
+     likeRequestInProgress.current = false;
+   }
+ };
+
 
   const triggerLikeAnimation = () => {
     likeScale.setValue(0);
@@ -339,8 +402,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             <TouchableOpacity activeOpacity={0.8}>
               <CustomIcon
                 Icon={ICONS.backArrow}
-                height={24}
-                width={24}
+                height={26}
+                width={26}
                 onPress={() => navigation.goBack()}
               />
             </TouchableOpacity>
@@ -365,24 +428,25 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
         >
           <FocusResetScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[
+              styles.scrollContent,
+              showCommentInput && { paddingBottom: verticalScale(20) },
+            ]}
             scrollEventThrottle={16}
             onScroll={(e) => {
               const currentY = e.nativeEvent.contentOffset.y;
-              const isScrollingDown = currentY > lastScrollY.current;
+              const diff = currentY - lastScrollY.current;
 
-              if (isScrollingDown && currentY > 250) {
+              if (diff > 5) {
                 setShowCommentInput(true);
                 manualOpen.current = false;
-              }
-
-              if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
+              } else if (diff < -5 && !manualOpen.current) {
                 setShowCommentInput(false);
               }
 
@@ -446,12 +510,11 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 </Animated.View>
               </View>
             </TouchableWithoutFeedback>
-
             <View
               style={{
+                justifyContent: "space-between",
                 flexDirection: "row",
                 alignItems: "center",
-                gap: horizontalScale(12),
                 paddingTop: verticalScale(12),
               }}
             >
@@ -459,51 +522,77 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: horizontalScale(2),
+                  gap: horizontalScale(12),
                 }}
               >
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleLikeUnlike}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(2),
+                  }}
                 >
-                  <CustomIcon
-                    Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                    height={24}
-                    width={24}
-                  />
-                </TouchableOpacity>
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={16}
-                  color={COLORS.appText}
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleLikeUnlike}
+                  >
+                    <CustomIcon
+                      Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                      height={24}
+                      width={24}
+                    />
+                  </TouchableOpacity>
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
+                  >
+                    {artDetail?.likesCount}
+                  </CustomText>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(2),
+                  }}
                 >
-                  {artDetail?.likesCount}
-                </CustomText>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: horizontalScale(2),
-                }}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleCommentIconPress}
-                >
-                  <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleCommentIconPress}
+                  >
+                    <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
+                  </TouchableOpacity>
 
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
+                  >
+                    {artDetail?.commentsCount}
+                  </CustomText>
+                </View>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  setOpenModal(true);
+                }}
+                style={styles.ShareButton}
+                disabled={sharing}
+              >
+                {/* <CustomIcon
+                  Icon={ICONS.NavigationIcon}
+                  height={24}
+                  width={24}
+                /> */}
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={16}
-                  color={COLORS.appText}
+                  color={COLORS.greyish}
                 >
-                  {artDetail?.commentsCount}
+                  Share Art
                 </CustomText>
-              </View>
-              <TouchableOpacity activeOpacity={0.8} onPress={handleShare}>
-                <CustomIcon Icon={ICONS.shareIcon} height={24} width={24} />
               </TouchableOpacity>
             </View>
             <View
@@ -553,6 +642,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 renderItem={renderCommentItem}
                 scrollEnabled={false}
                 contentContainerStyle={styles.commentsList}
+                ListEmptyComponent={
+                  !commentsLoading ? (
+                    <CustomText
+                      fontFamily="SourceSansMedium"
+                      fontSize={16}
+                      color={COLORS.appText}
+                      style={{ textAlign: "center", marginVertical: 12 }}
+                    >
+                      No comments yet
+                    </CustomText>
+                  ) : null
+                }
               />
               {hasNext && (
                 <TouchableOpacity
@@ -583,7 +684,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               />
               <View style={styles.commentInputRow}>
                 <CustomIcon
-                  Icon={ICONS.GreyUserIcon}
+                  Icon={ICONS.BlackUserIcon}
                   height={verticalScale(40)}
                   width={horizontalScale(40)}
                 />
@@ -596,6 +697,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     placeholderTextColor={COLORS.appText}
                     style={styles.commentInput}
                   />
+                </View>
+                {commentText.trim().length > 0 && (
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={handleSendComment}
@@ -604,20 +707,25 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     {sendingComment ? (
                       <ActivityIndicator size="small" color="#4c80f2" />
                     ) : (
-                      <CustomText
-                        fontFamily="GabaritoSemiBold"
-                        fontSize={16}
-                        color="#4c80f2"
-                      >
-                        Send
-                      </CustomText>
+                      <CustomIcon
+                        Icon={ICONS.sendIcon}
+                        height={40}
+                        width={40}
+                      />
                     )}
                   </TouchableOpacity>
-                </View>
+                )}
               </View>
             </>
           )}
         </KeyboardAvoidingView>
+        <ShareArtModal
+          visible={OpenModal}
+          onClose={() => setOpenModal(false)}
+          onShare={shareToApp}
+          mediaUrl={artDetail?.mediaUrl}
+          mediaType={artDetail?.mediaType}
+        />
       </SafeAreaView>
     </View>
   );
@@ -742,5 +850,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: "hidden",
     backgroundColor: COLORS.greyish,
+  },
+  ShareButton: {
+    backgroundColor: COLORS.darkText,
+    paddingHorizontal: horizontalScale(12),
+    paddingVertical: horizontalScale(8),
+    borderRadius: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: horizontalScale(3),
   },
 });

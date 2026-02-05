@@ -59,15 +59,12 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
       const data = response?.data?.data?.receipts || [];
       setReceipts(data);
 
-      // Populate years (only once or when needed)
       if (years.length === 0) {
-        let yrs = [...new Set(data.map((r) => dayjs(r.date).year()))];
-        if (!yrs.includes(currentYear)) yrs.push(currentYear);
-        for (let i = 1; i <= 5; i++) {
-          const py = currentYear - i;
-          if (!yrs.includes(py)) yrs.push(py);
-        }
-        yrs.sort((a, b) => b - a);
+        const startYear = 2026;
+        const totalYears = 6;
+
+        const yrs = Array.from({ length: totalYears }, (_, i) => startYear + i);
+
         setYears(yrs);
       }
     } catch (error) {
@@ -164,10 +161,10 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
           <View style={styles.header}>
             <View style={styles.side}>
               <TouchableOpacity
-                onPress={() => navigation.navigate("account")}
+                onPress={() => navigation.goBack()}
                 activeOpacity={0.8}
               >
-                <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
+                <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
               </TouchableOpacity>
             </View>
             <View style={styles.center}>

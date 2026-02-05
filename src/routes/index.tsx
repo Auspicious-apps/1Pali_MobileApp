@@ -110,6 +110,7 @@ export default function Routes() {
       <Tabs.Navigator
         screenOptions={{
           headerShown: false,
+          tabBarHideOnKeyboard: true,
         }}
         tabBar={(props) => <BottomTabBar {...props} />}
       >

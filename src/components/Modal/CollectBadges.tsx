@@ -157,7 +157,7 @@ const CollectBadges = () => {
   );
 
   return (
-    <Modal visible={isVisible} transparent animationType="fade">
+    <Modal visible={isVisible} transparent animationType="slide">
       <View style={styles.overlay}>
         <BlurView
           style={StyleSheet.absoluteFill}

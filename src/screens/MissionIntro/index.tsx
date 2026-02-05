@@ -105,7 +105,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             setClaimedNumber(signInResponse.data?.data?.user?.assignedNumber),
           );
 
-          navigation.navigate("MainStack", {
+          navigation.replace("MainStack", {
             screen: "tabs",
             params: {
               screen: "home",
@@ -174,7 +174,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
 
-            navigation.navigate("MainStack", {
+            navigation.replace("MainStack", {
               screen: "tabs",
               params: {
                 screen: "home",

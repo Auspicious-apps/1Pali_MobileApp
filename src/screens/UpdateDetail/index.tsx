@@ -1,15 +1,18 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
   Dimensions,
   FlatList,
   Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   Share,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import FONTS from "../../assets/fonts";
@@ -31,6 +34,7 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { ShareBlogResponse } from "../../service/ApiResponses/ShareBlogResponse";
 import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
 import RNFS from "react-native-fs";
+import IMAGES from "../../assets/Images";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const { blogId } = route.params;
@@ -53,6 +57,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [sliderLoading, setSliderLoading] = useState<Record<number, boolean>>(
     {},
   );
+   const lastTap = useRef<number>(0);
+   const likeScale = useRef(new Animated.Value(0)).current;
+   const likeRequestInProgress = useRef(false);
+   const pendingLikeState = useRef<boolean | null>(null);
+
 
   const timeAgo = (date?: string) => {
     if (!date) return "";
@@ -136,23 +145,72 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   };
 
   const handleLikeUnlike = async () => {
+    const nextLiked = !isLiked;
+
+    setIsLiked(nextLiked);
+    setBlogDetail((prev) =>
+      prev
+        ? {
+            ...prev,
+            likesCount: prev.likesCount + (nextLiked ? 1 : -1),
+          }
+        : prev,
+    );
+
+    if (likeRequestInProgress.current) return;
+
+    likeRequestInProgress.current = true;
+
     try {
-      const response = await postData<LikeUnlikeBlogResponse>(
+      await postData<LikeUnlikeBlogResponse>(
         `${ENDPOINTS.LikeUnlikeBlog}/${blogId}/like`,
       );
-
-      if (response?.data?.data?.action) {
-        setIsLiked(response?.data?.data?.isLiked);
-        setBlogDetail((prev) =>
-          prev
-            ? { ...prev, likesCount: response?.data?.data?.likesCount }
-            : prev,
-        );
-      }
     } catch (error) {
+      setIsLiked(!nextLiked);
+      setBlogDetail((prev) =>
+        prev
+          ? {
+              ...prev,
+              likesCount: prev.likesCount + (nextLiked ? -1 : 1),
+            }
+          : prev,
+      );
       console.log("Like/Unlike error", error);
+    } finally {
+      likeRequestInProgress.current = false;
     }
   };
+
+  const triggerLikeAnimation = () => {
+    likeScale.setValue(0);
+
+    Animated.sequence([
+      Animated.spring(likeScale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+      Animated.timing(likeScale, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleImageDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+
+    if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
+      if (!isLiked) {
+        handleLikeUnlike();
+        triggerLikeAnimation();
+      }
+    }
+
+    lastTap.current = now;
+  };
+
 
   const handleSendComment = async () => {
     if (!commentText.trim()) return;
@@ -350,9 +408,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     <View style={styles.container}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <FocusResetScrollView
+        <ScrollView
           bounces={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -378,43 +436,64 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.8}
             style={{
               position: "absolute",
-              top: verticalScale(70),
+              top:
+                Platform.OS === "android"
+                  ? verticalScale(20)
+                  : verticalScale(60),
               left: horizontalScale(20),
               zIndex: 10,
-              borderWidth: 2,
-              borderColor: COLORS.white,
-              borderRadius: 10,
             }}
             onPress={() => navigation.goBack()}
           >
-            <CustomIcon Icon={ICONS.WhiteBackArrow} height={24} width={24} />
+            <CustomIcon Icon={ICONS.WhiteBackArrow} height={26} width={26} />
           </TouchableOpacity>
 
           {/* IMAGE */}
-          <View>
-            {imageLoading && (
-              <View
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  height: hp(42.9),
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: COLORS.greyish,
-                  zIndex: 1,
-                }}
+          <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+            <View>
+              {imageLoading && (
+                <View
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: hp(42.9),
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: COLORS.greyish,
+                    zIndex: 1,
+                  }}
+                >
+                  <ActivityIndicator size="small" color={COLORS.darkText} />
+                </View>
+              )}
+              <Image
+                source={{ uri: blogDetail?.coverPhotoUrl }}
+                style={styles.updateImage}
+                resizeMode="cover"
+                onLoadStart={() => setImageLoading(true)}
+                onLoadEnd={() => setImageLoading(false)}
+              />
+              {/* Like animation overlay */}
+              <Animated.View
+                style={[
+                  styles.likeOverlay,
+                  {
+                    transform: [{ scale: likeScale }],
+                    opacity: likeScale,
+                  },
+                ]}
               >
-                <ActivityIndicator size="small" color={COLORS.darkText} />
-              </View>
-            )}
-            <Image
-              source={{ uri: blogDetail?.coverPhotoUrl }}
-              style={styles.updateImage}
-              resizeMode="cover"
-              onLoadStart={() => setImageLoading(true)}
-              onLoadEnd={() => setImageLoading(false)}
-            />
-          </View>
+                <Image
+                  source={IMAGES.ImageLike}
+                  style={{
+                    width: horizontalScale(99),
+                    height: verticalScale(87),
+                    resizeMode: "contain",
+                  }}
+                />
+              </Animated.View>
+            </View>
+          </TouchableWithoutFeedback>
 
           {/* HEADER */}
           <View
@@ -471,6 +550,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                       Dimensions.get("window").width,
                   );
                   setActiveIndex(index);
+                }}
+                contentContainerStyle={{
+                  gap: horizontalScale(1),
                 }}
               />
 
@@ -558,6 +640,18 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               renderItem={renderCommentItem}
               scrollEnabled={false}
               contentContainerStyle={styles.commentsList}
+              ListEmptyComponent={
+                !commentsLoading ? (
+                  <CustomText
+                    fontFamily="SourceSansMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
+                    style={{ textAlign: "center", marginVertical: 12 }}
+                  >
+                    No comments yet
+                  </CustomText>
+                ) : null
+              }
             />
             {hasNext && (
               <TouchableOpacity
@@ -580,15 +674,23 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               </TouchableOpacity>
             )}
           </View>
-        </FocusResetScrollView>
+        </ScrollView>
         {showCommentInput && (
           <>
             <View
               style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
             />
-            <View style={styles.commentInputRow}>
+            <View
+              style={[
+                styles.commentInputRow,
+                Platform.OS === "android" &&
+                  Platform.Version > 33 && {
+                    paddingBottom: verticalScale(24),
+                  },
+              ]}
+            >
               <CustomIcon
-                Icon={ICONS.GreyUserIcon}
+                Icon={ICONS.BlackUserIcon}
                 height={verticalScale(40)}
                 width={horizontalScale(40)}
               />
@@ -601,6 +703,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   placeholderTextColor={COLORS.appText}
                   style={styles.commentInput}
                 />
+              </View>
+              {commentText.trim().length > 0 && (
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={handleSendComment}
@@ -609,16 +713,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   {sendingComment ? (
                     <ActivityIndicator size="small" color="#4c80f2" />
                   ) : (
-                    <CustomText
-                      fontFamily="GabaritoSemiBold"
-                      fontSize={16}
-                      color="#4c80f2"
-                    >
-                      Send
-                    </CustomText>
+                    <CustomIcon Icon={ICONS.sendIcon} height={40} width={40} />
                   )}
                 </TouchableOpacity>
-              </View>
+              )}
             </View>
           </>
         )}
@@ -708,7 +806,7 @@ const styles = StyleSheet.create({
     width: wp(100) - verticalScale(40),
   },
   image: {
-    width: wp(100) - verticalScale(40),
+    width: wp(96) - verticalScale(42),
     height: hp(44),
     resizeMode: "cover",
     borderRadius: 20,
@@ -744,5 +842,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.greyish,
     zIndex: 1,
     borderRadius: 20,
+  },
+  likeOverlay: {
+    position: "absolute",
+    top: "30%",
+    left: "40%",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

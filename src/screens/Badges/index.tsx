@@ -113,7 +113,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 style={{ padding: horizontalScale(8) }}
                 activeOpacity={0.8}
               >
-                <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
+                <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
               </TouchableOpacity>
             </View>
 
@@ -277,8 +277,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                     <Image
                       source={{ uri: badge?.iconPngUrl }}
                       style={{
-                        width: horizontalScale(66),
-                        height: verticalScale(66),
+                        width: horizontalScale(75),
+                        height: verticalScale(75),
                         resizeMode: "contain",
                       }}
                     />
@@ -286,15 +286,15 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                       <View style={{ position: "absolute", opacity: 0.8 }}>
                         <CustomIcon
                           Icon={ICONS.InnerLockIcon}
-                          height={verticalScale(56)}
-                          width={horizontalScale(56)}
+                          height={verticalScale(66)}
+                          width={horizontalScale(66)}
                         />
                       </View>
                     )}
                   </View>
                   <View style={{ alignItems: "center" }}>
                     <CustomText
-                      fontFamily="GabaritoSemiBold"
+                      fontFamily="GabaritoRegular"
                       fontSize={14}
                       color={COLORS.darkText}
                       style={{ textAlign: "center" }}
@@ -303,7 +303,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                     </CustomText>
                     <CustomText
                       fontFamily="SourceSansRegular"
-                      fontSize={12}
+                      fontSize={14}
                       color={COLORS.appText}
                       style={{ textAlign: "center" }}
                     >

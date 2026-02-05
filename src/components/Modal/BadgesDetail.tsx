@@ -33,17 +33,11 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   badgeDescription,
 }) => {
   const closeModal = () => setIsVisible(false);
-
-  const displayLabel = badgeLabel ?? "Seed";
-  const displaySubtitle = badgeMonths
-    ? `Awarded for supporting for ${badgeMonths}`
-    : "Awarded for supporting for 1 month";
-
   return (
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={closeModal}
     >
       {/* 🔹 Blur Background */}
@@ -94,16 +88,16 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                   fontSize={18}
                   color={COLORS.darkText}
                 >
-                  {displayLabel}
+                  {badgeLabel}
                 </CustomText>
 
                 <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={14}
+                  fontFamily="SourceSansRegular"
+                  fontSize={15}
                   color={"#1D222B80"}
                   style={{ textAlign: "center" }}
                 >
-                  {displaySubtitle}
+                  {badgeMonths}
                 </CustomText>
               </View>
             </View>

@@ -422,16 +422,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 : `Number #${claimedNumber} reserved for ${reservationSeconds}s`}
             </CustomText>
           </View>
-          {isExpired && (
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={16}
-              color={COLORS.redColor}
-              style={{ textAlign: "center", marginTop: 8 }}
-            >
-              Number expired
-            </CustomText>
-          )}
         </View>
 
         {/* Payment Plan section  */}

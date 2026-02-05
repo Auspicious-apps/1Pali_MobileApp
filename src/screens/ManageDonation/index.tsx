@@ -94,17 +94,19 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => {
-          navigation.navigate("account");
-        }}
-      >
-        <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
-      </TouchableOpacity>
-      {/* Logo */}
-      <View style={styles.logoWrapper}>
+      {/* HEADER */}
+      <View style={styles.headerLogo}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+        </TouchableOpacity>
+
         <Image source={IMAGES.LogoText} style={styles.logo} />
+
+        <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.headingContainer}>
@@ -142,7 +144,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             style={{
               color: COLORS.appText,
               textAlign: "center",
-              marginTop: verticalScale(24),
+              marginTop: verticalScale(32),
             }}
           >
             Current Selection:
@@ -224,14 +226,18 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             <View style={styles.divider} />
 
             {/* Footer */}
-            {/* <View style={styles.footer}>
+            <View style={styles.footer}>
               <View style={styles.trialRow}>
                 <CustomText
-                  fontFamily="SourceSansRegular"
-                  fontSize={15}
+                  fontFamily="SourceSansMedium"
+                  fontSize={14}
                   style={{ color: COLORS.appText }}
                 >
-                  Sure, I’ll cover the $0.43 processing fee
+                  {user?.cancelAtPeriodEnd
+                    ? "Your subscription will end on " +
+                      new Date(user?.currentPeriodEnd).toLocaleDateString()
+                    : "Your next billing date is " +
+                      new Date(user?.currentPeriodEnd!).toLocaleDateString()}
                 </CustomText>
               </View>
 
@@ -243,35 +249,29 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 trackColorOn={[COLORS.darkGreen, COLORS.darkGreen]}
                 trackColorOff={[COLORS.grey, COLORS.grey]}
               />
-            </View> */}
-
-            <View style={{ marginTop: verticalScale(10), ...styles.row }}>
-              <CustomText
-                fontFamily="SourceSansBold"
-                fontSize={14}
-                style={{ color: COLORS.appText }}
-              >
-                {user?.cancelAtPeriodEnd
-                  ? "Your subscription will end on " +
-                    new Date(user?.currentPeriodEnd).toLocaleDateString()
-                  : "Your next billing date is " +
-                    new Date(user?.currentPeriodEnd!).toLocaleDateString()}
-              </CustomText>
             </View>
-          </View>
 
-          {/* Save Button */}
-          <PrimaryButton
-            title={
-              selectedPlan === user?.stripePriceId
-                ? "Current Subscription"
-                : "Update Subscription"
-            }
-            onPress={handlePlanChange}
-            disabled={selectedPlan === user?.stripePriceId}
-            style={styles.saveButton}
-            isLoading={isUpdatingPlan}
-          />
+            {/* Save Button */}
+            <PrimaryButton
+              title={
+                selectedPlan === user?.stripePriceId
+                  ? "Current donation"
+                  : "Update donation"
+              }
+              onPress={handlePlanChange}
+              disabled={selectedPlan === user?.stripePriceId}
+              style={styles.saveButton}
+              isLoading={isUpdatingPlan}
+            />
+            <CustomText
+              fontFamily="GabaritoMedium"
+              fontSize={16}
+              color={COLORS.darkRed}
+              style={{ textAlign: "center", marginTop: verticalScale(12) }}
+            >
+              Cancel Monthly Donation
+            </CustomText>
+          </View>
         </>
       )}
     </SafeAreaView>
@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: horizontalScale(96),
-    height: verticalScale(56),
+    width: horizontalScale(80),
+    height: verticalScale(70),
     resizeMode: "contain",
   },
 
@@ -390,6 +390,12 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(8),
   },
   saveButton: {
-    marginTop: verticalScale(24),
+    width: "100%",
+    marginTop: verticalScale(12),
+  },
+  headerLogo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: verticalScale(16),
   },
 });

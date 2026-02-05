@@ -22,6 +22,7 @@ const COLORS = {
   greenLight: "#E3FCE1",
   greenish: "#136F0B",
   light: "#ECEDF3",
+  darkRed: "#CF0311",
 };
 
 export default COLORS;

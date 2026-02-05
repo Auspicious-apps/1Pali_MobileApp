@@ -54,6 +54,14 @@ import currncyDoller from "./CurrencyDoller.svg";
 import InnerLockIcon from "./InnerLockIcon.svg";
 import GreyUserIcon from "./GreyUserIcon.svg";
 import ArrowLeft from "./ArrowLeft.svg";
+import sendIcon from "./SendIcon.svg";
+import BlackUserIcon from "./BlackUserIcon.svg";
+import NavigationIcon from "./navigation.svg";
+import InstagramIcon from "./instagram.svg";
+import FacebookIcon from "./Facebook.svg";
+import WhatsAppIcon from "./whatsapp.svg";
+import MessageIcon from "./messages.svg";
+import MoreIcon from "./MoreIcon.svg";
  
 const ICONS = {
   diceIcon,
@@ -112,6 +120,14 @@ const ICONS = {
   InnerLockIcon,
   GreyUserIcon,
   ArrowLeft,
+  sendIcon,
+  BlackUserIcon,
+  NavigationIcon,
+  InstagramIcon,
+  FacebookIcon,
+  WhatsAppIcon,
+  MessageIcon,
+  MoreIcon,
 };
 
 export default ICONS;

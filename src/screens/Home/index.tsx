@@ -69,21 +69,21 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           {growthBadges && growthBadges.length > 0 && (
             <View>
               <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={14}
+                fontFamily="GabaritoMedium"
+                fontSize={18}
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
                 {growthBadges[0]?.badge?.name}
               </CustomText>
-              <CustomText
+              {/* <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={14}
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
                 {growthBadges[0]?.badge?.description}
-              </CustomText>
+              </CustomText> */}
             </View>
           )}
         </View>
@@ -91,17 +91,17 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
         <View style={styles.card}>
           <CustomText
             fontFamily="GabaritoSemiBold"
-            fontSize={32}
-            color="rgba(29, 34, 43, 1)"
+            fontSize={42}
+            color={COLORS.darkText}
             style={{ textAlign: "center" }}
           >
             #{user?.assignedNumber}
           </CustomText>
 
           <CustomText
-            fontFamily="GabaritoMedium"
+            fontFamily="GabaritoRegular"
             fontSize={16}
-            color="rgba(29, 34, 43, 1)"
+            color={COLORS.darkText}
             style={{ textAlign: "center", marginTop: 4 }}
           >
             supporting this month
@@ -141,7 +141,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           <CustomText
             fontFamily="MontserratSemiBold"
             fontSize={16}
-            color="rgba(0, 31, 1, 1)"
+            color={COLORS.darkText}
           >
             ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} donated
             together
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   partnersRow: {
     flexDirection: "row",
     gap: wp(7.7),
-    marginTop: hp(1),
+    marginTop: verticalScale(16),
   },
   mecaImage: {
     width: wp(36),

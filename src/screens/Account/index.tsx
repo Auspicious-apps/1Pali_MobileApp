@@ -190,15 +190,15 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             <View style={{ marginTop: verticalScale(30), width: "100%" }}>
               <CustomText
                 fontFamily="GabaritoSemiBold"
-                fontSize={32}
+                fontSize={42}
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
                 #{user?.assignedNumber}
               </CustomText>
               <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
+                fontFamily="GabaritoRegular"
+                fontSize={15}
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
@@ -208,11 +208,15 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             </View>
             <View style={styles.card}>
               {/* Badge Row */}
-              <View
+              <TouchableOpacity
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
                   marginBottom: 12,
+                }}
+                activeOpacity={0.8}
+                onPress={() => {
+                  navigation.navigate("accountStack", { screen: "badges" });
                 }}
               >
                 <View
@@ -226,18 +230,23 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   }}
                 >
                   <CustomText
-                    fontFamily="GabaritoRegular"
+                    fontFamily="GabaritoMedium"
                     fontSize={16}
                     color={COLORS.darkText}
                   >
-                    {growthBadges[0]?.badge.category}
+                    {growthBadges[0]?.badge.category
+                      ? growthBadges[0].badge.category.charAt(0).toUpperCase() +
+                        growthBadges[0].badge.category.slice(1).toLowerCase()
+                      : ""}
                   </CustomText>
                   <CustomText
                     fontFamily="GabaritoRegular"
-                    fontSize={16}
+                    fontSize={14}
                     color={COLORS.appText}
                   >
-                    {user?.consecutivePaidMonths} months
+                    {Number(user?.consecutivePaidMonths!) > 1
+                      ? "months"
+                      : "1 month"}
                   </CustomText>
                 </View>
                 <View
@@ -280,12 +289,12 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     />
                   </TouchableOpacity>
                 </View>
-              </View>
+              </TouchableOpacity>
               <View
                 style={{
                   borderBottomWidth: 1,
                   borderColor: "#EAEAEA",
-                  marginBottom: 10,
+                  marginBottom: 12,
                 }}
               />
               {/* Stats Row */}
@@ -295,27 +304,18 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginTop: 12,
+                  marginBottom: verticalScale(12),
+                  paddingHorizontal: horizontalScale(20),
                 }}
               >
                 <View
                   style={{
                     alignItems: "center",
-                    flex: 1,
-                    gap: verticalScale(6),
                   }}
                 >
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={12}
-                    color={COLORS.appText}
-                  >
-                    Donated
-                  </CustomText>
-                  <View style={styles.AccountDivider} />
                   <View style={{ alignItems: "center" }}>
                     <CustomText
-                      fontFamily="GabaritoMedium"
+                      fontFamily="GabaritoRegular"
                       fontSize={18}
                       color={COLORS.darkText}
                     >
@@ -326,28 +326,18 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={14}
                       color={COLORS.appText}
                     >
-                      Lifetime
+                      Donated
                     </CustomText>
                   </View>
                 </View>
                 <View
                   style={{
                     alignItems: "center",
-                    flex: 1,
-                    gap: verticalScale(6),
                   }}
                 >
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={12}
-                    color={COLORS.appText}
-                  >
-                    Community
-                  </CustomText>
-                  <View style={styles.AccountDivider} />
                   <View style={{ alignItems: "center" }}>
                     <CustomText
-                      fontFamily="GabaritoMedium"
+                      fontFamily="GabaritoRegular"
                       fontSize={18}
                       color={COLORS.darkText}
                     >
@@ -355,7 +345,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
-                      fontSize={12}
+                      fontSize={14}
                       color={COLORS.appText}
                       style={{ textAlign: "center" }}
                     >
@@ -366,34 +356,24 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 <View
                   style={{
                     alignItems: "center",
-                    flex: 1,
-                    gap: verticalScale(6),
                   }}
                 >
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={12}
-                    color={COLORS.appText}
-                  >
-                    Active
-                  </CustomText>
-                  <View style={styles.AccountDivider} />
                   <View style={{ alignItems: "center" }}>
                     <CustomText
-                      fontFamily="GabaritoMedium"
+                      fontFamily="GabaritoRegular"
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {user?.consecutivePaidMonths}
+                      {Number(user?.consecutivePaidMonths!) === 1
+                        ? "1 mo"
+                        : " mo"}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
-                      fontSize={12}
+                      fontSize={14}
                       color={COLORS.appText}
                     >
-                      {Number(user?.consecutivePaidMonths!) > 1
-                        ? "Months"
-                        : "Month"}
+                      Active
                     </CustomText>
                   </View>
                 </View>

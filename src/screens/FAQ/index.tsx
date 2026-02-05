@@ -110,7 +110,7 @@ const FAQ: FC<FaqScreenProps> = ({navigation}) => {
         {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <CustomIcon Icon={ICONS.backArrow} height={24} width={24} />
+            <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
           </TouchableOpacity>
 
           <Image source={IMAGES.LogoText} style={styles.logo} />
@@ -167,7 +167,6 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
     marginBottom: verticalScale(16),
   },
