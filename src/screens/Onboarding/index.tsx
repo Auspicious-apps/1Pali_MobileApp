@@ -52,8 +52,8 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
       if (currentIndex < texts.length - 1) {
         setCurrentIndex(prev => prev + 1);
       } else {
-        navigation.navigate('OnBoardingStack', {
-          screen: 'onePaliWorks',
+        navigation.replace("OnBoardingStack", {
+          screen: "onePaliWorks",
         });
       }
     }, totalTime);

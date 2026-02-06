@@ -47,6 +47,7 @@
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.19.0",
     "react-native-share": "^12.2.4",
+    "react-native-shimmer-placeholder": "^2.0.9",
     "react-native-svg": "^15.15.1",
     "react-native-svg-transformer": "^1.5.2",
     "react-native-toast-message": "^2.3.3",

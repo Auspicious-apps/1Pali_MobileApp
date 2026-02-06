@@ -37,6 +37,9 @@ import RNFS from "react-native-fs";
 import IMAGES from "../../assets/Images";
 import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
 import ShareLib from "react-native-share";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
+import LinearGradient from "react-native-linear-gradient";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const { blogId } = route.params;
@@ -63,6 +66,56 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
    const likeScale = useRef(new Animated.Value(0)).current;
    const likeRequestInProgress = useRef(false);
   const [OpenModal, setOpenModal] = useState(false);
+
+  const UpdateDetailShimmer = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={{ padding: horizontalScale(20), gap: 16 }}>
+        {/* Cover image */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{
+            width: "100%",
+            height: hp(42.9),
+            borderRadius: 12,
+          }}
+        />
+
+        {/* Title */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ width: "60%", height: 16, borderRadius: 6 }}
+        />
+
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ width: "80%", height: 28, borderRadius: 8 }}
+        />
+
+        {/* Paragraph */}
+        {[1, 2, 3].map((i) => (
+          <ShimmerPlaceholder
+            key={i}
+            LinearGradient={LinearGradient}
+            style={{
+              width: "100%",
+              height: 14,
+              borderRadius: 6,
+            }}
+          />
+        ))}
+      </View>
+    </SafeAreaView>
+  );
+
+  const MediaShimmer = () => (
+    <View style={styles.mediaShimmerContainer}>
+      <ShimmerPlaceholder
+        LinearGradient={LinearGradient}
+        style={styles.mediaShimmer}
+      />
+    </View>
+  );
+
 
   const prepareMedia = async () => {
     if (!blogDetail?.coverPhotoUrl) return null;
@@ -446,11 +499,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   }, [blogDetail?.coverPhotoUrl]);
 
   if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={COLORS.darkText} />
-      </View>
-    );
+    return <UpdateDetailShimmer />;
   }
 
   const renderCommentItem = ({ item }: { item: Comment }) => (
@@ -532,21 +581,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           {/* IMAGE */}
           <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
             <View>
-              {imageLoading && (
-                <View
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: hp(42.9),
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: COLORS.greyish,
-                    zIndex: 1,
-                  }}
-                >
-                  <ActivityIndicator size="small" color={COLORS.darkText} />
-                </View>
-              )}
+              {imageLoading && <MediaShimmer />}
               <Image
                 source={{ uri: blogDetail?.coverPhotoUrl }}
                 style={styles.updateImage}
@@ -961,5 +996,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: horizontalScale(3),
+  },
+  mediaShimmerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
+    zIndex: 5,
+  },
+  mediaShimmer: {
+    width: "100%",
+    height: "100%",
   },
 });

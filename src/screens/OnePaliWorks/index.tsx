@@ -256,7 +256,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
         <PrimaryButton
           title="Continue"
           onPress={() => {
-            navigation.navigate("claimSpot");
+            navigation.replace("claimSpot");
           }}
           style={styles.primaryButton}
         />

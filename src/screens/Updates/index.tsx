@@ -21,11 +21,34 @@ import { fetchData } from "../../service/ApiService";
 import { UpdatesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
+import LinearGradient from "react-native-linear-gradient";
 
 const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [imageLoading, setImageLoading] = useState(true);
+
+  const ShimmerCard = () => (
+    <View style={styles.weekCard}>
+      <ShimmerPlaceHolder
+        LinearGradient={LinearGradient}
+        style={{ width: "100%", height: hp(47), borderRadius: 25 }}
+      />
+
+      <View style={{ marginTop: verticalScale(12), gap: 8 }}>
+        <ShimmerPlaceHolder
+          LinearGradient={LinearGradient}
+          style={{ width: 120, height: 20, borderRadius: 6 }}
+        />
+
+        <ShimmerPlaceHolder
+          LinearGradient={LinearGradient}
+          style={{ width: "80%", height: 24, borderRadius: 6 }}
+        />
+      </View>
+    </View>
+  );
 
   const handleUserBlogs = async () => {
     // Function to handle user blogs
@@ -62,9 +85,15 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
     >
       <View style={styles.imageWrapper}>
         {imageLoading && (
-          <View style={styles.imageLoader}>
-            <ActivityIndicator size="small" color={COLORS.darkText} />
-          </View>
+          <ShimmerPlaceHolder
+            LinearGradient={LinearGradient}
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: hp(47),
+              borderRadius: 25,
+            }}
+          />
         )}
 
         <Image
@@ -145,15 +174,10 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
           </View>
 
           {isLoading ? (
-            <View style={styles.inlineLoader}>
-              <ActivityIndicator size="large" color={COLORS.darkText} />
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={16}
-                color={COLORS.darkText}
-              >
-                Loading Updates
-              </CustomText>
+            <View>
+              {[1, 2, 3].map((_, i) => (
+                <ShimmerCard key={i} />
+              ))}
             </View>
           ) : (
             <FlatList

@@ -61,10 +61,13 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
             style={[StyleSheet.absoluteFill]}
             blurType="light"
             blurAmount={1}
+            pointerEvents="none"
           />
         ) : (
           <View style={styles.androidBackdrop} />
         )}
+
+        <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
 
         <View style={styles.overlay}>
           <View

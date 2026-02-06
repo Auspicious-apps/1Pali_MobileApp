@@ -162,6 +162,17 @@ const CollectBadges = () => {
           blurAmount={2}
         />
 
+        <TouchableOpacity
+          activeOpacity={1}
+          style={StyleSheet.absoluteFill}
+          onPress={async () => {
+            dispatch(closeCollectBadgesModal());
+            await postData(ENDPOINTS.ViewedBadges, {
+              badgeIds: unViewedBadges.map((badge) => badge.id),
+            });
+          }}
+        />
+
         <View style={styles.modalContent}>
           <Animated.FlatList
             ref={flatListRef}

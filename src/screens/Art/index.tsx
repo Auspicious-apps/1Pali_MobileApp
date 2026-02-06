@@ -23,6 +23,8 @@ import {
   GetUserArtResponse,
 } from "../../service/ApiResponses/GetUserArt";
 import ENDPOINTS from "../../service/ApiEndpoints";
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
+import LinearGradient from "react-native-linear-gradient";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SIDE_PADDING = horizontalScale(20);
@@ -36,6 +38,59 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
 
   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
   const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
+
+  const WeekShimmer = () => (
+    <View style={styles.weekCard}>
+      <ShimmerPlaceHolder
+        LinearGradient={LinearGradient}
+        style={{
+          width: "100%",
+          height: hp(47),
+          borderRadius: 25,
+        }}
+      />
+
+      <View style={{ alignItems: "center", marginTop: verticalScale(16) }}>
+        <ShimmerPlaceHolder
+          LinearGradient={LinearGradient}
+          style={{ width: 140, height: 20, borderRadius: 8 }}
+        />
+
+        <ShimmerPlaceHolder
+          LinearGradient={LinearGradient}
+          style={{
+            width: "70%",
+            height: 24,
+            borderRadius: 8,
+            marginTop: 8,
+          }}
+        />
+      </View>
+    </View>
+  );
+  const GridShimmer = () => (
+    <View style={styles.cardContainer}>
+      <ShimmerPlaceHolder
+        LinearGradient={LinearGradient}
+        style={{
+          width: "100%",
+          height: hp(24),
+          borderRadius: 14,
+        }}
+      />
+
+      <ShimmerPlaceHolder
+        LinearGradient={LinearGradient}
+        style={{
+          width: "60%",
+          height: 16,
+          borderRadius: 6,
+          alignSelf: "center",
+          marginTop: verticalScale(10),
+        }}
+      />
+    </View>
+  );
 
   const getArtworkImage = (item?: Artwork) => {
     if (!item) {
@@ -134,15 +189,19 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
         </View>
 
         {loading ? (
-          <View style={styles.inlineLoader}>
-            <ActivityIndicator size="large" color={COLORS.darkText} />
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={16}
-              color={COLORS.darkText}
-            >
-              Loading Arts
-            </CustomText>
+          <View>
+            {/* Week shimmer */}
+            <WeekShimmer />
+
+            {/* Grid shimmer */}
+            <FlatList
+              data={[1, 2, 3, 4]}
+              keyExtractor={(item) => item.toString()}
+              numColumns={2}
+              scrollEnabled={false}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={() => <GridShimmer />}
+            />
           </View>
         ) : (
           <View>
@@ -159,20 +218,16 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               >
                 <View style={{ position: "relative" }}>
                   {weekImageLoading && (
-                    <View
+                    <ShimmerPlaceHolder
+                      LinearGradient={LinearGradient}
                       style={{
                         position: "absolute",
                         width: "100%",
                         height: hp(47),
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: COLORS.greyish,
                         borderRadius: 25,
                         zIndex: 1,
                       }}
-                    >
-                      <ActivityIndicator size="small" color={COLORS.darkText} />
-                    </View>
+                    />
                   )}
 
                   <Image

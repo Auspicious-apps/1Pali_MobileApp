@@ -39,6 +39,9 @@ import { addNewArtBadge } from "../../redux/slices/UserSlice";
 import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
 import ShareLib from "react-native-share";
 import PrimaryButton from "../../components/PrimaryButton";
+import LinearGradient from "react-native-linear-gradient";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
+
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -66,6 +69,79 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [uiIndex, setUiIndex] = useState(0);
   const mediaLoadedRef = useRef(false);
+
+  const MediaShimmer = () => (
+    <View style={styles.mediaShimmerContainer}>
+      <ShimmerPlaceholder
+        LinearGradient={LinearGradient}
+        style={styles.mediaShimmer}
+      />
+    </View>
+  );
+
+  const ArtDetailShimmer = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={{ padding: horizontalScale(20), gap: 16 }}>
+        {/* Media */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{
+            width: "100%",
+            height: hp(49),
+            borderRadius: 20,
+          }}
+        />
+
+        {/* Action row */}
+        <View style={{ flexDirection: "row", gap: 16 }}>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ width: 60, height: 20, borderRadius: 6 }}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ width: 60, height: 20, borderRadius: 6 }}
+          />
+        </View>
+
+        {/* Title */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ width: "70%", height: 28, borderRadius: 8 }}
+        />
+
+        {/* Description lines */}
+        {[1, 2, 3].map((_, i) => (
+          <ShimmerPlaceholder
+            key={i}
+            LinearGradient={LinearGradient}
+            style={{
+              width: "100%",
+              height: 14,
+              borderRadius: 6,
+            }}
+          />
+        ))}
+      </View>
+    </SafeAreaView>
+  );
+  const CommentShimmer = () => (
+    <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+      <ShimmerPlaceholder
+        LinearGradient={LinearGradient}
+        style={{ width: "30%", height: 14, borderRadius: 6 }}
+      />
+      <ShimmerPlaceholder
+        LinearGradient={LinearGradient}
+        style={{
+          width: "100%",
+          height: 14,
+          borderRadius: 6,
+          marginTop: 6,
+        }}
+      />
+    </View>
+  );
 
   const prepareMedia = async () => {
     if (!artDetail) return null;
@@ -385,12 +461,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   useEffect(() => {
     handleArtDetail();
   }, [ArtId]);
+
+  useEffect(() => {
+    setImageLoading(true);
+    mediaLoadedRef.current = false;
+  }, [artDetail?.mediaUrl]);
+
   if (loading) {
-    return (
-      <SafeAreaView style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={COLORS.darkText} />
-      </SafeAreaView>
-    );
+    return <ArtDetailShimmer />;
   }
 
   return (
@@ -525,35 +603,31 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               >
                 <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
                   <View style={styles.imageWrapper}>
-                    {imageLoading && (
-                      <View style={styles.imageLoader}>
-                        <ActivityIndicator
-                          size="small"
-                          color={COLORS.darkText}
-                        />
-                      </View>
-                    )}
-
                     {artDetail?.mediaType === "IMAGE" && (
-                      <Image
-                        source={{ uri: artDetail.mediaUrl }}
-                        style={styles.updateImage}
-                        resizeMode="cover"
-                        onLoadStart={() => {
-                          if (!mediaLoadedRef.current) {
-                            setImageLoading(true);
-                          }
-                        }}
-                        onLoadEnd={() => {
-                          mediaLoadedRef.current = true;
-                          setImageLoading(false);
-                        }}
-                      />
+                      <>
+                        {imageLoading && <MediaShimmer />}
+                        <Image
+                          source={{ uri: artDetail.mediaUrl }}
+                          style={styles.updateImage}
+                          resizeMode="cover"
+                          onLoadStart={() => {
+                            if (!mediaLoadedRef.current) {
+                              setImageLoading(true);
+                            }
+                          }}
+                          onLoadEnd={() => {
+                            mediaLoadedRef.current = true;
+                            setImageLoading(false);
+                          }}
+                        />
+                      </>
                     )}
 
                     {/* VIDEO */}
                     {artDetail?.mediaType === "VIDEO" && (
                       <View style={styles.mediaWrapper}>
+                        {imageLoading && <MediaShimmer />}
+
                         <Video
                           source={{ uri: artDetail.mediaUrl }}
                           poster={artDetail.thumbnailUrl}
@@ -737,7 +811,13 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     scrollEnabled={false}
                     contentContainerStyle={styles.commentsList}
                     ListEmptyComponent={
-                      !commentsLoading ? (
+                      commentsLoading ? (
+                        <>
+                          {[1, 2, 3].map((i) => (
+                            <CommentShimmer key={i} />
+                          ))}
+                        </>
+                      ) : (
                         <CustomText
                           fontFamily="SourceSansMedium"
                           fontSize={16}
@@ -746,7 +826,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                         >
                           No comments yet
                         </CustomText>
-                      ) : null
+                      )
                     }
                   />
                   {hasNext && (
@@ -916,6 +996,10 @@ const styles = StyleSheet.create({
     gap: horizontalScale(4),
   },
   imageWrapper: {
+    width: "100%",
+    height: hp(49),
+    borderRadius: 20,
+    overflow: "hidden",
     position: "relative",
   },
 
@@ -997,5 +1081,17 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flex: 1,
+  },
+  mediaShimmerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    overflow: "hidden",
+    zIndex: 5,
+  },
+
+  mediaShimmer: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 20,
   },
 });

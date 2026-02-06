@@ -153,7 +153,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       dispatch(setClaimedNumber(Number(number)));
       dispatch(setReservationToken(response.data.data?.reservationToken));
       dispatch(startReservationTimer(300));
-      navigation.navigate("missionIntro", { showNumber: true });
+      navigation.replace("missionIntro", { showNumber: true });
     } catch (e) {
       console.error("Error reserving number:", e);
       setInputDisabled(false);

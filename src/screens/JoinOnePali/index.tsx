@@ -540,7 +540,13 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             }}
           />
         )}
-        {isApplePaySupported ? (
+        {isExpired ? (
+          <PrimaryButton
+            title="Choose a new number"
+            onPress={() => navigation.replace("claimSpot")}
+            style={{ marginTop: verticalScale(20) }}
+          />
+        ) : isApplePaySupported ? (
           isLoading ? (
             <PrimaryButton
               title={""}
@@ -554,7 +560,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               style={{
                 width: wp(90),
                 height: hp(6),
-                borderRadius: 10,
+                borderRadius: 20,
                 marginTop: verticalScale(20),
               }}
             />
@@ -564,7 +570,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             title={isExpired ? "Choose a new number" : "Join OnePali"}
             onPress={() => {
               if (isExpired) {
-                navigation.navigate("claimSpot");
+                navigation.replace("claimSpot");
               } else {
                 handleSetupIntent();
               }

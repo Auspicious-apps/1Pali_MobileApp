@@ -1,6 +1,12 @@
 import { BlurView } from "@react-native-community/blur";
 import React, { Dispatch, SetStateAction } from "react";
-import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import ICONS from "../../assets/Icons";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale } from "../../utils/Metrics";
@@ -32,14 +38,18 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
       onRequestClose={closeModal}
     >
       {/* 🔹 Blur Background */}
-      <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
+      <TouchableOpacity
+        activeOpacity={1}
+        style={{ flex: 1 }}
+        onPress={closeModal}
+      >
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType="light"
           blurAmount={0.1}
           reducedTransparencyFallbackColor="white"
+          pointerEvents="none"
         />
-
         {/* 🔹 Modal Content (UNCHANGED) */}
         <View style={styles.overlay}>
           <View style={styles.modalContainer}>

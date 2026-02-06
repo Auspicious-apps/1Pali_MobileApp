@@ -114,7 +114,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           return;
         }
 
-        navigation.navigate("joinOnePali");
+        navigation.replace("joinOnePali");
       }
     } catch (error: any) {
       console.log("error", error);
