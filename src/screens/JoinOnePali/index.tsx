@@ -235,6 +235,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               paymentMethodId: user.defaultPaymentMethodId,
               priceId: selectedPlan,
               reservationToken: reservationToken,
+              provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
           );
 
@@ -286,7 +287,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               ],
             },
             googlePay: {
-              amount: amount,
+              amount: amount * 100,
               allowCreditCards: true,
               isEmailRequired: true,
               currencyCode: currency,
@@ -309,6 +310,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               paymentMethodId: setupIntent?.paymentMethod?.id,
               priceId: selectedPlan,
               reservationToken: reservationToken,
+              provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
           );
 

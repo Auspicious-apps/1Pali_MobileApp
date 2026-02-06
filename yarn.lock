@@ -3843,6 +3843,7 @@ __metadata:
     react-native-safe-area-context: ^5.5.2
     react-native-screens: ^4.19.0
     react-native-share: ^12.2.4
+    react-native-shimmer-placeholder: ^2.0.9
     react-native-svg: ^15.15.1
     react-native-svg-transformer: ^1.5.2
     react-native-toast-message: ^2.3.3
@@ -9236,6 +9237,16 @@ __metadata:
   version: 12.2.5
   resolution: "react-native-share@npm:12.2.5"
   checksum: 585c1ace5f224e98b95e62308c8e9b02fae93b8bbcd3c397bd1b8bbd3936c674401df458fa8c87da1d5dba98a5d94080d9b768f7c3bffe908996d2ac91156562
+  languageName: node
+  linkType: hard
+
+"react-native-shimmer-placeholder@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "react-native-shimmer-placeholder@npm:2.0.9"
+  peerDependencies:
+    prop-types: ">=15.6.0"
+    react-native-linear-gradient: ">=2.4.0"
+  checksum: 72ef49877c66994acbae7be2e810aef20ced6301b5146c36f671876525d8904e3810af69e277ffe390f05925021f44e3dd16ea04f7e3782ca57610d36d723d54
   languageName: node
   linkType: hard
 

@@ -275,11 +275,18 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   >
                     <BadgeIcon
                       badge={badge?.name}
-                      style={{
-                        width: horizontalScale(75),
-                        height: verticalScale(75),
-                        resizeMode: "contain",
-                      }}
+                      style={[
+                        {
+                          width: horizontalScale(75),
+                          height: verticalScale(75),
+                          resizeMode: "contain",
+                        },
+                        Platform.OS === "android" && !isUnlocked
+                          ? {
+                              filter: "blur(1px)",
+                            }
+                          : {},
+                      ]}
                     />
 
                     {!isUnlocked && (
@@ -292,23 +299,56 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                             backgroundColor: "#1d222b8a",
                           }}
                         />
-                        <View style={{ position: "absolute", zIndex: 3 }}>
-                          <CustomIcon
-                            Icon={ICONS.LockIcon}
-                            height={verticalScale(24)}
-                            width={horizontalScale(24)}
-                          />
-                        </View>
 
-                        <BlurView
-                          style={{
-                            position: "absolute",
-                            width: horizontalScale(65),
-                            height: verticalScale(65),
-                            borderRadius: horizontalScale(33),
-                          }}
-                          blurAmount={1}
-                        />
+                        {Platform.OS === "ios" && (
+                          <>
+                            <BlurView
+                              style={{
+                                position: "absolute",
+                                width: horizontalScale(65),
+                                height: verticalScale(65),
+                                borderRadius: horizontalScale(33),
+                              }}
+                              blurAmount={1}
+                            />
+                            <View style={{ position: "absolute", zIndex: 3 }}>
+                              <CustomIcon
+                                Icon={ICONS.LockIcon}
+                                height={verticalScale(24)}
+                                width={horizontalScale(24)}
+                              />
+                            </View>
+                          </>
+                        )}
+
+                        {Platform.OS === "android" && (
+                          <>
+                            <View
+                              style={{
+                                position: "absolute",
+                                zIndex: 3,
+                                width: horizontalScale(65),
+                                height: verticalScale(65),
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: "#1d222ba5",
+                                borderRadius: horizontalScale(33),
+                              }}
+                            />
+                            <View
+                              style={{
+                                position: "absolute",
+                                zIndex: 3,
+                              }}
+                            >
+                              <CustomIcon
+                                Icon={ICONS.LockIcon}
+                                height={verticalScale(24)}
+                                width={horizontalScale(24)}
+                              />
+                            </View>
+                          </>
+                        )}
                       </>
                     )}
                   </View>
@@ -364,7 +404,7 @@ const styles = StyleSheet.create({
     width: horizontalScale(80),
     height: verticalScale(70),
     resizeMode: "contain",
-    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
+    marginTop: verticalScale(10),
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 1)",

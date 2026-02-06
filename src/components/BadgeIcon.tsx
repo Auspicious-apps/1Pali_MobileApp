@@ -1,4 +1,11 @@
-import { Image, ImageStyle, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  ImageStyle,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React from "react";
 import BADGES from "../assets/badges";
 
@@ -6,7 +13,7 @@ type BadgeKey = keyof typeof BADGES;
 
 type BadgeIconProps = {
   badge: string;
-  style: ImageStyle;
+  style: StyleProp<ImageStyle> | any;
 };
 
 const BadgeIcon: React.FC<BadgeIconProps> = ({ badge, style }) => {

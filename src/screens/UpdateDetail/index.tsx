@@ -62,9 +62,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [sliderLoading, setSliderLoading] = useState<Record<number, boolean>>(
     {},
   );
-   const lastTap = useRef<number>(0);
-   const likeScale = useRef(new Animated.Value(0)).current;
-   const likeRequestInProgress = useRef(false);
+  const lastTap = useRef<number>(0);
+  const likeScale = useRef(new Animated.Value(0)).current;
+  const likeRequestInProgress = useRef(false);
   const [OpenModal, setOpenModal] = useState(false);
 
   const UpdateDetailShimmer = () => (
@@ -116,7 +116,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     </View>
   );
 
-
   const prepareMedia = async () => {
     if (!blogDetail?.coverPhotoUrl) return null;
 
@@ -161,6 +160,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
       if (platform === "more" || platform === "message") {
         await ShareLib.open(baseOptions);
+        await postData<ShareBlogResponse>(
+          `${ENDPOINTS.ShareBlog}/${blogId}/share`,
+          { platform },
+        );
       } else {
         const socialMap = {
           instagram: ShareLib.Social.INSTAGRAM,
@@ -344,7 +347,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
     lastTap.current = now;
   };
-
 
   const handleSendComment = async () => {
     if (!commentText.trim()) return;

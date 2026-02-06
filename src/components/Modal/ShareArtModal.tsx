@@ -41,7 +41,13 @@ interface Props {
   mediaType?: "IMAGE" | "VIDEO" | string;
 }
 
-export default function ShareArtModal({ visible, onClose , onShare , mediaType , mediaUrl}: Props) {
+export default function ShareArtModal({
+  visible,
+  onClose,
+  onShare,
+  mediaType,
+  mediaUrl,
+}: Props) {
   const { user } = useAppSelector((state) => state.user);
 
   const slideAnim = useRef(new Animated.Value(height)).current;
@@ -50,7 +56,7 @@ export default function ShareArtModal({ visible, onClose , onShare , mediaType ,
     if (visible) {
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 400 ,
+        duration: 400,
         useNativeDriver: true,
       }).start();
     } else {

@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import ReactNativeBlobUtil from "react-native-blob-util";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
@@ -42,8 +43,6 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
     left: 0,
     width: 0,
   });
-
-  const currentYear = dayjs().year();
 
   const formatReceiptMonth = (date: string) => dayjs(date).format("MMMM YYYY");
   const formatAmount = (amount: number) => `$${amount.toFixed(2)}`;
@@ -112,7 +111,11 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
               granted !== PermissionsAndroid.RESULTS.GRANTED &&
               granted !== PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
             ) {
-              console.log("Permission denied");
+              Toast.show({
+                type: "error",
+                text1: "Permission Denied",
+                text2: "Storage permission is required to download receipts",
+              });
               return;
             }
 
@@ -129,16 +132,66 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
       }
 
       const { fs, config } = ReactNativeBlobUtil;
-      const dir =
-        Platform.OS === "ios" ? fs.dirs.DocumentDir : fs.dirs.DownloadDir;
-      const fileName = `Receipt_${receiptId}_${Date.now()}.pdf`;
-      const path = `${dir}/${fileName}`;
+      const fileName = `Receipt_${receiptId}.pdf`;
+
+      // For Android, use cache directory first, then move to Downloads
+      // For iOS, use Documents directory
+      const tempPath = `${fs.dirs.CacheDir}/${fileName}`;
+      const finalPath =
+        Platform.OS === "android"
+          ? `${fs.dirs.DownloadDir}/${fileName}`
+          : `${fs.dirs.DocumentDir}/${fileName}`;
+
+      const options = Platform.select({
+        ios: {
+          fileCache: true,
+          path: finalPath,
+        },
+        android: {
+          fileCache: true,
+          path: tempPath,
+          addAndroidDownloads: {
+            useDownloadManager: true,
+            notification: true,
+            title: fileName,
+            description: "Downloading Receipt...",
+            mime: "application/pdf",
+            path: finalPath, // ReactNativeBlobUtil attempts to save directly here
+          },
+        },
+      });
+      const res = await config(options as any).fetch("GET", url);
+      const filePath = res.path();
 
       if (Platform.OS === "ios") {
-        ReactNativeBlobUtil.ios.previewDocument(path);
+        // For iOS, show the file in Files app or preview
+        ReactNativeBlobUtil.ios.previewDocument(filePath);
+      } else {
+        await fs.scanFile([{ path: filePath, mime: "application/pdf" }]);
+
+        Toast.show({
+          type: "success",
+          text1: "Download Complete",
+          text2: "Receipt saved to Downloads folder",
+        });
+
+        // Optional: Open the file immediately
+        setTimeout(() => {
+          ReactNativeBlobUtil.android.actionViewIntent(
+            filePath,
+            "application/pdf",
+          );
+        }, 500);
+
+        return;
       }
     } catch (error) {
       console.error("Download failed:", error);
+      Toast.show({
+        type: "error",
+        text1: "Download Failed",
+        text2: "Unable to download receipt. Please try again.",
+      });
     } finally {
       setDownloadingId(null);
     }
@@ -360,7 +413,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   safeArea: { flex: 1, paddingHorizontal: horizontalScale(20) },
   scrollContent: { flexGrow: 1, paddingBottom: verticalScale(32) },
-  header: { width: "100%", flexDirection: "row" },
+  header: { width: "100%", flexDirection: "row", marginTop: verticalScale(10) },
   logo: {
     width: horizontalScale(80),
     height: verticalScale(70),

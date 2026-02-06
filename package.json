@@ -7,7 +7,8 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "release": "npx react-native build-android --mode=release"
   },
   "dependencies": {
     "@invertase/react-native-apple-authentication": "^2.5.1",

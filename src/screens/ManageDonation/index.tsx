@@ -27,6 +27,7 @@ import { GetAllStripeePlansResponse } from "../../service/ApiResponses/GetAllStr
 import { fetchData, postData } from "../../service/ApiService";
 import { ManageDonationScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
+import { formatDate } from "../../utils/Helpers";
 import {
   horizontalScale,
   responsiveFontSize,
@@ -40,6 +41,11 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const { stripePlans, selectedPlanId } = useAppSelector(
     (state) => state.stripePlans,
   );
+
+  const isSamePlanAsCurrent = selectedPlanId === user?.stripePriceId;
+  const isUserActive = user?.subscriptionStatus === "ACTIVE";
+  const isCancelling =
+    user?.subscriptionStatus === "CANCELLING" || user?.cancelAtPeriodEnd;
 
   const [enabled, setEnabled] = useState(true);
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -59,6 +65,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
           text1: "Success",
           text2: "Your donation plan has been updated.",
         });
+        dispatch(fetchUserProfile());
       }
     } catch (error) {
       console.log("Error updating plan:", error);
@@ -92,6 +99,73 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     }
   };
 
+  const handleResubscribe = async () => {
+    setIsUpdatingPlan(true);
+    try {
+      const planChangeResponse = await postData(ENDPOINTS.resubscribePlan, {
+        priceId: selectedPlanId,
+      });
+
+      if (planChangeResponse?.data?.success) {
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Your donation plan has been updated.",
+        });
+        dispatch(fetchUserProfile());
+      }
+    } catch (error: any) {
+      console.log("Error updating plan:", error);
+      if (
+        error.message.includes(
+          "Cannot switch plans while your subscription is scheduled for cancellation.",
+        )
+      ) {
+        Alert.alert(
+          "Error",
+          `Cannot switch plans while your subscription is scheduled for cancellation. Your current plan will end on ${formatDate(
+            error.error.endDate,
+          )}. You can switch to a new plan after this date.`,
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          error.message ||
+            "There was an error re-subscribing to your plan. Please try again.",
+        );
+      }
+    } finally {
+      setIsUpdatingPlan(false);
+    }
+  };
+
+  const onButtonPress = () => {
+    if (isUserActive) {
+      handlePlanChange();
+    } else {
+      handleResubscribe();
+    }
+  };
+
+  const getButtonTitle = () => {
+    const isSamePlan = selectedPlanId === user?.stripePriceId;
+    const status = user?.subscriptionStatus;
+
+    if (status === "ACTIVE") {
+      return isSamePlan ? "Current Donation" : "Update Donation";
+    }
+
+    if (status === "CANCELLING") {
+      return "Resume Donation";
+    }
+
+    if (status === "CANCELLED") {
+      return "Reactivate Donation";
+    }
+
+    return "Update Donation";
+  };
+
   useEffect(() => {
     if (!stripePlans.length) {
       getAllPlans();
@@ -99,7 +173,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   }, [stripePlans]);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.safeArea}>
       {/* HEADER */}
       <View style={styles.headerLogo}>
         <TouchableOpacity
@@ -267,68 +341,85 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             {/* Save Button */}
             <PrimaryButton
               title={
-                selectedPlanId === user?.stripePriceId
-                  ? "Current donation"
-                  : "Update donation"
+                // selectedPlanId === user?.stripePriceId
+                //   ? user?.subscriptionStatus === "ACTIVE"
+                //     ? "Current donation"
+                //     : "Resume Donation"
+                //   : user?.subscriptionStatus === "ACTIVE"
+                //   ? "Update donation"
+                //   : (user?.subscriptionStatus === "CANCELLED" ||
+                //       user?.subscriptionStatus === "CANCELLING") &&
+                //     selectedPlanId
+                //   ? "Update donation"
+                //   : "Update donation"
+                getButtonTitle()
               }
-              onPress={handlePlanChange}
-              disabled={selectedPlanId === user?.stripePriceId}
+              onPress={onButtonPress}
+              disabled={
+                selectedPlanId === user?.stripePriceId &&
+                user?.subscriptionStatus === "ACTIVE"
+              }
               style={styles.saveButton}
               isLoading={isUpdatingPlan}
             />
-            <TouchableOpacity
-              onPress={() => {
-                Alert.alert(
-                  "Cancel Monthly Donation",
-                  "Are you sure you want to cancel your monthly donation?",
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Confirm",
-                      style: "destructive",
-                      onPress: async () => {
-                        try {
-                          const response = await postData(
-                            ENDPOINTS.cancelPlan,
-                            {},
-                          );
-
-                          if (response?.data?.success) {
-                            Toast.show({
-                              type: "success",
-                              text1: "Success",
-                              text2:
-                                "Your monthly donation has been cancelled.",
-                            });
-                            dispatch(fetchUserProfile());
-                          }
-                        } catch (error) {
-                          console.log("Error cancelling subscription:", error);
-                          Toast.show({
-                            type: "error",
-                            text1: "Error",
-                            text2:
-                              "There was an error cancelling your donation. Please try again.",
-                          });
-                        }
+            {user?.subscriptionStatus === "ACTIVE" && (
+              <TouchableOpacity
+                onPress={() => {
+                  Alert.alert(
+                    "Cancel Monthly Donation",
+                    "Are you sure you want to cancel your monthly donation?",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
                       },
-                    },
-                  ],
-                );
-              }}
-            >
-              <CustomText
-                fontFamily="GabaritoMedium"
-                fontSize={16}
-                color={COLORS.darkRed}
-                style={{ textAlign: "center", marginTop: verticalScale(12) }}
+                      {
+                        text: "Confirm",
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            const response = await postData(
+                              ENDPOINTS.cancelPlan,
+                              {},
+                            );
+
+                            if (response?.data?.success) {
+                              Toast.show({
+                                type: "success",
+                                text1: "Success",
+                                text2:
+                                  "Your monthly donation has been cancelled.",
+                              });
+                              dispatch(fetchUserProfile());
+                            }
+                          } catch (error) {
+                            console.log(
+                              "Error cancelling subscription:",
+                              error,
+                            );
+                            Toast.show({
+                              type: "error",
+                              text1: "Error",
+                              text2:
+                                "There was an error cancelling your donation. Please try again.",
+                            });
+                          }
+                        },
+                      },
+                    ],
+                  );
+                }}
               >
-                Cancel Monthly Donation
-              </CustomText>
-            </TouchableOpacity>
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={16}
+                  color={COLORS.darkRed}
+                  style={{ textAlign: "center", marginTop: verticalScale(12) }}
+                >
+                  Cancel Monthly Donation
+                </CustomText>
+              </TouchableOpacity>
+            )}
           </View>
         </>
       )}
@@ -337,8 +428,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 };
 
 export default ManageDonation;
-
-/* -------------------------------- STYLES -------------------------------- */
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -455,5 +544,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: verticalScale(16),
+    marginTop: verticalScale(10),
   },
 });

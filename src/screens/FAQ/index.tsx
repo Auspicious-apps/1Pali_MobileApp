@@ -1,20 +1,19 @@
 import React, { FC } from "react";
 import {
   Image,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FaqScreenProps, TermsConditionsScreenProps } from "../../typings/routes";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
-import CustomIcon from "../../components/CustomIcon";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
+import { FaqScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
 
 const FAQ_DATA = [
   {
@@ -79,7 +78,6 @@ const FAQ_DATA = [
   },
 ];
 
-
 const Title = ({ children }: any) => (
   <CustomText
     fontFamily="GabaritoSemiBold"
@@ -102,7 +100,7 @@ const Text = ({ children }: any) => (
   </CustomText>
 );
 
-const FAQ: FC<FaqScreenProps> = ({navigation}) => {
+const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* IMPORTANT: remove bottom edge */}
@@ -169,6 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: verticalScale(16),
+    marginTop: verticalScale(10),
   },
   logo: {
     width: horizontalScale(80),

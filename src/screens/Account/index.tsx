@@ -244,9 +244,11 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     fontSize={14}
                     color={COLORS.appText}
                   >
-                    {Number(user?.consecutivePaidMonths!) > 1
-                      ? "months"
-                      : "1 month"}
+                    {Number(user?.consecutivePaidMonths!) +
+                      " " +
+                      (Number(user?.consecutivePaidMonths!) > 1
+                        ? "months"
+                        : "month")}
                   </CustomText>
                 </View>
                 <View
@@ -364,9 +366,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {Number(user?.consecutivePaidMonths!) === 1
-                        ? "1 mo"
-                        : " mo"}
+                      {`${user?.consecutivePaidMonths!} mo`}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
