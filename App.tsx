@@ -27,7 +27,7 @@ function App() {
         >
           <Provider store={store}>
             <SafeAreaProvider>
-              <StatusBar barStyle={"light-content"} />
+              <StatusBar barStyle={"dark-content"} />
               <Routes />
               {__DEV__ && <NetworkLogger />}
               <Toast

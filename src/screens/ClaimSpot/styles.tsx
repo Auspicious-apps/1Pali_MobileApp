@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  header: { width: "100%", flexDirection: "row" },
+  header: { width: "100%", flexDirection: "row", marginTop: verticalScale(10) },
   logo: {
     width: horizontalScale(80),
     height: verticalScale(70),

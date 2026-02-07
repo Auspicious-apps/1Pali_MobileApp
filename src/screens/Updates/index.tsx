@@ -17,16 +17,17 @@ import {
   Blog,
   GetUserBlogsResponse,
 } from "../../service/ApiResponses/GetUserBlogs";
-import { fetchData } from "../../service/ApiService";
 import { UpdatesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import LinearGradient from "react-native-linear-gradient";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { fetchUpdates } from "../../redux/slices/UpdatesSlice";
 
 const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [blogs, setBlogs] = useState<any[]>([]);
+  const dispatch = useAppDispatch();
+  const { blogs, loading: isLoading } = useAppSelector((state) => state.updates);
   const [imageLoading, setImageLoading] = useState(true);
 
   const ShimmerCard = () => (
@@ -51,26 +52,12 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   );
 
   const handleUserBlogs = async () => {
-    // Function to handle user blogs
-    try {
-      setIsLoading(true);
-      const blogsResponse = await fetchData<GetUserBlogsResponse>(
-        ENDPOINTS.GetBlogForUser,
-      );
-      if (blogsResponse?.data?.success) {
-        setBlogs(blogsResponse?.data?.data?.blogs);
-      }
-      console.log(blogsResponse?.data?.data, "HJJHGJHGHJ");
-    } catch (error) {
-      console.log("error", error);
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(fetchUpdates({}));
   };
 
   useEffect(() => {
     handleUserBlogs();
-  }, []);
+  }, [dispatch]);
 
   const renderItem = ({ item }: { item: Blog }) => (
     <TouchableOpacity

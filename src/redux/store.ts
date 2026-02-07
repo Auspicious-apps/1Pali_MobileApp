@@ -4,6 +4,9 @@ import BadgesReducer from "./slices/BadgesSlice";
 import CollectBadgesReducer from "./slices/CollectBadgesSlice";
 import userReducer from "./slices/UserSlice";
 import StripePlansReducer from "./slices/StripePlans";
+import ArtsReducer from "./slices/ArtsSlice";
+import UpdatesReducer from "./slices/UpdatesSlice";
+import ReceiptsReducer from "./slices/ReceiptsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +14,9 @@ export const store = configureStore({
     user: userReducer,
     badges: BadgesReducer,
     stripePlans: StripePlansReducer,
+    arts: ArtsReducer,
+    updates: UpdatesReducer,
+    receipts: ReceiptsReducer,
   },
 });
 

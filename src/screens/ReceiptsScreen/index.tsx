@@ -20,22 +20,20 @@ import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
-import ENDPOINTS from "../../service/ApiEndpoints";
 import {
-  GetUserReceiptResponse,
-  ReceiptsData,
-} from "../../service/ApiResponses/RecieptApiResponse";
-import { fetchData } from "../../service/ApiService";
+  fetchReceipts,
+  setDownloadingId,
+  setSelectedYear,
+} from "../../redux/slices/ReceiptsSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { ReceiptsScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale } from "../../utils/Metrics";
 
 const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
-  const [receipts, setReceipts] = useState<GetUserReceiptResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
-  const [years, setYears] = useState<number[]>([]);
+  const dispatch = useAppDispatch();
+  const { receipts, loading, selectedYear, years, downloadingId } =
+    useAppSelector((state) => state.receipts);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
   const yearButtonRef = useRef<View>(null);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -47,33 +45,6 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
   const formatReceiptMonth = (date: string) => dayjs(date).format("MMMM YYYY");
   const formatAmount = (amount: number) => `$${amount.toFixed(2)}`;
 
-  const fetchUserReceipts = async (year: number) => {
-    try {
-      setLoading(true);
-      setReceipts([]);
-      const response = await fetchData<ReceiptsData>(
-        ENDPOINTS.GetUserReceipts,
-        { year },
-      );
-      const data = response?.data?.data?.receipts || [];
-      setReceipts(data);
-
-      if (years.length === 0) {
-        const startYear = 2026;
-        const totalYears = 6;
-
-        const yrs = Array.from({ length: totalYears }, (_, i) => startYear + i);
-
-        setYears(yrs);
-      }
-    } catch (error) {
-      console.error("Receipts fetch error:", error);
-      setReceipts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const measureAndToggleDropdown = () => {
     if (loading) return;
     yearButtonRef.current?.measureInWindow((x, y, width, height) => {
@@ -84,124 +55,97 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
 
   const handleDownloadPDF = async (url: string, receiptId: string) => {
     if (downloadingId === receiptId) return;
+    const fileName = `Receipt_${receiptId}.pdf`;
 
     try {
-      setDownloadingId(receiptId);
+      dispatch(setDownloadingId(receiptId));
+      const { fs, config } = ReactNativeBlobUtil;
 
-      if (Platform.OS === "android") {
-        try {
-          // Check permission first
-          const androidVersion = Platform.Version;
-          let permission =
-            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-
-          // Android 11+ requires MANAGE_EXTERNAL_STORAGE or use scoped storage
-          if (androidVersion >= 30) {
-            permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-          }
-
-          // First, check if permission is already granted
-          const hasPermission = await PermissionsAndroid.check(permission);
-
-          if (!hasPermission) {
-            // Request permission
-            const granted = await PermissionsAndroid.request(permission);
-
-            if (
-              granted !== PermissionsAndroid.RESULTS.GRANTED &&
-              granted !== PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
-            ) {
-              Toast.show({
-                type: "error",
-                text1: "Permission Denied",
-                text2: "Storage permission is required to download receipts",
-              });
-              return;
-            }
-
-            // If "never_ask_again", still proceed - the download manager might work
-            if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-              console.log(
-                "Permission set to never ask again, proceeding anyway",
-              );
-            }
-          }
-        } catch (error) {
-          console.error("Permission check error:", error);
+      // 1. Skip permission requests for Android 13+ (API 33+)
+      // Android 15 will auto-reject legacy storage requests
+      if (Platform.OS === "android" && Platform.Version < 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Toast.show({ type: "error", text1: "Permission Denied" });
+          return;
         }
       }
-
-      const { fs, config } = ReactNativeBlobUtil;
-      const fileName = `Receipt_${receiptId}.pdf`;
-
-      // For Android, use cache directory first, then move to Downloads
-      // For iOS, use Documents directory
-      const tempPath = `${fs.dirs.CacheDir}/${fileName}`;
-      const finalPath =
-        Platform.OS === "android"
-          ? `${fs.dirs.DownloadDir}/${fileName}`
-          : `${fs.dirs.DocumentDir}/${fileName}`;
 
       const options = Platform.select({
         ios: {
           fileCache: true,
-          path: finalPath,
+          path: `${fs.dirs.DocumentDir}/${fileName}`,
         },
         android: {
           fileCache: true,
-          path: tempPath,
           addAndroidDownloads: {
             useDownloadManager: true,
             notification: true,
             title: fileName,
             description: "Downloading Receipt...",
             mime: "application/pdf",
-            path: finalPath, // ReactNativeBlobUtil attempts to save directly here
+            // CRITICAL CHANGE FOR ANDROID 15:
+            // Do not provide a full file path string here.
+            // Setting it to true or a sub-folder allows the system to manage the write.
+            storeInDownloads: true,
+            mediaScannable: true,
           },
         },
       });
-      const res = await config(options as any).fetch("GET", url);
-      const filePath = res.path();
 
+      // 2. The Fetch call
+      // If you still get an error, try removing 'path' from the root config for Android
+      const res = await config(options!).fetch("GET", url);
+
+      // 3. Success Handling
       if (Platform.OS === "ios") {
-        // For iOS, show the file in Files app or preview
-        ReactNativeBlobUtil.ios.previewDocument(filePath);
+        ReactNativeBlobUtil.ios.previewDocument(res.path());
       } else {
-        await fs.scanFile([{ path: filePath, mime: "application/pdf" }]);
-
         Toast.show({
           type: "success",
-          text1: "Download Complete",
-          text2: "Receipt saved to Downloads folder",
+          text1: "Download Started",
+          text2: "Check your notifications for the file",
         });
-
-        // Optional: Open the file immediately
-        setTimeout(() => {
-          ReactNativeBlobUtil.android.actionViewIntent(
-            filePath,
-            "application/pdf",
-          );
-        }, 500);
-
-        return;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Download failed:", error);
-      Toast.show({
-        type: "error",
-        text1: "Download Failed",
-        text2: "Unable to download receipt. Please try again.",
-      });
+
+      // If DownloadManager still fails, fallback to a simple cache download + Share
+      if (Platform.OS === "android") {
+        handleFallbackDownload(url, fileName);
+      }
     } finally {
-      setDownloadingId(null);
+      dispatch(setDownloadingId(null));
+    }
+  };
+
+  const handleFallbackDownload = async (url: string, fileName: string) => {
+    const { fs, config } = ReactNativeBlobUtil;
+    const tempPath = `${fs.dirs.CacheDir}/${fileName}`;
+
+    try {
+      const res = await config({ fileCache: true, path: tempPath }).fetch(
+        "GET",
+        url,
+      );
+
+      // Open the Android Share Sheet so the user can "Save to Device" or "Open with PDF"
+      await ReactNativeBlobUtil.android.actionViewIntent(
+        res.path(),
+        "application/pdf",
+      );
+    } catch (err) {
+      Toast.show({ type: "error", text1: "Download failed entirely" });
     }
   };
 
   const isDownloading = (receiptId: string) => downloadingId === receiptId;
 
   useEffect(() => {
-    fetchUserReceipts(selectedYear);
-  }, [selectedYear]);
+    dispatch(fetchReceipts({ year: selectedYear }));
+  }, [selectedYear, dispatch]);
 
   return (
     <View style={styles.container}>
@@ -385,7 +329,7 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
                           },
                         ]}
                         onPress={() => {
-                          setSelectedYear(year);
+                          dispatch(setSelectedYear(year));
                           setShowYearDropdown(false);
                         }}
                       >

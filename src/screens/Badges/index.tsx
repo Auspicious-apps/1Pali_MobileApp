@@ -271,7 +271,12 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   }}
                 >
                   <View
-                    style={{ alignItems: "center", justifyContent: "center" }}
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 100,
+                      overflow: "hidden",
+                    }}
                   >
                     <BadgeIcon
                       badge={badge?.name}

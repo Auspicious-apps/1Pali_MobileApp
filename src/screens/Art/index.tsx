@@ -17,7 +17,6 @@ import IMAGES from "../../assets/Images";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import { CustomText } from "../../components/CustomText";
 import COLORS from "../../utils/Colors";
-import { fetchData } from "../../service/ApiService";
 import {
   Artwork,
   GetUserArtResponse,
@@ -25,6 +24,8 @@ import {
 import ENDPOINTS from "../../service/ApiEndpoints";
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import LinearGradient from "react-native-linear-gradient";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { fetchArts } from "../../redux/slices/ArtsSlice";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SIDE_PADDING = horizontalScale(20);
@@ -32,8 +33,8 @@ const CARD_GAP = horizontalScale(12);
 const CARD_WIDTH = (SCREEN_WIDTH - SIDE_PADDING * 2 - CARD_GAP) / 2;
 
 const Art: FC<ArtScreenProps> = ({ navigation }) => {
-  const [artworks, setArtworks] = useState<Artwork[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { artworks, loading } = useAppSelector((state) => state.arts);
   const [weekImageLoading, setWeekImageLoading] = useState(true);
 
   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
@@ -107,24 +108,12 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
   };
 
   const fetchUserArt = async () => {
-    try {
-      setLoading(true);
-      const response = await fetchData<GetUserArtResponse>(
-        ENDPOINTS.GetArtForUser,
-      );
-
-      const data = response?.data?.data?.artworks ?? [];
-      setArtworks(data);
-    } catch (error) {
-      console.error("Error fetching user art:", error);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(fetchArts({ page: 1 }));
   };
 
   useEffect(() => {
     fetchUserArt();
-  }, []);
+  }, [dispatch]);
 
   const renderItem = useCallback(
     ({ item }: { item: Artwork }) => (

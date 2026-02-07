@@ -1,34 +1,16 @@
-import {
-  View,
-  Text,
-  Image,
-  Animated,
-  Easing,
-  Platform,
-  Alert,
-} from "react-native";
-import React, { FC, useEffect, useRef, useState, useMemo } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import IMAGES from "../../assets/Images";
-import styles from "./styles";
-import { CustomText } from "../../components/CustomText";
-import COLORS from "../../utils/Colors";
-import { MissionIntroProps } from "../../typings/routes";
-import { hp, verticalScale, wp } from "../../utils/Metrics";
-import PrimaryButton from "../../components/PrimaryButton";
-import ICONS from "../../assets/Icons";
+import appleAuth from "@invertase/react-native-apple-authentication";
 import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import { postData } from "../../service/ApiService";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { showCustomToast, storeLocalStorageData } from "../../utils/Helpers";
-import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
-import STORAGE_KEYS from "../../utils/Constants";
-import appleAuth from "@invertase/react-native-apple-authentication";
-import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import React, { FC, useEffect, useState } from "react";
+import { Alert, Image, Platform, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import { CustomText } from "../../components/CustomText";
+import PrimaryButton from "../../components/PrimaryButton";
 import {
   decrementReservationTimer,
   setBadges,
@@ -36,6 +18,17 @@ import {
   setUserData,
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
+import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
+import { postData } from "../../service/ApiService";
+import { MissionIntroProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import STORAGE_KEYS from "../../utils/Constants";
+import { storeLocalStorageData } from "../../utils/Helpers";
+import { hp, verticalScale, wp } from "../../utils/Metrics";
+import styles from "./styles";
 
 const initialTimer = 300;
 
@@ -70,7 +63,11 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
       const { identityToken, authorizationCode, user, nonce } = appleResponse;
 
       if (!identityToken || !authorizationCode) {
-        showCustomToast("error", "Apple Sign-In failed");
+        Toast.show({
+          type: "error",
+          text1: "Apple Sign-In Failed",
+          text2: "No sign-in data received from Apple",
+        });
         return;
       }
 
@@ -162,8 +159,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           );
           await storeLocalStorageData("userData", user);
 
-          console.log("Tokens and user data saved successfully");
-
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
             navigation.navigate("joinOnePali");
@@ -184,11 +179,19 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         } else {
           const errorMessage = signinResponse.data.message || "Sign-in failed";
           console.error("API Error:", errorMessage);
-          showCustomToast("error", errorMessage);
+          Toast.show({
+            type: "error",
+            text1: "Google Sign-In Failed",
+            text2: errorMessage,
+          });
         }
       } else {
         console.log("error", "signin data not found");
-        showCustomToast("error", "No sign-in data received from Google");
+        Toast.show({
+          type: "error",
+          text1: "Google Sign-In Failed",
+          text2: "No sign-in data received from Google",
+        });
       }
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
@@ -197,26 +200,21 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         errorMessage = "Sign-in was cancelled";
-        Alert.alert("Sign In Cancelled", "User cancelled the sign in flow.");
       } else if (error.code === statusCodes.IN_PROGRESS) {
         errorMessage = "Sign-in is already in progress";
-        Alert.alert(
-          "Sign In In Progress",
-          "Operation (e.g. sign in) is already in progress.",
-        );
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         errorMessage = "Google Play Services not available";
-        Alert.alert(
-          "Play Services Not Available",
-          "Google Play Services not available or outdated.",
-        );
       } else {
         const message = error.message || "An unexpected error occurred";
         errorMessage = message;
         Alert.alert("Sign In Error", message);
       }
 
-      showCustomToast("error", errorMessage);
+      Toast.show({
+        type: "error",
+        text1: "Google Sign-In Failed",
+        text2: errorMessage,
+      });
     } finally {
       setIsSigningIn(false);
     }

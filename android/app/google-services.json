@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "72813689825-rumd4muj667t7rg7hdladk6k5mt6rq7v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.onepali",
+            "certificate_hash": "a4cfcfe685c00f000a9346160d02294687443652"
+          }
+        },
+        {
           "client_id": "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -37,6 +45,13 @@
             {
               "client_id": "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "72813689825-3uvkvar5timqdl5bce2gkenpgrfs2g60.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.onepali"
+              }
             }
           ]
         }
