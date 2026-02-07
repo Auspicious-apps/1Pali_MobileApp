@@ -4,11 +4,13 @@ import { Plan } from "../../service/ApiResponses/GetAllStripePLans";
 interface StripePlansState {
   stripePlans: Plan[];
   selectedPlanId?: string | null;
+  selectedPlanData?: Plan | null;
 }
 
 const initialState: StripePlansState = {
   stripePlans: [],
   selectedPlanId: null,
+  selectedPlanData: null,
 };
 
 const StripePlansSlice = createSlice({
@@ -21,9 +23,13 @@ const StripePlansSlice = createSlice({
     setSelectedPlanId: (state, action: PayloadAction<string>) => {
       state.selectedPlanId = action.payload;
     },
+    setSelectedPlanData: (state, action: PayloadAction<Plan>) => {
+      state.selectedPlanData = action.payload;
+    },
   },
 });
 
-export const { setStripePlans, setSelectedPlanId } = StripePlansSlice.actions;
+export const { setStripePlans, setSelectedPlanId, setSelectedPlanData } =
+  StripePlansSlice.actions;
 
 export default StripePlansSlice.reducer;

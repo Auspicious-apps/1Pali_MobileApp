@@ -14,4 +14,5 @@ export interface Plan {
   type: string;
   active: boolean;
   createdAt: string;
+  metadata: any;
 }

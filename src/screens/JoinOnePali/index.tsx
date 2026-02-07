@@ -36,7 +36,10 @@ import ENDPOINTS from "../../service/ApiEndpoints";
 import { ConsfirmSetupIntentApiResponse } from "../../service/ApiResponses/ConfirmSetupIntentApiResponse";
 import { CreateApplePaySetupIntentApiResponse } from "../../service/ApiResponses/CreateApplePaySetupIntentApiResponse";
 import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
-import { GetAllStripeePlansResponse } from "../../service/ApiResponses/GetAllStripePLans";
+import {
+  GetAllStripeePlansResponse,
+  Plan,
+} from "../../service/ApiResponses/GetAllStripePLans";
 import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
 import { fetchData, postData } from "../../service/ApiService";
 import { JoinOnePaliProps } from "../../typings/routes";
@@ -62,6 +65,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlanData, setSelectedPlanData] = useState<Plan | null>(null);
+  const [feesAmount, setFeesAmount] = useState({
+    amount: "",
+    planId: "",
+  });
+
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [showCard, setShowCard] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -112,12 +121,14 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         return;
       }
 
+      const planId = enabled ? feesAmount.planId : selectedPlan;
+
       if (user && user.hasPaymentMethod) {
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
             ENDPOINTS.ConfirmSetupIntent,
             {
-              priceId: selectedPlan,
+              priceId: planId,
               reservationToken: reservationToken,
             },
           );
@@ -144,7 +155,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         const response = await postData<CreateSetupIntentResponse>(
           ENDPOINTS.CreateSetupIntent,
           {
-            priceId: selectedPlan,
+            priceId: planId,
           },
         );
 
@@ -187,7 +198,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           await postData<ConsfirmSetupIntentApiResponse>(
             ENDPOINTS.ConfirmSetupIntent,
             {
-              priceId: selectedPlan,
+              priceId: planId,
               reservationToken: reservationToken,
               setupIntentId,
             },
@@ -226,6 +237,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         Alert.alert("Error", "Please select a plan");
         return;
       }
+      const planId = enabled ? feesAmount.planId : selectedPlan;
 
       if (user && user.hasPaymentMethod && user.defaultPaymentMethodId) {
         const confirmSetupIntentresponse =
@@ -233,7 +245,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             ENDPOINTS.ConfirmApplePaySetupIntent,
             {
               paymentMethodId: user.defaultPaymentMethodId,
-              priceId: selectedPlan,
+              priceId: planId,
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
@@ -261,7 +273,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         const response = await postData<CreateApplePaySetupIntentApiResponse>(
           ENDPOINTS.CreateApplePaySetupIntent,
           {
-            priceId: selectedPlan,
+            priceId: planId,
           },
         );
 
@@ -308,7 +320,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             ENDPOINTS.ConfirmApplePaySetupIntent,
             {
               paymentMethodId: setupIntent?.paymentMethod?.id,
-              priceId: selectedPlan,
+              priceId: planId,
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
@@ -354,6 +366,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
         dispatch(setStripePlans(activePlans));
         setSelectedPlan(activePlans[0]?.id);
+        setSelectedPlanData(activePlans[0]);
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
@@ -361,6 +374,26 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       setLoadingPlans(false);
     }
   };
+
+  useEffect(() => {
+    if (selectedPlanData && stripePlans.length) {
+      const currentBothPLans = stripePlans.filter((p) =>
+        p.nickname.includes(selectedPlanData?.nickname),
+      );
+
+      const planWithFees = currentBothPLans.find(
+        (p) => p.metadata.calculationMethod === "reverse-fee",
+      );
+
+      const calculatedFee = planWithFees
+        ? (
+            planWithFees.amount - parseFloat(planWithFees.metadata.netAmount)
+          ).toFixed(2)
+        : "0";
+
+      setFeesAmount({ amount: calculatedFee, planId: planWithFees?.id || "" });
+    }
+  }, [selectedPlan, selectedPlanData, stripePlans]);
 
   useEffect(() => {
     getAllPlans();
@@ -446,31 +479,38 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             </View>
 
             <View style={styles.toggleWrapper}>
-              {stripePlans.map((plan, index) => {
-                const isSelected = selectedPlan === plan.id;
-                const isFirst = index === 0;
-                return (
-                  <TouchableOpacity
-                    key={plan.id}
-                    activeOpacity={0.8}
-                    onPress={() => setSelectedPlan(plan.id)}
-                    style={[
-                      styles.toggleItem,
-                      !isFirst && styles.toggleItemDivider,
-                      isSelected && styles.toggleItemActive,
-                    ]}
-                  >
-                    <CustomText
+              {stripePlans
+                .filter((plan) => !plan.metadata.calculationMethod)
+                .map((plan, index) => {
+                  const isSelected = selectedPlan === plan.id;
+                  const isFirst = index === 0;
+                  const displayAmount = plan.metadata.netAmount || plan.amount;
+
+                  return (
+                    <TouchableOpacity
+                      key={plan.id}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        setSelectedPlan(plan.id);
+                        setSelectedPlanData(plan);
+                      }}
                       style={[
-                        styles.toggleText,
-                        isSelected && styles.toggleTextActive,
+                        styles.toggleItem,
+                        !isFirst && styles.toggleItemDivider,
+                        isSelected && styles.toggleItemActive,
                       ]}
                     >
-                      ${plan?.amount}/{plan?.interval}
-                    </CustomText>
-                  </TouchableOpacity>
-                );
-              })}
+                      <CustomText
+                        style={[
+                          styles.toggleText,
+                          isSelected && styles.toggleTextActive,
+                        ]}
+                      >
+                        ${displayAmount}/{plan?.interval}
+                      </CustomText>
+                    </TouchableOpacity>
+                  );
+                })}
             </View>
 
             {/* Benefits */}
@@ -516,7 +556,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                   fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
-                  Sure, I’ll cover the $0.43 processing fee
+                  Sure, I’ll cover the ${feesAmount.amount} processing fee
                 </CustomText>
               </View>
 

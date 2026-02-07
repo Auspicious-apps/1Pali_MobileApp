@@ -17,6 +17,7 @@ import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
+  setSelectedPlanData,
   setSelectedPlanId,
   setStripePlans,
 } from "../../redux/slices/StripePlans";
@@ -38,7 +39,7 @@ import {
 const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.user);
-  const { stripePlans, selectedPlanId } = useAppSelector(
+  const { stripePlans, selectedPlanId, selectedPlanData } = useAppSelector(
     (state) => state.stripePlans,
   );
 
@@ -47,16 +48,52 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const isCancelling =
     user?.subscriptionStatus === "CANCELLING" || user?.cancelAtPeriodEnd;
 
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(false);
+  const [previousPlanId, setPreviousPlanId] = useState<string | null>(null);
+
+  const [feesAmount, setFeesAmount] = useState({
+    amount: "",
+    planId: "",
+  });
 
   const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
 
+  // Edge case: Check if fee plan is available
+  const isFeesPlanAvailable = !!feesAmount.planId && feesAmount.amount !== "0";
+
+  // Edge case: Determine if plan has changed
+  const isPlanChanged =
+    (enabled && feesAmount.planId !== user?.stripePriceId) ||
+    (!enabled && selectedPlanId !== user?.stripePriceId);
+
   const handlePlanChange = async () => {
+    // Edge case: Validate plan selection before API call
+    if (enabled && !feesAmount.planId) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Processing fee plan is not available for this donation amount.",
+      });
+      return;
+    }
+
+    // Edge case: Prevent update if no actual change
+    if (!isPlanChanged) {
+      Toast.show({
+        type: "info",
+        text1: "No Changes",
+        text2: "Please select a different plan to update.",
+      });
+      return;
+    }
+
     setIsUpdatingPlan(true);
+
+    const planId = enabled ? feesAmount.planId : selectedPlanId;
     try {
       const planChangeResponse = await postData(ENDPOINTS.UpdatePlan, {
-        newPriceId: selectedPlanId,
+        newPriceId: planId,
       });
 
       if (planChangeResponse?.data?.success) {
@@ -65,15 +102,31 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
           text1: "Success",
           text2: "Your donation plan has been updated.",
         });
+        if (planId) {
+          setPreviousPlanId(planId);
+        }
         dispatch(fetchUserProfile());
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Error updating plan:", error);
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "There was an error updating your plan. Please try again.",
-      });
+      // Edge case: Handle specific error messages
+      if (
+        error.message.includes(
+          "Cannot switch plans while your subscription is scheduled for cancellation.",
+        )
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Cannot Update",
+          text2: "Cannot switch plans while scheduled for cancellation.",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "There was an error updating your plan. Please try again.",
+        });
+      }
     } finally {
       setIsUpdatingPlan(false);
     }
@@ -89,8 +142,17 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
       if (response?.data?.data?.plans?.length) {
         const activePlans = response?.data?.data?.plans;
+
+        const selectPlan = activePlans.filter(
+          (p) => p.id === selectedPlanId,
+        )[0];
+
+        if (selectPlan.metadata.calculationMethod === "reverse-fee") {
+          setEnabled(true);
+        }
+
         dispatch(setStripePlans(activePlans));
-        dispatch(fetchUserProfile());
+        dispatch(setSelectedPlanData(selectPlan));
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
@@ -100,18 +162,34 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   };
 
   const handleResubscribe = async () => {
+    // Edge case: Validate plan selection before API call
+    if (enabled && !feesAmount.planId) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Processing fee plan is not available for this donation amount.",
+      });
+      return;
+    }
+
     setIsUpdatingPlan(true);
+
+    const planId = enabled ? feesAmount.planId : selectedPlanId;
+
     try {
       const planChangeResponse = await postData(ENDPOINTS.resubscribePlan, {
-        priceId: selectedPlanId,
+        priceId: planId,
       });
 
       if (planChangeResponse?.data?.success) {
         Toast.show({
           type: "success",
           text1: "Success",
-          text2: "Your donation plan has been updated.",
+          text2: "Your donation plan has been reactivated.",
         });
+        if (planId) {
+          setPreviousPlanId(planId);
+        }
         dispatch(fetchUserProfile());
       }
     } catch (error: any) {
@@ -167,10 +245,28 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (!stripePlans.length) {
-      getAllPlans();
+    getAllPlans();
+  }, []);
+
+  useEffect(() => {
+    if (selectedPlanData && stripePlans.length) {
+      const currentBothPLans = stripePlans.filter((p) =>
+        p.nickname.includes(selectedPlanData?.nickname),
+      );
+
+      const planWithFees = currentBothPLans.find(
+        (p) => p.metadata.calculationMethod === "reverse-fee",
+      );
+
+      const calculatedFee = planWithFees
+        ? (
+            planWithFees.amount - parseFloat(planWithFees.metadata.netAmount)
+          ).toFixed(2)
+        : "0";
+
+      setFeesAmount({ amount: calculatedFee, planId: planWithFees?.id || "" });
     }
-  }, [stripePlans]);
+  }, [selectedPlanData, stripePlans, selectedPlanId]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -243,31 +339,42 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.toggleWrapper}>
-              {stripePlans.map((plan, index) => {
-                const isSelected = selectedPlanId === plan.id;
-                const isFirst = index === 0;
-                return (
-                  <TouchableOpacity
-                    key={plan.id}
-                    activeOpacity={0.8}
-                    onPress={() => dispatch(setSelectedPlanId(plan.id))}
-                    style={[
-                      styles.toggleItem,
-                      !isFirst && styles.toggleItemDivider,
-                      isSelected && styles.toggleItemActive,
-                    ]}
-                  >
-                    <CustomText
+              {stripePlans
+                .filter((plan) => !plan.metadata.calculationMethod)
+                .map((plan, index) => {
+                  const isSelected = selectedPlanData?.nickname.includes(
+                    plan.nickname,
+                  );
+                  const isFirst = index === 0;
+                  return (
+                    <TouchableOpacity
+                      key={plan.id}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        // Edge case: Reset fees toggle when manually selecting a different plan
+                        setEnabled(false);
+                        setPreviousPlanId(null);
+                        dispatch(setSelectedPlanId(plan.id));
+                        dispatch(setSelectedPlanData(plan));
+                      }}
+                      disabled={isUpdatingPlan}
                       style={[
-                        styles.toggleText,
-                        isSelected && styles.toggleTextActive,
+                        styles.toggleItem,
+                        !isFirst && styles.toggleItemDivider,
+                        isSelected && styles.toggleItemActive,
                       ]}
                     >
-                      ${plan?.amount}/{plan?.interval}
-                    </CustomText>
-                  </TouchableOpacity>
-                );
-              })}
+                      <CustomText
+                        style={[
+                          styles.toggleText,
+                          isSelected && styles.toggleTextActive,
+                        ]}
+                      >
+                        ${plan?.amount}/{plan?.interval}
+                      </CustomText>
+                    </TouchableOpacity>
+                  );
+                })}
             </View>
 
             {/* Benefits */}
@@ -313,13 +420,48 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   fontSize={14}
                   style={{ color: COLORS.appText }}
                 >
-                  Sure, I’ll cover the $0.43 processing fee
+                  Sure, I’ll cover the ${feesAmount.amount} processing fee
                 </CustomText>
               </View>
 
               <CustomSwitch
                 value={enabled}
-                onValueChange={setEnabled}
+                onValueChange={(value) => {
+                  // Edge case: Prevent toggle if fees plan not available
+                  if (value && !isFeesPlanAvailable) {
+                    Toast.show({
+                      type: "error",
+                      text1: "Not Available",
+                      text2:
+                        "Processing fees option is not available for this plan.",
+                    });
+                    return;
+                  }
+
+                  // Edge case: Prevent toggle while updating plan
+                  if (isUpdatingPlan) {
+                    return;
+                  }
+
+                  // Edge case: Store previous plan when enabling, restore when disabling
+                  if (value) {
+                    if (selectedPlanId) {
+                      setPreviousPlanId(selectedPlanId);
+                    }
+                    setEnabled(true);
+                    // Auto-select the fee plan
+                    if (feesAmount.planId) {
+                      dispatch(setSelectedPlanId(feesAmount.planId));
+                    }
+                  } else {
+                    setEnabled(false);
+                    // Restore previous plan
+                    if (previousPlanId) {
+                      dispatch(setSelectedPlanId(previousPlanId));
+                      setPreviousPlanId(null);
+                    }
+                  }
+                }}
                 thumbColorOn="#FFFFFF"
                 thumbColorOff={COLORS.white}
                 trackColorOn={[COLORS.darkGreen, COLORS.darkGreen]}
@@ -340,24 +482,16 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
             {/* Save Button */}
             <PrimaryButton
-              title={
-                // selectedPlanId === user?.stripePriceId
-                //   ? user?.subscriptionStatus === "ACTIVE"
-                //     ? "Current donation"
-                //     : "Resume Donation"
-                //   : user?.subscriptionStatus === "ACTIVE"
-                //   ? "Update donation"
-                //   : (user?.subscriptionStatus === "CANCELLED" ||
-                //       user?.subscriptionStatus === "CANCELLING") &&
-                //     selectedPlanId
-                //   ? "Update donation"
-                //   : "Update donation"
-                getButtonTitle()
-              }
+              title={getButtonTitle()}
               onPress={onButtonPress}
               disabled={
-                selectedPlanId === user?.stripePriceId &&
-                user?.subscriptionStatus === "ACTIVE"
+                isUserActive // Edge case: Disable if no plan change detected
+                  ? !isPlanChanged ||
+                    // Edge case: Disable if fees are enabled but plan not available
+                    (enabled && !feesAmount.planId) ||
+                    // Edge case: Disable while updating
+                    isUpdatingPlan
+                  : false
               }
               style={styles.saveButton}
               isLoading={isUpdatingPlan}
