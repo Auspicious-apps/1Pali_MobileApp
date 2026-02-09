@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Image, View } from "react-native";
+import { Image, Platform, View } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
@@ -18,22 +18,25 @@ const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 const fundCards = [
   {
     id: "1",
-    title: " 1. Claim your number",
+    title: "Choose your number ",
     description: "Starts a $1 monthly subscription to hold your number.",
     image: IMAGES.ClaimCard,
+    bgColor: COLORS.midBlue,
   },
   {
     id: "2",
-    title: " 2. Support & Share",
+    title: "Support & Share",
     description:
       "Small monthly support fuels real impact—and sharing amplifies it.",
     image: IMAGES.SupportImage,
+    bgColor: COLORS.midGreen,
   },
   {
     id: "3",
-    title: " 3. Stay in the Loop",
+    title: "Stay in the Loop",
     description: "See where funds go and hear from the ground.",
     image: IMAGES.LoopImage,
+    bgColor: COLORS.midRed,
   },
 ];
 
@@ -52,16 +55,17 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           <View style={styles.header}>
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={36}
+              fontSize={Platform.OS === "android" ? 40 : 42}
               color={COLORS.darkText}
               style={styles.headerTitle}
             >
               One cause, one million supporters
             </CustomText>
             <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={16}
+              fontFamily="SourceSansRegular"
+              fontSize={18}
               color={COLORS.appText}
+              style={{ lineHeight: verticalScale(20), width: "95%" }}
             >
               OnePali is built on people showing up together. Each member
               donates $1 per month. Small amounts add up when shared by many.
@@ -76,7 +80,10 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             contentContainerStyle={styles.fundsListContent}
           >
             {fundCards.map((item) => (
-              <View key={item.id} style={styles.fundCard}>
+              <View
+                key={item.id}
+                style={[styles.fundCard, { backgroundColor: item.bgColor }]}
+              >
                 {item.image ? (
                   <Image source={item.image} style={styles.fundCardImage} />
                 ) : (
@@ -85,7 +92,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={18}
-                  color={COLORS.darkText}
+                  color={COLORS.greyish}
                   style={styles.fundCardTitle}
                 >
                   {item.title}
@@ -93,8 +100,8 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={15}
-                  color={COLORS.appText}
-                  style={{ lineHeight: verticalScale(15) }}
+                  color={COLORS.greyish}
+                  style={{ lineHeight: verticalScale(17) }}
                 >
                   {item.description}
                 </CustomText>
@@ -109,7 +116,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               style={{ marginBottom: verticalScale(24), gap: verticalScale(8) }}
             >
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily="GabaritoSemiBold"
                 fontSize={22}
                 style={styles.centerText}
               >
@@ -130,7 +137,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             </View>
             <View style={{ gap: verticalScale(8) }}>
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily="GabaritoSemiBold"
                 fontSize={22}
                 style={styles.centerText}
               >
@@ -163,7 +170,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
 
           <View style={styles.sectionWrapper}>
             <CustomText
-              fontFamily="GabaritoMedium"
+              fontFamily="GabaritoSemiBold"
               fontSize={22}
               style={styles.centerText}
             >
@@ -175,7 +182,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 <View style={{ gap: verticalScale(4) }}>
                   <CustomText
                     fontFamily="GabaritoMedium"
-                    fontSize={18}
+                    fontSize={20}
                     color={COLORS.darkText}
                   >
                     OnePali
@@ -198,7 +205,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 <View style={{ gap: verticalScale(4) }}>
                   <CustomText
                     fontFamily="GabaritoMedium"
-                    fontSize={18}
+                    fontSize={20}
                     color={COLORS.darkText}
                   >
                     Middle East Children’s Alliance
@@ -222,7 +229,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             />
             <View style={styles.sectionWrapper}>
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily="GabaritoSemiBold"
                 fontSize={22}
                 style={styles.centerText}
               >
@@ -256,7 +263,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
         <PrimaryButton
           title="Continue"
           onPress={() => {
-            navigation.replace("claimSpot");
+            navigation.navigate("claimSpot");
           }}
           style={styles.primaryButton}
         />

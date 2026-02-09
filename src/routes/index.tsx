@@ -31,6 +31,8 @@ import {
   UpdateStackParams,
 } from "../typings/routes";
 import FAQ from "../screens/FAQ";
+import SplashInitial from "../screens/SplashInitial";
+import { Platform } from "react-native";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -45,12 +47,15 @@ const AccountStack = createNativeStackNavigator<AccountStackParams>();
 
 const navigatorScreenOptions = {
   headerShown: false,
-  animation: "ios_from_right" as const,
+  animation: (Platform.OS === "ios"
+    ? "slide_from_right"
+    : "slide_from_right") as any,
 };
 
 function OnBoardingStack() {
   return (
     <OnBoardingStackNavigator.Navigator screenOptions={navigatorScreenOptions}>
+      <OnBoardingStackNavigator.Screen name="splash" component={Splash} />
       <OnBoardingStackNavigator.Screen
         name="onboarding"
         component={Onboarding}
@@ -133,7 +138,7 @@ export default function Routes() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={navigatorScreenOptions}>
-        <Stack.Screen name="splash" component={Splash} />
+        <Stack.Screen name="splashInitial" component={SplashInitial} />
         <Stack.Screen name="OnBoardingStack" component={OnBoardingStack} />
         <Stack.Screen name="MainStack" component={MainStack} />
       </Stack.Navigator>

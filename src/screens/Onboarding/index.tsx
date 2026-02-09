@@ -5,7 +5,7 @@ import { CustomText } from '../../components/CustomText';
 import COLORS from '../../utils/Colors';
 import styles from './styles';
 import { OnboardingProps } from '../../typings/routes';
-
+import HapticFeedback from "react-native-haptic-feedback";
 
 const texts = [
   "1,000,000 people ",
@@ -22,6 +22,12 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleLetters, setVisibleLetters] = useState(0);
   const letters = texts[currentIndex].split('');
+
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
+  
   // Always create a new array of Animated.Values when the text changes
   const opacityAnimsRef = useRef([] as Animated.Value[]);
   if (opacityAnimsRef.current.length !== letters.length) {
@@ -37,6 +43,7 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
     // Animate each letter in
     letters.forEach((_, i) => {
       setTimeout(() => {
+          HapticFeedback.trigger("impactLight", hapticOptions);
         Animated.timing(opacityAnims[i], {
           toValue: 1,
           duration: 120,
@@ -67,9 +74,9 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
       <View
         key={currentIndex}
         style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "center",
         }}
       >
         {letters.map((char, index) => (
@@ -78,11 +85,11 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
             style={{ opacity: opacityAnims[index] }}
           >
             <CustomText
-              fontFamily="GabaritoMedium"
+              fontFamily="GabaritoSemiBold"
               fontSize={42}
               color={COLORS.darkText}
             >
-              {char === ' ' ? '\u00A0' : char}
+              {char === " " ? "\u00A0" : char}
             </CustomText>
           </Animated.View>
         ))}

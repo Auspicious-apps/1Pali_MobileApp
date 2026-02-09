@@ -4,7 +4,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useEffect, useState } from "react";
-import { Alert, Image, Platform, View } from "react-native";
+import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
@@ -27,8 +27,9 @@ import { MissionIntroProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
-import { hp, verticalScale, wp } from "../../utils/Metrics";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
+import CustomIcon from "../../components/CustomIcon";
 
 const initialTimer = 300;
 
@@ -38,6 +39,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const { claimedNumber } = useAppSelector((state) => state.user);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isTimerActive = reservationSeconds !== null && reservationSeconds < 0;
+
 
   const dispatch = useAppDispatch();
 
@@ -241,6 +245,28 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
+        {reservationSeconds === 0 && (
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top:
+                Platform.OS === "android"
+                  ? verticalScale(20)
+                  : verticalScale(70),
+              left: horizontalScale(30),
+            }}
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
+            <CustomIcon
+              Icon={ICONS.backArrow}
+              height={verticalScale(40)}
+              width={horizontalScale(40)}
+            />
+          </TouchableOpacity>
+        )}
         <Image source={IMAGES.LogoText} style={styles.logo} />
 
         <View style={styles.headingContainer}>
@@ -276,14 +302,14 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           }}
         />
 
-        <View style={{ marginTop: verticalScale(30), alignItems: "center" }}>
+        <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
           {Platform.OS === "android" ? (
             <PrimaryButton
               title="Sign in with Google"
               leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
               onPress={handleGoogleSignIn}
               isLoading={isSigningIn}
-              disabled={isSigningIn}
+              disabled={isSigningIn || isTimerActive}
             />
           ) : (
             <PrimaryButton
@@ -291,6 +317,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
               onPress={handleAppleSignIn}
               isLoading={isLoading}
+              disabled={isLoading || isTimerActive}
             />
           )}
 

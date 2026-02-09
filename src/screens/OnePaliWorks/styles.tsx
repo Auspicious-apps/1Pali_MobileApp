@@ -26,9 +26,9 @@ const styles = StyleSheet.create({
     gap: verticalScale(8),
   },
   headerTitle: {
-    width: "90%",
+    width: "100%",
     textAlign: "left",
-    lineHeight: verticalScale(35),
+    lineHeight: verticalScale(40),
   },
   centerText: {
     textAlign: "center",
@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.LightGrey,
     marginTop: verticalScale(16),
     borderRadius: 12,
-    backgroundColor: COLORS.white,
     width: horizontalScale(260),
     gap: verticalScale(4),
   },

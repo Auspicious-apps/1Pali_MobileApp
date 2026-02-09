@@ -2,12 +2,13 @@ import { NavigatorScreenParams } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type RootStackParams = {
-  splash: undefined;
+  splashInitial: undefined;
   OnBoardingStack: NavigatorScreenParams<OnBoardingStackParams>;
   MainStack: NavigatorScreenParams<MainStackParams>;
 };
 
 export type OnBoardingStackParams = {
+  splash: undefined;
   onboarding: undefined;
   onePaliWorks: undefined;
   claimSpot: undefined;
@@ -47,12 +48,16 @@ export type BottomStackParams = {
 };
 
 // SPLASH SCREEN
-export type SplashScreenProps = NativeStackScreenProps<
+export type SplashInitialScreenProps = NativeStackScreenProps<
   RootStackParams,
-  "splash"
+  "splashInitial"
 >;
 
 // ONBOARDING SCREENS
+export type SplashScreenProps = NativeStackScreenProps<
+  RootStackParams & OnBoardingStackParams,
+  "splash"
+>;
 export type OnboardingProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
   "onboarding"

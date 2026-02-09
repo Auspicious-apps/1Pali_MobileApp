@@ -116,90 +116,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     </View>
   );
 
-  const prepareMedia = async () => {
-    if (!blogDetail?.coverPhotoUrl) return null;
-
-    let uri = blogDetail.coverPhotoUrl;
-
-    if (!uri.startsWith("http")) return uri;
-
-    try {
-      const extension = uri.includes(".png") ? ".png" : ".jpg";
-      const path = `${RNFS.CachesDirectoryPath}/blog-${blogId}${extension}`;
-
-      const exists = await RNFS.exists(path);
-
-      if (!exists) {
-        await RNFS.downloadFile({
-          fromUrl: uri,
-          toFile: path,
-        }).promise;
-      }
-
-      return "file://" + path;
-    } catch (e) {
-      console.log("Media prep failed:", e);
-      return uri; // fallback to remote URL
-    }
-  };
-
-  const shareToApp = async (platform: ShareType) => {
-    if (!blogDetail) return;
-
-    try {
-      setSharing(true);
-
-      const uri = await prepareMedia();
-      if (!uri) return;
-
-      const baseOptions = {
-        url: uri,
-        message: blogDetail.title || "",
-        type: "image/jpeg",
-      };
-
-      if (platform === "more" || platform === "message") {
-        await ShareLib.open(baseOptions);
-        await postData<ShareBlogResponse>(
-          `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-          { platform },
-        );
-      } else {
-        const socialMap = {
-          instagram: ShareLib.Social.INSTAGRAM,
-          facebook: ShareLib.Social.FACEBOOK,
-          whatsapp: ShareLib.Social.WHATSAPP,
-        };
-
-        await ShareLib.shareSingle({
-          ...baseOptions,
-          social: socialMap[platform],
-        });
-      }
-      const response = await postData<ShareBlogResponse>(
-        `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-        { platform },
-      );
-
-      if (response?.data?.success) {
-        setBlogDetail((prev) =>
-          prev
-            ? {
-                ...prev,
-                sharesCount: response.data.data.sharesCount,
-              }
-            : prev,
-        );
-      }
-    } catch (err: any) {
-      if (!err?.message?.includes("cancel")) {
-        console.log("Share failed:", err);
-      }
-    } finally {
-      setSharing(false);
-    }
-  };
-
   const timeAgo = (date?: string) => {
     if (!date) return "";
     const diff = Date.now() - new Date(date).getTime();
@@ -388,38 +304,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     }, 100);
   };
 
-  // const handleShare = async () => {
-  //   if (sharing || !blogDetail) return;
-
-  //   try {
-  //     setSharing(true);
-
-  //     const result = await Share.share({
-  //       title: blogDetail.title,
-  //       message: `${blogDetail.title}\n\n${blogDetail?.excerpt || ""}\n\n${
-  //         blogDetail.coverPhotoUrl
-  //       }`,
-  //       url: blogDetail.coverPhotoUrl,
-  //     });
-
-  //     if (result.action === Share.sharedAction) {
-  //       const response = await postData<ShareBlogResponse>(
-  //         `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-  //         { platform: "WHATSAPP" },
-  //       );
-
-  //       if (response?.data?.success) {
-  //         setBlogDetail((prev) =>
-  //           prev ? { ...prev, sharesCount: prev.sharesCount + 1 } : prev,
-  //         );
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("Share error", error);
-  //   } finally {
-  //     setSharing(false);
-  //   }
-  // };
   const handleShare = async () => {
     if (sharing || !blogDetail) return;
 
@@ -748,17 +632,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               </View>
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => {
-                  setOpenModal(true);
-                }}
+                onPress={handleShare}
                 style={styles.ShareButton}
                 disabled={sharing}
               >
-                {/* <CustomIcon
-                  Icon={ICONS.NavigationIcon}
-                  height={24}
-                  width={24}
-                /> */}
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={16}
@@ -855,12 +732,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           </>
         )}
       </KeyboardAvoidingView>
-      <ShareArtModal
-        visible={OpenModal}
-        onClose={() => setOpenModal(false)}
-        onShare={shareToApp}
-        mediaUrl={blogDetail?.coverPhotoUrl}
-      />
     </View>
   );
 };
