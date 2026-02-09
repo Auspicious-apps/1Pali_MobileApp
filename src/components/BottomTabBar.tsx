@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     zIndex: 99,
     gap: verticalScale(5),
+    paddingHorizontal: horizontalScale(20),
   },
   middleButton: {
     position: "absolute",

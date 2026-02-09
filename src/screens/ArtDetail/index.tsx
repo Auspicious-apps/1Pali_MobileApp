@@ -4,6 +4,7 @@ import {
   Animated,
   FlatList,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   PermissionsAndroid,
   Platform,
@@ -71,6 +72,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [uiIndex, setUiIndex] = useState(0);
   const mediaLoadedRef = useRef(false);
+  const keyboardVisible = useRef(false);
+
 
   const [isDownloadingArt, setIsDownloadingArt] = useState(false);
 
@@ -593,13 +596,28 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     mediaLoadedRef.current = false;
   }, [artDetail?.mediaUrl]);
 
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => {
+      keyboardVisible.current = true;
+    });
+
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      keyboardVisible.current = false;
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   if (loading) {
     return <ArtDetailShimmer />;
   }
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.header}>
           <View style={styles.side}>
             <TouchableOpacity activeOpacity={0.8}>
@@ -653,7 +671,11 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               if (diff > 5) {
                 setShowCommentInput(true);
                 manualOpen.current = false;
-              } else if (diff < -5 && !manualOpen.current) {
+              } else if (
+                diff < -5 &&
+                !manualOpen.current &&
+                !keyboardVisible.current // 👈 CRITICAL
+              ) {
                 setShowCommentInput(false);
               }
 

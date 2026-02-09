@@ -597,14 +597,17 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               style={{ marginTop: verticalScale(20) }}
             />
           ) : (
-            <PlatformPayButton
+            <PrimaryButton
+              title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
               onPress={handleAppleSetupIntent}
-              style={{
-                width: wp(90),
-                height: hp(6),
-                borderRadius: 20,
-                marginTop: verticalScale(20),
+              leftIcon={{
+                Icon:
+                  Platform.OS === "ios" ? ICONS.AppleLogo : ICONS.GoogleIcon,
+                width: 22,
+                height: 22,
               }}
+              isLoading={isLoading}
+              style={{ marginTop: verticalScale(20) }}
             />
           )
         ) : (
