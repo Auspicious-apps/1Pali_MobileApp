@@ -111,17 +111,17 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
           <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
           <View style={styles.titleContainer}>
             <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={32}
+              fontFamily="GabaritoSemiBold"
+              fontSize={42}
               color={COLORS.darkText}
               style={styles.titleText}
             >
               OnePali
             </CustomText>
             <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={20}
-              color={COLORS.lightPurple}
+              fontFamily="SourceSansRegular"
+              fontSize={18}
+              color={COLORS.appText}
               style={styles.subtitleText}
             >
               One cause. One million supporters.
@@ -187,8 +187,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   titleContainer: {
-    gap: hp(0.25),
-    marginTop: Platform.OS === "ios" ? verticalScale(10) : verticalScale(16),
+    marginTop: Platform.OS === "ios" ? verticalScale(10) : verticalScale(12),
   },
   titleText: {
     textAlign: "center",
@@ -197,7 +196,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   globalImageContainer: {
-    marginTop: Platform.OS === "ios" ? verticalScale(24) : verticalScale(32),
+    marginTop: Platform.OS === "ios" ? verticalScale(16) : verticalScale(16),
   },
   globalImage: {
     width: wp(60),

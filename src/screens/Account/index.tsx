@@ -386,7 +386,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   fontFamily="GabaritoRegular"
                   fontSize={14}
                   color={"#1D222B90"}
-                  style={{ textAlign: "center" }}
+                  style={{ textAlign: "center", marginTop: verticalScale(8) }}
                 >
                   {user?.nextGrowthBadge?.name} badge unlocked in{" "}
                   {user?.nextGrowthBadge?.monthsRemaining} months

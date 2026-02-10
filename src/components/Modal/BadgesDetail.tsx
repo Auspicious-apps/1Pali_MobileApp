@@ -2,6 +2,7 @@ import { BlurView } from "@react-native-community/blur";
 import React, { Dispatch, SetStateAction } from "react";
 import {
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   TouchableOpacity,
@@ -43,13 +44,17 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
         style={{ flex: 1 }}
         onPress={closeModal}
       >
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="light"
-          blurAmount={0.1}
-          reducedTransparencyFallbackColor="white"
-          pointerEvents="none"
-        />
+        {Platform.OS === "ios" ? (
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={0.1}
+            reducedTransparencyFallbackColor="white"
+            pointerEvents="none"
+          />
+        ) : (
+          <View style={styles.androidBackdrop} />
+        )}
         {/* 🔹 Modal Content (UNCHANGED) */}
         <View style={styles.overlay}>
           <View style={styles.modalContainer}>
@@ -144,6 +149,24 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(10),
     paddingHorizontal: horizontalScale(16),
     paddingBottom: verticalScale(50),
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: -2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  androidBackdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
   },
   header: {
     alignItems: "center",

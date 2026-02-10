@@ -6,6 +6,7 @@ import {
   FlatList,
   ImageBackground,
   Modal,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -156,11 +157,17 @@ const CollectBadges = () => {
   return (
     <Modal visible={isVisible} transparent animationType="slide">
       <View style={styles.overlay}>
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="light"
-          blurAmount={2}
-        />
+        {Platform.OS === "ios" ? (
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={0.1}
+            reducedTransparencyFallbackColor="white"
+            pointerEvents="none"
+          />
+        ) : (
+          <View style={styles.androidBackdrop} />
+        )}
 
         <TouchableOpacity
           activeOpacity={1}
@@ -274,6 +281,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  androidBackdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
   },
   modalContent: {
     backgroundColor: "white",

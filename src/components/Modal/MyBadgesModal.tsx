@@ -151,8 +151,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   androidBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
   },
   overlay: {
     flex: 1,
