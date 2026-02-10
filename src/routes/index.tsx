@@ -138,9 +138,9 @@ export default function Routes() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={navigatorScreenOptions}>
-        <Stack.Screen name="MainStack" component={MainStack} />
         <Stack.Screen name="splashInitial" component={SplashInitial} />
         <Stack.Screen name="OnBoardingStack" component={OnBoardingStack} />
+        <Stack.Screen name="MainStack" component={MainStack} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -8,6 +8,8 @@ import {
 import React, { FC, useEffect, useState } from "react";
 import {
   Alert,
+  Animated,
+  Easing,
   Image,
   Platform,
   StyleSheet,
@@ -75,6 +77,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [showCard, setShowCard] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showButton, setShowButton] = useState(false);
+  const [toggleWidth, setToggleWidth] = useState(0);
+  const slideAnim = React.useRef(new Animated.Value(0)).current;
+
+  const visiblePlans = stripePlans.filter((p) => !p.metadata.calculationMethod);
+
+  const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
 
   const pollUserProfile = async (retries = 3): Promise<boolean> => {
     try {
@@ -420,6 +428,21 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   }, [isExpired]);
 
+  useEffect(() => {
+    const index = visiblePlans.findIndex((p) => p.id === selectedPlan);
+
+    if (index >= 0 && ITEM_WIDTH > 0) {
+      Animated.timing(slideAnim, {
+        toValue: index * ITEM_WIDTH,
+        duration: 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [selectedPlan, ITEM_WIDTH]);
+
+
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -470,7 +493,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily="GabaritoSemiBold"
                 fontSize={22}
                 color={COLORS.darkText}
               >
@@ -478,7 +501,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               </CustomText>
             </View>
 
-            <View style={styles.toggleWrapper}>
+            {/* <View style={styles.toggleWrapper}>
               {stripePlans
                 .filter((plan) => !plan.metadata.calculationMethod)
                 .map((plan, index) => {
@@ -511,6 +534,51 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                     </TouchableOpacity>
                   );
                 })}
+            </View> */}
+
+            <View
+              style={styles.toggleWrapper}
+              onLayout={(e) => {
+                setToggleWidth(e.nativeEvent.layout.width - 8);
+              }}
+            >
+              {ITEM_WIDTH > 0 && (
+                <Animated.View
+                  pointerEvents="none"
+                  style={[
+                    styles.slidingBg,
+                    {
+                      width: ITEM_WIDTH,
+                      transform: [{ translateX: slideAnim }],
+                    },
+                  ]}
+                />
+              )}
+
+              {visiblePlans.map((plan) => {
+                const isSelected = selectedPlan === plan.id;
+
+                return (
+                  <TouchableOpacity
+                    key={plan.id}
+                    style={styles.toggleItem}
+                    activeOpacity={0.9}
+                    onPress={() => {
+                      setSelectedPlan(plan.id);
+                      setSelectedPlanData(plan);
+                    }}
+                  >
+                    <CustomText
+                      style={[
+                        styles.toggleText,
+                        isSelected && styles.toggleTextActive,
+                      ]}
+                    >
+                      ${plan.metadata.netAmount || plan.amount}/mo
+                    </CustomText>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
 
             {/* Benefits */}
@@ -718,35 +786,52 @@ const styles = StyleSheet.create({
   },
   toggleWrapper: {
     flexDirection: "row",
-    borderWidth: 1,
-    borderColor: COLORS.greyish,
     alignSelf: "stretch",
     borderRadius: 100,
     marginBottom: verticalScale(12),
     width: "100%",
     backgroundColor: COLORS.white,
-    overflow: "hidden",
+    padding: verticalScale(4),
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 6,
   },
   toggleItem: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: verticalScale(10),
-    backgroundColor: COLORS.white,
+    backgroundColor: "transparent",
+    zIndex: 2,
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: horizontalScale(24),
   },
   toggleItemDivider: {
-    borderLeftWidth: 1,
-    borderColor: COLORS.greyish,
+    // borderLeftWidth: 1,
+    // borderColor: COLORS.greyish,
   },
   toggleItemActive: {
     backgroundColor: COLORS.darkGreen,
+    borderRadius: 30,
   },
   toggleText: {
-    fontFamily: FONTS.GabaritoMedium,
-    fontSize: responsiveFontSize(16),
-    color: COLORS.darkText,
+    fontFamily: FONTS.GabaritoSemiBold,
+    fontSize: responsiveFontSize(18),
+    color: COLORS.appText,
   },
   toggleTextActive: {
     color: COLORS.white,
+  },
+  slidingBg: {
+    position: "absolute",
+    left: 4,
+    top: 4,
+    bottom: 4,
+    backgroundColor: COLORS.darkGreen,
+    borderRadius: 999,
   },
 });
