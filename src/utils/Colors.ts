@@ -26,6 +26,7 @@ const COLORS = {
   midBlue: "#1F3352",
   midGreen: "#017A6E",
   midRed: "#7C133B",
+  DarkGreenText: "#001F01",
 };
 
 export default COLORS;

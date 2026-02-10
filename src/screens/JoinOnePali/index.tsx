@@ -508,41 +508,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               </CustomText>
             </View>
 
-            {/* <View style={styles.toggleWrapper}>
-              {stripePlans
-                .filter((plan) => !plan.metadata.calculationMethod)
-                .map((plan, index) => {
-                  const isSelected = selectedPlan === plan.id;
-                  const isFirst = index === 0;
-                  const displayAmount = plan.metadata.netAmount || plan.amount;
-
-                  return (
-                    <TouchableOpacity
-                      key={plan.id}
-                      activeOpacity={0.8}
-                      onPress={() => {
-                        setSelectedPlan(plan.id);
-                        setSelectedPlanData(plan);
-                      }}
-                      style={[
-                        styles.toggleItem,
-                        !isFirst && styles.toggleItemDivider,
-                        isSelected && styles.toggleItemActive,
-                      ]}
-                    >
-                      <CustomText
-                        style={[
-                          styles.toggleText,
-                          isSelected && styles.toggleTextActive,
-                        ]}
-                      >
-                        ${displayAmount}/{plan?.interval}
-                      </CustomText>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View> */}
-
             <View
               style={styles.toggleWrapper}
               onLayout={(e) => {
@@ -574,6 +539,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                       setSelectedPlan(plan.id);
                       setSelectedPlanData(plan);
                     }}
+                    disabled={isLoading}
                   >
                     <CustomText
                       style={[

@@ -70,8 +70,7 @@ const styles = StyleSheet.create({
   progressOuter: {
     backgroundColor: "#F2F3F8",
     borderRadius: 999,
-    paddingVertical: verticalScale(4),
-    marginVertical: verticalScale(12),
+    // paddingVertical: verticalScale(4),
   },
   progressInsetShadow: {
     position: "absolute",
@@ -87,13 +86,13 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(4),
   },
   initialCircle: {
-    width: verticalScale(32),
-    height: verticalScale(32),
+    width: verticalScale(22),
+    height: verticalScale(22),
     borderRadius: 100,
     backgroundColor: COLORS.DarkGreen,
   },
   progressFill: {
-    height: verticalScale(33),
+    height: verticalScale(22),
     backgroundColor: COLORS.DarkGreen,
     borderRadius: 50,
     justifyContent: "center",
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
   },
   progressHighlight: {
     width: STRIPE_WIDTH,
-    height: verticalScale(28),
+    height: verticalScale(20),
     backgroundColor: COLORS.lightGreen,
     marginRight: STRIPE_GAP,
   },

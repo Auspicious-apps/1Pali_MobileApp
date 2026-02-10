@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: horizontalScale(20),
+    // paddingHorizontal: horizontalScale(20),
     paddingBottom:
       Platform.OS === "ios" ? verticalScale(20) : verticalScale(10),
     paddingTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   header: {
     marginTop: verticalScale(30),
     gap: verticalScale(8),
+    paddingHorizontal: horizontalScale(20),
   },
   headerTitle: {
     width: "100%",
@@ -42,7 +43,9 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(40),
     paddingBottom: verticalScale(12),
   },
-  sectionContainer: {},
+  sectionContainer: {
+    paddingHorizontal: horizontalScale(20),
+  },
   sectionDescription: {
     textAlign: "center",
     lineHeight: verticalScale(18),
@@ -63,6 +66,7 @@ const styles = StyleSheet.create({
   },
   fundsListContent: {
     gap: horizontalScale(12),
+    paddingRight: horizontalScale(20),
   },
   fundCard: {
     padding: verticalScale(12),
@@ -92,6 +96,7 @@ const styles = StyleSheet.create({
   sectionWrapper: {
     marginTop: verticalScale(24),
     gap: verticalScale(8),
+    paddingHorizontal: horizontalScale(20),
   },
   whoCard: {
     borderWidth: 1,

@@ -2,6 +2,7 @@ import { useIsFocused } from "@react-navigation/native";
 import React, { FC, useEffect, useState } from "react";
 import {
   Image,
+  ImageBackground,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -34,7 +35,6 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const { badges, user } = useAppSelector((state) => state.user);
   const growthBadges = useAppSelector(selectGrowthBadges);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
-
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
 
   useEffect(() => {
@@ -52,7 +52,28 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <Image source={IMAGES.LogoText} style={styles.logo} />
-        <View style={{ marginTop: verticalScale(30), gap: verticalScale(6) }}>
+        <View style={{ marginTop: verticalScale(32) }}>
+          <CustomText
+            fontFamily="GabaritoSemiBold"
+            fontSize={42}
+            color={COLORS.darkText}
+            style={{ textAlign: "center" }}
+          >
+            #{user?.assignedNumber}
+          </CustomText>
+
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={16}
+            color={COLORS.appText}
+            style={{ textAlign: "center" }}
+          >
+            Supporting for {user?.consecutivePaidMonths}{" "}
+            {Number(user?.consecutivePaidMonths) === 1 ? "month" : "months"}
+          </CustomText>
+        </View>
+
+        <View style={styles.card}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => setIsBadgesSheet(true)}
@@ -60,8 +81,8 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             <BadgeIcon
               badge={growthBadges[0]?.badge?.name}
               style={{
-                width: horizontalScale(110),
-                height: verticalScale(110),
+                width: horizontalScale(125),
+                height: verticalScale(125),
                 resizeMode: "contain",
                 alignSelf: "center",
               }}
@@ -77,69 +98,59 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               >
                 {growthBadges[0]?.badge?.name}
               </CustomText>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={14}
+                color={COLORS.appText}
+                style={{ textAlign: "center" }}
+              >
+                {growthBadges[0]?.badge?.milestone}
+              </CustomText>
             </View>
           )}
-        </View>
-
-        <View style={styles.card}>
-          <CustomText
-            fontFamily="GabaritoSemiBold"
-            fontSize={42}
-            color={COLORS.darkText}
-            style={{ textAlign: "center" }}
-          >
-            #{user?.assignedNumber}
-          </CustomText>
-
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={16}
-            color={COLORS.darkText}
-            style={{ textAlign: "center", marginTop: 4 }}
-          >
-            supporting this month
-          </CustomText>
 
           {/* Progress Bar */}
-          <ProgressBar />
+          <View
+            style={{
+              marginTop: verticalScale(16),
+              marginBottom: verticalScale(12),
+            }}
+          >
+            <ProgressBar />
+          </View>
 
           <CustomText
             fontFamily="GabaritoRegular"
             fontSize={14}
-            color={COLORS.greyText}
+            color={COLORS.darkText}
             style={{ textAlign: "center" }}
           >
-            {user?.globalStats?.totalDonors}/1,000,000 donors
+            {user?.globalStats?.totalDonors}
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={14}
+              color={COLORS.greyText}
+              style={{ textAlign: "center" }}
+            >
+              {" "}
+              / 1,000,000 supporters
+            </CustomText>
           </CustomText>
         </View>
-        <View
-          style={{
-            marginTop: verticalScale(32),
-            padding: verticalScale(16),
-            backgroundColor: "rgba(226, 255, 227, 1)",
-            borderRadius: 12,
-            width: wp(90),
-            alignItems: "center",
-          }}
+        <ImageBackground
+          source={IMAGES.HomeTextBackgorund}
+          resizeMode="contain"
+          style={styles.TextBackground}
         >
-          <View
-            style={{
-              position: "absolute",
-              top: verticalScale(-14),
-              left: horizontalScale(0),
-            }}
-          >
-            <CustomIcon Icon={ICONS.HairsIcon} width={30} height={23} />
-          </View>
           <CustomText
-            fontFamily="MontserratSemiBold"
+            fontFamily="GabaritoMedium"
             fontSize={16}
-            color={COLORS.darkText}
+            color={COLORS.DarkGreenText}
           >
             ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} donated
             together
           </CustomText>
-        </View>
+        </ImageBackground>
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
           <CustomText
@@ -192,7 +203,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginHorizontal: horizontalScale(10),
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(12),
     width: wp(90),
     shadowColor: "#000",
     shadowOffset: {
@@ -234,5 +245,12 @@ const styles = StyleSheet.create({
     height: hp(3.3),
     alignSelf: "center",
     resizeMode: "contain",
+  },
+  TextBackground: {
+    height: verticalScale(51),
+    width: wp(90),
+    marginTop: verticalScale(32),
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

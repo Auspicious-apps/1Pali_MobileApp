@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { FC, useEffect, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import React, { FC, useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet, View, Easing } from "react-native";
 import { useDispatch } from "react-redux";
 import IMAGES from "../../assets/Images";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
@@ -22,9 +22,43 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    checkAuthenticationStatus();
+    scaleAnim.setValue(1);
+
+    const timer = setTimeout(() => {
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 0.78,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+
+        Animated.timing(scaleAnim, {
+          toValue: 1.06,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 8,
+          tension: 70,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkAuthenticationStatus();
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const checkAuthenticationStatus = async () => {
@@ -89,7 +123,15 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={IMAGES.SplashInitial} style={styles.image} />
+      <Animated.Image
+        source={IMAGES.SplashInitial}
+        style={[
+          styles.image,
+          {
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      />
     </View>
   );
 };

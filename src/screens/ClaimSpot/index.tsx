@@ -49,6 +49,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [rangeError, setRangeError] = useState(false);
 
   const showClaimTitle = checking || available || unavailable;
 
@@ -60,9 +61,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const handleChange = (text: string) => {
     const numeric = text.replace(/[^0-9]/g, "");
 
-    if (numeric.length > number.length) {
-      HapticFeedback.trigger("impactLight", hapticOptions);
-    }
+     if (numeric.length > number.length) {
+       HapticFeedback.trigger("impactLight", hapticOptions);
+     }
 
     setNumber(numeric);
 
@@ -70,11 +71,23 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
 
     if (!numeric.length) {
+      setChecking(false);
       setAvailable(false);
       setUnavailable(false);
-      setChecking(false);
+      setRangeError(false);
       return;
     }
+
+    const value = Number(numeric);
+
+    if (value > 1_000_000) {
+      setRangeError(true);
+      setChecking(false);
+      setAvailable(false);
+      setUnavailable(false);
+      return;
+    }
+    setRangeError(false);
 
     typingTimeout.current = setTimeout(() => {
       CheckNumberAvailable(numeric);
@@ -220,7 +233,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   color={COLORS.darkText}
                   style={{ textAlign: "center", lineHeight: verticalScale(40) }}
                 >
-                  {showClaimTitle ? "Claim your number" : "Choose your number"}
+                  {showClaimTitle
+                    ? "Claim your\nnumber"
+                    : "Choose your\nnumber"}
                 </CustomText>
                 <CustomText
                   fontFamily="GabaritoRegular"
@@ -261,9 +276,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                       onPress={handleDicePress}
                     >
                       <CustomIcon
-                        Icon={ICONS.DarkDice}
-                        width={24}
-                        height={24}
+                        Icon={ICONS.diceIcon}
+                        width={32}
+                        height={32}
                       />
                     </TouchableOpacity>
                   ) : available ? (
@@ -273,8 +288,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     >
                       <CustomIcon
                         Icon={ICONS.diceIcon}
-                        width={24}
-                        height={24}
+                        width={32}
+                        height={32}
                       />
                     </TouchableOpacity>
                   ) : (
@@ -283,15 +298,25 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                       onPress={handleDicePress}
                     >
                       <CustomIcon
-                        Icon={ICONS.DarkDice}
-                        width={24}
-                        height={24}
+                        Icon={ICONS.diceIcon}
+                        width={32}
+                        height={32}
                       />
                     </TouchableOpacity>
                   )}
                 </View>
-
-                {checking ? (
+                {rangeError ? (
+                  <View style={styles.statusRow}>
+                    <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
+                    <CustomText
+                      fontFamily="MontserratRegular"
+                      fontSize={12}
+                      color={COLORS.redColor}
+                    >
+                      Pick a number between 1 and 1,000,000
+                    </CustomText>
+                  </View>
+                ) : checking ? (
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.loader} width={16} height={16} />
                     <CustomText

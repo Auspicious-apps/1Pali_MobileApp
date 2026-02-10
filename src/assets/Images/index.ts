@@ -18,6 +18,7 @@ const IMAGES = {
   BadgeBlackBg: require("./BadgeBlackBg.png"),
   ImageLike: require("./ImageLike.png"),
   SplashInitial: require("./SplashInitial.png"),
+  HomeTextBackgorund: require("./HomeTextBackgorund.png"),
 };
 
 export default IMAGES;

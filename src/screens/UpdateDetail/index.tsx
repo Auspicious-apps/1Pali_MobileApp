@@ -760,17 +760,23 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   placeholderTextColor={COLORS.appText}
                   style={styles.commentInput}
                 />
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleSendComment}
-                  disabled={sendingComment}
-                >
-                  {sendingComment ? (
-                    <ActivityIndicator size="small" color={COLORS.darkText} />
-                  ) : (
-                    <CustomIcon Icon={ICONS.sendIcon} height={24} width={24} />
-                  )}
-                </TouchableOpacity>
+                {commentText.trim().length > 0 && (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleSendComment}
+                    disabled={sendingComment}
+                  >
+                    {sendingComment ? (
+                      <ActivityIndicator size="small" color={COLORS.darkText} />
+                    ) : (
+                      <CustomIcon
+                        Icon={ICONS.sendIcon}
+                        height={24}
+                        width={24}
+                      />
+                    )}
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </>

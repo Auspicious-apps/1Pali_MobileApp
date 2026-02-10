@@ -10,7 +10,7 @@ import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
 import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { verticalScale } from "../../utils/Metrics";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
@@ -73,41 +73,47 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           </View>
 
           {/* FUNDS LIST */}
-          <ScrollView
-            horizontal
-            bounces={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.fundsListContent}
+          <View
+            style={{
+              marginLeft: horizontalScale(20),
+            }}
           >
-            {fundCards.map((item) => (
-              <View
-                key={item.id}
-                style={[styles.fundCard, { backgroundColor: item.bgColor }]}
-              >
-                {item.image ? (
-                  <Image source={item.image} style={styles.fundCardImage} />
-                ) : (
-                  <View style={styles.fundCardImage} />
-                )}
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={18}
-                  color={COLORS.greyish}
-                  style={styles.fundCardTitle}
+            <ScrollView
+              horizontal
+              bounces={false}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.fundsListContent}
+            >
+              {fundCards.map((item) => (
+                <View
+                  key={item.id}
+                  style={[styles.fundCard, { backgroundColor: item.bgColor }]}
                 >
-                  {item.title}
-                </CustomText>
-                <CustomText
-                  fontFamily="SourceSansRegular"
-                  fontSize={15}
-                  color={COLORS.greyish}
-                  style={{ lineHeight: verticalScale(17) }}
-                >
-                  {item.description}
-                </CustomText>
-              </View>
-            ))}
-          </ScrollView>
+                  {item.image ? (
+                    <Image source={item.image} style={styles.fundCardImage} />
+                  ) : (
+                    <View style={styles.fundCardImage} />
+                  )}
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={18}
+                    color={COLORS.greyish}
+                    style={styles.fundCardTitle}
+                  >
+                    {item.title}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={15}
+                    color={COLORS.greyish}
+                    style={{ lineHeight: verticalScale(17) }}
+                  >
+                    {item.description}
+                  </CustomText>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
 
           <View style={styles.divider} />
 
