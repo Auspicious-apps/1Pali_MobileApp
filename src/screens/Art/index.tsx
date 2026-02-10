@@ -1,31 +1,26 @@
-import {
-  Image,
-  ImageBackground,
-  StyleSheet,
-  View,
-  FlatList,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
 import React, { FC, useCallback, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ArtScreenProps } from "../../typings/routes";
-import IMAGES from "../../assets/Images";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import { CustomText } from "../../components/CustomText";
-import COLORS from "../../utils/Colors";
 import {
-  Artwork,
-  GetUserArtResponse,
-} from "../../service/ApiResponses/GetUserArt";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
+  Dimensions,
+  FlatList,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import FastImage from "react-native-fast-image";
 import LinearGradient from "react-native-linear-gradient";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
+import IMAGES from "../../assets/Images";
+import { CustomText } from "../../components/CustomText";
 import { fetchArts } from "../../redux/slices/ArtsSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { Artwork } from "../../service/ApiResponses/GetUserArt";
+import { ArtScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SIDE_PADDING = horizontalScale(20);
@@ -36,6 +31,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { artworks, loading } = useAppSelector((state) => state.arts);
   const [weekImageLoading, setWeekImageLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
   const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
@@ -111,6 +107,15 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
     dispatch(fetchArts({ page: 1 }));
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await dispatch(fetchArts({ page: 1, forceRefresh: true }));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     fetchUserArt();
   }, [dispatch]);
@@ -127,10 +132,9 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
           });
         }}
       >
-        <ImageBackground
+        <FastImage
           source={{ uri: getArtworkImage(item) }}
-          style={styles.image}
-          imageStyle={styles.imageRadius}
+          style={[styles.image, styles.imageRadius]}
         />
 
         <CustomText
@@ -139,23 +143,51 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
           fontSize={15}
           color={COLORS.appText}
         >
-          {item?.createdAt.slice(0, 10).split("-").reverse().join(".")}
+          {item?.publishedAt!.slice(0, 10).split("-").reverse().join(".")}
         </CustomText>
       </TouchableOpacity>
     ),
     [navigation],
   );
 
+  const EmptyState = () => (
+    <View style={styles.emptyStateContainer}>
+      <FastImage source={IMAGES.LogoText} style={styles.emptyLogo} />
+      <CustomText
+        fontFamily="GabaritoSemiBold"
+        fontSize={24}
+        color={COLORS.darkText}
+        style={{ textAlign: "center" }}
+      >
+        No Data
+      </CustomText>
+      <CustomText
+        fontFamily="SourceSansRegular"
+        fontSize={15}
+        color={COLORS.appText}
+        style={{ textAlign: "center", marginTop: verticalScale(8) }}
+      >
+        No artwork available at the moment. Pull down to refresh.
+      </CustomText>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
-        bounces={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={COLORS.appText}
+          />
+        }
       >
         {/* Header */}
         <View style={styles.headerWrapper}>
-          <Image source={IMAGES.LogoText} style={styles.logo} />
+          <FastImage source={IMAGES.LogoText} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText
@@ -192,7 +224,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               renderItem={() => <GridShimmer />}
             />
           </View>
-        ) : (
+        ) : artworks.length > 0 ? (
           <View>
             {artOfTheWeek && (
               <TouchableOpacity
@@ -219,7 +251,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
                     />
                   )}
 
-                  <Image
+                  <FastImage
                     source={{ uri: getArtworkImage(artOfTheWeek) }}
                     style={styles.weekImage}
                     onLoadStart={() => setWeekImageLoading(true)}
@@ -263,6 +295,8 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               />
             </View>
           </View>
+        ) : (
+          <EmptyState />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -382,5 +416,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: verticalScale(20),
     gap: verticalScale(8),
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: horizontalScale(24),
+    marginTop: verticalScale(80),
+  },
+  emptyLogo: {
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
+    marginBottom: verticalScale(24),
   },
 });

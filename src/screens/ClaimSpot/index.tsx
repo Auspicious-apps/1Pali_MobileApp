@@ -1,37 +1,40 @@
+import React, { FC, useRef, useState } from "react";
 import {
-  View,
   Image,
-  TextInput,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
+  TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import React, { useState, useRef, FC, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import IMAGES from "../../assets/Images";
-import COLORS from "../../utils/Colors";
-import { CustomText } from "../../components/CustomText";
-import CustomIcon from "../../components/CustomIcon";
+import HapticFeedback from "react-native-haptic-feedback";
 import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
-import styles from "./styles";
-import { ClaimSpotProps } from "../../typings/routes";
-import { fetchData, postData } from "../../service/ApiService";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { NumberCheckResponse } from "../../service/ApiResponses/NumberCheckResponse";
-import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
-import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
-import { useAppDispatch } from "../../redux/store";
 import {
+  clearReservationTimer,
+  selectReservationSeconds,
   setClaimedNumber,
   setReservationToken,
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { NumberCheckResponse } from "../../service/ApiResponses/NumberCheckResponse";
+import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
+import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
+import { fetchData, postData } from "../../service/ApiService";
+import { ClaimSpotProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
 import { verticalScale } from "../../utils/Metrics";
-import HapticFeedback from "react-native-haptic-feedback";
+import styles from "./styles";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -39,6 +42,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
+  const reservationSeconds = useAppSelector(selectReservationSeconds);
 
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const checkingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -140,8 +144,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
   // Reserve the specific number via API and navigate on success
   const handleReserveNumber = async () => {
-    setIsLoading(true);
     if (checking || !available || !number) return;
+
+    setIsLoading(true);
     setInputDisabled(true);
     inputRef.current?.blur();
     Keyboard.dismiss();
@@ -152,7 +157,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       );
       dispatch(setClaimedNumber(Number(number)));
       dispatch(setReservationToken(response.data.data?.reservationToken));
-      dispatch(startReservationTimer(300));
+
+      dispatch(clearReservationTimer());
       navigation.navigate("missionIntro", { showNumber: true });
     } catch (e) {
       console.error("Error reserving number:", e);
@@ -161,6 +167,26 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // screen focused (do nothing)
+
+      return () => {
+        setNumber("");
+        setChecking(false);
+        setAvailable(false);
+        setUnavailable(false);
+        setIsLoading(false);
+        setInputDisabled(false);
+
+        typingTimeout.current && clearTimeout(typingTimeout.current);
+        checkingTimeout.current && clearTimeout(checkingTimeout.current);
+
+        inputRef.current?.clear();
+      };
+    }, []),
+  );
 
   return (
     <View style={styles.container}>

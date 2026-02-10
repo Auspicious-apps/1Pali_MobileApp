@@ -13,12 +13,16 @@ import { RootState } from "../store";
 import { fetchData } from "../../service/ApiService";
 import ENDPOINTS from "../../service/ApiEndpoints";
 
+type ReservationStatus = "ACTIVE" | "EXPIRED" | "IDLE";
+
 interface UserState {
   user: GetUserProfileApiResponse | null;
   claimedNumber: number | null;
   reservationToken: string | null;
   badges: Badges | null;
   reservationSeconds: number | null;
+  reservationStatus: ReservationStatus;
+  timerIntervalId: any | null;
 }
 
 const initialState: UserState = {
@@ -27,6 +31,8 @@ const initialState: UserState = {
   reservationToken: null,
   badges: null,
   reservationSeconds: null,
+  reservationStatus: "IDLE",
+  timerIntervalId: null,
 };
 
 export const fetchUserProfile = createAsyncThunk<
@@ -42,6 +48,18 @@ export const fetchUserProfile = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue(error?.message || "Failed to fetch user profile");
   }
+});
+
+export const startReservationTimerAsync = createAsyncThunk<
+  void,
+  number,
+  { rejectValue: string }
+>("user/startReservationTimerAsync", async (duration, { dispatch }) => {
+  const interval = setInterval(() => {
+    dispatch(decrementReservationTimer());
+  }, 1000);
+
+  return;
 });
 
 const userSlice = createSlice({
@@ -64,19 +82,25 @@ const userSlice = createSlice({
       state.badges = action.payload;
     },
     startReservationTimer: (state, action: PayloadAction<number>) => {
-      console.log(action.payload, "OPOPOP");
-
       state.reservationSeconds = action.payload;
+      state.reservationStatus = "ACTIVE";
     },
 
     decrementReservationTimer: (state) => {
       if (state.reservationSeconds && state.reservationSeconds > 0) {
         state.reservationSeconds -= 1;
+      } else if (state.reservationSeconds === 0) {
+        state.reservationStatus = "EXPIRED";
       }
     },
 
     clearReservationTimer: (state) => {
       state.reservationSeconds = null;
+      state.reservationStatus = "IDLE";
+      if (state.timerIntervalId) {
+        clearInterval(state.timerIntervalId);
+        state.timerIntervalId = null;
+      }
     },
 
     markAllBadgesViewed: (state) => {
@@ -155,24 +179,37 @@ export const {
 export default userSlice.reducer;
 
 export const selectGrowthBadges = createSelector(
-  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => b.badge.category === "GROWTH") ?? [],
 );
 export const selectCommunityBadges = createSelector(
-  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  [(state: RootState) => state.user.badges],
   (badges) =>
     badges?.badges.filter((b) => b.badge.category === "COMMUNITY") ?? [],
 );
 export const selectImpactBadges = createSelector(
-  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => b.badge.category === "IMPACT") ?? [],
 );
 export const selectArtBadges = createSelector(
-  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => b.badge.category === "ART") ?? [],
 );
 
 export const getUnViewedBadges = createSelector(
-  [(state: RootState) => state.user.badges], // Access global state . slice name . property
+  [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => !b.isViewed) ?? [],
 );
+
+// Reservation selectors
+export const selectReservationStatus = (state: RootState) =>
+  state.user.reservationStatus;
+
+export const selectReservationSeconds = (state: RootState) =>
+  state.user.reservationSeconds;
+
+export const selectIsReservationExpired = (state: RootState) =>
+  state.user.reservationStatus === "EXPIRED";
+
+export const selectIsReservationActive = (state: RootState) =>
+  state.user.reservationStatus === "ACTIVE";

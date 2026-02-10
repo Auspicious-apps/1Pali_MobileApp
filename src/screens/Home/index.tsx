@@ -1,3 +1,4 @@
+import { useIsFocused } from "@react-navigation/native";
 import React, { FC, useEffect, useState } from "react";
 import {
   Image,
@@ -28,6 +29,7 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
+  const isFocused = useIsFocused();
 
   const { badges, user } = useAppSelector((state) => state.user);
   const growthBadges = useAppSelector(selectGrowthBadges);
@@ -159,8 +161,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           isVisible={isBadgesSHeet}
           setIsVisible={setIsBadgesSheet}
         />
-
-        <CollectBadges />
+        {isFocused && <CollectBadges />}
       </SafeAreaView>
     </View>
   );

@@ -2,8 +2,7 @@ import {
   confirmPlatformPaySetupIntent,
   isPlatformPaySupported,
   PlatformPay,
-  PlatformPayButton,
-  useStripe,
+  useStripe
 } from "@stripe/stripe-react-native";
 import React, { FC, useEffect, useState } from "react";
 import {
@@ -30,6 +29,8 @@ import {
 } from "../../redux/slices/StripePlans";
 import {
   clearReservationTimer,
+  selectReservationSeconds,
+  selectReservationStatus,
   setBadges,
   setUserData,
 } from "../../redux/slices/UserSlice";
@@ -57,12 +58,13 @@ import {
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const [enabled, setEnabled] = useState(true);
-  const { user, claimedNumber, reservationToken, reservationSeconds } =
-    useAppSelector((state) => state.user);
+  const { user, claimedNumber, reservationToken } = useAppSelector(
+    (state) => state.user,
+  );
+  const reservationStatus = useAppSelector(selectReservationStatus);
+  const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { stripePlans } = useAppSelector((state) => state.stripePlans);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-
-  const [isExpired, setIsExpired] = useState(false);
 
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -413,20 +415,15 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     })();
   }, [isPlatformPaySupported]);
 
+  // Handle UI changes when reservation expires
   useEffect(() => {
-    if (reservationSeconds !== null && reservationSeconds <= 0) {
-      setIsExpired(true);
-      dispatch(clearReservationTimer());
-    }
-  }, [reservationSeconds]);
-
-  useEffect(() => {
-    if (isExpired) {
+    if (reservationSeconds === 0) {
       setShowCard(false);
       setShowDisclaimer(false);
       setShowButton(true);
+      dispatch(clearReservationTimer());
     }
-  }, [isExpired]);
+  }, [reservationSeconds, dispatch]);
 
   useEffect(() => {
     const index = visiblePlans.findIndex((p) => p.id === selectedPlan);
@@ -474,16 +471,24 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               marginTop: 8,
             }}
           >
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={16}
-              color={isExpired ? COLORS.redColor : COLORS.appText}
-              style={{ textAlign: "center" }}
-            >
-              {isExpired
-                ? "Number Expired"
-                : `Number #${claimedNumber} reserved for ${reservationSeconds}s`}
-            </CustomText>
+            {reservationSeconds && reservationSeconds > 0 ? (
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={16}
+                color={COLORS.grayColor}
+                style={{ textAlign: "center", marginTop: 8 }}
+              >
+                {`Number #${claimedNumber} reserved for ${reservationSeconds}s`}
+              </CustomText>
+            ) : (
+              <CustomText
+                color={COLORS.redColor}
+                fontFamily="GabaritoRegular"
+                fontSize={16}
+              >
+                {`Number #${claimedNumber} Expired`}
+              </CustomText>
+            )}
           </View>
         </View>
 
@@ -497,7 +502,9 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontSize={22}
                 color={COLORS.darkText}
               >
-                {isExpired ? "OnePali Membership" : "OnePali Supporter"}
+                {reservationSeconds === 0
+                  ? "OnePali Membership"
+                  : "OnePali Supporter"}
               </CustomText>
             </View>
 
@@ -639,7 +646,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             </View>
           </View>
         )}
-        {!isExpired && (
+        {reservationSeconds !== 0 && (
           <Image
             source={IMAGES.JoinImage}
             resizeMode="cover"
@@ -650,49 +657,37 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             }}
           />
         )}
-        {isExpired ? (
+        {reservationSeconds === 0 ? (
           <PrimaryButton
             title="Choose a new number"
-            onPress={() => navigation.replace("claimSpot")}
+            onPress={() => {
+              navigation.pop(1);
+              navigation.goBack();
+            }}
             style={{ marginTop: verticalScale(20) }}
           />
         ) : isApplePaySupported ? (
-          isLoading ? (
-            <PrimaryButton
-              title={""}
-              onPress={() => {}}
-              isLoading={isLoading}
-              style={{ marginTop: verticalScale(20) }}
-            />
-          ) : (
-            <PrimaryButton
-              title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
-              onPress={handleAppleSetupIntent}
-              leftIcon={{
-                Icon:
-                  Platform.OS === "ios" ? ICONS.AppleLogo : ICONS.GoogleIcon,
-                width: 22,
-                height: 22,
-              }}
-              isLoading={isLoading}
-              style={{ marginTop: verticalScale(20) }}
-            />
-          )
-        ) : (
           <PrimaryButton
-            title={isExpired ? "Choose a new number" : "Join OnePali"}
-            onPress={() => {
-              if (isExpired) {
-                navigation.replace("claimSpot");
-              } else {
-                handleSetupIntent();
-              }
+            title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
+            onPress={handleAppleSetupIntent}
+            leftIcon={{
+              Icon: Platform.OS === "ios" ? ICONS.AppleLogo : ICONS.GoogleIcon,
+              width: 22,
+              height: 22,
             }}
             isLoading={isLoading}
             style={{ marginTop: verticalScale(20) }}
           />
+        ) : (
+          <PrimaryButton
+            title="Join OnePali"
+            onPress={handleSetupIntent}
+            isLoading={isLoading}
+            style={{ marginTop: verticalScale(20) }}
+          />
         )}
-        {!isExpired && (
+
+        {reservationSeconds && reservationSeconds > 0 && (
           <View
             style={{
               flexDirection: "row",

@@ -1,30 +1,25 @@
-import React from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-  Modal,
-} from 'react-native';
-import NL from 'react-native-network-logger';
-import { useState } from 'react';
-import COLORS from '../utils/Colors';
+import React from "react";
+import { StyleSheet, TouchableOpacity, Text, Modal } from "react-native";
+import NL from "react-native-network-logger";
+import { useState } from "react";
+import COLORS from "../utils/Colors";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const NetworkLogger = ({ onPress }: { onPress?: () => void }) => {
-  const [isNetworkModalVisible, setIsNetworkVIsible] = useState(false);
+  const [isNetworkModalVisible, setIsNetworkModalVisible] = useState(false);
   return (
     <>
       <Modal
         style={styles.modal}
         visible={isNetworkModalVisible}
-        // onBackButtonPress={() => setIsNetworkVIsible(false)}
+        // onBackButtonPress={() => setIsNetworkModalVisible(false)}
       >
         <SafeAreaView style={styles.contentContainer}>
           <TouchableOpacity
             style={styles.closeButton}
-            onPress={() => setIsNetworkVIsible(false)}
+            onPress={() => setIsNetworkModalVisible(false)}
           >
-            <Text style={styles.closeButtonTitle}>{'CLOSE'}</Text>
+            <Text style={styles.closeButtonTitle}>{"CLOSE"}</Text>
           </TouchableOpacity>
           <NL />
         </SafeAreaView>
@@ -33,11 +28,11 @@ const NetworkLogger = ({ onPress }: { onPress?: () => void }) => {
         style={styles.container}
         onPress={() => {
           onPress && onPress();
-          setIsNetworkVIsible(true);
+          setIsNetworkModalVisible(true);
         }}
       >
         <Text maxFontSizeMultiplier={1} style={styles.content}>
-          {'Network Logs'}
+          {"Network Logs"}
         </Text>
       </TouchableOpacity>
     </>

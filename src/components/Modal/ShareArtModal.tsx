@@ -1,42 +1,39 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Modal,
+  ActivityIndicator,
   Animated,
   Dimensions,
+  Modal,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import IMAGES from "../../assets/Images";
-import ICONS from "../../assets/Icons";
-import CustomIcon from "../CustomIcon";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import { CustomText } from "../CustomText";
-import COLORS from "../../utils/Colors";
-import { useAppSelector } from "../../redux/store";
+import FastImage from "react-native-fast-image";
+import RNFS from "react-native-fs";
+import ShareLib, { Social } from "react-native-share";
 import Video from "react-native-video";
+import { captureRef } from "react-native-view-shot";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import { useAppSelector } from "../../redux/store";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import CustomIcon from "../CustomIcon";
+import { CustomText } from "../CustomText";
 
 const { height } = Dimensions.get("window");
 export type ShareType =
-  | "instagram"
-  | "facebook"
-  | "whatsapp"
-  | "message"
-  | "more";
-
-const SHARE_APPS = [
-  { id: "1", type: "instagram", label: "Instagram", icon: ICONS.InstagramIcon },
-  { id: "2", type: "facebook", label: "Facebook", icon: ICONS.FacebookIcon },
-  { id: "3", type: "whatsapp", label: "WhatsApp", icon: ICONS.WhatsAppIcon },
-  { id: "4", type: "message", label: "Message", icon: ICONS.MessageIcon },
-  { id: "5", type: "more", label: "More", icon: ICONS.MoreIcon },
-];
+  | "INSTAGRAM"
+  | "FACEBOOK"
+  | "WHATSAPP"
+  | "MESSAGE"
+  | "APP_SHARE_SHEET";
 
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onShare: (type: ShareType) => void;
+  onShare: (type: ShareType) => Promise<void>;
   mediaUrl?: string;
   mediaType?: "IMAGE" | "VIDEO" | string;
 }
@@ -49,6 +46,8 @@ export default function ShareArtModal({
   mediaUrl,
 }: Props) {
   const { user } = useAppSelector((state) => state.user);
+  const cardRef = useRef(null);
+  const [capturingCard, setCapturingCard] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(height)).current;
 
@@ -63,6 +62,158 @@ export default function ShareArtModal({
       slideAnim.setValue(height);
     }
   }, [visible]);
+
+  const handleShareToInstagram = async () => {
+    try {
+      setCapturingCard(true);
+
+      // Capture as file path (same as WhatsApp)
+      const filePath = await captureRef(cardRef, {
+        format: "png",
+        quality: 0.8,
+      });
+
+      let shareFilePath = filePath;
+
+      // Android: Copy to cache (Instagram needs accessible path)
+      if (Platform.OS === "android") {
+        const fileName = `onepali-card-${Date.now()}.png`;
+        const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+        await RNFS.copyFile(filePath, newPath);
+        shareFilePath = `file://${newPath}`;
+      } else {
+        shareFilePath = `file://${filePath}`;
+      }
+
+      const shareOptions = {
+        social: Social.Instagram, // Opens Stories/Camera by default
+        url: shareFilePath,
+        type: "image/png",
+      };
+
+      await ShareLib.shareSingle(shareOptions as any);
+
+      await onShare("INSTAGRAM");
+    } catch (error) {
+      console.log("Instagram share error:", error);
+    } finally {
+      setCapturingCard(false);
+    }
+  };
+
+  const handleShareToWhatsapp = async () => {
+    try {
+      setCapturingCard(true);
+
+      const filePath = await captureRef(cardRef, {
+        format: "png",
+        quality: 0.8,
+      });
+
+      // Single path normalization (cleaner)
+      const destPath =
+        Platform.OS === "android"
+          ? `${RNFS.CachesDirectoryPath}/onepali-card-${Date.now()}.png`
+          : filePath;
+
+      if (Platform.OS === "android") {
+        await RNFS.copyFile(filePath, destPath);
+      }
+
+      const shareOptions = {
+        social: Social.Whatsapp,
+        url: `file://${destPath}`, // Always file://
+        message: "Check out this artwork from OnePali!",
+        type: "image/png",
+        // Remove appId - not needed for WhatsApp
+      };
+
+      console.log("Sharing to:", shareOptions.url);
+      await ShareLib.shareSingle(shareOptions as any);
+
+      await onShare("WHATSAPP");
+    } catch (error) {
+      console.error("WhatsApp share failed:", error);
+      // Fallback to native Share.open
+    } finally {
+      setCapturingCard(false);
+    }
+  };
+
+  const handleShareToFb = async () => {
+    try {
+      setCapturingCard(true);
+
+      // Capture as file path
+      const filePath = await captureRef(cardRef, {
+        format: "png",
+        quality: 0.8,
+      });
+
+      // On Android, copy to proper location
+      let shareFilePath = filePath;
+      if (Platform.OS === "android") {
+        const fileName = `onepali-card-${Date.now()}.png`;
+        const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+        await RNFS.copyFile(filePath, newPath);
+        shareFilePath = `file://${newPath}`;
+      } else {
+        // iOS
+        shareFilePath = `file://${filePath}`;
+      }
+
+      const shareOptions = {
+        social: Social.Facebook,
+        url: shareFilePath,
+        type: "image/png",
+      };
+
+      await ShareLib.shareSingle(shareOptions as any);
+      await onShare("FACEBOOK");
+    } catch (error) {
+      console.log("Facebook share error:", error);
+    } finally {
+      setCapturingCard(false);
+    }
+  };
+
+  const handleShareToMore = async () => {
+    try {
+      setCapturingCard(true);
+
+      // Capture the preview card
+      const uri = await captureRef(cardRef, {
+        format: "png",
+        quality: 0.8,
+      });
+
+      // On Android, copy to proper location
+      let shareFilePath = uri;
+      if (Platform.OS === "android") {
+        const fileName = `onepali-card-${Date.now()}.png`;
+        const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+        await RNFS.copyFile(uri, newPath);
+        shareFilePath = `file://${newPath}`;
+      } else {
+        // iOS
+        shareFilePath = `file://${uri}`;
+      }
+
+      // Share the captured image
+      const result = await ShareLib.open({
+        url: shareFilePath,
+        type: "image/png",
+        message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
+      });
+    } catch (error) {
+      console.log("Card share error:", error);
+      await onShare("APP_SHARE_SHEET");
+    } finally {
+      setCapturingCard(false);
+    }
+  };
 
   return (
     <Modal visible={visible} transparent animationType="none">
@@ -95,7 +246,7 @@ export default function ShareArtModal({
         </View>
 
         {/* Preview card */}
-        <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+        <View ref={cardRef} style={styles.card}>
           {mediaType === "VIDEO" ? (
             <View style={styles.mediaWrapper}>
               <Video
@@ -109,7 +260,7 @@ export default function ShareArtModal({
               />
             </View>
           ) : (
-            <Image
+            <FastImage
               source={{ uri: mediaUrl }}
               resizeMode="cover"
               style={styles.cardImage}
@@ -125,7 +276,7 @@ export default function ShareArtModal({
               gap: horizontalScale(8),
             }}
           >
-            <Image
+            <FastImage
               source={IMAGES.OnePaliLogo}
               style={{
                 width: horizontalScale(24),
@@ -143,7 +294,7 @@ export default function ShareArtModal({
               humanitarian aid in Palestine. Join us at onepali.app
             </CustomText>
           </View>
-        </TouchableOpacity>
+        </View>
 
         {/* Share row */}
         <CustomText
@@ -155,26 +306,91 @@ export default function ShareArtModal({
         </CustomText>
 
         <View style={styles.shareRow}>
-          {SHARE_APPS.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={{ alignItems: "center" }}
-              activeOpacity={0.8}
-              onPress={() => onShare(item?.type)}
-            >
-              <CustomIcon Icon={item.icon} width={40} height={40} />
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            activeOpacity={0.8}
+            onPress={handleShareToInstagram}
+            disabled={capturingCard}
+          >
+            <CustomIcon Icon={ICONS.InstagramIcon} width={40} height={40} />
 
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={12}
-                color={COLORS.darkText}
-                style={{ marginTop: 6 }}
-              >
-                {item.label}
-              </CustomText>
-            </TouchableOpacity>
-          ))}
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={12}
+              color={COLORS.darkText}
+              style={{ marginTop: 6 }}
+            >
+              Instagram
+            </CustomText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            activeOpacity={0.8}
+            onPress={handleShareToWhatsapp}
+            disabled={capturingCard}
+          >
+            <CustomIcon Icon={ICONS.WhatsAppIcon} width={40} height={40} />
+
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={12}
+              color={COLORS.darkText}
+              style={{ marginTop: 6 }}
+            >
+              Whatsapp
+            </CustomText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            activeOpacity={0.8}
+            onPress={handleShareToFb}
+            disabled={capturingCard}
+          >
+            <CustomIcon Icon={ICONS.FacebookIcon} width={40} height={40} />
+
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={12}
+              color={COLORS.darkText}
+              style={{ marginTop: 6 }}
+            >
+              Facebook
+            </CustomText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            activeOpacity={0.8}
+            onPress={handleShareToMore}
+            disabled={capturingCard}
+          >
+            <CustomIcon Icon={ICONS.MoreIcon} width={40} height={40} />
+
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={12}
+              color={COLORS.darkText}
+              style={{ marginTop: 6 }}
+            >
+              More
+            </CustomText>
+          </TouchableOpacity>
         </View>
+
+        {/* Card sharing indicator */}
+        {capturingCard && (
+          <View style={styles.capturingOverlay}>
+            <ActivityIndicator size="large" color={COLORS.darkText} />
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={14}
+              color={COLORS.darkText}
+              style={{ marginTop: 12 }}
+            >
+              Preparing card...
+            </CustomText>
+          </View>
+        )}
       </Animated.View>
     </Modal>
   );
@@ -236,5 +452,16 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 12,
     overflow: "hidden",
     backgroundColor: COLORS.greyish,
+  },
+  capturingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
   },
 });

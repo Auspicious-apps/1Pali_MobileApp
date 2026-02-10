@@ -4,7 +4,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useEffect, useState } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Platform, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
@@ -12,7 +12,8 @@ import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
-  decrementReservationTimer,
+  selectReservationSeconds,
+  selectReservationStatus,
   setBadges,
   setClaimedNumber,
   setUserData,
@@ -27,23 +28,29 @@ import { MissionIntroProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import { hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
-import CustomIcon from "../../components/CustomIcon";
 
-const initialTimer = 300;
+const initialTimer = 200;
 
 const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const { showNumber } = route.params || {};
-  const { reservationSeconds } = useAppSelector((state) => state.user);
+  const reservationStatus = useAppSelector(selectReservationStatus);
+  const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { claimedNumber } = useAppSelector((state) => state.user);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isTimerActive = reservationSeconds !== null && reservationSeconds < 0;
-
+  const isReservationExpired = reservationStatus === "EXPIRED";
 
   const dispatch = useAppDispatch();
+
+  // Start timer only on mount if not already started
+  useEffect(() => {
+    if (reservationSeconds === null) {
+      dispatch(startReservationTimer(initialTimer));
+    }
+  }, []);
 
   const handleAppleSignIn = async () => {
     try {
@@ -224,49 +231,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     }
   };
 
-  // Start reservation timer on mount
-  useEffect(() => {
-    if (reservationSeconds === null) {
-      dispatch(startReservationTimer(initialTimer));
-    }
-  }, []);
-
-  // Timer countdown effect (must be a separate effect)
-  useEffect(() => {
-    if (reservationSeconds === null || reservationSeconds <= 0) return;
-
-    const interval = setInterval(() => {
-      dispatch(decrementReservationTimer());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [reservationSeconds]);
-
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        {reservationSeconds === 0 && (
-          <TouchableOpacity
-            style={{
-              position: "absolute",
-              top:
-                Platform.OS === "android"
-                  ? verticalScale(20)
-                  : verticalScale(70),
-              left: horizontalScale(30),
-            }}
-            activeOpacity={0.8}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <CustomIcon
-              Icon={ICONS.backArrow}
-              height={verticalScale(40)}
-              width={horizontalScale(40)}
-            />
-          </TouchableOpacity>
-        )}
         <Image source={IMAGES.LogoText} style={styles.logo} />
 
         <View style={styles.headingContainer}>
@@ -279,16 +246,25 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             Join OnePali
           </CustomText>
 
-          {showNumber && (
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={16}
-              color={COLORS.grayColor}
-              style={{ textAlign: "center", marginTop: 8 }}
-            >
-              Number #{claimedNumber} reserved for {reservationSeconds}s
-            </CustomText>
-          )}
+          {showNumber &&
+            (reservationSeconds && reservationSeconds > 0 ? (
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={16}
+                color={COLORS.grayColor}
+                style={{ textAlign: "center", marginTop: 8 }}
+              >
+                {`Number #${claimedNumber} reserved for ${reservationSeconds}s`}
+              </CustomText>
+            ) : (
+              <CustomText
+                color={COLORS.redColor}
+                fontFamily="GabaritoRegular"
+                fontSize={16}
+              >
+                {`Number #${claimedNumber} Expired`}
+              </CustomText>
+            ))}
         </View>
 
         <Image
@@ -302,38 +278,49 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           }}
         />
 
-        <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
-          {Platform.OS === "android" ? (
-            <PrimaryButton
-              title="Sign in with Google"
-              leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
-              onPress={handleGoogleSignIn}
-              isLoading={isSigningIn}
-              disabled={isSigningIn || isTimerActive}
-            />
-          ) : (
-            <PrimaryButton
-              title="Sign in with Apple"
-              leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
-              onPress={handleAppleSignIn}
-              isLoading={isLoading}
-              disabled={isLoading || isTimerActive}
-            />
-          )}
+        {reservationSeconds && reservationSeconds > 0 ? (
+          <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
+            {Platform.OS === "android" ? (
+              <PrimaryButton
+                title="Sign in with Google"
+                leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
+                onPress={handleGoogleSignIn}
+                isLoading={isSigningIn}
+                disabled={isSigningIn || isReservationExpired}
+              />
+            ) : (
+              <PrimaryButton
+                title="Sign in with Apple"
+                leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
+                onPress={handleAppleSignIn}
+                isLoading={isLoading}
+                disabled={isLoading || isReservationExpired}
+              />
+            )}
 
-          <CustomText
-            fontFamily="GabaritoMedium"
-            fontSize={12}
-            color={COLORS.grayColor}
-            style={{
-              textAlign: "center",
-              marginTop: verticalScale(16),
-              width: wp(50),
-            }}
-          >
-            By joining OnePali, you accept our Terms of Use and Privacy Policy
-          </CustomText>
-        </View>
+            <CustomText
+              fontFamily="GabaritoMedium"
+              fontSize={12}
+              color={COLORS.grayColor}
+              style={{
+                textAlign: "center",
+                marginTop: verticalScale(16),
+                width: wp(50),
+              }}
+            >
+              By joining OnePali, you accept our Terms of Use and Privacy Policy
+            </CustomText>
+          </View>
+        ) : (
+          <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
+            <PrimaryButton
+              title="Choose a new number"
+              onPress={() => navigation.goBack()}
+              isLoading={isSigningIn}
+              disabled={isSigningIn || isReservationExpired}
+            />
+          </View>
+        )}
       </SafeAreaView>
     </View>
   );

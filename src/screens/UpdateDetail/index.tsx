@@ -4,24 +4,29 @@ import {
   Animated,
   Dimensions,
   FlatList,
-  Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
-  Share,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import FastImage from "react-native-fast-image";
+import RNFS from "react-native-fs";
+import LinearGradient from "react-native-linear-gradient";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ShareLib from "react-native-share";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { AddCommentToBlogResponse } from "../../service/ApiResponses/AddCommentToBlog";
+import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
 import {
   Comment,
   GetBlogByIdResponse,
@@ -31,15 +36,6 @@ import { fetchData, postData } from "../../service/ApiService";
 import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { ShareBlogResponse } from "../../service/ApiResponses/ShareBlogResponse";
-import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
-import RNFS from "react-native-fs";
-import IMAGES from "../../assets/Images";
-import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
-import ShareLib from "react-native-share";
-import ShimmerPlaceholder from "react-native-shimmer-placeholder";
-import LinearGradient from "react-native-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const { blogId } = route.params;
@@ -138,7 +134,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     const isLoading = sliderLoading[index] !== false;
     return (
       <View style={styles.slideTextCont}>
-        <Image
+        <FastImage
           source={{ uri: item }}
           style={styles.image}
           onLoadStart={() =>
@@ -285,9 +281,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             : prev,
         );
         setComments(response?.data?.data?.comments as any);
-        setCommentText("");
-        commentInputRef.current?.blur();
       }
+      
+      // Always clear the input and blur after sending
+      setCommentText("");
+      commentInputRef.current?.blur();
     } catch (error) {
       console.log("Add comment error", error);
     } finally {
@@ -307,65 +305,115 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const handleShare = async () => {
     if (sharing || !blogDetail) return;
 
+    // try {
+    //   setSharing(true);
+    //   const { title, excerpt, coverPhotoUrl } = blogDetail;
+    //   const shareMessage = `${title}\n\n${
+    //     excerpt || ""
+    //   }\n\nRead more at: onepali.app`;
+
+    //   // OPTIMIZATION 1: iOS is much faster with direct URLs
+    //   if (Platform.OS === "ios") {
+    //     const result = await Share.share({
+    //       title,
+    //       message: shareMessage,
+    //       url: coverPhotoUrl,
+    //     });
+
+    //     if (result.action === Share.sharedAction) {
+    //       // Increment share count on backend
+    //       const response = await postData<ShareBlogResponse>(
+    //         `${ENDPOINTS.ShareBlog}/${blogId}/share`,
+    //         { platform: "APP_SHARE_SHEET" },
+    //       );
+
+    //       if (response?.data?.success) {
+    //         setBlogDetail((prev) =>
+    //           prev
+    //             ? { ...prev, sharesCount: (prev.sharesCount || 0) + 1 }
+    //             : prev,
+    //         );
+    //       }
+    //     }
+    //     return;
+    //   }
+
+    //   // OPTIMIZATION 2: For Android, use cached file for better performance
+    //   let shareUrl = coverPhotoUrl;
+    //   if (coverPhotoUrl?.startsWith("http")) {
+    //     const fileName = `blog-thumb-${blogId}.jpg`;
+    //     const localFilePath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+    //     const fileExists = await RNFS.exists(localFilePath);
+
+    //     if (!fileExists) {
+    //       // Download in background with low priority
+    //       await RNFS.downloadFile({
+    //         fromUrl: coverPhotoUrl,
+    //         toFile: localFilePath,
+    //         background: true,
+    //         discretionary: true,
+    //       }).promise;
+    //     }
+    //     shareUrl = `file://${localFilePath}`;
+    //   }
+
+    //   const result = await Share.share({
+    //     title,
+    //     message: shareMessage,
+    //     url: shareUrl,
+    //   });
+
+    //   if (result.action === Share.sharedAction) {
+    //     // Increment share count on backend
+    //     const response = await postData<ShareBlogResponse>(
+    //       `${ENDPOINTS.ShareBlog}/${blogId}/share`,
+    //       { platform: "APP_SHARE_SHEET" },
+    //     );
+
+    //     if (response?.data?.success) {
+    //       setBlogDetail((prev) =>
+    //         prev ? { ...prev, sharesCount: (prev.sharesCount || 0) + 1 } : prev,
+    //       );
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.log("Share error:", error);
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Share Failed",
+    //     text2: "Could not share update. Please try again.",
+    //   });
+    // } finally {
+    //   setSharing(false);
+    // }
+    const { title, excerpt, coverPhotoUrl } = blogDetail;
     try {
-      setSharing(true);
+      // Generate unique filename
+      const fileName = `onepali-share-${Date.now()}.jpg`;
+      const destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
 
-      let shareUrl = blogDetail.coverPhotoUrl;
-      let localFilePath: string | undefined;
+      // 1. Download image from remote URL to cache
+      const downloadResult = await RNFS.downloadFile({
+        fromUrl: coverPhotoUrl,
+        toFile: destPath,
+      }).promise;
 
-      // If it's a remote URL → download to cache folder (increases chance Instagram offers Story)
-      if (blogDetail.coverPhotoUrl?.startsWith("http")) {
-        const extension = blogDetail.coverPhotoUrl.includes(".png")
-          ? "png"
-          : "jpg";
-        const fileName = `blog-${blogId}.${extension}`;
-        localFilePath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-
-        // Check if already downloaded (avoid re-download every time)
-        const fileExists = await RNFS.exists(localFilePath);
-
-        if (!fileExists) {
-          await RNFS.downloadFile({
-            fromUrl: blogDetail.coverPhotoUrl,
-            toFile: localFilePath,
-          }).promise;
-        }
-
-        shareUrl = `file://${localFilePath}`; // important: file:// prefix for local sharing
+      if (downloadResult.statusCode !== 200) {
+        throw new Error("Download failed");
       }
 
-      const result = await Share.share({
-        title: blogDetail.title,
-        message: `${blogDetail.title}\n\n${
-          blogDetail?.excerpt || ""
-        }\n\nRead more: ${blogDetail.coverPhotoUrl || ""}`,
-        url: shareUrl,
+      // 3. Share directly to app
+      await ShareLib.open({
+        url: `file://${destPath}`,
+        message: title,
       });
-
-      if (result.action === Share.sharedAction) {
-        // Optional: increment share count on backend
-        // You can try to make platform more generic since we don't know exact app chosen
-        const response = await postData<ShareBlogResponse>(
-          `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-          { platform: "APP_SHARE_SHEET" }, // or keep "WHATSAPP" if you want – but it's not accurate anymore
-        );
-
-        if (response?.data?.success) {
-          setBlogDetail((prev) =>
-            prev ? { ...prev, sharesCount: (prev.sharesCount || 0) + 1 } : prev,
-          );
-        }
-      }
-    } catch (error: any) {
-      console.log("Share error:", error);
-      // Optional: show toast/alert if not canceled by user
-      if (!error?.message?.includes("canceled")) {
-        // You can add Alert.alert here if you import Alert
-      }
+    } catch (error) {
+      console.log(`Share error:`, error);
     } finally {
       setSharing(false);
     }
   };
+
   useEffect(() => {
     handleBlogDetail();
   }, [blogId]);
@@ -424,12 +472,14 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     <View style={styles.container}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        enabled
+        contentContainerStyle={[styles.scrollContent]}
       >
-        <ScrollView
+        <FocusResetScrollView
           bounces={false}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="never"
           scrollEventThrottle={16}
           onScroll={(e) => {
             const currentY = e.nativeEvent.contentOffset.y;
@@ -468,10 +518,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
             <View>
               {imageLoading && <MediaShimmer />}
-              <Image
+              <FastImage
                 source={{ uri: blogDetail?.coverPhotoUrl }}
                 style={styles.updateImage}
-                resizeMode="cover"
                 onLoadStart={() => setImageLoading(true)}
                 onLoadEnd={() => setImageLoading(false)}
               />
@@ -485,13 +534,13 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   },
                 ]}
               >
-                <Image
+                <FastImage
                   source={IMAGES.ImageLike}
                   style={{
                     width: horizontalScale(99),
                     height: verticalScale(87),
-                    resizeMode: "contain",
                   }}
+                  resizeMode="contain"
                 />
               </Animated.View>
             </View>
@@ -687,21 +736,16 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               </TouchableOpacity>
             )}
           </View>
-        </ScrollView>
+        </FocusResetScrollView>
         {showCommentInput && (
           <>
             <View
-              style={{ borderBottomWidth: 1, borderColor: COLORS.greyish }}
+              style={{
+                borderBottomWidth: 1,
+                borderColor: COLORS.greyish,
+              }}
             />
-            <View
-              style={[
-                styles.commentInputRow,
-                Platform.OS === "android" &&
-                  Platform.Version > 33 && {
-                    paddingBottom: verticalScale(24),
-                  },
-              ]}
-            >
+            <View style={styles.commentInputRow}>
               <CustomIcon
                 Icon={ICONS.SimpleUserIcon}
                 height={verticalScale(40)}
@@ -724,7 +768,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   {sendingComment ? (
                     <ActivityIndicator size="small" color={COLORS.darkText} />
                   ) : (
-                    <CustomIcon Icon={ICONS.sendIcon} height={24} width={42} />
+                    <CustomIcon Icon={ICONS.sendIcon} height={24} width={24} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -771,9 +815,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0,
     borderColor: COLORS.greyish,
-    paddingLeft: horizontalScale(12),
+    paddingLeft: horizontalScale(16),
+    paddingRight: horizontalScale(8),
     paddingVertical: verticalScale(8),
-    backgroundColor: COLORS.light,
+    backgroundColor: COLORS.greyish,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

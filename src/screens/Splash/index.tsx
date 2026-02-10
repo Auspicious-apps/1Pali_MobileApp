@@ -74,6 +74,8 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             params: { screen: "home" },
           });
           return;
+        } else {
+          navigation.replace("OnBoardingStack", { screen: "claimSpot" });
         }
         setIsCheckingAuth(false);
       }

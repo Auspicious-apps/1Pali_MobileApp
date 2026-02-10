@@ -1,34 +1,33 @@
 import React, { FC, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
-  Image,
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import FastImage from "react-native-fast-image";
+import LinearGradient from "react-native-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import {
-  Blog,
-  GetUserBlogsResponse,
-} from "../../service/ApiResponses/GetUserBlogs";
+import { fetchUpdates } from "../../redux/slices/UpdatesSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { Blog } from "../../service/ApiResponses/GetUserBlogs";
 import { UpdatesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import LinearGradient from "react-native-linear-gradient";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { fetchUpdates } from "../../redux/slices/UpdatesSlice";
 
 const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { blogs, loading: isLoading } = useAppSelector((state) => state.updates);
+  const { blogs, loading: isLoading } = useAppSelector(
+    (state) => state.updates,
+  );
   const [imageLoading, setImageLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const ShimmerCard = () => (
     <View style={styles.weekCard}>
@@ -53,6 +52,15 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
 
   const handleUserBlogs = async () => {
     dispatch(fetchUpdates({}));
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await dispatch(fetchUpdates({ forceRefresh: true }));
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -83,9 +91,8 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
           />
         )}
 
-        <Image
+        <FastImage
           source={{ uri: item.coverPhotoUrl }}
-          resizeMode="cover"
           style={styles.cardImage}
           onLoadEnd={() => setImageLoading(false)}
         />
@@ -127,18 +134,46 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const EmptyState = () => (
+    <View style={styles.emptyStateContainer}>
+      <FastImage source={IMAGES.LogoText} style={styles.emptyLogo} />
+      <CustomText
+        fontFamily="GabaritoSemiBold"
+        fontSize={24}
+        color={COLORS.darkText}
+        style={{ textAlign: "center" }}
+      >
+        No Data
+      </CustomText>
+      <CustomText
+        fontFamily="SourceSansRegular"
+        fontSize={15}
+        color={COLORS.appText}
+        style={{ textAlign: "center", marginTop: verticalScale(8) }}
+      >
+        No updates available at the moment. Pull down to refresh.
+      </CustomText>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          bounces={false}
           contentContainerStyle={{
             paddingBottom: verticalScale(20),
             flexGrow: 1,
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={COLORS.appText}
+            />
+          }
         >
-          <Image source={IMAGES.LogoText} style={styles.logo} />
+          <FastImage source={IMAGES.LogoText} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText
@@ -166,7 +201,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
                 <ShimmerCard key={i} />
               ))}
             </View>
-          ) : (
+          ) : blogs.length > 0 ? (
             <FlatList
               data={blogs}
               bounces={false}
@@ -176,6 +211,8 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
             />
+          ) : (
+            <EmptyState />
           )}
         </ScrollView>
       </SafeAreaView>
@@ -256,5 +293,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: verticalScale(20),
     gap: verticalScale(8),
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: horizontalScale(24),
+    marginTop: verticalScale(80),
+  },
+  emptyLogo: {
+    width: horizontalScale(80),
+    height: verticalScale(70),
+    resizeMode: "contain",
+    marginBottom: verticalScale(24),
   },
 });

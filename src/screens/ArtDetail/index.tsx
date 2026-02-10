@@ -3,25 +3,32 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
-  Image,
-  Keyboard,
   KeyboardAvoidingView,
   PermissionsAndroid,
   Platform,
-  Share,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import ReactNativeBlobUtil from "react-native-blob-util";
+import FastImage from "react-native-fast-image";
+import LinearGradient from "react-native-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import Toast from "react-native-toast-message";
+import Video from "react-native-video";
+import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
+import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
+import PrimaryButton from "../../components/PrimaryButton";
+import { addNewArtBadge } from "../../redux/slices/UserSlice";
+import { useAppDispatch } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { ArtCommentsResponse } from "../../service/ApiResponses/ArtComments";
 import { FetchArtCommentsResponse } from "../../service/ApiResponses/FetchArtComments";
@@ -34,17 +41,7 @@ import { ShareArtResponse } from "../../service/ApiResponses/ShareArtResponse";
 import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import Video from "react-native-video";
-import RNFS from "react-native-fs";
-import { useAppDispatch } from "../../redux/store";
-import { addNewArtBadge } from "../../redux/slices/UserSlice";
-import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
-import ShareLib from "react-native-share";
-import PrimaryButton from "../../components/PrimaryButton";
-import LinearGradient from "react-native-linear-gradient";
-import ShimmerPlaceholder from "react-native-shimmer-placeholder";
-import ReactNativeBlobUtil from "react-native-blob-util";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -73,7 +70,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [uiIndex, setUiIndex] = useState(0);
   const mediaLoadedRef = useRef(false);
   const keyboardVisible = useRef(false);
-
 
   const [isDownloadingArt, setIsDownloadingArt] = useState(false);
 
@@ -132,6 +128,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       </View>
     </SafeAreaView>
   );
+
   const CommentShimmer = () => (
     <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
       <ShimmerPlaceholder
@@ -150,71 +147,30 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     </View>
   );
 
-  const prepareMedia = async () => {
-    if (!artDetail) return null;
-
-    let uri = artDetail.mediaUrl;
-
-    if (uri.startsWith("http")) {
-      const ext = artDetail.mediaType === "VIDEO" ? ".mp4" : ".jpg";
-
-      const path = `${RNFS.CachesDirectoryPath}/art-${ArtId}${ext}`;
-
-      const exists = await RNFS.exists(path);
-
-      if (!exists) {
-        await RNFS.downloadFile({
-          fromUrl: uri,
-          toFile: path,
-        }).promise;
-      }
-
-      uri = "file://" + path;
-    }
-
-    return uri;
-  };
-
   const shareToApp = async (platform: ShareType) => {
     try {
-      const uri = await prepareMedia();
-      if (!uri) return;
+      setSharing(true);
+      const response = await postData<ShareArtResponse>(
+        `${ENDPOINTS.ShareArt}/${ArtId}/share`,
+        {
+          platform,
+        },
+      );
 
-      const baseOptions = {
-        url: uri,
-        message: artDetail?.title || "",
-        type: artDetail?.mediaType === "VIDEO" ? "video/mp4" : "image/jpeg",
-      };
-
-      if (platform === "more" || platform === "message") {
-        await ShareLib.open(baseOptions);
-        await postData<ShareArtResponse>(
-          `${ENDPOINTS.ShareArt}/${ArtId}/share`,
-          {
-            platform: "APP_SHARE_SHEET",
-          },
+      if (response?.data?.success) {
+        setArtDetail((prev) =>
+          prev
+            ? { ...prev, sharesCount: response.data.data.sharesCount }
+            : prev,
         );
-        return;
+        if (response.data.data.newBadges?.length) {
+          dispatch(addNewArtBadge(response.data.data.newBadges as any));
+        }
       }
-
-      const socialMap = {
-        instagram: ShareLib.Social.INSTAGRAM,
-        facebook: ShareLib.Social.FACEBOOK,
-        whatsapp: ShareLib.Social.WHATSAPP,
-      };
-
-      await ShareLib.shareSingle({
-        ...baseOptions,
-        social: socialMap[platform],
-      });
-
-      await postData<ShareArtResponse>(`${ENDPOINTS.ShareArt}/${ArtId}/share`, {
-        platform: "APP_SHARE_SHEET",
-      });
-
-      console.log("Shared →", platform);
     } catch (err) {
-      console.log("Share failed:", err);
+      console.log("Share Count failed:", err);
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -498,64 +454,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     lastTap.current = now;
   };
 
-  const handleShare = async () => {
-    if (sharing || !artDetail) return;
-
-    try {
-      setSharing(true);
-
-      let localUri = artDetail.mediaUrl;
-
-      // If it's a remote URL → try to download to cache (helps Story appear more often)
-      if (artDetail.mediaUrl.startsWith("http")) {
-        const filename =
-          artDetail.mediaUrl.split("/").pop() ||
-          `art-${ArtId}.${artDetail.mediaType === "VIDEO" ? "mp4" : "jpg"}`;
-        localUri = `${RNFS.CachesDirectoryPath}/${filename}`;
-
-        const exists = await RNFS.exists(localUri);
-        if (!exists) {
-          await RNFS.downloadFile({
-            fromUrl: artDetail.mediaUrl,
-            toFile: localUri,
-          }).promise;
-        }
-      }
-
-      const result = await Share.share({
-        title: artDetail.title,
-        message: `${artDetail.title}\n\n${
-          artDetail?.description || ""
-        }\n\nCreated by ${artDetail?.artistName}`,
-        url: localUri, // ← local file path → better Story chance
-      });
-
-      if (result.action === Share.sharedAction) {
-        // You can try to detect if it was Instagram, but it's unreliable
-        // For now – send generic or keep your WHATSAPP logic
-        const response = await postData<ShareArtResponse>(
-          `${ENDPOINTS.ShareArt}/${ArtId}/share`,
-          { platform: "APP_SHARE_SHEET" }, // or try to guess from result.activityType
-        );
-
-        if (response?.data?.success) {
-          setArtDetail((prev) =>
-            prev
-              ? { ...prev, sharesCount: response.data.data.sharesCount }
-              : prev,
-          );
-          if (response.data.data.newBadges?.length) {
-            dispatch(addNewArtBadge(response.data.data.newBadges as any));
-          }
-        }
-      }
-    } catch (error) {
-      console.log("Share error", error);
-    } finally {
-      setSharing(false);
-    }
-  };
-
   const renderCommentItem = ({ item }: { item: Comment }) => (
     <View style={styles.commentItem}>
       <View style={{ width: "100%", gap: verticalScale(2) }}>
@@ -564,7 +462,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           fontSize={15}
           color={COLORS.darkText}
         >
-          #{item?.user?.assignedNumber}
+          #
+          {item?.user?.assignedNumber
+            ? item?.user?.assignedNumber
+            : "onepali supporter"}
         </CustomText>
         <CustomText
           fontFamily="SourceSansRegular"
@@ -596,21 +497,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     mediaLoadedRef.current = false;
   }, [artDetail?.mediaUrl]);
 
-  useEffect(() => {
-    const showSub = Keyboard.addListener("keyboardDidShow", () => {
-      keyboardVisible.current = true;
-    });
-
-    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
-      keyboardVisible.current = false;
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
-
   if (loading) {
     return <ArtDetailShimmer />;
   }
@@ -618,51 +504,16 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <View style={styles.header}>
-          <View style={styles.side}>
-            <TouchableOpacity activeOpacity={0.8}>
-              <CustomIcon
-                Icon={ICONS.backArrow}
-                height={26}
-                width={26}
-                onPress={() => navigation.goBack()}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.center}>
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={18}
-              color={COLORS.darkText}
-            >
-              {artDetail?.createdAt
-                ?.slice(0, 10)
-                ?.split("-")
-                ?.reverse()
-                ?.join(".")}
-            </CustomText>
-          </View>
-
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setUiIndex((prev) => (prev === 0 ? 1 : 0))}
-          >
-            <CustomIcon Icon={ICONS.fullScreen} width={24} height={24} />
-          </TouchableOpacity>
-        </View>
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+          behavior={Platform.OS === "ios" ? "padding" : "padding"}
+          enabled
+          contentContainerStyle={[styles.scrollContent]}
         >
           <FocusResetScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.scrollContent,
-              showCommentInput && { paddingBottom: verticalScale(20) },
-            ]}
+            keyboardShouldPersistTaps="never"
             scrollEventThrottle={16}
             onScroll={(e) => {
               const currentY = e.nativeEvent.contentOffset.y;
@@ -671,26 +522,54 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               if (diff > 5) {
                 setShowCommentInput(true);
                 manualOpen.current = false;
-              } else if (
-                diff < -5 &&
-                !manualOpen.current &&
-                !keyboardVisible.current // 👈 CRITICAL
-              ) {
+              } else if (diff < -5 && !manualOpen.current) {
                 setShowCommentInput(false);
               }
 
               lastScrollY.current = currentY;
             }}
           >
+            <View style={styles.header}>
+              <View style={styles.side}>
+                <TouchableOpacity activeOpacity={0.8}>
+                  <CustomIcon
+                    Icon={ICONS.backArrow}
+                    height={30}
+                    width={30}
+                    onPress={() => navigation.goBack()}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.center}>
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={18}
+                  color={COLORS.darkText}
+                >
+                  {artDetail?.createdAt
+                    ?.slice(0, 10)
+                    ?.split("-")
+                    ?.reverse()
+                    ?.join(".")}
+                </CustomText>
+              </View>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setUiIndex((prev) => (prev === 0 ? 1 : 0))}
+              >
+                <CustomIcon Icon={ICONS.fullScreen} width={24} height={24} />
+              </TouchableOpacity>
+            </View>
+
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
               <View style={styles.imageWrapper}>
                 {artDetail?.mediaType === "IMAGE" && (
                   <>
-                    {imageLoading && <MediaShimmer />}
-                    <Image
+                    <FastImage
                       source={{ uri: artDetail.mediaUrl }}
                       style={styles.updateImage}
-                      resizeMode="cover"
                       onLoadStart={() => {
                         if (!mediaLoadedRef.current) {
                           setImageLoading(true);
@@ -741,13 +620,13 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     },
                   ]}
                 >
-                  <Image
+                  <FastImage
                     source={IMAGES.ImageLike}
                     style={{
                       width: horizontalScale(99),
                       height: verticalScale(87),
-                      resizeMode: "contain",
                     }}
+                    resizeMode="contain"
                   />
                 </Animated.View>
               </View>
@@ -758,6 +637,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 flexDirection: "row",
                 alignItems: "center",
                 paddingTop: verticalScale(12),
+                paddingHorizontal: horizontalScale(20),
               }}
             >
               <View
@@ -840,6 +720,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             <View
               style={{
                 marginTop: verticalScale(16),
+                paddingHorizontal: horizontalScale(20),
               }}
             >
               <CustomText
@@ -863,6 +744,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               }}
               style={{
                 marginTop: verticalScale(16),
+                paddingHorizontal: horizontalScale(20),
                 gap: verticalScale(16),
               }}
             >
@@ -1010,9 +892,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   style={styles.fsImage}
                 />
               ) : (
-                <Image
+                <FastImage
                   source={{ uri: artDetail?.mediaUrl }}
-                  resizeMode="cover"
                   style={styles.fsImage}
                 />
               )}
@@ -1110,7 +991,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: verticalScale(20),
-    paddingHorizontal: horizontalScale(20),
   },
   commentInputRow: {
     flexDirection: "row",
@@ -1123,11 +1003,11 @@ const styles = StyleSheet.create({
   },
   commentInputWrapper: {
     flex: 1,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 10,
+    borderWidth: 0,
     borderColor: COLORS.greyish,
-    paddingRight: horizontalScale(8),
     paddingLeft: horizontalScale(16),
+    paddingRight: horizontalScale(8),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.light,
     flexDirection: "row",
@@ -1135,11 +1015,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   commentInput: {
-    fontFamily: "SourceSansRegular",
+    fontFamily: FONTS.SourceSansRegular,
     fontSize: 14,
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
-    width: "88%",
+    flex: 1,
   },
   commentsList: {
     paddingBottom: verticalScale(8),
@@ -1156,8 +1036,9 @@ const styles = StyleSheet.create({
     gap: horizontalScale(4),
   },
   imageWrapper: {
-    width: "100%",
+    width: wp(95),
     height: hp(49),
+    alignSelf: "center",
     borderRadius: 20,
     overflow: "hidden",
     position: "relative",
@@ -1191,7 +1072,6 @@ const styles = StyleSheet.create({
   mediaWrapper: {
     width: "100%",
     height: hp(49),
-    borderRadius: 20,
     overflow: "hidden",
     backgroundColor: COLORS.greyish,
   },

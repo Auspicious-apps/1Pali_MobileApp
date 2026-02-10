@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
+import { Platform } from "react-native";
 import "react-native-gesture-handler";
 import BottomTabBar from "../components/BottomTabBar";
 import Account from "../screens/Account";
@@ -9,6 +10,7 @@ import Art from "../screens/Art";
 import ArtDetail from "../screens/ArtDetail";
 import Badges from "../screens/Badges";
 import ClaimSpot from "../screens/ClaimSpot";
+import FAQ from "../screens/FAQ";
 import Home from "../screens/Home";
 import JoinOnePali from "../screens/JoinOnePali";
 import ManageDonation from "../screens/ManageDonation";
@@ -18,6 +20,7 @@ import OnePaliWorks from "../screens/OnePaliWorks";
 import PrivacyPolicy from "../screens/PrivacyPolicy";
 import ReceiptsScreen from "../screens/ReceiptsScreen";
 import Splash from "../screens/Splash";
+import SplashInitial from "../screens/SplashInitial";
 import TermsConditions from "../screens/TermsConditions";
 import UpdateDetail from "../screens/UpdateDetail";
 import Updates from "../screens/Updates";
@@ -30,9 +33,6 @@ import {
   RootStackParams,
   UpdateStackParams,
 } from "../typings/routes";
-import FAQ from "../screens/FAQ";
-import SplashInitial from "../screens/SplashInitial";
-import { Platform } from "react-native";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
