@@ -95,18 +95,18 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const handleTabPress = useCallback(
     (tab: Tab) => {
       const isActive = activeTab === tab.route;
-      if (isActive) {
-        // If we are already on this tab, reset its internal stack to the first screen
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: tab.route }],
-          }),
-        );
-      } else {
+      // if (isActive) {
+      //   // If we are already on this tab, reset its internal stack to the first screen
+      //   navigation.dispatch(
+      //     CommonActions.reset({
+      //       index: 0,
+      //       routes: [{ name: tab.route }],
+      //     }),
+      //   );
+      // } else {
         // If we are switching tabs, navigate normally
         navigation.navigate(tab.route);
-      }
+      // }
     },
     [navigation, currentRoute, activeTab],
   );

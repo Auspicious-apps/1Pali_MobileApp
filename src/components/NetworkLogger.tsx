@@ -14,7 +14,7 @@ const NetworkLogger = ({ onPress }: { onPress?: () => void }) => {
         visible={isNetworkModalVisible}
         // onBackButtonPress={() => setIsNetworkModalVisible(false)}
       >
-        <SafeAreaView style={styles.contentContainer}>
+        <SafeAreaView style={styles.contentContainer} edges={["top"]}>
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsNetworkModalVisible(false)}
