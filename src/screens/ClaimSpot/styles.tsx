@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import FONTS from "../../assets/fonts";
 
 const styles = StyleSheet.create({
@@ -17,7 +17,13 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  header: { width: "100%", flexDirection: "row", marginTop: verticalScale(10) },
+  header: {
+    width: wp(90),
+    flexDirection: "row",
+    marginTop: Platform.OS === "android" ? verticalScale(10) : verticalScale(0),
+    alignItems: "center",
+    justifyContent: "center",
+  },
   logo: {
     width: horizontalScale(80),
     height: verticalScale(70),
@@ -66,7 +72,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: verticalScale(30),
-    marginBottom: Platform.OS === "ios" ? verticalScale(10) : verticalScale(0),
   },
   signInText: {
     textAlign: "center",

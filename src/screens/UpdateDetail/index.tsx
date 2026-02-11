@@ -4,6 +4,7 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -15,7 +16,10 @@ import {
 import FastImage from "react-native-fast-image";
 import RNFS from "react-native-fs";
 import LinearGradient from "react-native-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import ShareLib from "react-native-share";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import FONTS from "../../assets/fonts";
@@ -38,6 +42,8 @@ import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
+
   const { blogId } = route.params;
   const [blogDetail, setBlogDetail] = useState<GetBlogByIdResponse>();
   const [isLiked, setIsLiked] = useState(false);
@@ -61,7 +67,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const lastTap = useRef<number>(0);
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
-  const [OpenModal, setOpenModal] = useState(false);
+  const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
 
   const UpdateDetailShimmer = () => (
     <SafeAreaView style={styles.container}>
@@ -282,7 +288,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         );
         setComments(response?.data?.data?.comments as any);
       }
-      
+
       // Always clear the input and blur after sending
       setCommentText("");
       commentInputRef.current?.blur();
@@ -305,87 +311,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const handleShare = async () => {
     if (sharing || !blogDetail) return;
 
-    // try {
-    //   setSharing(true);
-    //   const { title, excerpt, coverPhotoUrl } = blogDetail;
-    //   const shareMessage = `${title}\n\n${
-    //     excerpt || ""
-    //   }\n\nRead more at: onepali.app`;
-
-    //   // OPTIMIZATION 1: iOS is much faster with direct URLs
-    //   if (Platform.OS === "ios") {
-    //     const result = await Share.share({
-    //       title,
-    //       message: shareMessage,
-    //       url: coverPhotoUrl,
-    //     });
-
-    //     if (result.action === Share.sharedAction) {
-    //       // Increment share count on backend
-    //       const response = await postData<ShareBlogResponse>(
-    //         `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-    //         { platform: "APP_SHARE_SHEET" },
-    //       );
-
-    //       if (response?.data?.success) {
-    //         setBlogDetail((prev) =>
-    //           prev
-    //             ? { ...prev, sharesCount: (prev.sharesCount || 0) + 1 }
-    //             : prev,
-    //         );
-    //       }
-    //     }
-    //     return;
-    //   }
-
-    //   // OPTIMIZATION 2: For Android, use cached file for better performance
-    //   let shareUrl = coverPhotoUrl;
-    //   if (coverPhotoUrl?.startsWith("http")) {
-    //     const fileName = `blog-thumb-${blogId}.jpg`;
-    //     const localFilePath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-    //     const fileExists = await RNFS.exists(localFilePath);
-
-    //     if (!fileExists) {
-    //       // Download in background with low priority
-    //       await RNFS.downloadFile({
-    //         fromUrl: coverPhotoUrl,
-    //         toFile: localFilePath,
-    //         background: true,
-    //         discretionary: true,
-    //       }).promise;
-    //     }
-    //     shareUrl = `file://${localFilePath}`;
-    //   }
-
-    //   const result = await Share.share({
-    //     title,
-    //     message: shareMessage,
-    //     url: shareUrl,
-    //   });
-
-    //   if (result.action === Share.sharedAction) {
-    //     // Increment share count on backend
-    //     const response = await postData<ShareBlogResponse>(
-    //       `${ENDPOINTS.ShareBlog}/${blogId}/share`,
-    //       { platform: "APP_SHARE_SHEET" },
-    //     );
-
-    //     if (response?.data?.success) {
-    //       setBlogDetail((prev) =>
-    //         prev ? { ...prev, sharesCount: (prev.sharesCount || 0) + 1 } : prev,
-    //       );
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.log("Share error:", error);
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Share Failed",
-    //     text2: "Could not share update. Please try again.",
-    //   });
-    // } finally {
-    //   setSharing(false);
-    // }
     const { title, excerpt, coverPhotoUrl } = blogDetail;
     try {
       // Generate unique filename
@@ -432,6 +357,25 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     }
   }, [blogDetail?.coverPhotoUrl]);
 
+  useEffect(() => {
+    // iOS: Smooth animations
+    if (Platform.OS === "ios") {
+      Keyboard.addListener("keyboardWillShow", () =>
+        setisKeyboardVisible(true),
+      );
+      Keyboard.addListener("keyboardWillHide", () =>
+        setisKeyboardVisible(false),
+      );
+    }
+    // Android: Immediate response
+    else {
+      Keyboard.addListener("keyboardDidShow", () => setisKeyboardVisible(true));
+      Keyboard.addListener("keyboardDidHide", () =>
+        setisKeyboardVisible(false),
+      );
+    }
+  }, []);
+
   if (isLoading) {
     return <UpdateDetailShimmer />;
   }
@@ -470,318 +414,337 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : "padding"}
-        enabled
-        contentContainerStyle={[styles.scrollContent]}
-      >
-        <FocusResetScrollView
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="never"
-          scrollEventThrottle={16}
-          onScroll={(e) => {
-            const currentY = e.nativeEvent.contentOffset.y;
-            const isScrollingDown = currentY > lastScrollY.current;
-
-            if (isScrollingDown && currentY > 250) {
-              setShowCommentInput(true);
-              manualOpen.current = false;
-            }
-
-            if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
-              setShowCommentInput(false);
-            }
-
-            lastScrollY.current = currentY;
+      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={{
+            position: "absolute",
+            top:
+              Platform.OS === "android"
+                ? verticalScale(20) + insets.top
+                : verticalScale(60),
+            left: horizontalScale(20),
+            zIndex: 10,
+            backgroundColor: "#E5E7EF",
+            borderRadius: 100,
+            height: 32,
+            width: 32,
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: 0.7,
           }}
+          onPress={() => navigation.goBack()}
         >
-          {/* BACK */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={{
-              position: "absolute",
-              top:
-                Platform.OS === "android"
-                  ? verticalScale(50)
-                  : verticalScale(50),
-              left: horizontalScale(20),
-              zIndex: 10,
-            }}
-            onPress={() => navigation.goBack()}
-          >
-            <CustomIcon Icon={ICONS.ArrowUpRight} height={32} width={32} />
-          </TouchableOpacity>
+          <CustomIcon Icon={ICONS.BackArrowWithBg} height={26} width={26} />
+        </TouchableOpacity>
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={
+            isKeyboardVisible ? 0 : Platform.select({ android: -80, ios: 0 })
+          }
+        >
+          <FocusResetScrollView
+            bounces={false}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="never"
+            scrollEventThrottle={16}
+            onScroll={(e) => {
+              const currentY = e.nativeEvent.contentOffset.y;
+              const isScrollingDown = currentY > lastScrollY.current;
 
-          {/* IMAGE */}
-          <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
-            <View>
-              {imageLoading && <MediaShimmer />}
-              <FastImage
-                source={{ uri: blogDetail?.coverPhotoUrl }}
-                style={styles.updateImage}
-                onLoadStart={() => setImageLoading(true)}
-                onLoadEnd={() => setImageLoading(false)}
-              />
-              {/* Like animation overlay */}
-              <Animated.View
-                style={[
-                  styles.likeOverlay,
-                  {
-                    transform: [{ scale: likeScale }],
-                    opacity: likeScale,
-                  },
-                ]}
-              >
+              if (isScrollingDown && currentY > 250) {
+                setShowCommentInput(true);
+                manualOpen.current = false;
+              }
+
+              if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
+                setShowCommentInput(false);
+              }
+
+              lastScrollY.current = currentY;
+            }}
+          >
+            {/* IMAGE */}
+            <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+              <View>
+                {imageLoading && <MediaShimmer />}
                 <FastImage
-                  source={IMAGES.ImageLike}
-                  style={{
-                    width: horizontalScale(99),
-                    height: verticalScale(87),
-                  }}
-                  resizeMode="contain"
+                  source={{ uri: blogDetail?.coverPhotoUrl }}
+                  style={styles.updateImage}
+                  onLoadStart={() => setImageLoading(true)}
+                  onLoadEnd={() => setImageLoading(false)}
                 />
-              </Animated.View>
-            </View>
-          </TouchableWithoutFeedback>
-
-          {/* HEADER */}
-          <View
-            style={{
-              marginTop: verticalScale(27),
-              paddingHorizontal: horizontalScale(20),
-              gap: verticalScale(8),
-            }}
-          >
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={14}
-              color={COLORS.appText}
-            >
-              {blogDetail?.publishMonthYear}
-            </CustomText>
-
-            <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={32}
-              color={COLORS.darkText}
-            >
-              {blogDetail?.title}
-            </CustomText>
-          </View>
-
-          {/* CONTENT */}
-          <View
-            style={{
-              marginTop: verticalScale(16),
-              paddingHorizontal: horizontalScale(20),
-              gap: verticalScale(12),
-            }}
-          >
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
-              color={COLORS.darkText}
-            >
-              {blogDetail?.content}
-            </CustomText>
-
-            <View style={{ alignItems: "center" }}>
-              <FlatList
-                data={blogDetail?.photos || []}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={(item, index) => item + index}
-                renderItem={renderSlide}
-                onMomentumScrollEnd={(e) => {
-                  const index = Math.round(
-                    e.nativeEvent.contentOffset.x /
-                      Dimensions.get("window").width,
-                  );
-                  setActiveIndex(index);
-                }}
-                contentContainerStyle={{
-                  gap: horizontalScale(1),
-                }}
-              />
-
-              {/* DOTS */}
-              <View style={styles.dots}>
-                {blogDetail?.photos?.map((_, i) => (
-                  <View
-                    key={i}
-                    style={[styles.dot, activeIndex === i && styles.activeDot]}
+                {/* Like animation overlay */}
+                <Animated.View
+                  style={[
+                    styles.likeOverlay,
+                    {
+                      transform: [{ scale: likeScale }],
+                      opacity: likeScale,
+                    },
+                  ]}
+                >
+                  <FastImage
+                    source={IMAGES.ImageLike}
+                    style={{
+                      width: horizontalScale(99),
+                      height: verticalScale(87),
+                    }}
+                    resizeMode="contain"
                   />
-                ))}
+                </Animated.View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
 
-            {/* ACTIONS */}
+            {/* HEADER */}
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                borderBottomWidth: 1,
-                borderBottomColor: COLORS.greyish,
-                paddingVertical: verticalScale(12),
-                justifyContent: "space-between",
+                marginTop: verticalScale(27),
+                paddingHorizontal: horizontalScale(20),
+                gap: verticalScale(8),
               }}
             >
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={14}
+                color={COLORS.appText}
+              >
+                {blogDetail?.publishMonthYear}
+              </CustomText>
+
+              <CustomText
+                fontFamily="GabaritoSemiBold"
+                fontSize={32}
+                color={COLORS.darkText}
+              >
+                {blogDetail?.title}
+              </CustomText>
+            </View>
+
+            {/* CONTENT */}
+            <View
+              style={{
+                marginTop: verticalScale(16),
+                paddingHorizontal: horizontalScale(20),
+                gap: verticalScale(12),
+              }}
+            >
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={15}
+                color={COLORS.darkText}
+              >
+                {blogDetail?.content}
+              </CustomText>
+
+              <View style={{ alignItems: "center" }}>
+                <FlatList
+                  data={blogDetail?.photos || []}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => item + index}
+                  renderItem={renderSlide}
+                  onMomentumScrollEnd={(e) => {
+                    const index = Math.round(
+                      e.nativeEvent.contentOffset.x /
+                        Dimensions.get("window").width,
+                    );
+                    setActiveIndex(index);
+                  }}
+                  contentContainerStyle={{
+                    gap: horizontalScale(1),
+                  }}
+                />
+
+                {/* DOTS */}
+                <View style={styles.dots}>
+                  {blogDetail?.photos?.map((_, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.dot,
+                        activeIndex === i && styles.activeDot,
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              {/* ACTIONS */}
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: horizontalScale(12),
+                  borderBottomWidth: 1,
+                  borderBottomColor: COLORS.greyish,
+                  paddingVertical: verticalScale(12),
+                  justifyContent: "space-between",
                 }}
               >
                 <View
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    gap: horizontalScale(4),
+                    gap: horizontalScale(12),
                   }}
                 >
-                  <TouchableOpacity onPress={handleLikeUnlike}>
-                    <CustomIcon
-                      Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                      height={24}
-                      width={24}
-                    />
-                  </TouchableOpacity>
-
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(4),
+                    }}
                   >
-                    {blogDetail?.likesCount}
-                  </CustomText>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: horizontalScale(4),
-                  }}
-                >
-                  <TouchableOpacity onPress={handleCommentIconPress}>
-                    <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
-                  </TouchableOpacity>
-
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
-                  >
-                    {blogDetail?.commentsCount}
-                  </CustomText>
-                </View>
-              </View>
-              {/* <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleShare}
-                style={styles.ShareButton}
-                disabled={sharing}
-              >
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={16}
-                  color={COLORS.greyish}
-                >
-                  Share Updates
-                </CustomText>
-              </TouchableOpacity> */}
-            </View>
-
-            {/* COMMENTS */}
-            <FlatList
-              data={comments}
-              keyExtractor={(item) => item.id}
-              renderItem={renderCommentItem}
-              scrollEnabled={false}
-              contentContainerStyle={styles.commentsList}
-              ListEmptyComponent={
-                !commentsLoading ? (
-                  <CustomText
-                    fontFamily="SourceSansMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
-                    style={{ textAlign: "center", marginVertical: 12 }}
-                  >
-                    No comments yet
-                  </CustomText>
-                ) : null
-              }
-            />
-            {hasNext && (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => fetchBlogComments(page + 1)}
-                disabled={commentsLoading}
-              >
-                {commentsLoading ? (
-                  <ActivityIndicator color={COLORS.darkText} />
-                ) : (
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={16}
-                    color={COLORS.darkGreen}
-                    style={{ textAlign: "center" }}
-                  >
-                    Load more comments
-                  </CustomText>
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
-        </FocusResetScrollView>
-        {showCommentInput && (
-          <>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderColor: COLORS.greyish,
-              }}
-            />
-            <View style={styles.commentInputRow}>
-              <CustomIcon
-                Icon={ICONS.SimpleUserIcon}
-                height={verticalScale(40)}
-                width={horizontalScale(40)}
-              />
-              <View style={styles.commentInputWrapper}>
-                <TextInput
-                  ref={commentInputRef}
-                  value={commentText}
-                  onChangeText={setCommentText}
-                  placeholder="Add a comment..."
-                  placeholderTextColor={COLORS.appText}
-                  style={styles.commentInput}
-                />
-                {commentText.trim().length > 0 && (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleSendComment}
-                    disabled={sendingComment}
-                  >
-                    {sendingComment ? (
-                      <ActivityIndicator size="small" color={COLORS.darkText} />
-                    ) : (
+                    <TouchableOpacity onPress={handleLikeUnlike}>
                       <CustomIcon
-                        Icon={ICONS.sendIcon}
+                        Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
                         height={24}
                         width={24}
                       />
-                    )}
-                  </TouchableOpacity>
-                )}
+                    </TouchableOpacity>
+
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={16}
+                      color={COLORS.appText}
+                    >
+                      {blogDetail?.likesCount}
+                    </CustomText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(4),
+                    }}
+                  >
+                    <TouchableOpacity onPress={handleCommentIconPress}>
+                      <CustomIcon
+                        Icon={ICONS.chatIcon}
+                        height={24}
+                        width={24}
+                      />
+                    </TouchableOpacity>
+
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={16}
+                      color={COLORS.appText}
+                    >
+                      {blogDetail?.commentsCount}
+                    </CustomText>
+                  </View>
+                </View>
+                {/* <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleShare}
+                  style={styles.ShareButton}
+                  disabled={sharing}
+                >
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.greyish}
+                  >
+                    Share Update
+                  </CustomText>
+                </TouchableOpacity> */}
               </View>
+
+              {/* COMMENTS */}
+              <FlatList
+                data={comments}
+                keyExtractor={(item) => item.id}
+                renderItem={renderCommentItem}
+                scrollEnabled={false}
+                contentContainerStyle={styles.commentsList}
+                ListEmptyComponent={
+                  !commentsLoading ? (
+                    <CustomText
+                      fontFamily="SourceSansMedium"
+                      fontSize={16}
+                      color={COLORS.appText}
+                      style={{ textAlign: "center", marginVertical: 12 }}
+                    >
+                      No comments yet
+                    </CustomText>
+                  ) : null
+                }
+              />
+              {hasNext && (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => fetchBlogComments(page + 1)}
+                  disabled={commentsLoading}
+                >
+                  {commentsLoading ? (
+                    <ActivityIndicator color={COLORS.darkText} />
+                  ) : (
+                    <CustomText
+                      fontFamily="SourceSansRegular"
+                      fontSize={16}
+                      color={COLORS.darkGreen}
+                      style={{ textAlign: "center" }}
+                    >
+                      Load more comments
+                    </CustomText>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
-          </>
-        )}
-      </KeyboardAvoidingView>
+          </FocusResetScrollView>
+
+          {showCommentInput && (
+            <>
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderColor: COLORS.greyish,
+                }}
+              />
+              <View style={styles.commentInputRow}>
+                <CustomIcon
+                  Icon={ICONS.SimpleUserIcon}
+                  height={verticalScale(40)}
+                  width={horizontalScale(40)}
+                />
+                <View style={styles.commentInputWrapper}>
+                  <TextInput
+                    ref={commentInputRef}
+                    value={commentText}
+                    onChangeText={setCommentText}
+                    placeholder="Add a comment..."
+                    placeholderTextColor={COLORS.appText}
+                    style={styles.commentInput}
+                  />
+                  {commentText.trim().length > 0 && (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={handleSendComment}
+                      disabled={sendingComment}
+                    >
+                      {sendingComment ? (
+                        <ActivityIndicator
+                          size="small"
+                          color={COLORS.darkText}
+                        />
+                      ) : (
+                        <CustomIcon
+                          Icon={ICONS.sendIcon}
+                          height={24}
+                          width={24}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -795,7 +758,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: verticalScale(20),
   },
   keyboardView: {
     flex: 1,
@@ -804,9 +766,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: hp(42.9),
   },
-  scrollContent: {
-    paddingBottom: verticalScale(16),
-  },
+  scrollContent: {},
   commentInputRow: {
     flexDirection: "row",
     alignItems: "center",

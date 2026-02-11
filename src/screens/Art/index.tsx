@@ -126,10 +126,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
         activeOpacity={0.85}
         style={styles.cardContainer}
         onPress={() => {
-          navigation.navigate("artStack", {
-            screen: "artDetail",
-            params: { ArtId: item?.id },
-          });
+          navigation.navigate("artDetail", { ArtId: item?.id });
         }}
       >
         <FastImage
@@ -231,10 +228,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
                 style={styles.weekCard}
                 activeOpacity={0.8}
                 onPress={() =>
-                  navigation.navigate("artStack", {
-                    screen: "artDetail",
-                    params: { ArtId: artOfTheWeek?.id },
-                  })
+                  navigation.navigate("artDetail", { ArtId: artOfTheWeek?.id })
                 }
               >
                 <View style={{ position: "relative" }}>

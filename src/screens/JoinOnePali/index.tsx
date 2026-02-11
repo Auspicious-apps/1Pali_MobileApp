@@ -2,7 +2,7 @@ import {
   confirmPlatformPaySetupIntent,
   isPlatformPaySupported,
   PlatformPay,
-  useStripe
+  useStripe,
 } from "@stripe/stripe-react-native";
 import React, { FC, useEffect, useState } from "react";
 import {
@@ -77,8 +77,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [showCard, setShowCard] = useState(false);
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [showButton, setShowButton] = useState(false);
   const [toggleWidth, setToggleWidth] = useState(0);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
 
@@ -417,10 +415,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
   // Handle UI changes when reservation expires
   useEffect(() => {
-    if (reservationSeconds === 0) {
+    if (!reservationSeconds) {
       setShowCard(false);
-      setShowDisclaimer(false);
-      setShowButton(true);
       dispatch(clearReservationTimer());
     }
   }, [reservationSeconds, dispatch]);
@@ -441,7 +437,27 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-        <Image source={IMAGES.LogoText} style={styles.logo} />
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: "#E5E7EF",
+              borderRadius: 100,
+              position: "absolute",
+              top: 0,
+              left: 0,
+              height: 32,
+              width: 32,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CustomIcon Icon={ICONS.BackArrowWithBg} />
+          </TouchableOpacity>
+          <Image source={IMAGES.LogoText} style={styles.logo} />
+        </View>
+
         <View style={styles.headingContainer}>
           {/* Heading letters */}
           <View
@@ -610,7 +626,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             </View>
           </View>
         )}
-        {reservationSeconds !== 0 && (
+        {reservationSeconds && (
           <Image
             source={IMAGES.JoinImage}
             resizeMode="cover"
@@ -621,7 +637,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             }}
           />
         )}
-        {reservationSeconds === 0 ? (
+        {!reservationSeconds ? (
           <PrimaryButton
             title="Choose a new number"
             onPress={() => {
@@ -651,7 +667,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           />
         )}
 
-        {reservationSeconds && reservationSeconds > 0 && (
+        {reservationSeconds && (
           <View
             style={{
               flexDirection: "row",
@@ -688,8 +704,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
-    paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(10),
+  },
+  header: {
+    width: wp(90),
+    flexDirection: "row",
+    marginTop: Platform.OS === "android" ? verticalScale(15) : verticalScale(0),
+    alignItems: "center",
+    justifyContent: "center",
   },
   logo: {
     width: horizontalScale(80),
@@ -715,10 +736,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 6,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: verticalScale(12),
   },
 
   divider: {

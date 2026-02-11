@@ -1,6 +1,6 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const styles = StyleSheet.create({
   container: {
@@ -12,13 +12,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
-    paddingTop: verticalScale(20),
+  },
+
+  header: {
+    width: wp(90),
+    flexDirection: "row",
+    marginTop: Platform.OS === "android" ? verticalScale(15) : verticalScale(0),
+    alignItems: "center",
+    justifyContent: "center",
   },
   logo: {
     width: horizontalScale(80),
     height: verticalScale(70),
     resizeMode: "contain",
   },
+
   headingContainer: {
     marginTop: verticalScale(45),
     alignItems: "center",

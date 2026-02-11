@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
@@ -101,39 +104,55 @@ const Text = ({ children }: any) => (
 );
 
 const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={styles.container}>
       {/* IMPORTANT: remove bottom edge */}
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
-          </TouchableOpacity>
-
-          <Image source={IMAGES.LogoText} style={styles.logo} />
-
-          <View style={{ width: 24 }} />
-        </View>
-
-        <CustomText
-          fontFamily="GabaritoSemiBold"
-          fontSize={32}
-          color={COLORS.darkText}
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            paddingTop: insets.top,
+          },
+        ]}
+        edges={["bottom"]}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={{
-            textAlign: "center",
-            marginTop: verticalScale(32),
-            marginBottom: verticalScale(24),
+            position: "absolute",
+            left: 0,
+            top: insets.top,
+            zIndex: 10,
+            padding: horizontalScale(20),
+            paddingVertical: verticalScale(10),
           }}
         >
-          FAQS
-        </CustomText>
+          <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+        </TouchableOpacity>
         {/* FAQ CONTENT */}
         <ScrollView
-          bounces={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* HEADER */}
+          <View style={styles.header}>
+            <Image source={IMAGES.LogoText} style={styles.logo} />
+          </View>
+
+          <CustomText
+            fontFamily="GabaritoSemiBold"
+            fontSize={32}
+            color={COLORS.darkText}
+            style={{
+              textAlign: "center",
+              marginTop: verticalScale(32),
+              marginBottom: verticalScale(24),
+            }}
+          >
+            FAQS
+          </CustomText>
           {FAQ_DATA.map((item, index) => (
             <View
               key={index}
@@ -165,16 +184,14 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     marginBottom: verticalScale(16),
-    marginTop: verticalScale(10),
+    alignItems: "center",
+    justifyContent: "center",
   },
   logo: {
     width: horizontalScale(80),
     height: verticalScale(70),
     resizeMode: "contain",
   },
-  scrollContent: {
-    paddingBottom: verticalScale(20),
-  },
+  scrollContent: {},
 });

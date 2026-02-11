@@ -25,13 +25,10 @@ import TermsConditions from "../screens/TermsConditions";
 import UpdateDetail from "../screens/UpdateDetail";
 import Updates from "../screens/Updates";
 import {
-  AccountStackParams,
-  ArtStackParams,
   BottomStackParams,
   MainStackParams,
   OnBoardingStackParams,
   RootStackParams,
-  UpdateStackParams,
 } from "../typings/routes";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
@@ -40,10 +37,6 @@ const OnBoardingStackNavigator =
 
 const Main = createNativeStackNavigator<MainStackParams>();
 const Tabs = createBottomTabNavigator<BottomStackParams>();
-
-const UpdateStack = createNativeStackNavigator<UpdateStackParams>();
-const ArtStack = createNativeStackNavigator<ArtStackParams>();
-const AccountStack = createNativeStackNavigator<AccountStackParams>();
 
 const navigatorScreenOptions = {
   headerShown: false,
@@ -77,38 +70,6 @@ function OnBoardingStack() {
   );
 }
 
-function UpdatesStack() {
-  return (
-    <UpdateStack.Navigator screenOptions={navigatorScreenOptions}>
-      <UpdateStack.Screen name="updates" component={Updates} />
-      <UpdateStack.Screen name="updateDetail" component={UpdateDetail} />
-    </UpdateStack.Navigator>
-  );
-}
-
-function ArtStackRoutes() {
-  return (
-    <ArtStack.Navigator screenOptions={navigatorScreenOptions}>
-      <ArtStack.Screen name="art" component={Art} />
-      <ArtStack.Screen name="artDetail" component={ArtDetail} />
-    </ArtStack.Navigator>
-  );
-}
-
-function AccountStackRoutes() {
-  return (
-    <AccountStack.Navigator screenOptions={navigatorScreenOptions}>
-      <AccountStack.Screen name="account" component={Account} />
-      <AccountStack.Screen name="termsConditions" component={TermsConditions} />
-      <AccountStack.Screen name="privacyPolicy" component={PrivacyPolicy} />
-      <AccountStack.Screen name="receipts" component={ReceiptsScreen} />
-      <AccountStack.Screen name="manageDonation" component={ManageDonation} />
-      <AccountStack.Screen name="badges" component={Badges} />
-      <AccountStack.Screen name="faq" component={FAQ} />
-    </AccountStack.Navigator>
-  );
-}
-
 export default function Routes() {
   const tabStack: React.FC<any> = ({ route }) => {
     return (
@@ -120,9 +81,9 @@ export default function Routes() {
         tabBar={(props) => <BottomTabBar {...props} />}
       >
         <Tabs.Screen name="home" component={Home} />
-        <Tabs.Screen name="updatesStack" component={UpdatesStack} />
-        <Tabs.Screen name="artStack" component={ArtStackRoutes} />
-        <Tabs.Screen name="accountStack" component={AccountStackRoutes} />
+        <Tabs.Screen name="updates" component={Updates} />
+        <Tabs.Screen name="art" component={Art} />
+        <Tabs.Screen name="account" component={Account} />
       </Tabs.Navigator>
     );
   };
@@ -131,6 +92,15 @@ export default function Routes() {
     return (
       <Main.Navigator screenOptions={{ headerShown: false }}>
         <Main.Screen name="tabs" component={tabStack} />
+        <Main.Screen name="updateDetail" component={UpdateDetail} />
+        <Main.Screen name="artDetail" component={ArtDetail} />
+
+        <Main.Screen name="termsConditions" component={TermsConditions} />
+        <Main.Screen name="privacyPolicy" component={PrivacyPolicy} />
+        <Main.Screen name="receipts" component={ReceiptsScreen} />
+        <Main.Screen name="manageDonation" component={ManageDonation} />
+        <Main.Screen name="badges" component={Badges} />
+        <Main.Screen name="faq" component={FAQ} />
       </Main.Navigator>
     );
   };

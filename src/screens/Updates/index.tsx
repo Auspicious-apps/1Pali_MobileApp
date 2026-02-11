@@ -72,10 +72,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
       style={styles.weekCard}
       activeOpacity={0.8}
       onPress={() => {
-        navigation.navigate("updatesStack", {
-          screen: "updateDetail",
-          params: { blogId: item.id },
-        });
+        navigation.navigate("updateDetail", { blogId: item.id });
       }}
     >
       <View style={styles.imageWrapper}>

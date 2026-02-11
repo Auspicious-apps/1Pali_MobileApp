@@ -97,9 +97,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   }
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <FocusResetScrollView
-          bounces={false}
           horizontal={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
@@ -155,8 +154,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               <BadgeIcon
                 badge={communityBadge?.name}
                 style={{
-                  width: horizontalScale(72),
-                  height: verticalScale(72),
+                  width: horizontalScale(94),
+                  height: verticalScale(94),
                 }}
               />
             </TouchableOpacity>

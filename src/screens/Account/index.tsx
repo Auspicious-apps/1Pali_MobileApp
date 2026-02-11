@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import BadgeIcon from "../../components/BadgeIcon";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
@@ -28,7 +29,6 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { deleteLocalStorageData, formatDate } from "../../utils/Helpers";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import BadgeIcon from "../../components/BadgeIcon";
 
 const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const { badges, user } = useAppSelector((state) => state.user);
@@ -58,15 +58,14 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       icon: ICONS.BadgesIcon,
       label: "Badges",
       arrow: true,
-      onPress: () => navigation.navigate("accountStack", { screen: "badges" }),
+      onPress: () => navigation.navigate("badges"),
     },
     {
       id: "donations",
       icon: ICONS.dollerIcon,
       label: "Manage Donations",
       arrow: true,
-      onPress: () =>
-        navigation.navigate("accountStack", { screen: "manageDonation" }),
+      onPress: () => navigation.navigate("manageDonation"),
     },
     {
       id: "receipts",
@@ -74,7 +73,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       label: "Receipts",
       arrow: true,
       onPress: () => {
-        navigation.navigate("accountStack", { screen: "receipts" });
+        navigation.navigate("receipts");
       },
     },
     {
@@ -83,7 +82,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       label: "FAQs",
       arrow: true,
       onPress: () => {
-        navigation.navigate("accountStack", { screen: "faq" });
+        navigation.navigate("faq");
       },
     },
     {
@@ -91,8 +90,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       icon: ICONS.TermIcon,
       label: "Terms and Conditions",
       arrow: true,
-      onPress: () =>
-        navigation.navigate("accountStack", { screen: "termsConditions" }),
+      onPress: () => navigation.navigate("termsConditions"),
     },
     {
       id: "privacy",
@@ -100,7 +98,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       label: "Privacy Policy",
       arrow: true,
       onPress: () => {
-        navigation.navigate("accountStack", { screen: "privacyPolicy" });
+        navigation.navigate("privacyPolicy");
       },
     },
     {
@@ -216,7 +214,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 }}
                 activeOpacity={0.8}
                 onPress={() => {
-                  navigation.navigate("accountStack", { screen: "badges" });
+                  navigation.navigate("badges");
                 }}
               >
                 <View
@@ -280,7 +278,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={() => {
-                      navigation.navigate("accountStack", { screen: "badges" });
+                      navigation.navigate("badges");
                     }}
                   >
                     <CustomIcon

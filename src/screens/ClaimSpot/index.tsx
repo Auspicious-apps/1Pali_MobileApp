@@ -20,9 +20,12 @@ import PrimaryButton from "../../components/PrimaryButton";
 import {
   clearReservationTimer,
   selectReservationSeconds,
+  selectReservationToken,
+  selectClaimedNumber,
   setClaimedNumber,
   setReservationToken,
   startReservationTimer,
+  clearReservationToken,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -43,6 +46,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [available, setAvailable] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
   const reservationSeconds = useAppSelector(selectReservationSeconds);
+  const reservationToken = useAppSelector(selectReservationToken);
+  const claimedNumber = useAppSelector(selectClaimedNumber);
 
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const checkingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -61,11 +66,21 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const handleChange = (text: string) => {
     const numeric = text.replace(/[^0-9]/g, "");
 
-     if (numeric.length > number.length) {
-       HapticFeedback.trigger("impactLight", hapticOptions);
-     }
+    if (numeric.length > number.length) {
+      HapticFeedback.trigger("impactLight", hapticOptions);
+    }
 
     setNumber(numeric);
+
+    // If user changes the number and there's an active reservation token, clear it
+    if (
+      numeric !== number &&
+      reservationToken !== null &&
+      claimedNumber !== null &&
+      claimedNumber !== Number(numeric)
+    ) {
+      dispatch(clearReservationToken());
+    }
 
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
     if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
@@ -159,47 +174,41 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const handleReserveNumber = async () => {
     if (checking || !available || !number) return;
 
+    const numValue = Number(number);
+
+    // If user already has an active reservation for this number, don't call API again
+    if (reservationToken !== null && claimedNumber === numValue) {
+      // Reservation already exists for this number, proceed to sign-in
+      dispatch(setClaimedNumber(numValue));
+      dispatch(clearReservationTimer());
+      navigation.navigate("missionIntro", { showNumber: true });
+      return;
+    }
+
     setIsLoading(true);
     setInputDisabled(true);
     inputRef.current?.blur();
     Keyboard.dismiss();
+
     try {
       const response = await postData<ReserveSpecificNumberResponse>(
         ENDPOINTS.ReserveSpecificNumber,
-        { type: "specific", number: Number(number) },
+        { type: "specific", number: numValue },
       );
-      dispatch(setClaimedNumber(Number(number)));
+      dispatch(setClaimedNumber(numValue));
       dispatch(setReservationToken(response.data.data?.reservationToken));
 
       dispatch(clearReservationTimer());
       navigation.navigate("missionIntro", { showNumber: true });
     } catch (e) {
       console.error("Error reserving number:", e);
-      setInputDisabled(false);
+      // On API error, clear the reservation token to allow retry with a different number
+      dispatch(clearReservationToken());
     } finally {
+      setInputDisabled(false);
       setIsLoading(false);
     }
   };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      // screen focused (do nothing)
-
-      return () => {
-        setNumber("");
-        setChecking(false);
-        setAvailable(false);
-        setUnavailable(false);
-        setIsLoading(false);
-        setInputDisabled(false);
-
-        typingTimeout.current && clearTimeout(typingTimeout.current);
-        checkingTimeout.current && clearTimeout(checkingTimeout.current);
-
-        inputRef.current?.clear();
-      };
-    }, []),
-  );
 
   return (
     <View style={styles.container}>
@@ -208,25 +217,27 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
           <KeyboardAvoidingView
             style={styles.keyboardView}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
           >
             <View style={styles.header}>
-              <View style={styles.side}>
-                <TouchableOpacity
-                  onPress={() => navigation.goBack()}
-                  activeOpacity={0.8}
-                >
-                  <CustomIcon
-                    Icon={ICONS.ArrowUpRight}
-                    height={32}
-                    width={32}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.center}>
-                <Image source={IMAGES.LogoText} style={styles.logo} />
-              </View>
-              <View style={styles.side} />
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.8}
+                style={{
+                  backgroundColor: "#E5E7EF",
+                  borderRadius: 100,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  height: 32,
+                  width: 32,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CustomIcon Icon={ICONS.BackArrowWithBg} />
+              </TouchableOpacity>
+              <Image source={IMAGES.LogoText} style={styles.logo} />
             </View>
 
             <View style={styles.content}>
@@ -237,9 +248,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   color={COLORS.darkText}
                   style={{ textAlign: "center", lineHeight: verticalScale(40) }}
                 >
-                  {showClaimTitle
-                    ? "Claim your\nnumber"
-                    : "Choose your\nnumber"}
+                  Choose your{"\n"}number
                 </CustomText>
                 <CustomText
                   fontFamily="GabaritoRegular"
@@ -368,31 +377,13 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                 )}
               </View>
             </View>
-            <View style={{ gap: Platform.OS == "ios" ? 0 : verticalScale(10) }}>
-              <PrimaryButton
-                title="Claim number"
-                onPress={handleReserveNumber}
-                disabled={!available}
-                isLoading={isLoading}
-                style={styles.button}
-              />
-              <CustomText
-                fontFamily="MontserratRegular"
-                fontSize={12}
-                color={COLORS.grey}
-                style={styles.signInText}
-              >
-                Already have a account?{" "}
-                <CustomText
-                  fontFamily="MontserratSemiBold"
-                  fontSize={12}
-                  color={COLORS.darkText}
-                  onPress={() => navigation.navigate("missionIntro")}
-                >
-                  Sign in
-                </CustomText>
-              </CustomText>
-            </View>
+            <PrimaryButton
+              title="Claim number"
+              onPress={handleReserveNumber}
+              disabled={!available}
+              isLoading={isLoading}
+              style={styles.button}
+            />
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </SafeAreaView>

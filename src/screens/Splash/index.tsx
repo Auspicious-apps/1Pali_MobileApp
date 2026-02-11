@@ -107,56 +107,67 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.innerContainer}>
-        <View style={styles.contentContainer}>
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-          <View style={styles.titleContainer}>
-            <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={42}
-              color={COLORS.darkText}
-              style={styles.titleText}
-            >
-              OnePali
-            </CustomText>
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={18}
-              color={COLORS.appText}
-              style={styles.subtitleText}
-            >
-              One cause. One million supporters.
-            </CustomText>
-          </View>
-          <View style={styles.globalImageContainer}>
-            <Image source={IMAGES.ChangedSplash} style={styles.globalImage} />
-          </View>
-
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={16}
-              color={COLORS.greyText}
-              style={styles.collabText}
-            >
-              In collaboration with
-            </CustomText>
-            <View style={styles.dividerLine} />
-          </View>
-          <View style={styles.partnersRow}>
-            <Image source={IMAGES.MecaImage} style={styles.mecaImage} />
-            <Image source={IMAGES.Paliroot} style={styles.palirootImage} />
-          </View>
+        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+        <View style={styles.titleContainer}>
+          <CustomText
+            fontFamily="GabaritoSemiBold"
+            fontSize={42}
+            color={COLORS.darkText}
+            style={styles.titleText}
+          >
+            OnePali
+          </CustomText>
+          <CustomText
+            fontFamily="SourceSansRegular"
+            fontSize={18}
+            color={COLORS.appText}
+            style={styles.subtitleText}
+          >
+            One cause. One million supporters.
+          </CustomText>
         </View>
+        <View style={styles.globalImageContainer}>
+          <Image source={IMAGES.GetStartedImage} style={styles.globalImage} />
+        </View>
+
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={16}
+            color={COLORS.greyText}
+            style={styles.collabText}
+          >
+            In collaboration with
+          </CustomText>
+          <View style={styles.dividerLine} />
+        </View>
+        <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
 
         {!isCheckingAuth && (
           <PrimaryButton
             title={isCheckingAuth ? "Checking..." : "Get Started"}
-            onPress={isCheckingAuth ? () => {} : handleGetStarted}
+            onPress={handleGetStarted}
             style={styles.button}
             disabled={isCheckingAuth}
           />
         )}
+        <CustomText
+          fontFamily="MontserratRegular"
+          fontSize={12}
+          color={COLORS.grey}
+          style={styles.signInText}
+        >
+          Already have a account?{" "}
+          <CustomText
+            fontFamily="MontserratSemiBold"
+            fontSize={12}
+            color={COLORS.darkText}
+            onPress={() => navigation.navigate("missionIntro")}
+          >
+            Sign in
+          </CustomText>
+        </CustomText>
       </SafeAreaView>
     </View>
   );
@@ -174,15 +185,15 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     paddingVertical:
-      Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
+      Platform.OS === "ios" ? verticalScale(0) : verticalScale(15),
   },
   contentContainer: {
     flex: 1,
     alignItems: "center",
   },
   logo: {
-    width: horizontalScale(72),
-    height: verticalScale(72),
+    width: horizontalScale(64),
+    height: verticalScale(64),
     resizeMode: "contain",
     alignSelf: "center",
   },
@@ -199,10 +210,10 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? verticalScale(16) : verticalScale(16),
   },
   globalImage: {
-    width: wp(60),
+    width: wp(80),
     height: hp(46.6),
     alignSelf: "center",
-    resizeMode: "contain",
+    resizeMode: "cover",
   },
   dividerRow: {
     flexDirection: "row",
@@ -219,31 +230,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: hp(2.7),
   },
-  partnersRow: {
-    flexDirection: "row",
-    gap: wp(7.7),
-    marginTop: hp(1),
-  },
+
   mecaImage: {
-    width: wp(36),
-    height: hp(6),
+    width: wp(80),
+    height: hp(5.6),
     alignSelf: "center",
     resizeMode: "contain",
+    marginTop: verticalScale(8),
   },
-  palirootImage: {
-    width: wp(35.7),
-    height: hp(3.3),
-    alignSelf: "center",
-    resizeMode: "contain",
-  },
+
   button: {
-    marginTop: hp(2.5),
+    marginVertical: verticalScale(15),
   },
   loadingContainer: {
     alignItems: "center",
     paddingVertical: verticalScale(20),
   },
   loadingText: {
+    textAlign: "center",
+  },
+  signInText: {
     textAlign: "center",
   },
 });

@@ -5,6 +5,7 @@ import CollectBadgesReducer from "./slices/CollectBadgesSlice";
 import userReducer, {
   startReservationTimer,
   decrementReservationTimer,
+  clearReservationToken,
 } from "./slices/UserSlice";
 import StripePlansReducer from "./slices/StripePlans";
 import ArtsReducer from "./slices/ArtsSlice";
@@ -40,6 +41,22 @@ timerListenerMiddleware.startListening({
         }
       }
     }, 1000);
+  },
+});
+
+// Listen for reservation expiration and clear the reservation token
+timerListenerMiddleware.startListening({
+  actionCreator: decrementReservationTimer,
+  effect: (action, api) => {
+    const state = api.getState() as ReturnType<typeof store.getState>;
+
+    // Check if reservation has just expired
+    if (
+      state.user.reservationSeconds === 0 &&
+      state.user.reservationToken !== null
+    ) {
+      api.dispatch(clearReservationToken());
+    }
   },
 });
 

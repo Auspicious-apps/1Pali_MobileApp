@@ -18,6 +18,16 @@ export type OnBoardingStackParams = {
 
 export type MainStackParams = {
   tabs: NavigatorScreenParams<BottomStackParams>;
+  updateDetail: { blogId: string };
+  artDetail: { ArtId: string };
+
+  // Account Screen
+  termsConditions: undefined;
+  privacyPolicy: undefined;
+  receipts: undefined;
+  manageDonation: undefined;
+  badges: undefined;
+  faq: undefined;
 };
 
 export type UpdateStackParams = {
@@ -42,9 +52,9 @@ export type AccountStackParams = {
 
 export type BottomStackParams = {
   home: undefined;
-  updatesStack: NavigatorScreenParams<UpdateStackParams>;
-  artStack: NavigatorScreenParams<ArtStackParams>;
-  accountStack: NavigatorScreenParams<AccountStackParams>;
+  updates: undefined;
+  art: undefined;
+  account: undefined;
 };
 
 // SPLASH SCREEN
@@ -99,38 +109,38 @@ export type AccountScreenProps = NativeStackScreenProps<
 
 // ----------------   UPDATES SCREENS ---------------------
 export type UpdateDetailScreenProps = NativeStackScreenProps<
-  UpdateStackParams,
+  MainStackParams,
   "updateDetail"
 >;
 
 // ----------------   ART SCREENS ---------------------
 export type ArtDetailScreenProps = NativeStackScreenProps<
-  ArtStackParams,
+  MainStackParams,
   "artDetail"
 >;
 
 // ----------------   ACCOUNT SCREENS ---------------------
 export type BadgesScreenProps = NativeStackScreenProps<
-  AccountStackParams,
+  MainStackParams,
   "badges"
 >;
 export type TermsConditionsScreenProps = NativeStackScreenProps<
-  AccountStackParams,
+  MainStackParams,
   "termsConditions"
 >;
 export type PrivacyPolicyScreenProps = NativeStackScreenProps<
-  AccountStackParams,
+  MainStackParams,
   "privacyPolicy"
 >;
 export type ReceiptsScreenProps = NativeStackScreenProps<
-  AccountStackParams,
+  MainStackParams,
   "receipts"
 >;
 export type ManageDonationScreenProps = NativeStackScreenProps<
-  AccountStackParams,
+  MainStackParams,
   "manageDonation"
 >;
 export type FaqScreenProps = NativeStackScreenProps<
-  AccountStackParams & BottomStackParams & MainStackParams & RootStackParams,
+  MainStackParams & BottomStackParams & RootStackParams,
   "faq"
 >;

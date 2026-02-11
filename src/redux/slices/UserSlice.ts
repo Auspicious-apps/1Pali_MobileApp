@@ -78,6 +78,9 @@ const userSlice = createSlice({
     setReservationToken: (state, action: PayloadAction<string>) => {
       state.reservationToken = action.payload;
     },
+    clearReservationToken: (state) => {
+      state.reservationToken = null;
+    },
     setBadges: (state, action: PayloadAction<Badges>) => {
       state.badges = action.payload;
     },
@@ -167,6 +170,7 @@ export const {
   clearUserData,
   setClaimedNumber,
   setReservationToken,
+  clearReservationToken,
   setBadges,
   startReservationTimer,
   decrementReservationTimer,
@@ -213,3 +217,9 @@ export const selectIsReservationExpired = (state: RootState) =>
 
 export const selectIsReservationActive = (state: RootState) =>
   state.user.reservationStatus === "ACTIVE";
+
+export const selectReservationToken = (state: RootState) =>
+  state.user.reservationToken;
+
+export const selectClaimedNumber = (state: RootState) =>
+  state.user.claimedNumber;

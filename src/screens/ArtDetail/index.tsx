@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   PermissionsAndroid,
   Platform,
@@ -69,7 +70,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [uiIndex, setUiIndex] = useState(0);
   const mediaLoadedRef = useRef(false);
-  const keyboardVisible = useRef(false);
+  const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
 
   const [isDownloadingArt, setIsDownloadingArt] = useState(false);
 
@@ -497,18 +498,39 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     mediaLoadedRef.current = false;
   }, [artDetail?.mediaUrl]);
 
+  useEffect(() => {
+    // iOS: Smooth animations
+    if (Platform.OS === "ios") {
+      Keyboard.addListener("keyboardWillShow", () =>
+        setisKeyboardVisible(true),
+      );
+      Keyboard.addListener("keyboardWillHide", () =>
+        setisKeyboardVisible(false),
+      );
+    }
+    // Android: Immediate response
+    else {
+      Keyboard.addListener("keyboardDidShow", () => setisKeyboardVisible(true));
+      Keyboard.addListener("keyboardDidHide", () =>
+        setisKeyboardVisible(false),
+      );
+    }
+  }, []);
   if (loading) {
     return <ArtDetailShimmer />;
   }
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "padding" : "padding"}
-          enabled
-          contentContainerStyle={[styles.scrollContent]}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={
+            isKeyboardVisible
+              ? 0
+              : Platform.select({ android: verticalScale(-30), ios: 0 })
+          }
         >
           <FocusResetScrollView
             bounces={false}
@@ -810,6 +832,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               )}
             </View>
           </FocusResetScrollView>
+
           {showCommentInput && (
             <>
               <View

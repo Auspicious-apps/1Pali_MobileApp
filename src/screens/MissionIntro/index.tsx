@@ -4,7 +4,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useEffect, useState } from "react";
-import { Alert, Image, Platform, View } from "react-native";
+import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
@@ -30,6 +30,7 @@ import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
 import { hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
+import CustomIcon from "../../components/CustomIcon";
 
 const initialTimer = 200;
 
@@ -122,7 +123,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           return;
         }
 
-        navigation.replace("joinOnePali");
+        navigation.navigate("joinOnePali");
       }
     } catch (error: any) {
       console.log("error", error);
@@ -234,7 +235,26 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <Image source={IMAGES.LogoText} style={styles.logo} />
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: "#E5E7EF",
+              borderRadius: 100,
+              position: "absolute",
+              top: 0,
+              left: 0,
+              height: 32,
+              width: 32,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CustomIcon Icon={ICONS.BackArrowWithBg} />
+          </TouchableOpacity>
+          <Image source={IMAGES.LogoText} style={styles.logo} />
+        </View>
 
         <View style={styles.headingContainer}>
           <CustomText

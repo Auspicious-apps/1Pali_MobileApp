@@ -33,19 +33,19 @@ const tabs: Tab[] = [
     name: "Updates",
     icon: ICONS.heart,
     activIcon: ICONS.heartActive,
-    route: "updatesStack",
+    route: "updates",
   },
   {
     name: "Art",
     icon: ICONS.artIcon,
     activIcon: ICONS.ArtActive,
-    route: "artStack",
+    route: "art",
   },
   {
     name: "Account",
     icon: ICONS.accountIcon,
     activIcon: ICONS.AccountActive,
-    route: "accountStack",
+    route: "account",
   },
 ];
 const BottomTabBar: FC<BottomTabBarProps> = (props) => {
@@ -69,8 +69,6 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
     };
   }, []);
 
-  
-
   // Map detail/inner routes to their parent tab for highlighting
   const routeToTab: Record<string, string> = {
     home: "home",
@@ -91,22 +89,9 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const scaleValue = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
 
-
   const handleTabPress = useCallback(
     (tab: Tab) => {
-      const isActive = activeTab === tab.route;
-      // if (isActive) {
-      //   // If we are already on this tab, reset its internal stack to the first screen
-      //   navigation.dispatch(
-      //     CommonActions.reset({
-      //       index: 0,
-      //       routes: [{ name: tab.route }],
-      //     }),
-      //   );
-      // } else {
-        // If we are switching tabs, navigate normally
-        navigation.navigate(tab.route);
-      // }
+      navigation.navigate(tab.route);
     },
     [navigation, currentRoute, activeTab],
   );

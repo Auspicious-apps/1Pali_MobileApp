@@ -13,12 +13,7 @@ class MainActivity : ReactActivity() {
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    // 🔥 Android 13+ keyboard fix
-    if (Build.VERSION.SDK_INT >= 33) {
-      window.setSoftInputMode(
-        WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-      )
-    }
+  
   }
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
