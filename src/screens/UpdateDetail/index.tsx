@@ -40,6 +40,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import Pulse from "../../components/PulseLoading";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -69,52 +70,31 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
 
-  const UpdateDetailShimmer = () => (
-    <SafeAreaView style={styles.container}>
-      <View style={{ padding: horizontalScale(20), gap: 16 }}>
-        {/* Cover image */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{
-            width: "100%",
-            height: hp(42.9),
-            borderRadius: 12,
-          }}
-        />
-
-        {/* Title */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{ width: "60%", height: 16, borderRadius: 6 }}
-        />
-
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{ width: "80%", height: 28, borderRadius: 8 }}
-        />
-
-        {/* Paragraph */}
-        {[1, 2, 3].map((i) => (
-          <ShimmerPlaceholder
-            key={i}
-            LinearGradient={LinearGradient}
-            style={{
-              width: "100%",
-              height: 14,
-              borderRadius: 6,
-            }}
-          />
-        ))}
-      </View>
-    </SafeAreaView>
-  );
-
-  const MediaShimmer = () => (
-    <View style={styles.mediaShimmerContainer}>
-      <ShimmerPlaceholder
-        LinearGradient={LinearGradient}
-        style={styles.mediaShimmer}
+const UpdateDetailSkeleton = () => (
+  <SafeAreaView style={styles.container}>
+    <View style={{ padding: horizontalScale(20), gap: 16 }}>
+      <Pulse
+        style={{
+          width: "100%",
+          height: hp(42.9),
+          borderRadius: 12,
+        }}
       />
+
+      <Pulse style={{ width: "60%", height: 16, borderRadius: 6 }} />
+      <Pulse style={{ width: "80%", height: 28, borderRadius: 8 }} />
+
+      {[1, 2, 3].map((i) => (
+        <Pulse key={i} style={{ width: "100%", height: 14, borderRadius: 6 }} />
+      ))}
+    </View>
+  </SafeAreaView>
+);
+
+
+  const MediaSkeleton = () => (
+    <View style={styles.mediaShimmerContainer}>
+      <Pulse style={styles.mediaShimmer} />
     </View>
   );
 
@@ -377,7 +357,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   }, []);
 
   if (isLoading) {
-    return <UpdateDetailShimmer />;
+    return <UpdateDetailSkeleton />;
   }
 
   const renderCommentItem = ({ item }: { item: Comment }) => (
@@ -468,7 +448,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             {/* IMAGE */}
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
               <View>
-                {imageLoading && <MediaShimmer />}
+                {imageLoading && <MediaSkeleton />}
                 <FastImage
                   source={{ uri: blogDetail?.coverPhotoUrl }}
                   style={styles.updateImage}

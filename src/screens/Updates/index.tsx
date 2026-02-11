@@ -20,6 +20,7 @@ import { Blog } from "../../service/ApiResponses/GetUserBlogs";
 import { UpdatesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import Pulse from "../../components/PulseLoading";
 
 const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -31,21 +32,11 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
 
   const ShimmerCard = () => (
     <View style={styles.weekCard}>
-      <ShimmerPlaceHolder
-        LinearGradient={LinearGradient}
-        style={{ width: "100%", height: hp(47), borderRadius: 25 }}
-      />
+      <Pulse style={{ width: "100%", height: hp(47), borderRadius: 25 }} />
 
       <View style={{ marginTop: verticalScale(12), gap: 8 }}>
-        <ShimmerPlaceHolder
-          LinearGradient={LinearGradient}
-          style={{ width: 120, height: 20, borderRadius: 6 }}
-        />
-
-        <ShimmerPlaceHolder
-          LinearGradient={LinearGradient}
-          style={{ width: "80%", height: 24, borderRadius: 6 }}
-        />
+        <Pulse style={{ width: 120, height: 20, borderRadius: 6 }} />
+        <Pulse style={{ width: "80%", height: 24, borderRadius: 6 }} />
       </View>
     </View>
   );
@@ -77,8 +68,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
     >
       <View style={styles.imageWrapper}>
         {imageLoading && (
-          <ShimmerPlaceHolder
-            LinearGradient={LinearGradient}
+          <Pulse
             style={{
               position: "absolute",
               width: "100%",

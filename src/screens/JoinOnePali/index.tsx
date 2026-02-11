@@ -711,6 +711,7 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "android" ? verticalScale(15) : verticalScale(0),
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: verticalScale(12),
   },
   logo: {
     width: horizontalScale(80),

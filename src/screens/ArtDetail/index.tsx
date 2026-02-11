@@ -43,6 +43,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import Pulse from "../../components/PulseLoading";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -74,79 +75,48 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
   const [isDownloadingArt, setIsDownloadingArt] = useState(false);
 
-  const MediaShimmer = () => (
+  const MediaPulse = () => (
     <View style={styles.mediaShimmerContainer}>
-      <ShimmerPlaceholder
-        LinearGradient={LinearGradient}
-        style={styles.mediaShimmer}
-      />
+      <Pulse style={styles.mediaShimmer} />
     </View>
   );
 
-  const ArtDetailShimmer = () => (
-    <SafeAreaView style={styles.container}>
-      <View style={{ padding: horizontalScale(20), gap: 16 }}>
-        {/* Media */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{
-            width: "100%",
-            height: hp(49),
-            borderRadius: 20,
-          }}
-        />
+ const ArtDetailPulse = () => (
+   <SafeAreaView style={styles.container}>
+     <View style={{ padding: horizontalScale(20), gap: 16 }}>
+       <Pulse style={{ width: "100%", height: hp(49), borderRadius: 20 }} />
 
-        {/* Action row */}
-        <View style={{ flexDirection: "row", gap: 16 }}>
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ width: 60, height: 20, borderRadius: 6 }}
-          />
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ width: 60, height: 20, borderRadius: 6 }}
-          />
-        </View>
+       <View style={{ flexDirection: "row", gap: 16 }}>
+         <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
+         <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
+       </View>
 
-        {/* Title */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{ width: "70%", height: 28, borderRadius: 8 }}
-        />
+       <Pulse style={{ width: "70%", height: 28, borderRadius: 8 }} />
 
-        {/* Description lines */}
-        {[1, 2, 3].map((_, i) => (
-          <ShimmerPlaceholder
-            key={i}
-            LinearGradient={LinearGradient}
-            style={{
-              width: "100%",
-              height: 14,
-              borderRadius: 6,
-            }}
-          />
-        ))}
-      </View>
-    </SafeAreaView>
-  );
+       {[1, 2, 3].map((_, i) => (
+         <Pulse
+           key={i}
+           style={{ width: "100%", height: 14, borderRadius: 6 }}
+         />
+       ))}
+     </View>
+   </SafeAreaView>
+ );
 
-  const CommentShimmer = () => (
-    <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
-      <ShimmerPlaceholder
-        LinearGradient={LinearGradient}
-        style={{ width: "30%", height: 14, borderRadius: 6 }}
-      />
-      <ShimmerPlaceholder
-        LinearGradient={LinearGradient}
-        style={{
-          width: "100%",
-          height: 14,
-          borderRadius: 6,
-          marginTop: 6,
-        }}
-      />
-    </View>
-  );
+ const CommentPulse = () => (
+   <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+     <Pulse style={{ width: "30%", height: 14, borderRadius: 6 }} />
+     <Pulse
+       style={{
+         width: "100%",
+         height: 14,
+         borderRadius: 6,
+         marginTop: 6,
+       }}
+     />
+   </View>
+ );
+
 
   const shareToApp = async (platform: ShareType) => {
     try {
@@ -516,8 +486,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       );
     }
   }, []);
+
   if (loading) {
-    return <ArtDetailShimmer />;
+    return <ArtDetailPulse />;
   }
 
   return (
@@ -608,7 +579,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 {/* VIDEO */}
                 {artDetail?.mediaType === "VIDEO" && (
                   <View style={styles.mediaWrapper}>
-                    {imageLoading && <MediaShimmer />}
+                    {imageLoading && <MediaPulse />}
 
                     <Video
                       source={{ uri: artDetail.mediaUrl }}
@@ -795,7 +766,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   commentsLoading ? (
                     <>
                       {[1, 2, 3].map((i) => (
-                        <CommentShimmer key={i} />
+                        <CommentPulse key={i} />
                       ))}
                     </>
                   ) : (

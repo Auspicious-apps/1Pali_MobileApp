@@ -21,6 +21,7 @@ import { Artwork } from "../../service/ApiResponses/GetUserArt";
 import { ArtScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
+import Pulse from "../../components/PulseLoading";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SIDE_PADDING = horizontalScale(20);
@@ -36,10 +37,9 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
   const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
 
-  const WeekShimmer = () => (
+  const WeekSkeleton = () => (
     <View style={styles.weekCard}>
-      <ShimmerPlaceHolder
-        LinearGradient={LinearGradient}
+      <Pulse
         style={{
           width: "100%",
           height: hp(47),
@@ -48,13 +48,9 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
       />
 
       <View style={{ alignItems: "center", marginTop: verticalScale(16) }}>
-        <ShimmerPlaceHolder
-          LinearGradient={LinearGradient}
-          style={{ width: 140, height: 20, borderRadius: 8 }}
-        />
+        <Pulse style={{ width: 140, height: 20, borderRadius: 8 }} />
 
-        <ShimmerPlaceHolder
-          LinearGradient={LinearGradient}
+        <Pulse
           style={{
             width: "70%",
             height: 24,
@@ -65,29 +61,29 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
       </View>
     </View>
   );
-  const GridShimmer = () => (
-    <View style={styles.cardContainer}>
-      <ShimmerPlaceHolder
-        LinearGradient={LinearGradient}
-        style={{
-          width: "100%",
-          height: hp(24),
-          borderRadius: 14,
-        }}
-      />
 
-      <ShimmerPlaceHolder
-        LinearGradient={LinearGradient}
-        style={{
-          width: "60%",
-          height: 16,
-          borderRadius: 6,
-          alignSelf: "center",
-          marginTop: verticalScale(10),
-        }}
-      />
-    </View>
-  );
+const GridSkeleton = () => (
+  <View style={styles.cardContainer}>
+    <Pulse
+      style={{
+        width: "100%",
+        height: hp(24),
+        borderRadius: 14,
+      }}
+    />
+
+    <Pulse
+      style={{
+        width: "60%",
+        height: 16,
+        borderRadius: 6,
+        alignSelf: "center",
+        marginTop: verticalScale(10),
+      }}
+    />
+  </View>
+);
+
 
   const getArtworkImage = (item?: Artwork) => {
     if (!item) {
@@ -209,7 +205,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
         {loading ? (
           <View>
             {/* Week shimmer */}
-            <WeekShimmer />
+            <WeekSkeleton />
 
             {/* Grid shimmer */}
             <FlatList
@@ -218,7 +214,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               numColumns={2}
               scrollEnabled={false}
               columnWrapperStyle={styles.columnWrapper}
-              renderItem={() => <GridShimmer />}
+              renderItem={() => <GridSkeleton />}
             />
           </View>
         ) : artworks.length > 0 ? (
@@ -233,8 +229,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               >
                 <View style={{ position: "relative" }}>
                   {weekImageLoading && (
-                    <ShimmerPlaceHolder
-                      LinearGradient={LinearGradient}
+                    <Pulse
                       style={{
                         position: "absolute",
                         width: "100%",
