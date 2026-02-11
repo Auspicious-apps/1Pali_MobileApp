@@ -30,6 +30,7 @@ import {
   OnBoardingStackParams,
   RootStackParams,
 } from "../typings/routes";
+import SignIn from "../screens/SignIn";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -66,6 +67,7 @@ function OnBoardingStack() {
         name="joinOnePali"
         component={JoinOnePali}
       />
+      <OnBoardingStackNavigator.Screen name="signIn" component={SignIn} />
     </OnBoardingStackNavigator.Navigator>
   );
 }

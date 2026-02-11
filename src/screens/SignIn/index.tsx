@@ -3,55 +3,37 @@ import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useState } from "react";
 import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
-  selectReservationSeconds,
-  selectReservationStatus,
   setBadges,
   setClaimedNumber,
   setUserData,
-  startReservationTimer,
 } from "../../redux/slices/UserSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { useAppDispatch } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
 import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
 import { postData } from "../../service/ApiService";
-import { MissionIntroProps } from "../../typings/routes";
+import { SignInProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
 import { hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
-import CustomIcon from "../../components/CustomIcon";
 
-const initialTimer = 200;
-
-const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
-  const { showNumber } = route.params || {};
-  const reservationStatus = useAppSelector(selectReservationStatus);
-  const reservationSeconds = useAppSelector(selectReservationSeconds);
-  const { claimedNumber } = useAppSelector((state) => state.user);
+const SignIn: FC<SignInProps> = ({ navigation, route }) => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isReservationExpired = reservationStatus === "EXPIRED";
-
   const dispatch = useAppDispatch();
-
-  // Start timer only on mount if not already started
-  useEffect(() => {
-    if (reservationSeconds === null) {
-      dispatch(startReservationTimer(initialTimer));
-    }
-  }, []);
 
   const handleAppleSignIn = async () => {
     try {
@@ -72,7 +54,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
         nonce: rawNonce,
       });
-      const { identityToken, authorizationCode, user, nonce } = appleResponse;
+      const { identityToken, authorizationCode, nonce } = appleResponse;
 
       if (!identityToken || !authorizationCode) {
         Toast.show({
@@ -88,6 +70,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         {
           identityToken,
           nonce: nonce,
+          createUser: false,
         },
       );
 
@@ -151,7 +134,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
       if (data?.idToken) {
         const signinResponse = await postData<GoogleSigninResponse>(
           ENDPOINTS.GoogleSignin,
-          { idToken: data?.idToken },
+          { idToken: data?.idToken, createUser: false },
         );
         if (signinResponse.data.success) {
           const { tokens, user, isNewUser } = signinResponse?.data?.data;
@@ -216,10 +199,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         errorMessage = "Sign-in is already in progress";
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         errorMessage = "Google Play Services not available";
+      } else if (
+        error.message &&
+        error.message === "User does not exist. Sign up required."
+      ) {
+        errorMessage = "User does not exist. Sign up required.";
+        navigation.goBack();
       } else {
         const message = error.message || "An unexpected error occurred";
         errorMessage = message;
-        Alert.alert("Sign In Error", message);
       }
 
       Toast.show({
@@ -265,28 +253,16 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             color={COLORS.darkText}
             style={{ textAlign: "center" }}
           >
-            Join OnePali
+            Welcome Back
           </CustomText>
-
-          {showNumber &&
-            (reservationSeconds && reservationSeconds > 0 ? (
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={16}
-                color={COLORS.grayColor}
-                style={{ textAlign: "center", marginTop: 8 }}
-              >
-                {`Number #${claimedNumber} reserved for ${reservationSeconds}s`}
-              </CustomText>
-            ) : (
-              <CustomText
-                color={COLORS.redColor}
-                fontFamily="GabaritoRegular"
-                fontSize={16}
-              >
-                {`Number #${claimedNumber} Expired`}
-              </CustomText>
-            ))}
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={16}
+            color={COLORS.grayColor}
+            style={{ textAlign: "center" }}
+          >
+            Sign In to continue
+          </CustomText>
         </View>
 
         <Image
@@ -300,52 +276,41 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           }}
         />
 
-        {reservationSeconds && reservationSeconds > 0 ? (
-          <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
-            {Platform.OS === "android" ? (
-              <PrimaryButton
-                title="Sign in with Google"
-                leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
-                onPress={handleGoogleSignIn}
-                isLoading={isSigningIn}
-                disabled={isSigningIn || isReservationExpired}
-              />
-            ) : (
-              <PrimaryButton
-                title="Sign in with Apple"
-                leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
-                onPress={handleAppleSignIn}
-                isLoading={isLoading}
-                disabled={isLoading || isReservationExpired}
-              />
-            )}
-
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={12}
-              color={COLORS.grayColor}
-              style={{
-                textAlign: "center",
-                marginTop: verticalScale(16),
-                width: wp(50),
-              }}
-            >
-              By joining OnePali, you accept our Terms of Use and Privacy Policy
-            </CustomText>
-          </View>
-        ) : (
-          <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
+        <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
+          {Platform.OS === "android" ? (
             <PrimaryButton
-              title="Choose a new number"
-              onPress={() => navigation.goBack()}
+              title={`Sign in with Google`}
+              leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
+              onPress={handleGoogleSignIn}
               isLoading={isSigningIn}
-              disabled={isSigningIn || isReservationExpired}
+              disabled={isSigningIn}
             />
-          </View>
-        )}
+          ) : (
+            <PrimaryButton
+              title={`Sign in with Apple`}
+              leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
+              onPress={handleAppleSignIn}
+              isLoading={isLoading}
+              disabled={isLoading}
+            />
+          )}
+
+          <CustomText
+            fontFamily="GabaritoMedium"
+            fontSize={12}
+            color={COLORS.grayColor}
+            style={{
+              textAlign: "center",
+              marginTop: verticalScale(16),
+              width: wp(50),
+            }}
+          >
+            By joining OnePali, you accept our Terms of Use and Privacy Policy
+          </CustomText>
+        </View>
       </SafeAreaView>
     </View>
   );
 };
 
-export default MissionIntro;
+export default SignIn;

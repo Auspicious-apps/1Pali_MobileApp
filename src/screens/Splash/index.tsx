@@ -100,9 +100,9 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
     }
   };
 
-    useEffect(() => {
-      checkAuthenticationStatus();
-    }, []);
+  useEffect(() => {
+    checkAuthenticationStatus();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -163,7 +163,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             fontFamily="MontserratSemiBold"
             fontSize={12}
             color={COLORS.darkText}
-            onPress={() => navigation.navigate("missionIntro")}
+            onPress={() => navigation.navigate("signIn")}
           >
             Sign in
           </CustomText>
