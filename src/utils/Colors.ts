@@ -28,6 +28,7 @@ const COLORS = {
   midRed: "#7C133B",
   DarkGreenText: "#001F01",
   midOrange: "#C27C1F",
+  greey: "#D9D9D9",
 };
 
 export default COLORS;

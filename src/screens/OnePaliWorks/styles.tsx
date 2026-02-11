@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
   },
   fundsListContent: {
     gap: horizontalScale(12),
-    paddingRight: horizontalScale(20),
+    paddingRight: horizontalScale(5),
+    paddingLeft: horizontalScale(20),
   },
   fundCard: {
     padding: verticalScale(12),
@@ -123,6 +124,20 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: verticalScale(24),
+  },
+  dotContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 12,
+  },
+
+  dot: {
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+    backgroundColor: "#000",
+    marginHorizontal: 4,
   },
 });
 
