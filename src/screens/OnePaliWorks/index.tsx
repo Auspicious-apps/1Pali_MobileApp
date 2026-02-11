@@ -1,5 +1,12 @@
-import React, { FC } from "react";
-import { Image, Platform, View } from "react-native";
+import React, { FC, useRef, useState } from "react";
+import {
+  FlatList,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  View,
+} from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
@@ -48,6 +55,10 @@ const fundCards = [
 ];
 
 const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef(null);
+
+  const CARD_WIDTH = wp(84);
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -80,46 +91,91 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           </View>
 
           {/* FUNDS LIST */}
+
+          <FlatList
+            ref={flatListRef}
+            data={fundCards}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.fundsListContent}
+            snapToInterval={CARD_WIDTH + horizontalScale(12)}
+            snapToAlignment="start"
+            decelerationRate="fast"
+            disableIntervalMomentum
+            scrollEventThrottle={16}
+            onScroll={(event) => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x /
+                  (CARD_WIDTH + horizontalScale(12)),
+              );
+
+              if (index !== activeIndex) {
+                setActiveIndex(index);
+              }
+            }}
+            renderItem={({ item }) => (
+              <View
+                style={[
+                  styles.fundCard,
+                  { backgroundColor: item.bgColor, width: CARD_WIDTH },
+                ]}
+              >
+                {item.image ? (
+                  <Image source={item.image} style={styles.fundCardImage} />
+                ) : (
+                  <View style={styles.fundCardImage} />
+                )}
+
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={18}
+                  color={COLORS.greyish}
+                  style={styles.fundCardTitle}
+                >
+                  {item.title}
+                </CustomText>
+
+                <CustomText
+                  fontFamily="SourceSansRegular"
+                  fontSize={15}
+                  color={COLORS.greyish}
+                  style={{ lineHeight: verticalScale(17) }}
+                >
+                  {item.description}
+                </CustomText>
+              </View>
+            )}
+            onMomentumScrollEnd={(
+              event: NativeSyntheticEvent<NativeScrollEvent>,
+            ) => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x /
+                  (CARD_WIDTH + horizontalScale(12)),
+              );
+              setActiveIndex(index);
+            }}
+          />
           <View
             style={{
-              marginLeft: horizontalScale(20),
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 12,
             }}
           >
-            <ScrollView
-              horizontal
-              bounces={false}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.fundsListContent}
-            >
-              {fundCards.map((item) => (
-                <View
-                  key={item.id}
-                  style={[styles.fundCard, { backgroundColor: item.bgColor }]}
-                >
-                  {item.image ? (
-                    <Image source={item.image} style={styles.fundCardImage} />
-                  ) : (
-                    <View style={styles.fundCardImage} />
-                  )}
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={18}
-                    color={COLORS.greyish}
-                    style={styles.fundCardTitle}
-                  >
-                    {item.title}
-                  </CustomText>
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={15}
-                    color={COLORS.greyish}
-                    style={{ lineHeight: verticalScale(17) }}
-                  >
-                    {item.description}
-                  </CustomText>
-                </View>
-              ))}
-            </ScrollView>
+            {fundCards.map((_, index) => (
+              <View
+                key={index}
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 4,
+                  marginHorizontal: 4,
+                  backgroundColor:
+                    index === activeIndex ? COLORS.greyText : COLORS.greey,
+                }}
+              />
+            ))}
           </View>
 
           <View style={styles.divider} />
