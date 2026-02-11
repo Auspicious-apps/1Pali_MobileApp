@@ -122,7 +122,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
               if (Platform.OS === "android") {
                 await GoogleSignin.signOut();
               }
-              navigation.navigate("OnBoardingStack", {
+              navigation.replace("OnBoardingStack", {
                 screen: "missionIntro",
               });
             },

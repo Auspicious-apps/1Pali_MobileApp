@@ -1,7 +1,9 @@
 import { BlurView } from "@react-native-community/blur";
 import { useNavigation } from "@react-navigation/native";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
+  Animated,
+  Easing,
   FlatList,
   ImageSourcePropType,
   Modal,
@@ -38,18 +40,55 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
 }) => {
   const navigation = useNavigation<any>();
   const closeModal = () => {
-    setIsVisible(false);
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 500,
+        duration: 150,
+        easing: Easing.bezier(0.4, 0, 1, 1),
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsVisible(false);
+    });
   };
+  const translateY = useRef(new Animated.Value(500)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   const { badges } = useAppSelector((state) => state.user);
+
+useEffect(() => {
+  if (isVisible) {
+    translateY.setValue(500);
+    backdropOpacity.setValue(0);
+
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 380,
+        easing: Easing.bezier(0.22, 1, 0.36, 1),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }
+}, [isVisible]);
 
   return (
     <Modal
       visible={isVisible}
       transparent
-      animationType="slide"
+      animationType="fade"
+      statusBarTranslucent
       onRequestClose={closeModal}
-      statusBarTranslucent={Platform.OS === "android"}
     >
       <TouchableOpacity
         activeOpacity={1}
@@ -59,8 +98,8 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
         {Platform.OS === "ios" ? (
           <BlurView
             style={[StyleSheet.absoluteFill]}
-            blurType="light"
-            blurAmount={1}
+            blurType="dark"
+            blurAmount={2}
             pointerEvents="none"
           />
         ) : (
@@ -70,10 +109,15 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
         <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
 
         <View style={styles.overlay}>
-          <View
-            style={styles.modalContainer}
-            onStartShouldSetResponder={() => true} // Capture touch events
-            onResponderRelease={(e) => e.stopPropagation()} // Prevent propagation
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              {
+                transform: [{ translateY }],
+              },
+            ]}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <View style={styles.header}>
@@ -137,7 +181,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
               }}
               style={styles.button}
             />
-          </View>
+          </Animated.View>
         </View>
       </TouchableOpacity>
     </Modal>
@@ -152,7 +196,7 @@ const styles = StyleSheet.create({
   },
   androidBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   overlay: {
     flex: 1,

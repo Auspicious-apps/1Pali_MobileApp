@@ -10,7 +10,7 @@ import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
 import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
@@ -37,6 +37,13 @@ const fundCards = [
     description: "See where funds go and hear from the ground.",
     image: IMAGES.LoopImage,
     bgColor: COLORS.midRed,
+  },
+  {
+    id: "4",
+    title: "Earn your badges",
+    description: "Unlock badges for continued support and sharing artwork.",
+    image: IMAGES.EarnBadgs,
+    bgColor: COLORS.midOrange,
   },
 ];
 

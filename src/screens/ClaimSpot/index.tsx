@@ -216,7 +216,11 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   onPress={() => navigation.goBack()}
                   activeOpacity={0.8}
                 >
-                  <CustomIcon Icon={ICONS.backArrow} height={40} width={40} />
+                  <CustomIcon
+                    Icon={ICONS.ArrowUpRight}
+                    height={32}
+                    width={32}
+                  />
                 </TouchableOpacity>
               </View>
               <View style={styles.center}>

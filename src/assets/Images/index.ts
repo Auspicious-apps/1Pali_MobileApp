@@ -19,6 +19,7 @@ const IMAGES = {
   ImageLike: require("./ImageLike.png"),
   SplashInitial: require("./SplashInitial.png"),
   HomeTextBackgorund: require("./HomeTextBackgorund.png"),
+  EarnBadgs: require("./EarnBadges.png"),
 };
 
 export default IMAGES;

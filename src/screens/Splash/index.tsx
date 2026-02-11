@@ -28,10 +28,6 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
 
   const { user } = useAppSelector((state) => state.user);
 
-  useEffect(() => {
-    checkAuthenticationStatus();
-  }, []);
-
   const checkAuthenticationStatus = async () => {
     try {
       // await AsyncStorage.clear();
@@ -103,6 +99,10 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       return;
     }
   };
+
+    useEffect(() => {
+      checkAuthenticationStatus();
+    }, []);
 
   return (
     <View style={styles.container}>
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   titleContainer: {
-    marginTop: Platform.OS === "ios" ? verticalScale(10) : verticalScale(12),
+    marginTop: Platform.OS === "ios" ? verticalScale(16) : verticalScale(16),
   },
   titleText: {
     textAlign: "center",

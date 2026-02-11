@@ -1,6 +1,8 @@
 import { BlurView } from "@react-native-community/blur";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
+  Animated,
+  Easing,
   Modal,
   Platform,
   Pressable,
@@ -30,12 +32,52 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   badgeMonths,
   badgeDescription,
 }) => {
-  const closeModal = () => setIsVisible(false);
+  const translateY = useRef(new Animated.Value(500)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const closeModal = () => {
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 500,
+        duration: 150,
+        easing: Easing.bezier(0.4, 0, 1, 1),
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsVisible(false);
+    });
+  };
+
+  useEffect(() => {
+    if (isVisible) {
+      translateY.setValue(500);
+      backdropOpacity.setValue(0);
+
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 380,
+          easing: Easing.bezier(0.22, 1, 0.36, 1),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isVisible]);
   return (
     <Modal
       visible={isVisible}
       transparent
-      animationType="slide"
+      animationType="fade"
+      statusBarTranslucent
       onRequestClose={closeModal}
     >
       {/* 🔹 Blur Background */}
@@ -46,10 +88,9 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
       >
         {Platform.OS === "ios" ? (
           <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="light"
-            blurAmount={0.1}
-            reducedTransparencyFallbackColor="white"
+            style={[StyleSheet.absoluteFill]}
+            blurType="dark"
+            blurAmount={2}
             pointerEvents="none"
           />
         ) : (
@@ -57,11 +98,20 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
         )}
         {/* 🔹 Modal Content (UNCHANGED) */}
         <View style={styles.overlay}>
-          <View style={styles.modalContainer}>
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              {
+                transform: [{ translateY }],
+              },
+            ]}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoSemiBold"
+                fontFamily="GabaritoMedium"
                 fontSize={18}
                 color={COLORS.darkText}
               >
@@ -89,15 +139,15 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
 
               <View style={{ alignItems: "center" }}>
                 <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={18}
+                  fontFamily="GabaritoSemiBold"
+                  fontSize={22}
                   color={COLORS.darkText}
                 >
                   {badgeLabel}
                 </CustomText>
 
                 <CustomText
-                  fontFamily="SourceSansRegular"
+                  fontFamily="SourceSansMedium"
                   fontSize={15}
                   color={"#1D222B80"}
                   style={{ textAlign: "center" }}
@@ -119,7 +169,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
             >
               {badgeDescription?.replace(/\. /g, ".\n")}
             </CustomText>
-          </View>
+          </Animated.View>
         </View>
       </TouchableOpacity>
     </Modal>
@@ -166,7 +216,7 @@ const styles = StyleSheet.create({
   },
   androidBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   header: {
     alignItems: "center",
@@ -179,8 +229,8 @@ const styles = StyleSheet.create({
     gap: verticalScale(12),
   },
   badgeImage: {
-    width: horizontalScale(66),
-    height: verticalScale(66),
+    width: horizontalScale(151),
+    height: verticalScale(151),
     resizeMode: "cover",
   },
   divider: {

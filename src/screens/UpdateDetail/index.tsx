@@ -504,14 +504,14 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               position: "absolute",
               top:
                 Platform.OS === "android"
-                  ? verticalScale(20)
-                  : verticalScale(60),
+                  ? verticalScale(50)
+                  : verticalScale(50),
               left: horizontalScale(20),
               zIndex: 10,
             }}
             onPress={() => navigation.goBack()}
           >
-            <CustomIcon Icon={ICONS.WhiteBackArrow} height={26} width={26} />
+            <CustomIcon Icon={ICONS.ArrowUpRight} height={32} width={32} />
           </TouchableOpacity>
 
           {/* IMAGE */}
@@ -679,7 +679,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   </CustomText>
                 </View>
               </View>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={handleShare}
                 style={styles.ShareButton}
@@ -692,7 +692,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                 >
                   Share Updates
                 </CustomText>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             {/* COMMENTS */}

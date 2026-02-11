@@ -68,6 +68,7 @@ import fullScreen from "./fullscreen.svg";
 import download from "./download.svg";
 import LockIcon from "./lock.svg";
 import LockSkrim from "./LockSkrim.svg";
+import ArrowUpRight from "./ArrowUpRight.svg";
 
 const ICONS = {
   diceIcon,
@@ -140,6 +141,7 @@ const ICONS = {
   download,
   LockIcon,
   LockSkrim,
+  ArrowUpRight,
 };
 
 export default ICONS;

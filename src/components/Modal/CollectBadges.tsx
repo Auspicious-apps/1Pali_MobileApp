@@ -1,8 +1,9 @@
 import { BlurView } from "@react-native-community/blur";
 import { useNavigation } from "@react-navigation/native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
+  Easing,
   FlatList,
   ImageBackground,
   Modal,
@@ -37,6 +38,8 @@ const CollectBadges = () => {
   const unViewedBadges = useAppSelector(getUnViewedBadges);
 
   const { isVisible } = useAppSelector((state) => state.collectBadges);
+  const translateY = useRef(new Animated.Value(600)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   // Helper to get image based on category string
   const getBgImage = (category: string) => {
@@ -154,20 +157,49 @@ const CollectBadges = () => {
     </ImageBackground>
   );
 
+  useEffect(() => {
+    if (isVisible) {
+      translateY.setValue(600);
+      backdropOpacity.setValue(0);
+
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 380,
+          easing: Easing.bezier(0.22, 1, 0.36, 1),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isVisible]);
+
   return (
-    <Modal visible={isVisible} transparent animationType="slide">
+    <Modal
+      visible={isVisible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+    >
       <View style={styles.overlay}>
-        {Platform.OS === "ios" ? (
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="light"
-            blurAmount={0.1}
-            reducedTransparencyFallbackColor="white"
-            pointerEvents="none"
-          />
-        ) : (
-          <View style={styles.androidBackdrop} />
-        )}
+        <Animated.View
+          style={[StyleSheet.absoluteFill, { opacity: backdropOpacity }]}
+        >
+          {Platform.OS === "ios" ? (
+            <BlurView
+              style={StyleSheet.absoluteFill}
+              blurType="dark"
+              blurAmount={2}
+              pointerEvents="none"
+            />
+          ) : (
+            <View style={styles.androidBackdrop} />
+          )}
+        </Animated.View>
 
         <TouchableOpacity
           activeOpacity={1}
@@ -180,7 +212,14 @@ const CollectBadges = () => {
           }}
         />
 
-        <View style={styles.modalContent}>
+        <Animated.View
+          style={[
+            styles.modalContent,
+            {
+              transform: [{ translateY }],
+            },
+          ]}
+        >
           <Animated.FlatList
             ref={flatListRef}
             data={unViewedBadges}
@@ -205,7 +244,21 @@ const CollectBadges = () => {
           >
             <TouchableOpacity
               onPress={async () => {
-                dispatch(closeCollectBadgesModal());
+                Animated.parallel([
+                  Animated.timing(backdropOpacity, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                  }),
+                  Animated.timing(translateY, {
+                    toValue: 600,
+                    duration: 250,
+                    easing: Easing.bezier(0.4, 0, 1, 1),
+                    useNativeDriver: true,
+                  }),
+                ]).start(() => {
+                  dispatch(closeCollectBadgesModal());
+                });
                 const response = await postData(ENDPOINTS.ViewedBadges, {
                   badgeIds: unViewedBadges.map((badge) => badge.id),
                 });
@@ -270,7 +323,7 @@ const CollectBadges = () => {
               zIndex: 10000,
             }}
           />
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -284,7 +337,7 @@ const styles = StyleSheet.create({
   },
   androidBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: "white",

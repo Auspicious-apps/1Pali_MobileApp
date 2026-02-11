@@ -438,8 +438,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   }, [selectedPlan, ITEM_WIDTH]);
 
-
-
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -660,7 +658,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               flexWrap: "wrap",
               justifyContent: "center",
               width: Platform.OS === "ios" ? wp(50) : wp(50),
-              marginTop: verticalScale(24),
+              marginTop: verticalScale(16),
             }}
           >
             <CustomText
@@ -691,6 +689,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
     paddingTop: verticalScale(20),
+    paddingBottom: verticalScale(10),
   },
   logo: {
     width: horizontalScale(80),
@@ -781,7 +780,10 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     fontFamily: FONTS.GabaritoSemiBold,
-    fontSize: responsiveFontSize(18),
+    fontSize:
+      Platform.OS === "android"
+        ? responsiveFontSize(16)
+        : responsiveFontSize(18),
     color: COLORS.appText,
   },
   toggleTextActive: {

@@ -282,8 +282,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                       badge={badge?.name}
                       style={[
                         {
-                          width: horizontalScale(75),
-                          height: verticalScale(75),
+                          width: horizontalScale(94),
+                          height: verticalScale(94),
                           resizeMode: "contain",
                         },
                         Platform.OS === "android" && !isUnlocked
@@ -310,9 +310,9 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                             <BlurView
                               style={{
                                 position: "absolute",
-                                width: horizontalScale(65),
-                                height: verticalScale(65),
-                                borderRadius: horizontalScale(33),
+                                width: horizontalScale(82),
+                                height: verticalScale(82),
+                                borderRadius: 45,
                               }}
                               blurAmount={1}
                             />
@@ -332,12 +332,12 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                               style={{
                                 position: "absolute",
                                 zIndex: 3,
-                                width: horizontalScale(65),
-                                height: verticalScale(65),
+                                width: horizontalScale(80),
+                                height: verticalScale(80),
                                 justifyContent: "center",
                                 alignItems: "center",
                                 backgroundColor: "#1d222ba5",
-                                borderRadius: horizontalScale(33),
+                                borderRadius: horizontalScale(45),
                               }}
                             />
                             <View

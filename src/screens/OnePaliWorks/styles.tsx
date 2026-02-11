@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const styles = StyleSheet.create({
   container: {
@@ -70,15 +70,13 @@ const styles = StyleSheet.create({
   },
   fundCard: {
     padding: verticalScale(12),
-    borderWidth: 1,
-    borderColor: COLORS.LightGrey,
     marginTop: verticalScale(16),
-    borderRadius: 12,
-    width: horizontalScale(260),
+    borderRadius: 18,
+    width: wp(84),
     gap: verticalScale(4),
   },
   fundCardImage: {
-    width: "100%",
+    width: wp(77.1),
     height: verticalScale(220),
     backgroundColor: COLORS.greyish,
     borderRadius: 12,
