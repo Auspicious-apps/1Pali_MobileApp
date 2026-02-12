@@ -174,7 +174,12 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 color={"#1D222B50"}
                 style={{ textAlign: "center" }}
               >
-                For being part of {communityBadge?.milestone.toLowerCase()}
+                Joined in the{" "}
+                {communityBadge?.milestone
+                  ?.split(" ")
+                  .slice(0, -1)
+                  .join(" ")
+                  .toLowerCase()}
               </CustomText>
             </View>
           </View>
@@ -279,87 +284,18 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   >
                     <BadgeIcon
                       badge={badge?.name}
-                      style={[
-                        {
-                          width: horizontalScale(94),
-                          height: verticalScale(94),
-                          resizeMode: "contain",
-                        },
-                        Platform.OS === "android" && !isUnlocked
-                          ? {
-                              filter: "blur(1px)",
-                            }
-                          : {},
-                      ]}
+                      locked={!isUnlocked}
+                      style={{
+                        width: horizontalScale(94),
+                        height: verticalScale(94),
+                        resizeMode: "contain",
+                      }}
                     />
-
-                    {!isUnlocked && (
-                      <>
-                        <View
-                          style={{
-                            position: "absolute",
-                            opacity: 0.6,
-                            zIndex: 2,
-                            backgroundColor: "#1d222b8a",
-                          }}
-                        />
-
-                        {Platform.OS === "ios" && (
-                          <>
-                            <BlurView
-                              style={{
-                                position: "absolute",
-                                width: horizontalScale(82),
-                                height: verticalScale(82),
-                                borderRadius: 45,
-                              }}
-                              blurAmount={1}
-                            />
-                            <View style={{ position: "absolute", zIndex: 3 }}>
-                              <CustomIcon
-                                Icon={ICONS.LockIcon}
-                                height={verticalScale(24)}
-                                width={horizontalScale(24)}
-                              />
-                            </View>
-                          </>
-                        )}
-
-                        {Platform.OS === "android" && (
-                          <>
-                            <View
-                              style={{
-                                position: "absolute",
-                                zIndex: 3,
-                                width: horizontalScale(80),
-                                height: verticalScale(80),
-                                justifyContent: "center",
-                                alignItems: "center",
-                                backgroundColor: "#1d222ba5",
-                                borderRadius: horizontalScale(45),
-                              }}
-                            />
-                            <View
-                              style={{
-                                position: "absolute",
-                                zIndex: 3,
-                              }}
-                            >
-                              <CustomIcon
-                                Icon={ICONS.LockIcon}
-                                height={verticalScale(24)}
-                                width={horizontalScale(24)}
-                              />
-                            </View>
-                          </>
-                        )}
-                      </>
-                    )}
                   </View>
                   <View style={{ alignItems: "center" }}>
                     <CustomText
-                      fontFamily="GabaritoRegular"
-                      fontSize={14}
+                      fontFamily="GabaritoMedium"
+                      fontSize={16}
                       color={COLORS.darkText}
                       style={{ textAlign: "center" }}
                     >
