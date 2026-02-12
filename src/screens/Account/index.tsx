@@ -232,9 +232,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     fontSize={16}
                     color={COLORS.darkText}
                   >
-                    {growthBadges[0]?.badge.category
-                      ? growthBadges[0].badge.category.charAt(0).toUpperCase() +
-                        growthBadges[0].badge.category.slice(1).toLowerCase()
+                    {growthBadges[0]?.badge.name
+                      ? growthBadges[0].badge.name.charAt(0).toUpperCase() +
+                        growthBadges[0].badge.name.slice(1).toLowerCase()
                       : ""}
                   </CustomText>
                   <CustomText
@@ -414,12 +414,19 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.7}
             onPress={async () => {
               try {
+                const imageUri = Image.resolveAssetSource(
+                  IMAGES.OnePaliLogo,
+                ).uri;
+
                 await Share.share({
                   message:
                     "Join OnePali - $1 for Palestine\nhttps://onepali.app",
                   title: "OnePali - $1 for Palestine",
+                  url: imageUri,
                 });
-              } catch (e) {}
+              } catch (e) {
+                console.log(e);
+              }
             }}
             style={{
               flexDirection: "row",

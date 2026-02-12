@@ -55,8 +55,10 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const inputRef = useRef<TextInput>(null);
   const [inputDisabled, setInputDisabled] = useState(false);
   const [rangeError, setRangeError] = useState(false);
+  const [diceMode, setDiceMode] = useState(false);
 
-  const showClaimTitle = checking || available || unavailable;
+
+  const showClaimTitle = !diceMode && (checking || available || unavailable);
 
   const hapticOptions = {
     enableVibrateFallback: true,
@@ -64,6 +66,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   };
 
   const handleChange = (text: string) => {
+    setDiceMode(false);
     const numeric = text.replace(/[^0-9]/g, "");
 
     if (numeric.length > number.length) {
@@ -110,6 +113,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   };
 
   const handleDicePress = async () => {
+    setDiceMode(true);
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
     if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
 

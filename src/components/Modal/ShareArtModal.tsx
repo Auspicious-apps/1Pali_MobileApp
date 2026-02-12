@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Animated,
   Dimensions,
+  Image,
   Modal,
   Platform,
   StyleSheet,
@@ -276,8 +277,9 @@ export default function ShareArtModal({
               gap: horizontalScale(8),
             }}
           >
-            <FastImage
+            <Image
               source={IMAGES.OnePaliLogo}
+              resizeMode="contain"
               style={{
                 width: horizontalScale(24),
                 height: horizontalScale(24),
