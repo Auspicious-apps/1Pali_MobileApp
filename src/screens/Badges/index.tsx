@@ -280,6 +280,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                       justifyContent: "center",
                       borderRadius: 100,
                       overflow: "hidden",
+                      position:'relative'
                     }}
                   >
                     <BadgeIcon

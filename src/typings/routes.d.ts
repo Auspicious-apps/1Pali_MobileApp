@@ -14,6 +14,7 @@ export type OnBoardingStackParams = {
   claimSpot: undefined;
   missionIntro?: { showNumber?: boolean };
   joinOnePali: undefined;
+  signIn: undefined;
 };
 
 export type MainStackParams = {
@@ -87,6 +88,10 @@ export type MissionIntroProps = NativeStackScreenProps<
 export type JoinOnePaliProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
   "joinOnePali"
+>;
+export type SignInProps = NativeStackScreenProps<
+  RootStackParams & OnBoardingStackParams,
+  "signIn"
 >;
 
 // ----------------   MAIN SCREENS ---------------------

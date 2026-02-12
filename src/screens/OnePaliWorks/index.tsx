@@ -2,6 +2,7 @@ import React, { FC, useRef, useState } from "react";
 import {
   FlatList,
   Image,
+  Linking,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -67,7 +68,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           bounces={false}
           contentContainerStyle={styles.contentContainer}
         >
-          <Image source={IMAGES.LogoText} style={styles.appIcon} />
+          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
 
           {/* HEADER */}
           <View style={styles.header}>
@@ -315,7 +316,9 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 directly in the app, so you can clearly see where contributions
                 are going.
               </CustomText>
-              <TouchableOpacity activeOpacity={0.8}>
+              <TouchableOpacity onPress={() => {
+                Linking.openURL("https://onepali.app/");
+              }} activeOpacity={0.8}>
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={15}
