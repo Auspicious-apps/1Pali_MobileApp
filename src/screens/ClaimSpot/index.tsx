@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import HapticFeedback from "react-native-haptic-feedback";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
@@ -19,13 +18,11 @@ import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
   clearReservationTimer,
-  selectReservationSeconds,
-  selectReservationToken,
-  selectClaimedNumber,
-  setClaimedNumber,
-  setReservationToken,
-  startReservationTimer,
   clearReservationToken,
+  selectClaimedNumber,
+  selectReservationToken,
+  setClaimedNumber,
+  setReservationToken
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -37,7 +34,6 @@ import { ClaimSpotProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
-import { useFocusEffect } from "@react-navigation/native";
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -45,7 +41,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
-  const reservationSeconds = useAppSelector(selectReservationSeconds);
   const reservationToken = useAppSelector(selectReservationToken);
   const claimedNumber = useAppSelector(selectClaimedNumber);
 
@@ -56,7 +51,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [inputDisabled, setInputDisabled] = useState(false);
   const [rangeError, setRangeError] = useState(false);
   const [diceMode, setDiceMode] = useState(false);
-
 
   const showClaimTitle = !diceMode && (checking || available || unavailable);
 

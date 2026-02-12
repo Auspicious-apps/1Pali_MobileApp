@@ -61,7 +61,7 @@ const CollectBadges = () => {
 
       dispatch(closeCollectBadgesModal());
       dispatch(markAllBadgesViewed());
-      navigation.navigate("accountStack", { screen: "badges" });
+      navigation.navigate("badges");
 
       const response = await postData(ENDPOINTS.ViewedBadges, {
         badgeIds: unViewedBadges.map((badge) => badge.id),

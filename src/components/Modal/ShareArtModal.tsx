@@ -49,6 +49,26 @@ export default function ShareArtModal({
   const { user } = useAppSelector((state) => state.user);
   const cardRef = useRef(null);
   const [capturingCard, setCapturingCard] = useState(false);
+  const [isWhatsappInstalled, setIsWhatsappInstalled] = useState(false);
+  const [isFacebookInstalled, setIsFacebookInstalled] = useState(false);
+  const [isInstagramInstalled, setIsIInstagramInstalled] = useState(false);
+
+  useEffect(() => {
+    ShareLib.isPackageInstalled("com.whatsapp").then(({ isInstalled }) => {
+      setIsWhatsappInstalled(isInstalled);
+    });
+
+    ShareLib.isPackageInstalled("com.facebook.katana").then(
+      ({ isInstalled }) => {
+        setIsFacebookInstalled(isInstalled);
+      },
+    );
+    ShareLib.isPackageInstalled("com.instagram.android").then(
+      ({ isInstalled }) => {
+        setIsIInstagramInstalled(isInstalled);
+      },
+    );
+  }, []);
 
   const slideAnim = useRef(new Animated.Value(height)).current;
 
@@ -64,80 +84,125 @@ export default function ShareArtModal({
     }
   }, [visible]);
 
+  // const handleShareToInstagram = async () => {
+  //   try {
+  //     setCapturingCard(true);
+  //     const filePath = await captureRef(cardRef, {
+  //       format: "png",
+  //       quality: 0.9,
+  //     });
+
+  //     let shareFilePath = Platform.OS === "android" ? `${filePath}` : filePath;
+
+  //     if (Platform.OS === "android") {
+  //       const fileName = `onepali_ig_${Date.now()}.png`;
+  //       const destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+  //       await RNFS.copyFile(filePath, destPath);
+
+  //       console.log(destPath, 'OPPDESTINATION PATH');
+
+  //       shareFilePath = `file://${destPath}`;
+  //     }
+
+  //     // CLOSE LOADER BEFORE OPENING APP
+  //     setCapturingCard(false);
+
+  //     const shareOptions = {
+  //       social: Social.Instagram,
+  //       url: shareFilePath.replace("///", "//"),
+  //       type: "image/png",
+  //       forceFullSize: true,
+  //     };
+
+  //     await ShareLib.shareSingle(shareOptions as any);
+  //     await onShare("INSTAGRAM");
+  //   } catch (error) {
+  //     setCapturingCard(false);
+  //     console.log("Instagram share error:", error);
+  //   }
+  // };
+
   const handleShareToInstagram = async () => {
     try {
       setCapturingCard(true);
 
-      // Capture as file path (same as WhatsApp)
       const filePath = await captureRef(cardRef, {
         format: "png",
-        quality: 0.8,
+        quality: 0.9,
       });
 
       let shareFilePath = filePath;
 
-      // Android: Copy to cache (Instagram needs accessible path)
       if (Platform.OS === "android") {
-        const fileName = `onepali-card-${Date.now()}.png`;
-        const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-        await RNFS.copyFile(filePath, newPath);
-        shareFilePath = `file://${newPath}`;
-      } else {
-        shareFilePath = `file://${filePath}`;
+        const fileName = `onepali_ig_${Date.now()}.jpg`;
+        const destPath = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+
+        await RNFS.copyFile(filePath, destPath);
+
+        shareFilePath = `file://${destPath}`;
       }
 
-      const shareOptions = {
-        social: Social.Instagram, // Opens Stories/Camera by default
-        url: shareFilePath,
-        type: "image/png",
-      };
+      setCapturingCard(false);
 
-      await ShareLib.shareSingle(shareOptions as any);
+      await ShareLib.open({
+        url: shareFilePath,
+        type: "image/*",
+        failOnCancel: false,
+        showAppsToView: true,
+      });
 
       await onShare("INSTAGRAM");
     } catch (error) {
-      console.log("Instagram share error:", error);
-    } finally {
       setCapturingCard(false);
+      console.log("Instagram share error:", error);
     }
   };
 
   const handleShareToWhatsapp = async () => {
+    setCapturingCard(true);
+    const filePath = await captureRef(cardRef, {
+      format: "png",
+      quality: 0.8,
+    });
+
+    const fileName = `onepali_wa_${Date.now()}.png`;
+    const destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+    if (Platform.OS === "android") {
+      await RNFS.copyFile(filePath, destPath);
+    }
+
+    const shareFilePath =
+      Platform.OS === "android" ? `file://${destPath}` : filePath;
     try {
-      setCapturingCard(true);
-
-      const filePath = await captureRef(cardRef, {
-        format: "png",
-        quality: 0.8,
-      });
-
-      // Single path normalization (cleaner)
-      const destPath =
-        Platform.OS === "android"
-          ? `${RNFS.CachesDirectoryPath}/onepali-card-${Date.now()}.png`
-          : filePath;
-
-      if (Platform.OS === "android") {
-        await RNFS.copyFile(filePath, destPath);
-      }
+      setCapturingCard(false);
 
       const shareOptions = {
-        social: Social.Whatsapp,
-        url: `file://${destPath}`, // Always file://
+        // Try targeting WhatsApp Business specifically
+        social: Social.Whatsapp || Social.Whatsappbusiness,
+        url: shareFilePath,
         message: "Check out this artwork from OnePali!",
         type: "image/png",
-        // Remove appId - not needed for WhatsApp
+        // Force the intent to look for the business package on Android
+        forceFullSize: true,
       };
 
-      console.log("Sharing to:", shareOptions.url);
       await ShareLib.shareSingle(shareOptions as any);
-
       await onShare("WHATSAPP");
     } catch (error) {
-      console.error("WhatsApp share failed:", error);
-      // Fallback to native Share.open
-    } finally {
       setCapturingCard(false);
+      // Fallback: If Business fails, try standard WhatsApp
+      console.log("WA Business fail, trying standard WA...");
+      try {
+        await ShareLib.shareSingle({
+          social: Social.Whatsapp,
+          url: shareFilePath,
+          type: "image/png",
+        } as any);
+      } catch (e) {
+        console.error("All WhatsApp shares failed", e);
+      }
     }
   };
 
@@ -150,6 +215,7 @@ export default function ShareArtModal({
         format: "png",
         quality: 0.8,
       });
+      setCapturingCard(false);
 
       // On Android, copy to proper location
       let shareFilePath = filePath;
@@ -174,6 +240,7 @@ export default function ShareArtModal({
       await onShare("FACEBOOK");
     } catch (error) {
       console.log("Facebook share error:", error);
+      setCapturingCard(false);
     } finally {
       setCapturingCard(false);
     }
@@ -183,36 +250,44 @@ export default function ShareArtModal({
     try {
       setCapturingCard(true);
 
-      // Capture the preview card
       const uri = await captureRef(cardRef, {
         format: "png",
         quality: 0.8,
       });
 
-      // On Android, copy to proper location
       let shareFilePath = uri;
       if (Platform.OS === "android") {
         const fileName = `onepali-card-${Date.now()}.png`;
         const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-
         await RNFS.copyFile(uri, newPath);
         shareFilePath = `file://${newPath}`;
       } else {
-        // iOS
         shareFilePath = `file://${uri}`;
       }
 
-      // Share the captured image
-      const result = await ShareLib.open({
+      // Set capturing to false RIGHT BEFORE opening the sheet
+      // This ensures the loader is gone while the native UI is visible
+      setCapturingCard(false);
+
+      await ShareLib.open({
         url: shareFilePath,
         type: "image/png",
         message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
       });
-    } catch (error) {
-      console.log("Card share error:", error);
+
       await onShare("APP_SHARE_SHEET");
+    } catch (error) {
+      // Check if the error is just a user cancellation
+      if (
+        error instanceof Error &&
+        error.message.includes("User did not share")
+      ) {
+        console.log("User cancelled sharing");
+      } else {
+        console.log("Card share error:", error);
+      }
     } finally {
-      setCapturingCard(false);
+      setCapturingCard(false); // Safety net
     }
   };
 
@@ -292,8 +367,9 @@ export default function ShareArtModal({
               color={COLORS.darkText}
               style={{ width: "90%" }}
             >
-              Supporter #{user?.assignedNumber} helping reach 1M donors for
-              humanitarian aid in Palestine. Join us at onepali.app
+              I’m supporter #{user?.assignedNumber} helping reach 1M donors for
+              humanitarian aid in Palestine. Every bit counts. Join the movement
+              at onepali.app
             </CustomText>
           </View>
         </View>
@@ -308,58 +384,63 @@ export default function ShareArtModal({
         </CustomText>
 
         <View style={styles.shareRow}>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            activeOpacity={0.8}
-            onPress={handleShareToInstagram}
-            disabled={capturingCard}
-          >
-            <CustomIcon Icon={ICONS.InstagramIcon} width={40} height={40} />
-
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={12}
-              color={COLORS.darkText}
-              style={{ marginTop: 6 }}
+          {isInstagramInstalled && (
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              activeOpacity={0.8}
+              onPress={handleShareToInstagram}
+              disabled={capturingCard}
             >
-              Instagram
-            </CustomText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            activeOpacity={0.8}
-            onPress={handleShareToWhatsapp}
-            disabled={capturingCard}
-          >
-            <CustomIcon Icon={ICONS.WhatsAppIcon} width={40} height={40} />
+              <CustomIcon Icon={ICONS.InstagramIcon} width={40} height={40} />
 
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={12}
-              color={COLORS.darkText}
-              style={{ marginTop: 6 }}
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={12}
+                color={COLORS.darkText}
+                style={{ marginTop: 6 }}
+              >
+                Instagram
+              </CustomText>
+            </TouchableOpacity>
+          )}
+          {isWhatsappInstalled && (
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              activeOpacity={0.8}
+              onPress={handleShareToWhatsapp}
+              disabled={capturingCard}
             >
-              Whatsapp
-            </CustomText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            activeOpacity={0.8}
-            onPress={handleShareToFb}
-            disabled={capturingCard}
-          >
-            <CustomIcon Icon={ICONS.FacebookIcon} width={40} height={40} />
+              <CustomIcon Icon={ICONS.WhatsAppIcon} width={40} height={40} />
 
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={12}
-              color={COLORS.darkText}
-              style={{ marginTop: 6 }}
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={12}
+                color={COLORS.darkText}
+                style={{ marginTop: 6 }}
+              >
+                Whatsapp
+              </CustomText>
+            </TouchableOpacity>
+          )}
+          {isFacebookInstalled && (
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              activeOpacity={0.8}
+              onPress={handleShareToFb}
+              disabled={capturingCard}
             >
-              Facebook
-            </CustomText>
-          </TouchableOpacity>
+              <CustomIcon Icon={ICONS.FacebookIcon} width={40} height={40} />
 
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={12}
+                color={COLORS.darkText}
+                style={{ marginTop: 6 }}
+              >
+                Facebook
+              </CustomText>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={{ alignItems: "center" }}
             activeOpacity={0.8}
@@ -378,22 +459,21 @@ export default function ShareArtModal({
             </CustomText>
           </TouchableOpacity>
         </View>
-
-        {/* Card sharing indicator */}
-        {capturingCard && (
-          <View style={styles.capturingOverlay}>
-            <ActivityIndicator size="large" color={COLORS.darkText} />
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={14}
-              color={COLORS.darkText}
-              style={{ marginTop: 12 }}
-            >
-              Preparing card...
-            </CustomText>
-          </View>
-        )}
       </Animated.View>
+      {/* Card sharing indicator */}
+      {capturingCard && Platform.OS === "android" && (
+        <View style={styles.capturingOverlay}>
+          <ActivityIndicator size="large" color={COLORS.darkText} />
+          <CustomText
+            fontFamily="SourceSansRegular"
+            fontSize={14}
+            color={COLORS.darkText}
+            style={{ marginTop: 12 }}
+          >
+            Preparing image...
+          </CustomText>
+        </View>
+      )}
     </Modal>
   );
 }
@@ -445,7 +525,7 @@ const styles = StyleSheet.create({
 
   shareRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
     marginTop: verticalScale(16),
     paddingHorizontal: horizontalScale(8),
   },

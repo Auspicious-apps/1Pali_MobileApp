@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import dayjs from "dayjs";
 
 export const getLocalStorageData = async (key: string) => {
   const value = await AsyncStorage.getItem(key);
@@ -115,3 +116,31 @@ export const formatDate = (dateString: string) => {
     year: "numeric",
   });
 };
+
+
+
+export function getSupportingDuration(subscriptionDate: string) {
+  const now = dayjs();
+  const start = dayjs(subscriptionDate);
+
+  const diffDays = now.diff(start, "day");
+
+  if (diffDays <= 0) {
+    return "Supporting since today";
+  }
+
+  // Less than 30 days → show days
+  if (diffDays < 30) {
+    return `Supporting for ${diffDays} day${diffDays > 1 ? "s" : ""}`;
+  }
+
+  // Less than 365 days → show months (floor)
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `Supporting for ${months} month${months > 1 ? "s" : ""}`;
+  }
+
+  // 365+ days → show years (floor)
+  const years = Math.floor(diffDays / 365);
+  return `Supporting for ${years} year${years > 1 ? "s" : ""}`;
+}

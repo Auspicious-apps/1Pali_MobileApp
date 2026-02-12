@@ -14,6 +14,7 @@ export type GetUserProfileApiResponse = {
   hasPaymentMethod: boolean;
   hasSubscription: boolean;
   subscriptionStatus: string;
+  subscribedAt: string;
   stripeCustomerId: string;
   stripePriceId: string;
   cancelAtPeriodEnd: boolean;

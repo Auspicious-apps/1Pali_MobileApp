@@ -9,10 +9,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import BadgeIcon from "../../components/BadgeIcon";
-import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import CollectBadges from "../../components/Modal/CollectBadges";
 import MyBadgesModal from "../../components/Modal/MyBadgesModal";
@@ -21,11 +19,12 @@ import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
   selectGrowthBadges,
+  selectLatestGrowthBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { formatNumber } from "../../utils/Helpers";
+import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
@@ -34,8 +33,10 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
   const { badges, user } = useAppSelector((state) => state.user);
   const growthBadges = useAppSelector(selectGrowthBadges);
+  const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
+
 
   useEffect(() => {
     if (badges && badges.badges.length > 0) {
@@ -61,18 +62,17 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           >
             #{user?.assignedNumber}
           </CustomText>
-
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={16}
-            color={COLORS.appText}
-            style={{ textAlign: "center" }}
-          >
-            Supporting for {user?.consecutivePaidMonths}{" "}
-            {Number(user?.consecutivePaidMonths) === 1 ? "month" : "months"}
-          </CustomText>
+          {user?.subscribedAt && (
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={16}
+              color={COLORS.appText}
+              style={{ textAlign: "center" }}
+            >
+              {getSupportingDuration(user?.subscribedAt)}{" "}
+            </CustomText>
+          )}
         </View>
-
         <View style={styles.card}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -88,7 +88,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               }}
             />
           </TouchableOpacity>
-          {growthBadges && growthBadges.length > 0 && (
+          {latestGrowthBadge && (
             <View>
               <CustomText
                 fontFamily="GabaritoMedium"
@@ -96,7 +96,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
-                {growthBadges[0]?.badge?.name}
+                {latestGrowthBadge?.badge?.name}
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
@@ -104,11 +104,12 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                {growthBadges[0]?.badge?.milestone}
+                {latestGrowthBadge?.badge?.name === "Seed"
+                  ? "First month of Support"
+                  : `${latestGrowthBadge?.badge?.requirement.consecutiveMonths} months of Support`}
               </CustomText>
             </View>
           )}
-
           {/* Progress Bar */}
           <View
             style={{
@@ -118,7 +119,6 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           >
             <ProgressBar />
           </View>
-
           <CustomText
             fontFamily="GabaritoRegular"
             fontSize={14}
@@ -167,7 +167,6 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           <Image source={IMAGES.MecaImage} style={styles.mecaImage} />
           <Image source={IMAGES.Paliroot} style={styles.palirootImage} />
         </View>
-
         <MyBadgesModal
           isVisible={isBadgesSHeet}
           setIsVisible={setIsBadgesSheet}

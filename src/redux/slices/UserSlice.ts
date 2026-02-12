@@ -186,6 +186,21 @@ export const selectGrowthBadges = createSelector(
   [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => b.badge.category === "GROWTH") ?? [],
 );
+export const selectLatestGrowthBadges = createSelector(
+  [(state: RootState) => state.user.badges?.badges],
+  (badges) => {
+    if (!badges?.length) return null;
+
+    return badges.reduce((highest, current) => {
+      const currentMonths = current.badge?.requirement?.consecutiveMonths ?? 0;
+
+      const highestMonths = highest.badge?.requirement?.consecutiveMonths ?? 0;
+
+      return currentMonths > highestMonths ? current : highest;
+    }, badges[0]);
+  },
+);
+
 export const selectCommunityBadges = createSelector(
   [(state: RootState) => state.user.badges],
   (badges) =>

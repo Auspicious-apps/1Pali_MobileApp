@@ -114,6 +114,11 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
       if (error?.code === appleAuth.Error.CANCELED) {
         console.log("User cancelled Apple Sign-In");
         return;
+      } else if (
+        error.message &&
+        error.message === "User does not exist. Sign up required."
+      ) {
+        navigation.goBack();
       }
     } finally {
       setIsLoading(false);

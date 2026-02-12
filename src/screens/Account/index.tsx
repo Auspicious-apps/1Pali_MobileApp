@@ -4,6 +4,7 @@ import {
   Alert,
   Image,
   Platform,
+  ScrollView,
   Share,
   StyleSheet,
   TouchableOpacity,
@@ -15,13 +16,13 @@ import IMAGES from "../../assets/Images";
 import BadgeIcon from "../../components/BadgeIcon";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
-import FocusResetScrollView from "../../components/FocusResetScrollView";
 import ProgressBar from "../../components/ProgressBar";
 import {
   selectArtBadges,
   selectCommunityBadges,
   selectGrowthBadges,
   selectImpactBadges,
+  selectLatestGrowthBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppSelector } from "../../redux/store";
 import { AccountScreenProps } from "../../typings/routes";
@@ -37,6 +38,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const communityBadges = useAppSelector(selectCommunityBadges);
   const artBadges = useAppSelector(selectArtBadges);
   const impactBadges = useAppSelector(selectImpactBadges);
+  const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
 
   const ACCOUNT_OPTIONS = [
     {
@@ -174,7 +176,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <FocusResetScrollView
+        <ScrollView
           bounces={false}
           horizontal={false}
           showsHorizontalScrollIndicator={false}
@@ -232,9 +234,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     fontSize={16}
                     color={COLORS.darkText}
                   >
-                    {growthBadges[0]?.badge.name
-                      ? growthBadges[0].badge.name.charAt(0).toUpperCase() +
-                        growthBadges[0].badge.name.slice(1).toLowerCase()
+                    {latestGrowthBadge?.badge.name
+                      ? latestGrowthBadge.badge.name.charAt(0).toUpperCase() +
+                        latestGrowthBadge.badge.name.slice(1).toLowerCase()
                       : ""}
                   </CustomText>
                   <CustomText
@@ -257,18 +259,18 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   }}
                 >
                   {[
-                    ...growthBadges.slice(0, 1),
+                    latestGrowthBadge,
                     ...communityBadges,
                     ...artBadges.slice(0, 1),
                     ...impactBadges.slice(0, 1),
                   ]?.map((badge, index) => (
                     <BadgeIcon
-                      key={badge.id}
-                      badge={badge.badge.name}
+                      key={badge?.id}
+                      badge={badge?.badge.name!}
                       style={{
                         width: horizontalScale(72),
                         height: verticalScale(72),
-                        marginLeft: index === 0 ? 0 : -30,
+                        marginLeft: index === 0 ? 0 : -35,
                         borderRadius: 36,
                         zIndex: growthBadges?.length - index,
                         resizeMode: "contain",
@@ -407,7 +409,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
               </View>
             </View>
           </View>
-        </FocusResetScrollView>
+        </ScrollView>
 
         <View style={styles.inviteButtonContainer}>
           <TouchableOpacity
@@ -423,6 +425,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     "Join OnePali - $1 for Palestine\nhttps://onepali.app",
                   title: "OnePali - $1 for Palestine",
                   url: imageUri,
+                
                 });
               } catch (e) {
                 console.log(e);

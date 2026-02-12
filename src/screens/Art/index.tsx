@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
+  Image,
   Platform,
   RefreshControl,
   ScrollView,
@@ -62,28 +63,27 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
     </View>
   );
 
-const GridSkeleton = () => (
-  <View style={styles.cardContainer}>
-    <Pulse
-      style={{
-        width: "100%",
-        height: hp(24),
-        borderRadius: 14,
-      }}
-    />
+  const GridSkeleton = () => (
+    <View style={styles.cardContainer}>
+      <Pulse
+        style={{
+          width: "100%",
+          height: hp(24),
+          borderRadius: 14,
+        }}
+      />
 
-    <Pulse
-      style={{
-        width: "60%",
-        height: 16,
-        borderRadius: 6,
-        alignSelf: "center",
-        marginTop: verticalScale(10),
-      }}
-    />
-  </View>
-);
-
+      <Pulse
+        style={{
+          width: "60%",
+          height: 16,
+          borderRadius: 6,
+          alignSelf: "center",
+          marginTop: verticalScale(10),
+        }}
+      />
+    </View>
+  );
 
   const getArtworkImage = (item?: Artwork) => {
     if (!item) {
@@ -180,7 +180,7 @@ const GridSkeleton = () => (
       >
         {/* Header */}
         <View style={styles.headerWrapper}>
-          <FastImage source={IMAGES.LogoText} style={styles.logo} />
+          <Image source={IMAGES.LogoText} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText
@@ -298,6 +298,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+    paddingTop: Platform.OS === "android" ? verticalScale(10) : 0,
   },
   scrollContent: { flexGrow: 1 },
 
@@ -310,7 +311,6 @@ const styles = StyleSheet.create({
     height: verticalScale(70),
     resizeMode: "contain",
     alignSelf: "center",
-    marginTop: Platform.OS === "ios" ? 0 : verticalScale(10),
   },
 
   header: {

@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
   Platform,
   RefreshControl,
   ScrollView,
@@ -160,7 +161,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
             />
           }
         >
-          <FastImage source={IMAGES.LogoText} style={styles.logo} />
+          <Image source={IMAGES.LogoText} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText

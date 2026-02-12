@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: verticalScale(30),
+    marginBottom: verticalScale(20),
   },
   signInText: {
     textAlign: "center",
