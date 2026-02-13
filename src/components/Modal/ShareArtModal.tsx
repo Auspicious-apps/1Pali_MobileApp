@@ -4,6 +4,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Linking,
   Modal,
   Platform,
   StyleSheet,
@@ -54,20 +55,48 @@ export default function ShareArtModal({
   const [isInstagramInstalled, setIsIInstagramInstalled] = useState(false);
 
   useEffect(() => {
-    ShareLib.isPackageInstalled("com.whatsapp").then(({ isInstalled }) => {
-      setIsWhatsappInstalled(isInstalled);
-    });
+    const checkInstallation = async () => {
+      if (Platform.OS === "android") {
+        // Determine the identifier based on Platform
+        const whatsappId = "com.whatsapp";
+        const facebookId = "com.facebook.katana";
+        const instagramId = "com.instagram.android";
 
-    ShareLib.isPackageInstalled("com.facebook.katana").then(
-      ({ isInstalled }) => {
-        setIsFacebookInstalled(isInstalled);
-      },
-    );
-    ShareLib.isPackageInstalled("com.instagram.android").then(
-      ({ isInstalled }) => {
-        setIsIInstagramInstalled(isInstalled);
-      },
-    );
+        try {
+          const whatsapp = await ShareLib.isPackageInstalled(whatsappId);
+          setIsWhatsappInstalled(whatsapp.isInstalled);
+
+          const facebook = await ShareLib.isPackageInstalled(facebookId);
+          setIsFacebookInstalled(facebook.isInstalled);
+
+          const instagram = await ShareLib.isPackageInstalled(instagramId);
+          setIsIInstagramInstalled(instagram.isInstalled);
+        } catch (error) {
+          console.log("Installation check error:", error);
+        }
+      } else {
+        const isWhatsappInstalled = await Linking.canOpenURL("whatsapp://");
+        if (isWhatsappInstalled) {
+          setIsWhatsappInstalled(true);
+        } else {
+          setIsWhatsappInstalled(false);
+        }
+        const isInstaInstalled = await Linking.canOpenURL("instagram://");
+        if (isInstaInstalled) {
+          setIsIInstagramInstalled(true);
+        } else {
+          setIsIInstagramInstalled(false);
+        }
+        const isFBInstalled = await Linking.canOpenURL("fb://");
+        if (isFBInstalled) {
+          setIsFacebookInstalled(true);
+        } else {
+          setIsFacebookInstalled(false);
+        }
+      }
+    };
+
+    checkInstallation();
   }, []);
 
   const slideAnim = useRef(new Animated.Value(height)).current;

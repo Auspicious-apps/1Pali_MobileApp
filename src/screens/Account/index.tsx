@@ -5,12 +5,12 @@ import {
   Image,
   Platform,
   ScrollView,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ShareLib from "react-native-share";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import BadgeIcon from "../../components/BadgeIcon";
@@ -123,7 +123,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 await GoogleSignin.signOut();
               }
               navigation.replace("OnBoardingStack", {
-                screen: "missionIntro",
+                screen: "signIn",
               });
             },
           },
@@ -416,19 +416,15 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.7}
             onPress={async () => {
               try {
-                const imageUri = Image.resolveAssetSource(
-                  IMAGES.OnePaliLogo,
-                ).uri;
+                const inviteLink = "https://onepali.app"; // Replace with your actual link
 
-                await Share.share({
-                  message:
-                    "Join OnePali - $1 for Palestine\nhttps://onepali.app",
+                await ShareLib.open({
                   title: "OnePali - $1 for Palestine",
-                  url: imageUri,
-                
+                  message: "OnePali - $1 for Palestine",
+                  urls: [inviteLink],
                 });
               } catch (e) {
-                console.log(e);
+                console.log("Error sharing invite:", e);
               }
             }}
             style={{

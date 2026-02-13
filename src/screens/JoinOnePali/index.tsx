@@ -147,7 +147,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
           if (isSubscriptionActive) {
             // Only navigate once the backend confirms the sub is active
-            navigation.navigate("MainStack", {
+            navigation.replace("MainStack", {
               screen: "tabs",
               params: { screen: "home" },
             });
@@ -217,7 +217,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
           if (isSubscriptionActive) {
             // Only navigate once the backend confirms the sub is active
-            navigation.navigate("MainStack", {
+            navigation.replace("MainStack", {
               screen: "tabs",
               params: { screen: "home" },
             });
@@ -265,7 +265,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
           if (isSubscriptionActive) {
             // Only navigate once the backend confirms the sub is active
-            navigation.navigate("MainStack", {
+            navigation.replace("MainStack", {
               screen: "tabs",
               params: { screen: "home" },
             });
@@ -339,7 +339,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
           if (isSubscriptionActive) {
             // Only navigate once the backend confirms the sub is active
-            navigation.navigate("MainStack", {
+            navigation.replace("MainStack", {
               screen: "tabs",
               params: { screen: "home" },
             });

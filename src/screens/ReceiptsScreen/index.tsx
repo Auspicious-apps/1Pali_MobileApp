@@ -5,7 +5,6 @@ import {
   FlatList,
   Image,
   Modal,
-  PermissionsAndroid,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -60,18 +59,6 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
     try {
       dispatch(setDownloadingId(receiptId));
       const { fs, config } = ReactNativeBlobUtil;
-
-      // 1. Skip permission requests for Android 13+ (API 33+)
-      // Android 15 will auto-reject legacy storage requests
-      if (Platform.OS === "android" && Platform.Version < 33) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        );
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Toast.show({ type: "error", text1: "Permission Denied" });
-          return;
-        }
-      }
 
       const options = Platform.select({
         ios: {

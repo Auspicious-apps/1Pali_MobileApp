@@ -5,7 +5,6 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  PermissionsAndroid,
   Platform,
   StyleSheet,
   TextInput,
@@ -15,9 +14,7 @@ import {
 } from "react-native";
 import ReactNativeBlobUtil from "react-native-blob-util";
 import FastImage from "react-native-fast-image";
-import LinearGradient from "react-native-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import Toast from "react-native-toast-message";
 import Video from "react-native-video";
 import FONTS from "../../assets/fonts";
@@ -28,6 +25,7 @@ import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
 import PrimaryButton from "../../components/PrimaryButton";
+import Pulse from "../../components/PulseLoading";
 import { addNewArtBadge } from "../../redux/slices/UserSlice";
 import { useAppDispatch } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -43,7 +41,6 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import Pulse from "../../components/PulseLoading";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -81,42 +78,41 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     </View>
   );
 
- const ArtDetailPulse = () => (
-   <SafeAreaView style={styles.container}>
-     <View style={{ padding: horizontalScale(20), gap: 16 }}>
-       <Pulse style={{ width: "100%", height: hp(49), borderRadius: 20 }} />
+  const ArtDetailPulse = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={{ padding: horizontalScale(20), gap: 16 }}>
+        <Pulse style={{ width: "100%", height: hp(49), borderRadius: 20 }} />
 
-       <View style={{ flexDirection: "row", gap: 16 }}>
-         <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
-         <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
-       </View>
+        <View style={{ flexDirection: "row", gap: 16 }}>
+          <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
+          <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
+        </View>
 
-       <Pulse style={{ width: "70%", height: 28, borderRadius: 8 }} />
+        <Pulse style={{ width: "70%", height: 28, borderRadius: 8 }} />
 
-       {[1, 2, 3].map((_, i) => (
-         <Pulse
-           key={i}
-           style={{ width: "100%", height: 14, borderRadius: 6 }}
-         />
-       ))}
-     </View>
-   </SafeAreaView>
- );
+        {[1, 2, 3].map((_, i) => (
+          <Pulse
+            key={i}
+            style={{ width: "100%", height: 14, borderRadius: 6 }}
+          />
+        ))}
+      </View>
+    </SafeAreaView>
+  );
 
- const CommentPulse = () => (
-   <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
-     <Pulse style={{ width: "30%", height: 14, borderRadius: 6 }} />
-     <Pulse
-       style={{
-         width: "100%",
-         height: 14,
-         borderRadius: 6,
-         marginTop: 6,
-       }}
-     />
-   </View>
- );
-
+  const CommentPulse = () => (
+    <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+      <Pulse style={{ width: "30%", height: 14, borderRadius: 6 }} />
+      <Pulse
+        style={{
+          width: "100%",
+          height: 14,
+          borderRadius: 6,
+          marginTop: 6,
+        }}
+      />
+    </View>
+  );
 
   const shareToApp = async (platform: ShareType) => {
     try {
@@ -149,41 +145,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     if (!url) return;
 
     try {
-      if (Platform.OS === "android") {
-        try {
-          // Check permission first
-          const androidVersion = Platform.Version;
-          let permission =
-            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-
-          // Android 11+ requires MANAGE_EXTERNAL_STORAGE or use scoped storage
-          if (androidVersion >= 30) {
-            permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-          }
-
-          // First, check if permission is already granted
-          const hasPermission = await PermissionsAndroid.check(permission);
-
-          if (!hasPermission) {
-            // Request permission
-            const granted = await PermissionsAndroid.request(permission);
-
-            if (
-              granted !== PermissionsAndroid.RESULTS.GRANTED &&
-              granted !== PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
-            ) {
-              Toast.show({
-                type: "error",
-                text1: "Permission Denied",
-                text2: "Storage permission is required to download images",
-              });
-              return;
-            }
-          }
-        } catch (error) {
-          console.error("Permission check error:", error);
-        }
-      }
       setIsDownloadingArt(true);
       const { fs, config } = ReactNativeBlobUtil;
 
