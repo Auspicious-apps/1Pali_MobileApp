@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
+  Linking,
 } from "react-native";
 import {
   SafeAreaView,
@@ -750,8 +751,28 @@ const TermsConditions: FC<TermsConditionsScreenProps> = ({ navigation }) => {
 
           <Title>Contact Us</Title>
           <Text>Don't hesitate to contact us if you have any questions.</Text>
-          <Text>• Via Email: meca@mecaforpeace.org</Text>
-          <Text>• Via this Link: www.mecaforpeace.org</Text>
+          <Text>
+            • Via Email:{" "}
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={15}
+              color={COLORS.appText}
+              onPress={() => Linking.openURL("mailto:meca@mecaforpeace.org")}
+            >
+              meca@mecaforpeace.org
+            </CustomText>
+          </Text>
+          <Text>
+            • Via this Link:{" "}
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={15}
+              color={COLORS.darkText}
+              onPress={() => Linking.openURL("https://www.mecaforpeace.org")}
+            >
+              www.mecaforpeace.org
+            </CustomText>
+          </Text>
 
           {/* Bottom spacing - can be adjusted or removed */}
           <View style={{ height: verticalScale(40) }} />

@@ -29,12 +29,11 @@ import { BadgesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
+type TabType = "Growth" | "Impact" | "Community";
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
-  const [activeTab, setActiveTab] = useState<"Growth" | "Art" | "Impact">(
-    "Growth",
-  );
+ const [activeTab, setActiveTab] = useState<TabType>("Growth");
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
@@ -42,9 +41,16 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
 
   const [loading, setLoading] = useState(false);
 
+  const TAB_CATEGORY_MAP = {
+    Growth: "GROWTH",
+    Impact: "ART",
+    Community: "Community",
+  };
+
   const filteredBadges = badges.filter(
-    (b) => b.category === activeTab.toUpperCase(),
+    (b) => b.category === TAB_CATEGORY_MAP[activeTab].toUpperCase(),
   );
+
   const communityBadge = badges?.filter(
     (badge) => badge.category === "COMMUNITY" && badge.isUnlocked,
   )[0];
@@ -128,19 +134,20 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           <View style={{ marginTop: verticalScale(30) }}>
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={32}
+              fontSize={42}
               color={COLORS.darkText}
               style={{ textAlign: "center" }}
             >
               Badges
             </CustomText>
             <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={14}
+              fontFamily="GabaritoRegular"
+              fontSize={18}
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
-              Earn badges for your commitment and impact
+              {/* Earn badges for your commitment and impact */}
+              Your commitment and milestones
             </CustomText>
           </View>
           <View style={styles.card}>
@@ -161,86 +168,52 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
             <View>
               <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={16}
+                fontFamily="GabaritoMedium"
+                fontSize={20}
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
                 {communityBadge?.name}
               </CustomText>
               <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={14}
+                fontFamily="SourceSansRegular"
+                fontSize={15}
                 color={"#1D222B50"}
                 style={{ textAlign: "center" }}
               >
-                Joined in the{" "}
+                Among the{" "}
                 {communityBadge?.milestone
-                  ?.split(" ")
-                  .slice(0, -1)
-                  .join(" ")
+                  // ?.split(" ")
+                  // .slice(0, -1)
+                  // .join(" ")
                   .toLowerCase()}
               </CustomText>
             </View>
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              gap: horizontalScale(24),
-              marginTop: verticalScale(28),
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => setActiveTab("Growth")}
-              activeOpacity={0.8}
-              style={{
-                alignItems: "center",
-              }}
-            >
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={18}
-                color={
-                  activeTab === "Growth" ? COLORS.darkText : COLORS.appText
-                }
-              >
-                Growth
-              </CustomText>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => setActiveTab("Art")}
-              activeOpacity={0.8}
-              style={{
-                alignItems: "center",
-              }}
-            >
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={18}
-                color={activeTab === "Art" ? COLORS.darkText : COLORS.appText}
-              >
-                Art
-              </CustomText>
-            </TouchableOpacity>
+          <View style={styles.tabContainer}>
+            {["Growth", "Impact", "Community"].map((tab) => {
+              const isActive = activeTab === tab;
 
-            <TouchableOpacity
-              onPress={() => setActiveTab("Impact")}
-              activeOpacity={0.8}
-              style={{
-                alignItems: "center",
-              }}
-            >
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={18}
-                color={
-                  activeTab === "Impact" ? COLORS.darkText : COLORS.appText
-                }
-              >
-                Impact
-              </CustomText>
-            </TouchableOpacity>
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  onPress={() => setActiveTab(tab as any)}
+                  activeOpacity={0.8}
+                  style={styles.tabButton}
+                >
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={isActive ? COLORS.darkText : COLORS.grey}
+                  >
+                    {tab}
+                  </CustomText>
+
+                  {isActive && <View style={styles.activeUnderline} />}
+                </TouchableOpacity>
+              );
+            })}
           </View>
           <FlatList
             data={filteredBadges}
@@ -280,7 +253,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                       justifyContent: "center",
                       borderRadius: 100,
                       overflow: "hidden",
-                      position:'relative'
+                      position: "relative",
                     }}
                   >
                     <BadgeIcon
@@ -294,22 +267,36 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                     />
                   </View>
                   <View style={{ alignItems: "center" }}>
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.darkText}
-                      style={{ textAlign: "center" }}
-                    >
-                      {badge?.title}
-                    </CustomText>
-                    <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={14}
-                      color={COLORS.appText}
-                      style={{ textAlign: "center" }}
-                    >
-                      {getBadgeSubtitle(badge)}
-                    </CustomText>
+                    {activeTab !== "Community" && (
+                      <CustomText
+                        fontFamily="GabaritoRegular"
+                        fontSize={15}
+                        color={isUnlocked ? COLORS.darkText : COLORS.appText}
+                        style={{ textAlign: "center" }}
+                      >
+                        {badge?.title}
+                      </CustomText>
+                    )}
+                    <View style={{ alignItems: "center" }}>
+                      {activeTab === "Community" &&
+                        (() => {
+                          const parts = badge?.milestone?.split(" ") ?? [];
+                          const label = parts.slice(1).splice(0, 1).join(" ");
+
+                          return (
+                            <CustomText
+                              fontFamily="GabaritoMedium"
+                              fontSize={15}
+                              color={
+                                isUnlocked ? COLORS.darkText : COLORS.appText
+                              }
+                              style={{ textAlign: "center" }}
+                            >
+                              {label} Reached
+                            </CustomText>
+                          );
+                        })()}
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
@@ -382,5 +369,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: COLORS.white,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "85%",
+    marginTop: verticalScale(28),
+    borderBottomWidth: 1,
+    borderColor: COLORS.appBackground,
+  },
+  tabButton: {
+    alignItems: "center",
+    flex: 1,
+  },
+  activeUnderline: {
+    marginTop: verticalScale(8),
+    height: verticalScale(4),
+    width: horizontalScale(94),
+    backgroundColor: COLORS.darkText,
+    borderRadius: 10,
   },
 });

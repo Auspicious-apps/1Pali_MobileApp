@@ -36,6 +36,11 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
+  const navigateToBadge = () => {
+    navigation.navigate("MainStack", {
+      screen: "badges",
+    });
+  };
 
 
   useEffect(() => {
@@ -170,6 +175,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
         <MyBadgesModal
           isVisible={isBadgesSHeet}
           setIsVisible={setIsBadgesSheet}
+          navigateToBadge={navigateToBadge}
         />
         {isFocused && <CollectBadges />}
       </SafeAreaView>

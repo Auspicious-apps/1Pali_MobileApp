@@ -185,19 +185,19 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
           <View style={styles.header}>
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={36}
+              fontSize={42}
               color={COLORS.darkText}
             >
               Art
             </CustomText>
 
             <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
+              fontFamily="GabaritoRegular"
+              fontSize={18}
               color={COLORS.appText}
               style={styles.subtitle}
             >
-              Artwork added weekly. Share to spread the mission.
+              Weekly artwork from students in Palestine
             </CustomText>
           </View>
         </View>

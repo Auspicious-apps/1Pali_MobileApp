@@ -464,6 +464,39 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               : Platform.select({ android: verticalScale(-30), ios: 0 })
           }
         >
+          <View style={styles.header}>
+            <View style={styles.side}>
+              <TouchableOpacity activeOpacity={0.8}>
+                <CustomIcon
+                  Icon={ICONS.backArrow}
+                  height={30}
+                  width={30}
+                  onPress={() => navigation.goBack()}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.center}>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={18}
+                color={COLORS.darkText}
+              >
+                {artDetail?.createdAt
+                  ?.slice(0, 10)
+                  ?.split("-")
+                  ?.reverse()
+                  ?.join(".")}
+              </CustomText>
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setUiIndex((prev) => (prev === 0 ? 1 : 0))}
+            >
+              <CustomIcon Icon={ICONS.fullScreen} width={24} height={24} />
+            </TouchableOpacity>
+          </View>
           <FocusResetScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
@@ -482,41 +515,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
               lastScrollY.current = currentY;
             }}
+            contentContainerStyle={{ paddingTop: verticalScale(20) }}
           >
-            <View style={styles.header}>
-              <View style={styles.side}>
-                <TouchableOpacity activeOpacity={0.8}>
-                  <CustomIcon
-                    Icon={ICONS.backArrow}
-                    height={30}
-                    width={30}
-                    onPress={() => navigation.goBack()}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.center}>
-                <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={18}
-                  color={COLORS.darkText}
-                >
-                  {artDetail?.createdAt
-                    ?.slice(0, 10)
-                    ?.split("-")
-                    ?.reverse()
-                    ?.join(".")}
-                </CustomText>
-              </View>
-
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setUiIndex((prev) => (prev === 0 ? 1 : 0))}
-              >
-                <CustomIcon Icon={ICONS.fullScreen} width={24} height={24} />
-              </TouchableOpacity>
-            </View>
-
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
               <View style={styles.imageWrapper}>
                 {artDetail?.mediaType === "IMAGE" && (
@@ -540,7 +540,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 {/* VIDEO */}
                 {artDetail?.mediaType === "VIDEO" && (
                   <View style={styles.mediaWrapper}>
-                    {imageLoading && <MediaPulse />}
+                    {/* {imageLoading && <MediaPulse />} */}
 
                     <Video
                       source={{ uri: artDetail.mediaUrl }}
@@ -938,7 +938,7 @@ const styles = StyleSheet.create({
     paddingBottom: verticalScale(12),
     borderBottomWidth: 1,
     borderBottomColor: COLORS.greyish,
-    marginBottom: verticalScale(20),
+    // marginBottom: verticalScale(20),
     paddingHorizontal: horizontalScale(20),
   },
   keyboardView: {
@@ -1089,9 +1089,8 @@ const styles = StyleSheet.create({
   },
   mediaShimmerContainer: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 20,
+    zIndex: 100,
     overflow: "hidden",
-    zIndex: 5,
   },
 
   mediaShimmer: {

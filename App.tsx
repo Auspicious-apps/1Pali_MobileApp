@@ -10,6 +10,8 @@ import NetworkLogger from "./src/components/NetworkLogger";
 import { NetworkProvider } from "./src/Context/NetworkProvider";
 import { store } from "./src/redux/store";
 import Routes from "./src/routes";
+import { useEffect } from "react";
+import { initializeFirebaseMessaging } from "./src/Firebase/NotificationService";
 
 LogBox.ignoreAllLogs();
 
@@ -18,6 +20,11 @@ function App() {
     webClientId:
       "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
   });
+
+   useEffect(() => {
+     initializeFirebaseMessaging();
+   }, []);
+   
   return (
       <GestureHandlerRootView style={{ flex: 1 }}>
         <NetworkProvider>

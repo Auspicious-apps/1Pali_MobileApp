@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
+  Linking,
 } from "react-native";
 import {
   SafeAreaView,
@@ -56,6 +57,15 @@ const Bullet = ({ children }: any) => (
 );
 
 const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
+
+  const openEmail = () => {
+    Linking.openURL("mailto:meca@mecaforpeace.org");
+  };
+
+  const openWebsite = () => {
+    Linking.openURL("https://www.mecaforpeace.org");
+  };
+
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.container}>
@@ -817,8 +827,21 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
 
           <Title>Contact Us</Title>
           <Text>Don't hesitate to contact us if you have any questions.</Text>
-          <Bullet>Via Email: meca@mecaforpeace.org</Bullet>
-          <Bullet>Via this Link: www.mecaforpeace.org</Bullet>
+          <TouchableOpacity onPress={openEmail} activeOpacity={0.8}>
+            <Bullet>Via Email: meca@mecaforpeace.org</Bullet>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openWebsite} activeOpacity={0.8}>
+            <Bullet>
+              Via this Link:{" "}
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={15}
+                color={COLORS.darkText}
+              >
+                www.mecaforpeace.org
+              </CustomText>
+            </Bullet>
+          </TouchableOpacity>
 
           <View style={{ height: verticalScale(60) }} />
         </ScrollView>

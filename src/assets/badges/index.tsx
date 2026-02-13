@@ -55,6 +55,15 @@ const BADGES = {
   pulse: require("./community/pulse.png"),
   solidarity: require("./community/solidarity.png"),
   steadfast: require("./community/steadfast.png"),
+
+  // COMMUNITY LOCKED BADGES
+  catalystLocked: require("./community_lock/catalystLocked.png"),
+  founderLocked: require("./community_lock/founderLocked.png"),
+  nationLocked: require("./community_lock/nationLocked.png"),
+  pioneerLocked: require("./community_lock/pioneerLocked.png"),
+  pulseLocked: require("./community_lock/pulseLocked.png"),
+  solidarityLocked: require("./community_lock/solidarityLocked.png"),
+  steadfastLocked: require("./community_lock/steadfastLocked.png"),
 };
 
 export default BADGES;

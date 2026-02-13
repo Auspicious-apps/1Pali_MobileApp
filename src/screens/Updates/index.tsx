@@ -166,7 +166,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
           <View style={styles.header}>
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={36}
+              fontSize={42}
               color={COLORS.darkText}
               style={{ textAlign: "center" }}
             >
@@ -174,12 +174,12 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
             </CustomText>
 
             <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={15}
+              fontFamily="GabaritoRegular"
+              fontSize={18}
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
-              Updates from MECA on the ground, shared monthly.
+              Monthly updates from MECA
             </CustomText>
           </View>
 

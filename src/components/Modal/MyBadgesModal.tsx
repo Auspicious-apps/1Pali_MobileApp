@@ -32,13 +32,14 @@ export interface MyBadgeItem {
 interface MyBadgesModalProps {
   isVisible: boolean;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
+  navigateToBadge: any;
 }
 
 const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
   isVisible,
   setIsVisible,
+  navigateToBadge,
 }) => {
-  const navigation = useNavigation<any>();
   const closeModal = () => {
     Animated.parallel([
       Animated.timing(backdropOpacity, {
@@ -61,26 +62,26 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
 
   const { badges } = useAppSelector((state) => state.user);
 
-useEffect(() => {
-  if (isVisible) {
-    translateY.setValue(500);
-    backdropOpacity.setValue(0);
+  useEffect(() => {
+    if (isVisible) {
+      translateY.setValue(500);
+      backdropOpacity.setValue(0);
 
-    Animated.parallel([
-      Animated.timing(backdropOpacity, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 380,
-        easing: Easing.bezier(0.22, 1, 0.36, 1),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }
-}, [isVisible]);
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 380,
+          easing: Easing.bezier(0.22, 1, 0.36, 1),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isVisible]);
 
   return (
     <Modal
@@ -175,9 +176,7 @@ useEffect(() => {
               title="See all badges"
               onPress={() => {
                 setIsVisible(false);
-                setTimeout(() => {
-                  navigation.navigate("accountStack", { screen: "badges" });
-                }, 300);
+                navigateToBadge();
               }}
               style={styles.button}
             />

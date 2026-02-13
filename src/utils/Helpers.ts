@@ -144,3 +144,18 @@ export function getSupportingDuration(subscriptionDate: string) {
   const years = Math.floor(diffDays / 365);
   return `Supporting for ${years} year${years > 1 ? "s" : ""}`;
 }
+
+export const showInAppNotification = (
+  title: string,
+  body: string,
+  icon?: any, // Pass a require('./path') here
+) => {
+  Toast.show({
+    type: "inAppNotification",
+    text1: title,
+    text2: body,
+    topOffset: 60,
+    visibilityTime: 6000,
+    props: { icon }, // Passing custom icon to the config
+  });
+};
