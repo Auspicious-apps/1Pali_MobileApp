@@ -60,7 +60,7 @@ export type BottomStackParams = {
 
 // SPLASH SCREEN
 export type SplashInitialScreenProps = NativeStackScreenProps<
-  RootStackParams,
+  RootStackParams & OnBoardingStackParams,
   "splashInitial"
 >;
 

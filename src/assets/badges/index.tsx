@@ -1,17 +1,17 @@
 const BADGES = {
-  // ART BADGES
-  advocate: require("./art/advocate.png"),
-  voice: require("./art/voice.png"),
-  messenger: require("./art/messenger.png"),
-  bridge: require("./art/bridge.png"),
-  ambassador: require("./art/ambassador.png"),
+  // IMPACT BADGES
+  advocate: require("./impact/advocate.png"),
+  voice: require("./impact/voice.png"),
+  messenger: require("./impact/messenger.png"),
+  bridge: require("./impact/bridge.png"),
+  ambassador: require("./impact/ambassador.png"),
 
-  // ART LOCKED BADGES
-  advocateLocked: require("./art_lock/AdvocateLocked.png"),
-  voiceLocked: require("./art_lock/VoiceLocked.png"),
-  messengerLocked: require("./art_lock/MessengerLocked.png"),
-  bridgeLocked: require("./art_lock/BridgeLocked.png"),
-  ambassadorLocked: require("./art_lock/AmbassadorLocked.png"),
+  // IMPACT LOCKED BADGES
+  advocateLocked: require("./impact_lock/AdvocateLocked.png"),
+  voiceLocked: require("./impact_lock/VoiceLocked.png"),
+  messengerLocked: require("./impact_lock/MessengerLocked.png"),
+  bridgeLocked: require("./impact_lock/BridgeLocked.png"),
+  ambassadorLocked: require("./impact_lock/AmbassadorLocked.png"),
 
   // GROWTH BADGES
   bloom: require("./growth/bloom.png"),
@@ -42,16 +42,7 @@ const BADGES = {
   watermelon: require("./community/watermelon.png"),
   jaffa: require("./community/jaffa.png"),
 
-  // COMMUNITY LOCKED BADGES
-  catalystLocked: require("./community_lock/catalystLocked.png"),
-  founderLocked: require("./community_lock/founderLocked.png"),
-  nationLocked: require("./community_lock/nationLocked.png"),
-  pioneerLocked: require("./community_lock/pioneerLocked.png"),
-  pulseLocked: require("./community_lock/pulseLocked.png"),
-  solidarityLocked: require("./community_lock/solidarityLocked.png"),
-  steadfastLocked: require("./community_lock/steadfastLocked.png"),
-
-  // identity badges
+  // IDENTITY BADGES
   builder: require("./identity/builder.png"),
   visionary: require("./identity/visionary.png"),
   founder: require("./identity/founder.png"),

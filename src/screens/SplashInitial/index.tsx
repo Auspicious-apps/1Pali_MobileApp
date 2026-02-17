@@ -22,7 +22,6 @@ import { verticalScale } from "../../utils/Metrics";
 const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
 
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -72,13 +71,11 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       if (accessToken) {
         await verifyUserProfile();
       } else {
-        setIsCheckingAuth(false);
         navigation.replace("OnBoardingStack", { screen: "splash" });
       }
     } catch (error) {
       console.error("Error checking authentication:", error);
       navigation.replace("OnBoardingStack", { screen: "splash" });
-      setIsCheckingAuth(false);
     }
   };
 
@@ -110,19 +107,19 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         } else {
           navigation.replace("OnBoardingStack", { screen: "onboarding" });
         }
-        setIsCheckingAuth(false);
       }
     } catch (error: any) {
-      console.error("Error verifying user profile:", error);
+      console.error("Error verifying user profile Initial:", error);
 
       // Check if it's a session expired error that requires login
       if (error.requiresLogin) {
-        console.log("Session expired, redirecting to login");
+        console.log("Session expired, redirecting to login Initial");
+        await AsyncStorage.clear();
+        navigation.replace("splash");
       } else {
         // If profile verification fails, clear tokens and show get started
         await AsyncStorage.clear();
       }
-      setIsCheckingAuth(false);
     }
   };
 

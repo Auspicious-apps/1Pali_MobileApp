@@ -119,6 +119,11 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         error.message === "User does not exist. Sign up required."
       ) {
         navigation.goBack();
+        Toast.show({
+          type: "error",
+          text1: "Apple Sign-In Failed",
+          text2: "User does not exist. Sign up required.",
+        });
       }
     } finally {
       setIsLoading(false);
