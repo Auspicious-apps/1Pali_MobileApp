@@ -54,6 +54,9 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
+import HapticFeedback from "react-native-haptic-feedback";
+import ImpactLoader from "../../components/ImpactLoader";
+
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -79,10 +82,18 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [showCard, setShowCard] = useState(false);
   const [toggleWidth, setToggleWidth] = useState(0);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
+  const [showImpactLoader, setShowImpactLoader] = useState(false);
+
 
   const visiblePlans = stripePlans.filter((p) => !p.metadata.calculationMethod);
 
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
+
+
+    const hapticOptions = {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    };
 
   const pollUserProfile = async (retries = 3): Promise<boolean> => {
     try {
@@ -123,7 +134,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
   const handleSetupIntent = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
         return;
@@ -142,6 +153,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           );
 
         if (confirmSetupIntentresponse.data.success) {
+          setIsLoading(false);
+          setShowImpactLoader(true);
           // Start polling instead of a single fetch
           const isSubscriptionActive = await pollUserProfile(3);
 
@@ -186,6 +199,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         });
 
         if (initError) {
+          setIsLoading(false);
           throw new Error(
             `Payment initialization failed: ${initError.message}`,
           );
@@ -194,9 +208,11 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         const { error: paymentError } = await presentPaymentSheet();
 
         if (paymentError) {
+          setIsLoading(false);
           Alert.alert("Payment failed", paymentError.message);
           return;
         }
+        setIsLoading(false);
 
         if (!setupIntentId) {
           throw new Error("Missing setup intent or payment method");
@@ -213,6 +229,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           );
 
         if (confirmSetupIntentresponse.data.success) {
+          setShowImpactLoader(true);
+
           const isSubscriptionActive = await pollUserProfile(3);
 
           if (isSubscriptionActive) {
@@ -243,6 +261,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       setIsLoading(true);
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
+        setIsLoading(false);
         return;
       }
       const planId = enabled ? feesAmount.planId : selectedPlan;
@@ -260,6 +279,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           );
 
         if (confirmSetupIntentresponse.data.success) {
+           setIsLoading(false);
+           setShowImpactLoader(true);
           // Start polling instead of a single fetch
           const isSubscriptionActive = await pollUserProfile(3);
 
@@ -318,10 +339,13 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           });
 
         if (initError) {
+          setIsLoading(false);
           throw new Error(
             `Payment initialization failed: ${initError.message}`,
           );
         }
+      setIsLoading(false);
+      setShowImpactLoader(true);
 
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
@@ -434,6 +458,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   }, [selectedPlan, ITEM_WIDTH]);
 
+  if (showImpactLoader) {
+    return <ImpactLoader />;
+  }
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -472,7 +500,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               fontSize={42}
               color={COLORS.darkText}
             >
-              You’re almost in
+              {/* You’re almost in */}
+              Start donating
             </CustomText>
           </View>
 
@@ -482,7 +511,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               flexDirection: "row",
               flexWrap: "wrap",
               justifyContent: "center",
-              marginTop: 8,
             }}
           >
             {reservationSeconds && reservationSeconds > 0 ? (
@@ -550,6 +578,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                     style={styles.toggleItem}
                     activeOpacity={0.9}
                     onPress={() => {
+                      HapticFeedback.trigger("impactLight", hapticOptions);
                       setSelectedPlan(plan.id);
                       setSelectedPlanData(plan);
                     }}

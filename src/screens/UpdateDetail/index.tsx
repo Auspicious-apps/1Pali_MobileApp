@@ -69,6 +69,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
+  const MAX_HEIGHT = verticalScale(96); // ~4 lines
+  const MIN_HEIGHT = verticalScale(40);
+
+  const [inputHeight, setInputHeight] = useState(MIN_HEIGHT);
 
 const UpdateDetailSkeleton = () => (
   <SafeAreaView style={styles.container}>
@@ -429,21 +433,21 @@ const UpdateDetailSkeleton = () => (
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="never"
             scrollEventThrottle={16}
-            onScroll={(e) => {
-              const currentY = e.nativeEvent.contentOffset.y;
-              const isScrollingDown = currentY > lastScrollY.current;
+            // onScroll={(e) => {
+            //   const currentY = e.nativeEvent.contentOffset.y;
+            //   const isScrollingDown = currentY > lastScrollY.current;
 
-              if (isScrollingDown && currentY > 250) {
-                setShowCommentInput(true);
-                manualOpen.current = false;
-              }
+            //   if (isScrollingDown && currentY > 250) {
+            //     setShowCommentInput(true);
+            //     manualOpen.current = false;
+            //   }
 
-              if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
-                setShowCommentInput(false);
-              }
+            //   if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
+            //     setShowCommentInput(false);
+            //   }
 
-              lastScrollY.current = currentY;
-            }}
+            //   lastScrollY.current = currentY;
+            // }}
           >
             {/* IMAGE */}
             <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
@@ -474,6 +478,41 @@ const UpdateDetailSkeleton = () => (
                     resizeMode="contain"
                   />
                 </Animated.View>
+
+                {/* Bottom overlay stats  */}
+                <View style={styles.bottomOverlay}>
+                  <View style={styles.statPill}>
+                    <CustomIcon
+                      Icon={ICONS.OnimageLike}
+                      height={20}
+                      width={20}
+                    />
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={16}
+                      color={COLORS.appBackground}
+                      style={{ marginLeft: 6 }}
+                    >
+                      {blogDetail?.likesCount ?? 24}
+                    </CustomText>
+                  </View>
+
+                  <View style={styles.statPill}>
+                    <CustomIcon
+                      Icon={ICONS.OnimageChat}
+                      height={20}
+                      width={20}
+                    />
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={16}
+                      color={COLORS.appBackground}
+                      style={{ marginLeft: 6 }}
+                    >
+                      {blogDetail?.commentsCount ?? 6}
+                    </CustomText>
+                  </View>
+                </View>
               </View>
             </TouchableWithoutFeedback>
 
@@ -676,53 +715,53 @@ const UpdateDetailSkeleton = () => (
             </View>
           </FocusResetScrollView>
 
-          {showCommentInput && (
-            <>
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderColor: COLORS.greyish,
-                }}
+          {/* {showCommentInput && (
+            <> */}
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderColor: COLORS.greyish,
+            }}
+          />
+          <View style={styles.commentInputRow}>
+            <CustomIcon
+              Icon={ICONS.SimpleUserIcon}
+              height={verticalScale(40)}
+              width={horizontalScale(40)}
+            />
+            <View style={styles.commentInputWrapper}>
+              <TextInput
+                ref={commentInputRef}
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Add a comment..."
+                placeholderTextColor={COLORS.appText}
+                multiline
+                textAlignVertical="top"
+                style={styles.commentInput}
               />
-              <View style={styles.commentInputRow}>
-                <CustomIcon
-                  Icon={ICONS.SimpleUserIcon}
-                  height={verticalScale(40)}
-                  width={horizontalScale(40)}
-                />
-                <View style={styles.commentInputWrapper}>
-                  <TextInput
-                    ref={commentInputRef}
-                    value={commentText}
-                    onChangeText={setCommentText}
-                    placeholder="Add a comment..."
-                    placeholderTextColor={COLORS.appText}
-                    style={styles.commentInput}
-                  />
-                  {commentText.trim().length > 0 && (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={handleSendComment}
-                      disabled={sendingComment}
-                    >
-                      {sendingComment ? (
-                        <ActivityIndicator
-                          size="small"
-                          color={COLORS.darkText}
-                        />
-                      ) : (
-                        <CustomIcon
-                          Icon={ICONS.sendIcon}
-                          height={24}
-                          width={24}
-                        />
-                      )}
-                    </TouchableOpacity>
+
+              {commentText.trim().length > 0 && (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleSendComment}
+                  disabled={sendingComment}
+                >
+                  {sendingComment ? (
+                    <ActivityIndicator size="small" color={COLORS.darkText} />
+                  ) : (
+                    <CustomIcon
+                      Icon={ICONS.DarkSendIcon}
+                      height={24}
+                      width={24}
+                    />
                   )}
-                </View>
-              </View>
-            </>
-          )}
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          {/* </>
+          )} */}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
@@ -750,15 +789,15 @@ const styles = StyleSheet.create({
   commentInputRow: {
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.greyish,
+    // borderBottomWidth: 1,
+    // borderBottomColor: COLORS.greyish,
     paddingVertical: verticalScale(8),
     paddingHorizontal: horizontalScale(20),
     gap: horizontalScale(8),
   },
   commentInputWrapper: {
     flex: 1,
-    borderRadius: 10,
+    borderRadius: 32,
     borderWidth: 0,
     borderColor: COLORS.greyish,
     paddingLeft: horizontalScale(16),
@@ -770,11 +809,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   commentInput: {
-    fontFamily: FONTS.SourceSansRegular,
+    fontFamily: FONTS.GabaritoRegular,
     fontSize: 14,
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
     flex: 1,
+    maxHeight: verticalScale(80),
   },
   commentsList: {
     paddingBottom: verticalScale(8),
@@ -869,5 +909,22 @@ const styles = StyleSheet.create({
   mediaShimmer: {
     width: "100%",
     height: "100%",
+  },
+  bottomOverlay: {
+    position: "absolute",
+    bottom: verticalScale(9),
+    right: horizontalScale(11),
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: horizontalScale(6),
+  },
+
+  statPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: horizontalScale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: 30,
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
 });

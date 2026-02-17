@@ -51,7 +51,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
         Animated.timing(pulseScale, {
           toValue: 1,
           duration: 2200,
-          easing: Easing.out(Easing.cubic), // natural outward scatter
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(pulseOpacity, {
@@ -190,7 +190,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
                     {
                       scale: pulseScale.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [1, 2.5], // bigger = more scatter
+                        outputRange: [1, 2.5],
                       }),
                     },
                   ],
@@ -211,6 +211,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} donated
             together
           </CustomText>
+          <View />
         </ImageBackground>
 
         <View style={styles.dividerRow}>
@@ -313,8 +314,9 @@ const styles = StyleSheet.create({
     width: wp(90),
     marginTop: verticalScale(32),
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "space-between",
     flexDirection: "row",
+    paddingHorizontal: horizontalScale(20),
   },
   dotcontainer: {
     justifyContent: "center",

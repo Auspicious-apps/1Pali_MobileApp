@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -12,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import Modal from "react-native-modal";
 import ReactNativeBlobUtil from "react-native-blob-util";
 import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,7 +29,7 @@ import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
 import PrimaryButton from "../../components/PrimaryButton";
 import Pulse from "../../components/PulseLoading";
 import { addNewArtBadge } from "../../redux/slices/UserSlice";
-import { useAppDispatch } from "../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { ArtCommentsResponse } from "../../service/ApiResponses/ArtComments";
 import { FetchArtCommentsResponse } from "../../service/ApiResponses/FetchArtComments";
@@ -41,6 +43,10 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import ImageViewer from "react-native-image-zoom-viewer";
+import ViewShot, { captureRef } from "react-native-view-shot";
+import RNFS from "react-native-fs";
+import ShareLib, { Social } from "react-native-share";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -69,8 +75,15 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [uiIndex, setUiIndex] = useState(0);
   const mediaLoadedRef = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
-
   const [isDownloadingArt, setIsDownloadingArt] = useState(false);
+  const [isMediaFullscreen, setIsMediaFullscreen] = useState(false);
+  const scale = useRef(new Animated.Value(1)).current;
+  const lastScale = useRef(1);
+  const openAnim = useRef(new Animated.Value(0)).current;
+    const [capturingCard, setCapturingCard] = useState(false);
+    const { user } = useAppSelector((state) => state.user);
+    const cardRef = useRef(null);
+  
 
   const MediaPulse = () => (
     <View style={styles.mediaShimmerContainer}>
@@ -113,6 +126,48 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       />
     </View>
   );
+
+  const handleShareToMore = async () => {
+    try {
+      setCapturingCard(true);
+
+      const uri = await captureRef(cardRef, {
+        format: "png",
+        quality: 0.9,
+      });
+
+      let shareFilePath = uri;
+
+      if (Platform.OS === "android") {
+        const fileName = `onepali-card-${Date.now()}.png`;
+        const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+        await RNFS.copyFile(uri, newPath);
+        shareFilePath = `file://${newPath}`;
+      } else {
+        shareFilePath = `file://${uri}`;
+      }
+
+      setCapturingCard(false);
+
+      await ShareLib.open({
+        url: shareFilePath,
+        type: "image/png",
+        message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
+      });
+
+      // ✅ CALL API AFTER SHARE
+      await shareToApp("APP_SHARE_SHEET");
+    } catch (error: any) {
+      if (error?.message?.includes("User did not share")) {
+        console.log("User cancelled sharing");
+      } else {
+        console.log("Card share error:", error);
+      }
+    } finally {
+      setCapturingCard(false);
+    }
+  };
+
 
   const shareToApp = async (platform: ShareType) => {
     try {
@@ -372,15 +427,21 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     ]).start();
   };
 
-  const handleImageDoubleTap = () => {
+  const handleImageTap = () => {
     const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
+    const DOUBLE_PRESS_DELAY = 250;
 
     if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
       if (!isLiked && !likeRequestInProgress.current) {
         handleLikeUnlike();
         triggerLikeAnimation();
       }
+    } else {
+      setTimeout(() => {
+        if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
+          setIsMediaFullscreen(true);
+        }
+      }, DOUBLE_PRESS_DELAY);
     }
 
     lastTap.current = now;
@@ -448,6 +509,21 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     }
   }, []);
 
+  // FULL SCREEN MEDIA
+  useEffect(() => {
+    if (isMediaFullscreen) {
+      openAnim.setValue(0);
+      Animated.timing(openAnim, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      scale.setValue(1);
+      lastScale.current = 1;
+    }
+  }, [isMediaFullscreen]);
+
   if (loading) {
     return <ArtDetailPulse />;
   }
@@ -502,22 +578,22 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="never"
             scrollEventThrottle={16}
-            onScroll={(e) => {
-              const currentY = e.nativeEvent.contentOffset.y;
-              const diff = currentY - lastScrollY.current;
+            // onScroll={(e) => {
+            //   const currentY = e.nativeEvent.contentOffset.y;
+            //   const diff = currentY - lastScrollY.current;
 
-              if (diff > 5) {
-                setShowCommentInput(true);
-                manualOpen.current = false;
-              } else if (diff < -5 && !manualOpen.current) {
-                setShowCommentInput(false);
-              }
+            //   if (diff > 5) {
+            //     setShowCommentInput(true);
+            //     manualOpen.current = false;
+            //   } else if (diff < -5 && !manualOpen.current) {
+            //     setShowCommentInput(false);
+            //   }
 
-              lastScrollY.current = currentY;
-            }}
+            //   lastScrollY.current = currentY;
+            // }}
             contentContainerStyle={{ paddingTop: verticalScale(20) }}
           >
-            <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+            <TouchableWithoutFeedback onPress={handleImageTap}>
               <View style={styles.imageWrapper}>
                 {artDetail?.mediaType === "IMAGE" && (
                   <>
@@ -651,17 +727,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               </View>
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => {
-                  setOpenModal(true);
-                }}
+                // onPress={() => {
+                //   setOpenModal(true);
+                // }}
+                onPress={handleShareToMore}
                 style={styles.ShareButton}
                 disabled={sharing}
               >
-                {/* <CustomIcon
-                  Icon={ICONS.NavigationIcon}
-                  height={24}
-                  width={24}
-                /> */}
+                <CustomIcon Icon={ICONS.ShareArt} height={20} width={20} />
                 <CustomText
                   fontFamily="GabaritoMedium"
                   fontSize={16}
@@ -765,62 +838,123 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             </View>
           </FocusResetScrollView>
 
-          {showCommentInput && (
-            <>
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderColor: COLORS.greyish,
-                }}
+          {/* {showCommentInput && (
+            <> */}
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderColor: COLORS.greyish,
+            }}
+          />
+          <View style={styles.commentInputRow}>
+            <CustomIcon
+              Icon={ICONS.SimpleUserIcon}
+              height={verticalScale(40)}
+              width={horizontalScale(40)}
+            />
+            <View style={styles.commentInputWrapper}>
+              <TextInput
+                ref={commentInputRef}
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Add a comment..."
+                placeholderTextColor={COLORS.appText}
+                multiline
+                textAlignVertical="top"
+                style={styles.commentInput}
               />
-              <View style={styles.commentInputRow}>
-                <CustomIcon
-                  Icon={ICONS.SimpleUserIcon}
-                  height={verticalScale(40)}
-                  width={horizontalScale(40)}
-                />
-                <View style={styles.commentInputWrapper}>
-                  <TextInput
-                    ref={commentInputRef}
-                    value={commentText}
-                    onChangeText={setCommentText}
-                    placeholder="Add a comment..."
-                    placeholderTextColor={COLORS.appText}
-                    style={styles.commentInput}
-                  />
-                  {commentText.trim().length > 0 && (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={handleSendComment}
-                      disabled={sendingComment}
-                    >
-                      {sendingComment ? (
-                        <ActivityIndicator
-                          size="small"
-                          color={COLORS.darkText}
-                        />
-                      ) : (
-                        <CustomIcon
-                          Icon={ICONS.sendIcon}
-                          height={24}
-                          width={24}
-                        />
-                      )}
-                    </TouchableOpacity>
+              {commentText.trim().length > 0 && (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleSendComment}
+                  disabled={sendingComment}
+                >
+                  {sendingComment ? (
+                    <ActivityIndicator size="small" color={COLORS.darkText} />
+                  ) : (
+                    <CustomIcon
+                      Icon={ICONS.DarkSendIcon}
+                      height={24}
+                      width={24}
+                    />
                   )}
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          {/* </>
+          )} */}
+
+          {/* Hidden Share Card  */}
+          <View
+            style={{
+              position: "absolute",
+              left: -9999,
+              top: -9999,
+              opacity: 0,
+            }}
+          >
+            <ViewShot ref={cardRef} options={{ format: "png", quality: 0.9 }}>
+              <View style={styles.card}>
+                {artDetail?.mediaType === "VIDEO" ? (
+                  <View style={styles.mediaWrapper}>
+                    <Video
+                      source={{ uri: artDetail?.mediaUrl }}
+                      posterResizeMode="cover"
+                      resizeMode="cover"
+                      repeat
+                      style={styles.cardImage}
+                    />
+                  </View>
+                ) : (
+                  <FastImage
+                    source={{ uri: artDetail?.mediaUrl }}
+                    resizeMode="cover"
+                    style={styles.cardImage}
+                  />
+                )}
+
+                <View
+                  style={{
+                    paddingVertical: verticalScale(12),
+                    paddingHorizontal: horizontalScale(8),
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(8),
+                  }}
+                >
+                  <Image
+                    source={IMAGES.OnePaliLogo}
+                    resizeMode="contain"
+                    style={{
+                      width: horizontalScale(24),
+                      height: horizontalScale(24),
+                    }}
+                  />
+
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={12}
+                    color={COLORS.darkText}
+                    style={{ width: "90%" }}
+                  >
+                    I’m supporter #{user?.assignedNumber} helping reach 1M
+                    donors for humanitarian aid in Palestine. Every bit counts.
+                    Join the movement at onepali.app
+                  </CustomText>
                 </View>
               </View>
-            </>
-          )}
+            </ViewShot>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
 
       {uiIndex === 1 && (
         <View style={styles.fullscreenContainer}>
-          <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-            {/* ===== HEADER ===== */}
+          {/* <SafeAreaView style={{ flex: 1 }} edges={["top"]}> */}
+          {/* ===== HEADER ===== */}
 
-            <View style={styles.fsHeader}>
+          {/* <View style={styles.fsHeader}>
               <View style={{ width: horizontalScale(20) }} />
 
               <CustomText
@@ -838,76 +972,141 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               <TouchableOpacity onPress={() => setUiIndex(0)}>
                 <CustomIcon Icon={ICONS.close} width={24} height={24} />
               </TouchableOpacity>
+            </View> */}
+
+          <TouchableOpacity
+            onPress={() => setUiIndex(0)}
+            style={{
+              position: "absolute",
+              top: verticalScale(50),
+              right: horizontalScale(12),
+              zIndex: 10,
+            }}
+            activeOpacity={0.8}
+          >
+            <CustomIcon Icon={ICONS.WhiteCloseIcon} width={32} height={32} />
+          </TouchableOpacity>
+
+          {/* ===== IMAGE WRAPPER ===== */}
+
+          <View style={styles.fsImageWrapper}>
+            {artDetail?.mediaType === "VIDEO" ? (
+              <Video
+                source={{ uri: artDetail.mediaUrl }}
+                resizeMode="cover"
+                repeat
+                controls
+                style={styles.fsImage}
+              />
+            ) : (
+              <FastImage
+                source={{ uri: artDetail?.mediaUrl }}
+                style={styles.fsImage}
+              />
+            )}
+
+            {/* ===== FLOATING BUTTONS ===== */}
+            <View style={styles.fsFloatingActions}>
+              {/* <TouchableOpacity
+                style={{}}
+                activeOpacity={0.8}
+                onPress={() =>
+                  handleDownloadImage(artDetail?.mediaUrl || "", ArtId)
+                }
+              >
+                {isDownloadingArt ? (
+                  <View
+                    style={{
+                      width: horizontalScale(66),
+                      height: verticalScale(56),
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor: COLORS.darkText,
+                      borderRadius: 15,
+                    }}
+                  >
+                    <ActivityIndicator color={COLORS.white} />
+                  </View>
+                ) : (
+                  <CustomIcon
+                    Icon={ICONS.download}
+                    width={horizontalScale(66)}
+                    height={verticalScale(56)}
+                  />
+                )}
+              </TouchableOpacity> */}
+              <PrimaryButton
+                title={"Share"}
+                leftIcon={{
+                  Icon: ICONS.ShareArt,
+                  height: 20,
+                  width: 20,
+                }}
+                onPress={() => {
+                  setOpenModal(true);
+                }}
+                style={styles.saveButton}
+              />
             </View>
-
-            {/* ===== IMAGE WRAPPER ===== */}
-
-            <View style={styles.fsImageWrapper}>
-              {artDetail?.mediaType === "VIDEO" ? (
-                <Video
-                  source={{ uri: artDetail.mediaUrl }}
-                  resizeMode="cover"
-                  repeat
-                  controls
-                  style={styles.fsImage}
-                />
-              ) : (
-                <FastImage
-                  source={{ uri: artDetail?.mediaUrl }}
-                  style={styles.fsImage}
-                />
-              )}
-
-              {/* ===== FLOATING BUTTONS ===== */}
-              <View style={styles.fsFloatingActions}>
-                <TouchableOpacity
-                  style={{}}
-                  activeOpacity={0.8}
-                  onPress={() =>
-                    handleDownloadImage(artDetail?.mediaUrl || "", ArtId)
-                  }
-                >
-                  {isDownloadingArt ? (
-                    <View
-                      style={{
-                        width: horizontalScale(66),
-                        height: verticalScale(56),
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: COLORS.darkText,
-                        borderRadius: 15,
-                      }}
-                    >
-                      <ActivityIndicator color={COLORS.white} />
-                    </View>
-                  ) : (
-                    <CustomIcon
-                      Icon={ICONS.download}
-                      width={horizontalScale(66)}
-                      height={verticalScale(56)}
-                    />
-                  )}
-                </TouchableOpacity>
-                <PrimaryButton
-                  title={"Share Art"}
-                  onPress={() => {
-                    setOpenModal(true);
-                  }}
-                  style={styles.saveButton}
-                />
-              </View>
-            </View>
-          </SafeAreaView>
+          </View>
+          {/* </SafeAreaView> */}
         </View>
       )}
 
-      <ShareArtModal
+      <Modal
+        isVisible={isMediaFullscreen}
+        style={{ margin: 0 }}
+        backdropOpacity={1}
+        backdropColor={COLORS.white}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+        useNativeDriver
+        onBackButtonPress={() => setIsMediaFullscreen(false)}
+        onBackdropPress={() => setIsMediaFullscreen(false)}
+        swipeDirection="down"
+        onSwipeComplete={() => setIsMediaFullscreen(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+          {artDetail?.mediaType === "VIDEO" ? (
+            <Video
+              source={{ uri: artDetail?.mediaUrl }}
+              resizeMode="contain"
+              controls
+              repeat
+              style={{ width: "100%", height: "100%" }}
+            />
+          ) : (
+            <ImageViewer
+              imageUrls={[{ url: artDetail?.mediaUrl || "" }]}
+              backgroundColor={COLORS.white}
+              enableSwipeDown={true}
+              onSwipeDown={() => setIsMediaFullscreen(false)}
+              renderIndicator={() => <></>}
+              saveToLocalByLongPress={false}
+            />
+          )}
+
+          <TouchableOpacity
+            onPress={() => setIsMediaFullscreen(false)}
+            style={{
+              position: "absolute",
+              top: 20,
+              left: 20,
+              zIndex: 10,
+            }}
+          >
+            <CustomIcon Icon={ICONS.backArrow} width={28} height={28} />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* <ShareArtModal
         visible={OpenModal}
         onClose={() => setOpenModal(false)}
         onShare={shareToApp}
         mediaUrl={artDetail?.mediaUrl}
         mediaType={artDetail?.mediaType}
-      />
+      /> */}
     </View>
   );
 };
@@ -955,15 +1154,15 @@ const styles = StyleSheet.create({
   commentInputRow: {
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.greyish,
+    // borderBottomWidth: 1,
+    // borderBottomColor: COLORS.greyish,
     paddingVertical: verticalScale(8),
     paddingHorizontal: horizontalScale(20),
     gap: horizontalScale(8),
   },
   commentInputWrapper: {
     flex: 1,
-    borderRadius: 10,
+    borderRadius: 32,
     borderWidth: 0,
     borderColor: COLORS.greyish,
     paddingLeft: horizontalScale(16),
@@ -975,11 +1174,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   commentInput: {
-    fontFamily: FONTS.SourceSansRegular,
+    fontFamily: FONTS.GabaritoRegular,
     fontSize: 14,
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
     flex: 1,
+    maxHeight: verticalScale(80),
   },
   commentsList: {
     paddingBottom: verticalScale(8),
@@ -1037,12 +1237,12 @@ const styles = StyleSheet.create({
   },
   ShareButton: {
     backgroundColor: COLORS.darkText,
-    paddingHorizontal: horizontalScale(12),
+    paddingHorizontal: horizontalScale(16),
     paddingVertical: horizontalScale(8),
     borderRadius: 30,
     flexDirection: "row",
     alignItems: "center",
-    gap: horizontalScale(3),
+    gap: horizontalScale(8),
   },
 
   fullscreenContainer: {
@@ -1097,5 +1297,28 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 20,
+  },
+  fullscreenOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: COLORS.white,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+
+  fullscreenMedia: {
+    width: wp(100),
+    height: hp(100),
+  },
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+  },
+
+  cardImage: {
+    width: "100%",
+    height: verticalScale(423),
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
 });

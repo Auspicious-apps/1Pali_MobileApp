@@ -33,28 +33,14 @@ const BADGES = {
   sproutLocked: require("./growth_lock/SproutLocked.png"),
   trunkLocked: require("./growth_lock/TrunkLocked.png"),
 
-  // IMPACT BADGES
-  jaffa: require("./impact/jaffa.png"),
-  keffiyeh: require("./impact/keffiyeh.png"),
-  key: require("./impact/key.png"),
-  tatreez: require("./impact/tatreez.png"),
-  watermelon: require("./impact/watermelon.png"),
-
-  // IMPACT LOCKED BADGES
-  jaffaLocked: require("./impact_lock/JaffaLocked.png"),
-  keffiyehLocked: require("./impact_lock/KeffiyehLocked.png"),
-  keyLocked: require("./impact_lock/KeyLocked.png"),
-  tatreezLocked: require("./impact_lock/TatreezLocked.png"),
-  watermelonLocked: require("./impact_lock/WatermelonLocked.png"),
-
   // COMMUNITY BADGES
-  catalyst: require("./community/catalyst.png"),
-  founder: require("./community/founder.png"),
-  nation: require("./community/nation.png"),
-  pioneer: require("./community/pioneer.png"),
-  pulse: require("./community/pulse.png"),
-  solidarity: require("./community/solidarity.png"),
-  steadfast: require("./community/steadfast.png"),
+  olive: require("./community/olive.png"),
+  keffiyeh: require("./community/keffiyeh.png"),
+  key: require("./community/key.png"),
+  tetreez: require("./community/tetreez.png"),
+  fig: require("./community/fig.png"),
+  watermelon: require("./community/watermelon.png"),
+  jaffa: require("./community/jaffa.png"),
 
   // COMMUNITY LOCKED BADGES
   catalystLocked: require("./community_lock/catalystLocked.png"),
@@ -64,6 +50,15 @@ const BADGES = {
   pulseLocked: require("./community_lock/pulseLocked.png"),
   solidarityLocked: require("./community_lock/solidarityLocked.png"),
   steadfastLocked: require("./community_lock/steadfastLocked.png"),
+
+  // identity badges
+  builder: require("./identity/builder.png"),
+  visionary: require("./identity/visionary.png"),
+  founder: require("./identity/founder.png"),
+  guardian: require("./identity/guardian.png"),
+  leader: require("./identity/guardian.png"),
+  pillar: require("./identity/pillar.png"),
+  pioneer: require("./identity/pioneer.png"),
 };
 
 export default BADGES;

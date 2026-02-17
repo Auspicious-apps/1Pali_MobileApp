@@ -6,6 +6,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
+  StyleSheet,
   View,
 } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
@@ -20,6 +21,8 @@ import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
+import LinearGradient from "react-native-linear-gradient";
+import { BlurView } from "@react-native-community/blur";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -316,9 +319,12 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 directly in the app, so you can clearly see where contributions
                 are going.
               </CustomText>
-              <TouchableOpacity onPress={() => {
-                Linking.openURL("https://onepali.app/");
-              }} activeOpacity={0.8}>
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL("https://onepali.app/");
+                }}
+                activeOpacity={0.8}
+              >
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={15}
@@ -331,14 +337,29 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             </View>
           </View>
         </FocusResetScrollView>
+        {/* 
+          <PrimaryButton
+            title="Continue"
+            onPress={() => {
+              navigation.navigate("claimSpot");
+            }}
+            style={styles.primaryButton}
+          /> */}
 
-        <PrimaryButton
-          title="Continue"
-          onPress={() => {
-            navigation.navigate("claimSpot");
-          }}
-          style={styles.primaryButton}
-        />
+        <View style={styles.bottomContainer}>
+          <LinearGradient
+            colors={["#F8F8FB20", COLORS.appBackground]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 0.8 }}
+            style={styles.gradientOverlay}
+          />
+
+          <PrimaryButton
+            title="Continue"
+            onPress={() => navigation.navigate("claimSpot")}
+            style={styles.primaryButton}
+          />
+        </View>
       </SafeAreaView>
     </View>
   );

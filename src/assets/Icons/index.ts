@@ -70,6 +70,11 @@ import LockIcon from "./lock.svg";
 import LockSkrim from "./LockSkrim.svg";
 import ArrowUpRight from "./ArrowUpRight.svg";
 import BackArrowWithBg from "./backArrow.svg";
+import OnimageLike from "./OnimageLike.svg";
+import OnimageChat from "./OnimageChat.svg";
+import DarkSendIcon from "./DarkSendIcon.svg";
+import ShareArt from "./ShareArt.svg";
+import WhiteCloseIcon from "./WhiteCloseIcon.svg";
 
 const ICONS = {
   diceIcon,
@@ -144,6 +149,11 @@ const ICONS = {
   LockSkrim,
   ArrowUpRight,
   BackArrowWithBg,
+  OnimageChat,
+  OnimageLike,
+  DarkSendIcon,
+  ShareArt,
+  WhiteCloseIcon,
 };
 
 export default ICONS;

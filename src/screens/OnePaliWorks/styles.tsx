@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     marginTop: verticalScale(10),
+    zIndex: 10,
   },
   contentContainer: {
     paddingBottom: verticalScale(24),
@@ -138,6 +139,20 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#000",
     marginHorizontal: 4,
+  },
+  bottomContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: verticalScale(20),
+    paddingTop: verticalScale(20),
+    justifyContent: "flex-end",
+  },
+
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    height: verticalScale(40),
   },
 });
 

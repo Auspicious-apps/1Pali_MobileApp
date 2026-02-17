@@ -86,19 +86,37 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
         />
       </View>
 
-      <View style={{ paddingTop: verticalScale(12) }}>
+      <View
+        style={{
+          paddingHorizontal: horizontalScale(8),
+          marginVertical: verticalScale(16),
+          gap: verticalScale(8),
+        }}
+      >
+        <View style={styles.cardFooter}>
+          <CustomText
+            fontFamily="GabaritoMedium"
+            fontSize={20}
+            color={COLORS.darkText}
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            style={{ width: "100%" }}
+          >
+            {item.title}
+          </CustomText>
+        </View>
         <View
           style={{
-            paddingVertical: verticalScale(4),
-            paddingHorizontal: horizontalScale(8),
+            paddingVertical: verticalScale(6),
+            paddingHorizontal: horizontalScale(12),
             backgroundColor: COLORS.greyBackground,
             alignSelf: "flex-start",
-            borderRadius: 6,
+            borderRadius: 28,
           }}
         >
           <CustomText
-            fontFamily="SourceSansMedium"
-            fontSize={15}
+            fontFamily="GabaritoRegular"
+            fontSize={12}
             color={COLORS.appText}
           >
             {item?.publishMonthYear ||
@@ -106,16 +124,6 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
                 month: "long",
                 year: "numeric",
               })}
-          </CustomText>
-        </View>
-        <View style={styles.cardFooter}>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={18}
-            color={COLORS.darkText}
-            style={{ width: "100%" }}
-          >
-            {item.title}
           </CustomText>
         </View>
       </View>
@@ -161,7 +169,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
             />
           }
         >
-          <Image source={IMAGES.LogoText} style={styles.logo} />
+          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText
@@ -212,15 +220,15 @@ export default Updates;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.appBackground,
   },
   safeArea: {
     flex: 1,
     paddingHorizontal: horizontalScale(16),
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
     alignSelf: "center",
     marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
@@ -237,7 +245,7 @@ const styles = StyleSheet.create({
   weekCard: {
     backgroundColor: COLORS.white,
     borderRadius: 30,
-    padding: verticalScale(16),
+    padding: verticalScale(6),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
@@ -256,7 +264,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: verticalScale(8),
   },
   imageWrapper: {
     width: "100%",

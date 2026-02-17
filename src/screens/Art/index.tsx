@@ -23,6 +23,7 @@ import { ArtScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import Pulse from "../../components/PulseLoading";
+import ArtDetail from "../ArtDetail";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SIDE_PADDING = horizontalScale(20);
@@ -180,7 +181,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
       >
         {/* Header */}
         <View style={styles.headerWrapper}>
-          <Image source={IMAGES.LogoText} style={styles.logo} />
+          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
 
           <View style={styles.header}>
             <CustomText
@@ -188,7 +189,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               fontSize={42}
               color={COLORS.darkText}
             >
-              Art
+              Artworks
             </CustomText>
 
             <CustomText
@@ -197,7 +198,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               color={COLORS.appText}
               style={styles.subtitle}
             >
-              Weekly artwork from students in Palestine
+              Weekly art shared by students in Palestine
             </CustomText>
           </View>
         </View>
@@ -249,24 +250,37 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
                 </View>
 
                 <View style={styles.weekContent}>
-                  <View style={styles.weekBadge}>
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
+                    color={COLORS.appText}
+                    style={{ textAlign: "center" }}
+                  >
+                    {artOfTheWeek
+                      ?.publishedAt!.slice(0, 10)
+                      .split("-")
+                      .reverse()
+                      .join(".")}
+                  </CustomText>
+                  <View>
                     <CustomText
-                      fontFamily="SourceSansMedium"
-                      fontSize={15}
-                      color={COLORS.greenish}
+                      fontFamily="GabaritoSemiBold"
+                      fontSize={18}
+                      color={COLORS.darkText}
+                      style={{ textAlign: "center" }}
                     >
-                      Art of the Week
+                      {artOfTheWeek?.title}
+                    </CustomText>
+
+                    <CustomText
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
+                      color={COLORS.appText}
+                      style={styles.weekTitle}
+                    >
+                      {artOfTheWeek?.artistName}
                     </CustomText>
                   </View>
-
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={18}
-                    color={COLORS.darkText}
-                    style={styles.weekTitle}
-                  >
-                    {artOfTheWeek?.title}
-                  </CustomText>
                 </View>
               </TouchableOpacity>
             )}
@@ -307,8 +321,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
     alignSelf: "center",
   },
@@ -326,7 +340,7 @@ const styles = StyleSheet.create({
   weekCard: {
     backgroundColor: COLORS.white,
     borderRadius: 30,
-    padding: verticalScale(16),
+    padding: verticalScale(6),
     marginHorizontal: horizontalScale(20),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 0 },
@@ -343,15 +357,8 @@ const styles = StyleSheet.create({
 
   weekContent: {
     paddingTop: verticalScale(16),
-  },
-
-  weekBadge: {
-    alignSelf: "center",
-    backgroundColor: COLORS.greenLight,
-    borderRadius: 16,
-    paddingHorizontal: horizontalScale(10),
-    paddingVertical: verticalScale(4),
-    marginBottom: verticalScale(8),
+    paddingBottom: verticalScale(8),
+    gap: verticalScale(8),
   },
 
   weekTitle: {
