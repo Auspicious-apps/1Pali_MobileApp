@@ -46,7 +46,6 @@
     "react-native-network-logger": "^2.0.1",
     "react-native-nitro-modules": "0.31.10",
     "react-native-permissions": "^5.4.4",
-    "react-native-push-notification": "^8.1.1",
     "react-native-raw-bottom-sheet": "^3.0.0",
     "react-native-reanimated": "3.19.0",
     "react-native-safe-area-context": "^5.5.2",

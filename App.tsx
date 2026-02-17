@@ -21,9 +21,9 @@ function App() {
       "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
   });
 
-   useEffect(() => {
-     initializeFirebaseMessaging();
-   }, []);
+  //  useEffect(() => {
+  //    initializeFirebaseMessaging();
+  //  }, []);
    
   return (
       <GestureHandlerRootView style={{ flex: 1 }}>
