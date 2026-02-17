@@ -3,9 +3,13 @@ import { StyleSheet, TouchableOpacity, Text, Modal } from "react-native";
 import NL from "react-native-network-logger";
 import { useState } from "react";
 import COLORS from "../utils/Colors";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const NetworkLogger = ({ onPress }: { onPress?: () => void }) => {
+  const insets = useSafeAreaInsets();
   const [isNetworkModalVisible, setIsNetworkModalVisible] = useState(false);
   return (
     <>
@@ -14,9 +18,14 @@ const NetworkLogger = ({ onPress }: { onPress?: () => void }) => {
         visible={isNetworkModalVisible}
         // onBackButtonPress={() => setIsNetworkModalVisible(false)}
       >
-        <SafeAreaView style={styles.contentContainer} edges={["top"]}>
+        <SafeAreaView style={styles.contentContainer}>
           <TouchableOpacity
-            style={styles.closeButton}
+            style={[
+              styles.closeButton,
+              {
+                marginTop: insets.top,
+              },
+            ]}
             onPress={() => setIsNetworkModalVisible(false)}
           >
             <Text style={styles.closeButtonTitle}>{"CLOSE"}</Text>

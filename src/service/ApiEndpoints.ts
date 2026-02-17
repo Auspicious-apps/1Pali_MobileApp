@@ -5,6 +5,7 @@ const ENDPOINTS = {
   GetUserProfile: "api/v1/auth/profile",
   RefreshToken: "api/v1/auth/refresh",
   AppleSignin: "api/v1/auth/apple",
+  UpdateFCMToken: "api/v1/auth/fcm-token",
   RandomNumberReservation: "api/v1/numbers/reserve",
   GetRandomNumber: "api/v1/numbers/random",
   GetStripePlans: "api/v1/subscription/plans",

@@ -25,6 +25,14 @@ const getStylesByType = (type: string) => {
         },
         icon: ICONS.RedClose,
       };
+    case 'inAppNotification':
+      return {
+        container: {
+          backgroundColor: COLORS.Linear,
+          borderColor: COLORS.borderColor,
+        },
+        icon: ICONS.LikedIcon,
+      };
     case 'info':
     default:
       return {
@@ -37,16 +45,24 @@ const getStylesByType = (type: string) => {
   }
 };
 
-const CustomToast = ({ text1, type }: BaseToastProps & { type?: string }) => {
+const CustomToast = ({ text1, text2, type, props }: BaseToastProps & { type?: string }) => {
   const toastType = type || 'info';
   const { container, icon } = getStylesByType(toastType);
+  const displayIcon = props?.icon || icon;
 
   return (
     <View style={[styles.toastContainer, container]}>
-      <CustomIcon Icon={icon} height={24} width={24} />
-      <CustomText fontFamily="GabaritoMedium" style={styles.toastText}>
-        {text1}
-      </CustomText>
+      <CustomIcon Icon={displayIcon} height={24} width={24} />
+      <View style={styles.textContainer}>
+        <CustomText fontFamily="GabaritoMedium" style={styles.toastTitle}>
+          {text1}
+        </CustomText>
+        {text2 && (
+          <CustomText fontFamily="GabaritoMedium" style={styles.toastBody}>
+            {text2}
+          </CustomText>
+        )}
+      </View>
     </View>
   );
 };
@@ -56,7 +72,7 @@ const styles = StyleSheet.create({
     width: '90%',
     gap: horizontalScale(10),
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderRadius: 10,
@@ -70,6 +86,21 @@ const styles = StyleSheet.create({
     marginTop: 20,
     zIndex: 1000,
     overflow: 'hidden',
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  toastTitle: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  toastBody: {
+    color: COLORS.white,
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.9,
   },
   toastText: {
     color: COLORS.white,

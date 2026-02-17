@@ -1,6 +1,8 @@
 import { useIsFocused } from "@react-navigation/native";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
+  Animated,
+  Easing,
   Image,
   ImageBackground,
   Platform,
@@ -26,6 +28,7 @@ import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import { initializeFirebaseMessaging } from "../../Firebase/NotificationService";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -36,12 +39,38 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
+  const pulseScale = useRef(new Animated.Value(0)).current;
+  const pulseOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = () => {
+      pulseScale.setValue(0);
+      pulseOpacity.setValue(0.7);
+
+      Animated.parallel([
+        Animated.timing(pulseScale, {
+          toValue: 1,
+          duration: 2200,
+          easing: Easing.out(Easing.cubic), // natural outward scatter
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseOpacity, {
+          toValue: 0,
+          duration: 2200,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]).start(() => loop());
+    };
+
+    loop();
+  }, []);
+  
   const navigateToBadge = () => {
     navigation.navigate("MainStack", {
       screen: "badges",
     });
   };
-
 
   useEffect(() => {
     if (badges && badges.badges.length > 0) {
@@ -53,6 +82,10 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
       return () => clearTimeout(timer);
     }
   }, [unViewedBadges, dispatch]);
+
+  useEffect(() => {
+    initializeFirebaseMessaging();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -147,6 +180,29 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           resizeMode="contain"
           style={styles.TextBackground}
         >
+          <View style={styles.dotContainer}>
+            {/* Scattered glow */}
+            <Animated.View
+              style={[
+                styles.scatterGlow,
+                {
+                  transform: [
+                    {
+                      scale: pulseScale.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 2.5], // bigger = more scatter
+                      }),
+                    },
+                  ],
+                  opacity: pulseOpacity,
+                },
+              ]}
+            />
+
+            {/* Solid green dot */}
+            <View style={styles.dot} />
+          </View>
+
           <CustomText
             fontFamily="GabaritoMedium"
             fontSize={16}
@@ -156,6 +212,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             together
           </CustomText>
         </ImageBackground>
+
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
           <CustomText
@@ -256,6 +313,39 @@ const styles = StyleSheet.create({
     width: wp(90),
     marginTop: verticalScale(32),
     alignItems: "center",
+    justifyContent: "space-evenly",
+    flexDirection: "row",
+  },
+  dotcontainer: {
     justifyContent: "center",
+    alignItems: "center",
+  },
+  dotContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#22C55E",
+  },
+
+  scatterGlow: {
+    position: "absolute",
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "rgba(34,197,94,0.25)",
+
+    // iOS soft shadow scatter
+    shadowColor: "#22C55E",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 12,
+
+    // Android glow
+    elevation: 12,
   },
 });

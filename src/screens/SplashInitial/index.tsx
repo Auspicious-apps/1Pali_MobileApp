@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, View, Easing } from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 import IMAGES from "../../assets/Images";
+import { syncFCMTokenWithBackend } from "../../Firebase/NotificationService";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 import {
   setBadges,
@@ -90,6 +91,10 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       if (response.data.success) {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
+        // Sync FCM token with backend on splash after successful login
+        syncFCMTokenWithBackend(response.data.data.fcmToken).catch((err) =>
+          console.log("FCM sync error (non-critical):", err),
+        );
 
         if (
           response.data.data.hasSubscription &&

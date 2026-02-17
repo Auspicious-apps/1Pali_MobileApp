@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
+import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 import {
   setBadges,
   setClaimedNumber,
@@ -20,7 +21,6 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { getLocalStorageData } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);

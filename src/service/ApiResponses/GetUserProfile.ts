@@ -22,6 +22,7 @@ export type GetUserProfileApiResponse = {
   globalStats: GlobalStats;
   nextGrowthBadge: NextGrowthBadge;
   badges: Badges;
+  fcmToken: string;
 };
 
 export interface GlobalStats {

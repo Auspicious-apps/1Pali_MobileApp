@@ -28,8 +28,7 @@
 	<array>
 		<string>instagram</string>
 		<string>instagram-stories</string>
-
-		  <string>whatsapp</string>
+		<string>whatsapp</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -106,6 +105,10 @@
 		<string>SourceSans3-Regular.ttf</string>
 		<string>SourceSans3-SemiBold.ttf</string>
 		<string>SourceSans3-SemiBoldItalic.ttf</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
