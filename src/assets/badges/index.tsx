@@ -37,7 +37,7 @@ const BADGES = {
   olive: require("./community/olive.png"),
   keffiyeh: require("./community/keffiyeh.png"),
   key: require("./community/key.png"),
-  tetreez: require("./community/tetreez.png"),
+  tatreez: require("./community/tatreez.png"),
   fig: require("./community/fig.png"),
   watermelon: require("./community/watermelon.png"),
   jaffa: require("./community/jaffa.png"),

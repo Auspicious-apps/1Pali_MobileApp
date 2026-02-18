@@ -34,6 +34,7 @@
     "react-i18next": "^16.5.1",
     "react-native": "0.83.1",
     "react-native-blob-util": "^0.24.6",
+    "react-native-color-matrix-image-filters": "^8.0.2",
     "react-native-dotenv": "^3.4.11",
     "react-native-fast-image": "^8.6.3",
     "react-native-fs": "^2.20.0",
