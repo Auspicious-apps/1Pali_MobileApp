@@ -3,6 +3,7 @@ import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
   Animated,
   Easing,
+  Image,
   Modal,
   Platform,
   Pressable,
@@ -16,6 +17,7 @@ import { horizontalScale, verticalScale } from "../../utils/Metrics";
 import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
+import { Grayscale } from "react-native-color-matrix-image-filters";
 
 interface BadgesDetailModalProps {
   isVisible: boolean;
@@ -23,7 +25,9 @@ interface BadgesDetailModalProps {
   badgeLabel?: string;
   badgeMonths?: string;
   badgeDescription: string | undefined;
+  isLocked: boolean;
 }
+const BORDER = 6;
 
 const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   isVisible,
@@ -31,6 +35,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   badgeLabel,
   badgeMonths,
   badgeDescription,
+  isLocked,
 }) => {
   const translateY = useRef(new Animated.Value(500)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -132,10 +137,43 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
 
             {/* Badge Info */}
             <View style={styles.badgeSection}>
-              <BadgeIcon
-                badge={badgeLabel ?? "speaker"}
-                style={styles.badgeImage}
-              />
+              {isLocked ? (
+                <View
+                  style={[
+                    styles.outerCircle,
+                    {
+                      width: horizontalScale(151),
+                      height: verticalScale(151),
+                      borderRadius: horizontalScale(151) / 2,
+                    },
+                  ]}
+                >
+                  <Grayscale>
+                    <BadgeIcon
+                      badge={badgeLabel ?? "speaker"}
+                      style={styles.badgeImage}
+                    />
+                  </Grayscale>
+
+                  <View
+                    style={[
+                      styles.badgeOverlay,
+                      {
+                        top: BORDER,
+                        bottom: BORDER,
+                        left: BORDER,
+                        right: BORDER,
+                        borderRadius: horizontalScale(151) / 2,
+                      },
+                    ]}
+                  />
+                </View>
+              ) : (
+                <BadgeIcon
+                  badge={badgeLabel ?? "speaker"}
+                  style={styles.badgeImage}
+                />
+              )}
 
               <View style={{ alignItems: "center" }}>
                 <CustomText
@@ -167,7 +205,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               color={COLORS.darkText}
               style={styles.description}
             >
-              {badgeDescription?.replace(/\. /g, ".\n")}
+              {badgeDescription}
             </CustomText>
           </Animated.View>
         </View>
@@ -243,5 +281,28 @@ const styles = StyleSheet.create({
   description: {
     textAlign: "center",
     alignSelf: "center",
+    paddingHorizontal: horizontalScale(20),
+  },
+
+  outerCircle: {
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+  },
+
+  innerCircle: {
+    overflow: "hidden",
+  },
+
+  image: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+
+  badgeOverlay: {
+    position: "absolute",
+    backgroundColor: "rgba(25,30,40,0.55)",
   },
 });

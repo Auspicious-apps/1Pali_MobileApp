@@ -146,15 +146,6 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
 
   const EmptyState = () => (
     <View style={styles.emptyStateContainer}>
-      <FastImage source={IMAGES.LogoText} style={styles.emptyLogo} />
-      <CustomText
-        fontFamily="GabaritoSemiBold"
-        fontSize={24}
-        color={COLORS.darkText}
-        style={{ textAlign: "center" }}
-      >
-        No Data
-      </CustomText>
       <CustomText
         fontFamily="SourceSansRegular"
         fontSize={15}
@@ -417,8 +408,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: horizontalScale(24),
-    marginTop: verticalScale(80),
+    paddingHorizontal: horizontalScale(40),
   },
   emptyLogo: {
     width: horizontalScale(80),

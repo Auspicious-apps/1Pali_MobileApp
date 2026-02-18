@@ -1,8 +1,7 @@
 import React from "react";
-import { Image, ImageStyle, StyleProp, View, StyleSheet } from "react-native";
-import BADGES from "../assets/badges";
+import { Image, ImageStyle, StyleProp, StyleSheet, View } from "react-native";
 import { Grayscale } from "react-native-color-matrix-image-filters";
-import { horizontalScale, hp, verticalScale, wp } from "../utils/Metrics";
+import BADGES from "../assets/badges";
 
 type BadgeKey = keyof typeof BADGES;
 
@@ -23,7 +22,6 @@ const BadgeIcon: React.FC<BadgeIconProps> = ({
   const source = BADGES[baseKey as BadgeKey];
 
   if (!source) {
-    console.warn("Badge not found:", baseKey);
     return null;
   }
 
@@ -66,7 +64,7 @@ const BadgeIcon: React.FC<BadgeIconProps> = ({
       />
     </View>
   );
-}
+};
 
 export default BadgeIcon;
 

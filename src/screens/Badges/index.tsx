@@ -43,7 +43,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
 
   const [loading, setLoading] = useState(false);
 
-
   const TAB_CATEGORY_MAP = {
     Growth: "GROWTH",
     Impact: "IMPACT",
@@ -153,7 +152,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           <View style={styles.card}>
             <TouchableOpacity
               onPress={() => {
-                // setSelectedBadge(identityBadge.badge);
+                setSelectedBadge(latestIdentityBadge);
                 setIsBadgeModalVisible(true);
               }}
               activeOpacity={0.8}
@@ -233,11 +232,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             renderItem={({ item: badge }) => {
               const isUnlocked = badge?.isUnlocked;
 
-              if(badge.category === "COMMUNITY") {
-                console.log(badge);
-              }
-              
-                
               return (
                 <TouchableOpacity
                   style={{
@@ -247,7 +241,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   }}
                   activeOpacity={0.8}
                   onPress={() => {
-                    if (!isUnlocked) return;
                     setSelectedBadge(badge);
                     setIsBadgeModalVisible(true);
                   }}
@@ -263,12 +256,12 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   >
                     <BadgeIcon
                       badge={badge?.name}
-                      locked={!isUnlocked}
                       style={{
                         width: horizontalScale(94),
                         height: verticalScale(94),
                         resizeMode: "contain",
                       }}
+                      locked={!isUnlocked}
                     />
                   </View>
                   <View style={{ alignItems: "center" }}>
@@ -293,6 +286,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
         badgeLabel={selectedBadge?.title}
         badgeMonths={selectedBadge?.milestone}
         badgeDescription={selectedBadge?.description}
+        isLocked={!selectedBadge?.isUnlocked}
       />
     </View>
   );

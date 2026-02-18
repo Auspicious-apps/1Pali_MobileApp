@@ -115,7 +115,9 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       if (error.requiresLogin) {
         console.log("Session expired, redirecting to login Initial");
         await AsyncStorage.clear();
-        navigation.replace("splash");
+        navigation.replace("OnBoardingStack", {
+          screen: "splash",
+        });
       } else {
         // If profile verification fails, clear tokens and show get started
         await AsyncStorage.clear();

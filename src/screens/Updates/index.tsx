@@ -10,18 +10,16 @@ import {
   View,
 } from "react-native";
 import FastImage from "react-native-fast-image";
-import LinearGradient from "react-native-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
+import Pulse from "../../components/PulseLoading";
 import { fetchUpdates } from "../../redux/slices/UpdatesSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Blog } from "../../service/ApiResponses/GetUserBlogs";
 import { UpdatesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import Pulse from "../../components/PulseLoading";
 
 const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -132,15 +130,6 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
 
   const EmptyState = () => (
     <View style={styles.emptyStateContainer}>
-      <FastImage source={IMAGES.LogoText} style={styles.emptyLogo} />
-      <CustomText
-        fontFamily="GabaritoSemiBold"
-        fontSize={24}
-        color={COLORS.darkText}
-        style={{ textAlign: "center" }}
-      >
-        No Data
-      </CustomText>
       <CustomText
         fontFamily="SourceSansRegular"
         fontSize={15}
@@ -220,7 +209,7 @@ export default Updates;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.appBackground,
+    backgroundColor: COLORS.white,
   },
   safeArea: {
     flex: 1,
@@ -293,8 +282,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: horizontalScale(24),
-    marginTop: verticalScale(80),
+    paddingHorizontal: horizontalScale(40),
   },
   emptyLogo: {
     width: horizontalScale(80),

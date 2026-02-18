@@ -67,7 +67,7 @@ export interface Badge2 {
 
 export interface Requirement {
   totalDonations?: number;
-  monthsRequired?: number;
+  threshold?: number;
   userNumberMin?: number;
   userNumberMax?: number;
   consecutiveMonths?: number;

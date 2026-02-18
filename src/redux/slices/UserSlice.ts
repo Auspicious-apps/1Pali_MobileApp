@@ -12,6 +12,7 @@ import {
 import { RootState } from "../store";
 import { fetchData } from "../../service/ApiService";
 import ENDPOINTS from "../../service/ApiEndpoints";
+import badges from "../../assets/badges";
 
 type ReservationStatus = "ACTIVE" | "EXPIRED" | "IDLE";
 
@@ -209,17 +210,16 @@ export const selectLatestGrowthBadges = createSelector(
   (badges) => {
     if (!badges?.length) return null;
 
-    return badges
-      .filter((b) => b.badge?.category === "GROWTH")
-      .reduce((highest, current) => {
-        const currentMonths =
-          current.badge?.requirement?.consecutiveMonths ?? 0;
+    const growthBadges = badges.filter((b) => b.badge?.category === "GROWTH");
+    if (!growthBadges.length) return null;
 
-        const highestMonths =
-          highest.badge?.requirement?.consecutiveMonths ?? 0;
+    return growthBadges.reduce((highest, current) => {
+      const currentMonths = current.badge?.requirement?.consecutiveMonths ?? 0;
 
-        return currentMonths > highestMonths ? current : highest;
-      }, badges[0]);
+      const highestMonths = highest.badge?.requirement?.consecutiveMonths ?? 0;
+
+      return currentMonths > highestMonths ? current : highest;
+    });
   },
 );
 
@@ -228,15 +228,16 @@ export const selectLatestImpactBadges = createSelector(
   (badges) => {
     if (!badges?.length) return null;
 
-    return badges
-      .filter((b) => b.badge?.category === "IMPACT")
-      .reduce((highest, current) => {
-        const currentMonths = current.badge?.requirement?.totalShares ?? 0;
+    const impactBadges = badges.filter((b) => b.badge?.category === "IMPACT");
+    if (!impactBadges.length) return null;
 
-        const highestMonths = highest.badge?.requirement?.totalShares ?? 0;
+    return impactBadges.reduce((highest, current) => {
+      const currentMonths = current.badge?.requirement?.totalShares ?? 0;
 
-        return currentMonths > highestMonths ? current : highest;
-      }, badges[0]);
+      const highestMonths = highest.badge?.requirement?.totalShares ?? 0;
+
+      return currentMonths > highestMonths ? current : highest;
+    });
   },
 );
 
@@ -245,19 +246,18 @@ export const selectLatestCommunityBadges = createSelector(
   (badges) => {
     if (!badges?.length) return null;
 
-    console.log(
-      badges.filter((b) => b.badge?.category === "COMMUNITY"),
-      "PPOPOPO",
+    const communityBadges = badges.filter(
+      (b) => b.badge?.category === "COMMUNITY",
     );
 
-    return badges
-      .filter((b) => b.badge?.category === "COMMUNITY")
-      .reduce((highest, current) => {
-        const currentMonths = current.badge?.requirement?.threshhold ?? 0;
-        const highestMonths = highest.badge?.requirement?.threshhold ?? 0;
+    if (!communityBadges.length) return null;
 
-        return currentMonths > highestMonths ? current : highest;
-      }, badges[0]);
+    return communityBadges.reduce((highest, current) => {
+      const currentThreshold = current.badge?.requirement?.threshold ?? 0;
+      const highestThreshold = highest.badge?.requirement?.threshold ?? 0;
+
+      return currentThreshold > highestThreshold ? current : highest;
+    });
   },
 );
 

@@ -20,7 +20,9 @@ import ProgressBar from "../../components/ProgressBar";
 import {
   selectCommunityBadges,
   selectGrowthBadges,
+  selectIdentityBadges,
   selectImpactBadges,
+  selectLatestCommunityBadges,
   selectLatestGrowthBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppSelector } from "../../redux/store";
@@ -36,7 +38,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const growthBadges = useAppSelector(selectGrowthBadges);
   const communityBadges = useAppSelector(selectCommunityBadges);
   const impactBadges = useAppSelector(selectImpactBadges);
+  const identityBadges = useAppSelector(selectIdentityBadges);
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
+  const latestCommunityBadge = useAppSelector(selectLatestCommunityBadges);
 
   const ACCOUNT_OPTIONS = [
     {
@@ -258,22 +262,25 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 >
                   {[
                     latestGrowthBadge,
-                    ...communityBadges,
+                    latestCommunityBadge,
+                    ...identityBadges,
                     ...impactBadges.slice(0, 1),
-                  ]?.map((badge, index) => (
-                    <BadgeIcon
-                      key={badge?.id}
-                      badge={badge?.badge.name!}
-                      style={{
-                        width: horizontalScale(72),
-                        height: verticalScale(72),
-                        marginLeft: index === 0 ? 0 : -35,
-                        borderRadius: 36,
-                        zIndex: growthBadges?.length - index,
-                        resizeMode: "contain",
-                      }}
-                    />
-                  ))}
+                  ]
+                    ?.filter(Boolean)
+                    ?.map((badge, index) => (
+                      <BadgeIcon
+                        key={badge?.id}
+                        badge={badge?.badge.name!}
+                        style={{
+                          width: horizontalScale(72),
+                          height: verticalScale(72),
+                          marginLeft: index === 0 ? 0 : -35,
+                          borderRadius: 36,
+                          zIndex: growthBadges?.length - index,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    ))}
                 </View>
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -413,7 +420,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.7}
             onPress={async () => {
               try {
-                const inviteLink = "https://onepali.app"; // Replace with your actual link
+                const inviteLink = "https://onepali.app";
 
                 await ShareLib.open({
                   title: "OnePali - $1 for Palestine",
