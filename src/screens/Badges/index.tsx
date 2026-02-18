@@ -1,10 +1,8 @@
-import { BlurView } from "@react-native-community/blur";
 import React, { FC, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -33,27 +31,28 @@ type TabType = "Growth" | "Impact" | "Community";
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
- const [activeTab, setActiveTab] = useState<TabType>("Growth");
+  const [activeTab, setActiveTab] = useState<TabType>("Growth");
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
   const { badges } = useAppSelector((state) => state.badges);
 
+  const latestIdentityBadge = badges.filter(
+    (b) => b.category === "IDENTITY",
+  )?.[0];
+
   const [loading, setLoading] = useState(false);
+
 
   const TAB_CATEGORY_MAP = {
     Growth: "GROWTH",
-    Impact: "ART",
-    Community: "Community",
+    Impact: "IMPACT",
+    Community: "COMMUNITY",
   };
 
   const filteredBadges = badges.filter(
     (b) => b.category === TAB_CATEGORY_MAP[activeTab].toUpperCase(),
   );
-
-  const communityBadge = badges?.filter(
-    (badge) => badge.category === "COMMUNITY" && badge.isUnlocked,
-  )[0];
 
   const getBadgeSubtitle = (badge: Badge) => {
     switch (badge.category) {
@@ -94,6 +93,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
       fetchAllBadges();
     }
   }, []);
+
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -153,13 +153,13 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           <View style={styles.card}>
             <TouchableOpacity
               onPress={() => {
-                setSelectedBadge(communityBadge);
+                // setSelectedBadge(identityBadge.badge);
                 setIsBadgeModalVisible(true);
               }}
               activeOpacity={0.8}
             >
               <BadgeIcon
-                badge={communityBadge?.name}
+                badge={latestIdentityBadge?.name}
                 style={{
                   width: horizontalScale(94),
                   height: verticalScale(94),
@@ -173,7 +173,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
-                {communityBadge?.name}
+                {latestIdentityBadge?.name}
               </CustomText>
               <CustomText
                 fontFamily="SourceSansRegular"
@@ -182,7 +182,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 style={{ textAlign: "center" }}
               >
                 Among the{" "}
-                {communityBadge?.milestone
+                {latestIdentityBadge?.name
                   // ?.split(" ")
                   // .slice(0, -1)
                   // .join(" ")
@@ -233,6 +233,11 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             renderItem={({ item: badge }) => {
               const isUnlocked = badge?.isUnlocked;
 
+              if(badge.category === "COMMUNITY") {
+                console.log(badge);
+              }
+              
+                
               return (
                 <TouchableOpacity
                   style={{
@@ -267,36 +272,14 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                     />
                   </View>
                   <View style={{ alignItems: "center" }}>
-                    {activeTab !== "Community" && (
-                      <CustomText
-                        fontFamily="GabaritoRegular"
-                        fontSize={15}
-                        color={isUnlocked ? COLORS.darkText : COLORS.appText}
-                        style={{ textAlign: "center" }}
-                      >
-                        {badge?.title}
-                      </CustomText>
-                    )}
-                    <View style={{ alignItems: "center" }}>
-                      {activeTab === "Community" &&
-                        (() => {
-                          const parts = badge?.milestone?.split(" ") ?? [];
-                          const label = parts.slice(1).splice(0, 1).join(" ");
-
-                          return (
-                            <CustomText
-                              fontFamily="GabaritoMedium"
-                              fontSize={15}
-                              color={
-                                isUnlocked ? COLORS.darkText : COLORS.appText
-                              }
-                              style={{ textAlign: "center" }}
-                            >
-                              {label} Reached
-                            </CustomText>
-                          );
-                        })()}
-                    </View>
+                    <CustomText
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
+                      color={!isUnlocked ? COLORS.lightPurple : COLORS.darkText}
+                      style={{ textAlign: "center" }}
+                    >
+                      {badge?.title}
+                    </CustomText>
                   </View>
                 </TouchableOpacity>
               );
