@@ -4,7 +4,7 @@ import {
   PlatformPay,
   useStripe,
 } from "@stripe/stripe-react-native";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Animated,
@@ -83,11 +83,28 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [toggleWidth, setToggleWidth] = useState(0);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
   const [showImpactLoader, setShowImpactLoader] = useState(false);
-
-
   const visiblePlans = stripePlans.filter((p) => !p.metadata.calculationMethod);
-
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  const startPulse = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 600,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 600,
+          easing: Easing.in(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  };
 
 
     const hapticOptions = {
@@ -399,6 +416,9 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         dispatch(setStripePlans(activePlans));
         setSelectedPlan(activePlans[0]?.id);
         setSelectedPlanData(activePlans[0]);
+        setTimeout(() => {
+          startPulse();
+        }, 300);
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
@@ -656,13 +676,23 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           </View>
         )}
         {reservationSeconds && (
-          <Image
+          // <Image
+          //   source={IMAGES.JoinImage}
+          //   resizeMode="cover"
+          //   style={{
+          //     width: wp(70),
+          //     height: hp(18),
+          //     marginTop: verticalScale(16),
+          //   }}
+          // />
+          <Animated.Image
             source={IMAGES.JoinImage}
             resizeMode="cover"
             style={{
               width: wp(70),
               height: hp(18),
               marginTop: verticalScale(16),
+              transform: [{ scale: pulseAnim }],
             }}
           />
         )}

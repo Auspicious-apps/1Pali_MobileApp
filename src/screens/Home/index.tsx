@@ -168,7 +168,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               fontFamily="GabaritoRegular"
               fontSize={14}
               color={COLORS.greyText}
-              style={{ textAlign: "center" }}
+              style={{ textAlign: "center", textDecorationLine: "underline" }}
             >
               {" "}
               / 1,000,000 supporters
@@ -350,4 +350,5 @@ const styles = StyleSheet.create({
     // Android glow
     elevation: 12,
   },
+
 });

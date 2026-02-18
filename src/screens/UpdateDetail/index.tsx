@@ -717,47 +717,49 @@ const UpdateDetailSkeleton = () => (
 
           {/* {showCommentInput && (
             <> */}
-          <View
-            style={{
-              borderBottomWidth: 1,
-              borderColor: COLORS.greyish,
-            }}
-          />
-          <View style={styles.commentInputRow}>
-            <CustomIcon
-              Icon={ICONS.SimpleUserIcon}
-              height={verticalScale(40)}
-              width={horizontalScale(40)}
+          <View style={styles.bottomContainer}>
+            <LinearGradient
+              colors={["#F8F8FB20", COLORS.appBackground]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 0.8 }}
+              style={styles.gradientOverlay}
             />
-            <View style={styles.commentInputWrapper}>
-              <TextInput
-                ref={commentInputRef}
-                value={commentText}
-                onChangeText={setCommentText}
-                placeholder="Add a comment..."
-                placeholderTextColor={COLORS.appText}
-                multiline
-                textAlignVertical="top"
-                style={styles.commentInput}
+            <View style={styles.commentInputRow}>
+              <CustomIcon
+                Icon={ICONS.SimpleUserIcon}
+                height={verticalScale(40)}
+                width={horizontalScale(40)}
               />
+              <View style={styles.commentInputWrapper}>
+                <TextInput
+                  ref={commentInputRef}
+                  value={commentText}
+                  onChangeText={setCommentText}
+                  placeholder="Add a comment..."
+                  placeholderTextColor={COLORS.appText}
+                  multiline
+                  textAlignVertical="top"
+                  style={styles.commentInput}
+                />
 
-              {commentText.trim().length > 0 && (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleSendComment}
-                  disabled={sendingComment}
-                >
-                  {sendingComment ? (
-                    <ActivityIndicator size="small" color={COLORS.darkText} />
-                  ) : (
-                    <CustomIcon
-                      Icon={ICONS.DarkSendIcon}
-                      height={24}
-                      width={24}
-                    />
-                  )}
-                </TouchableOpacity>
-              )}
+                {commentText.trim().length > 0 && (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleSendComment}
+                    disabled={sendingComment}
+                  >
+                    {sendingComment ? (
+                      <ActivityIndicator size="small" color={COLORS.darkText} />
+                    ) : (
+                      <CustomIcon
+                        Icon={ICONS.DarkSendIcon}
+                        height={24}
+                        width={24}
+                      />
+                    )}
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           </View>
           {/* </>
@@ -926,5 +928,18 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(6),
     borderRadius: 30,
     backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  bottomContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: verticalScale(20),
+    paddingTop: verticalScale(20),
+    justifyContent: "flex-end",
+  },
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    height: verticalScale(40),
   },
 });

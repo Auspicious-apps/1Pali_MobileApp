@@ -61,12 +61,12 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
         return `${months} month${months === 1 ? "" : "s"}`;
       }
 
-      case "ART": {
+      case "IMPACT": {
         const shares = badge?.requirement?.totalShares ?? 0;
         return `${shares} share${shares === 1 ? "" : "s"}`;
       }
 
-      case "IMPACT": {
+      case "COMMUNITY": {
         const amount = badge?.requirement?.totalDonations ?? 0;
         return `$${amount} donated`;
       }

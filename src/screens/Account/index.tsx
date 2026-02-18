@@ -18,7 +18,6 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import ProgressBar from "../../components/ProgressBar";
 import {
-  selectArtBadges,
   selectCommunityBadges,
   selectGrowthBadges,
   selectImpactBadges,
@@ -36,7 +35,6 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
 
   const growthBadges = useAppSelector(selectGrowthBadges);
   const communityBadges = useAppSelector(selectCommunityBadges);
-  const artBadges = useAppSelector(selectArtBadges);
   const impactBadges = useAppSelector(selectImpactBadges);
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
 
@@ -261,7 +259,6 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   {[
                     latestGrowthBadge,
                     ...communityBadges,
-                    ...artBadges.slice(0, 1),
                     ...impactBadges.slice(0, 1),
                   ]?.map((badge, index) => (
                     <BadgeIcon
@@ -277,20 +274,20 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       }}
                     />
                   ))}
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => {
-                      navigation.navigate("badges");
-                    }}
-                  >
-                    <CustomIcon
-                      Icon={ICONS.RightArrow}
-                      height={24}
-                      width={24}
-                      style={{ marginLeft: 8 }}
-                    />
-                  </TouchableOpacity>
                 </View>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    navigation.navigate("badges");
+                  }}
+                >
+                  <CustomIcon
+                    Icon={ICONS.RightArrow}
+                    height={24}
+                    width={24}
+                    style={{ marginLeft: 8 }}
+                  />
+                </TouchableOpacity>
               </TouchableOpacity>
               <View
                 style={{
