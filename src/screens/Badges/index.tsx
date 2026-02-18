@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -27,7 +27,7 @@ import { BadgesScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
-type TabType = "Growth" | "Impact" | "Community";
+type TabType = "Growth" | "Community" | "Impact";
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
@@ -36,43 +36,33 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
   const { badges } = useAppSelector((state) => state.badges);
+  const flatListRef = useRef<FlatList>(null);
+  const TABS: TabType[] = ["Growth", "Community", "Impact"];
+  const lastIndexRef = useRef(0);
+
+  const getBadgesByTab = (tab: TabType) =>
+    badges.filter((b) => b.category === TAB_CATEGORY_MAP[tab].toUpperCase());
 
   const latestIdentityBadge = badges.filter(
     (b) => b.category === "IDENTITY",
   )?.[0];
 
+  const handleScroll = (e: any) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / wp(100));
+
+    if (index !== lastIndexRef.current) {
+      lastIndexRef.current = index;
+      const tab = TABS[index];
+      if (tab) setActiveTab(tab);
+    }
+  };
+
   const [loading, setLoading] = useState(false);
 
   const TAB_CATEGORY_MAP = {
     Growth: "GROWTH",
-    Impact: "IMPACT",
     Community: "COMMUNITY",
-  };
-
-  const filteredBadges = badges.filter(
-    (b) => b.category === TAB_CATEGORY_MAP[activeTab].toUpperCase(),
-  );
-
-  const getBadgeSubtitle = (badge: Badge) => {
-    switch (badge.category) {
-      case "GROWTH": {
-        const months = badge?.requirement?.consecutiveMonths ?? 0;
-        return `${months} month${months === 1 ? "" : "s"}`;
-      }
-
-      case "IMPACT": {
-        const shares = badge?.requirement?.totalShares ?? 0;
-        return `${shares} share${shares === 1 ? "" : "s"}`;
-      }
-
-      case "COMMUNITY": {
-        const amount = badge?.requirement?.totalDonations ?? 0;
-        return `$${amount} donated`;
-      }
-
-      default:
-        return "";
-    }
+    Impact: "IMPACT",
   };
 
   const fetchAllBadges = async () => {
@@ -191,13 +181,20 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           </View>
 
           <View style={styles.tabContainer}>
-            {["Growth", "Impact", "Community"].map((tab) => {
+            {["Growth", "Community", "Impact"].map((tab) => {
               const isActive = activeTab === tab;
 
               return (
                 <TouchableOpacity
                   key={tab}
-                  onPress={() => setActiveTab(tab as any)}
+                  // onPress={() => setActiveTab(tab as any)}
+                  onPress={() => {
+                    const index = TABS.indexOf(tab as TabType);
+                    flatListRef.current?.scrollToIndex({
+                      index,
+                      animated: true,
+                    });
+                  }}
                   activeOpacity={0.8}
                   style={styles.tabButton}
                 >
@@ -215,66 +212,95 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             })}
           </View>
           <FlatList
-            data={filteredBadges}
-            keyExtractor={(item) => item?.id}
-            numColumns={3}
-            scrollEnabled={false}
-            contentContainerStyle={{
-              marginTop: verticalScale(24),
-              paddingBottom: verticalScale(16),
-              width: wp(90),
-            }}
-            columnWrapperStyle={{
-              justifyContent: "flex-start",
-              marginBottom: verticalScale(16),
-              paddingHorizontal: horizontalScale(8),
-            }}
-            renderItem={({ item: badge }) => {
-              const isUnlocked = badge?.isUnlocked;
+            ref={flatListRef}
+            bounces={false}
+            data={TABS}
+            horizontal
+            pagingEnabled
+            decelerationRate="fast"
+            snapToInterval={wp(100)}
+            snapToAlignment="center"
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item}
+            onScroll={handleScroll}
+            renderItem={({ item: tab }) => {
+              const tabBadges = getBadgesByTab(tab);
+              const rowCount = Math.ceil(tabBadges.length / 3);
 
               return (
-                <TouchableOpacity
-                  style={{
-                    width: wp(28),
-                    alignItems: "center",
-                    gap: verticalScale(8),
-                  }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setSelectedBadge(badge);
-                    setIsBadgeModalVisible(true);
-                  }}
-                >
-                  <View
-                    style={{
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 100,
-                      overflow: "hidden",
-                      position: "relative",
+                <View style={{ width: wp(100), alignItems: "center" }}>
+                  <FlatList
+                    bounces={false}
+                    data={tabBadges}
+                    keyExtractor={(item) => item?.id}
+                    numColumns={3}
+                    scrollEnabled={false}
+                    contentContainerStyle={{
+                      paddingTop: verticalScale(24),
+                      paddingBottom: verticalScale(40),
+                      width: wp(90),
                     }}
-                  >
-                    <BadgeIcon
-                      badge={badge?.name}
-                      style={{
-                        width: horizontalScale(94),
-                        height: verticalScale(94),
-                        resizeMode: "contain",
-                      }}
-                      locked={!isUnlocked}
-                    />
-                  </View>
-                  <View style={{ alignItems: "center" }}>
-                    <CustomText
-                      fontFamily="GabaritoRegular"
-                      fontSize={15}
-                      color={!isUnlocked ? COLORS.lightPurple : COLORS.darkText}
-                      style={{ textAlign: "center" }}
-                    >
-                      {badge?.title}
-                    </CustomText>
-                  </View>
-                </TouchableOpacity>
+                    columnWrapperStyle={{
+                      justifyContent: "flex-start",
+                      marginBottom: verticalScale(20),
+                      gap: horizontalScale(20),
+                    }}
+                    renderItem={({ item: badge }) => {
+                      const isUnlocked = badge?.isUnlocked;
+
+                      return (
+                        <TouchableOpacity
+                          style={{
+                            width: wp(26),
+                            alignItems: "center",
+                            gap: verticalScale(8),
+                          }}
+                          activeOpacity={0.8}
+                          onPress={() => {
+                            if (!isUnlocked) return;
+                            setSelectedBadge(badge);
+                            setIsBadgeModalVisible(true);
+                          }}
+                        >
+                          <View
+                            style={{
+                              alignItems: "center",
+                              justifyContent: "center",
+                              borderRadius: 100,
+                              overflow: "hidden",
+                              position: "relative",
+                            }}
+                          >
+                            <BadgeIcon
+                              badge={badge?.name}
+                              locked={!isUnlocked}
+                              style={{
+                                width: horizontalScale(94),
+                                height: verticalScale(94),
+                                resizeMode: "contain",
+                              }}
+                            />
+                          </View>
+
+                          <View style={{ alignItems: "center" }}>
+                            <CustomText
+                              fontFamily="GabaritoRegular"
+                              fontSize={15}
+                              color={
+                                !isUnlocked
+                                  ? COLORS.lightPurple
+                                  : COLORS.darkText
+                              }
+                              style={{ textAlign: "center" }}
+                            >
+                              {badge?.title}
+                            </CustomText>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </View>
               );
             }}
           />
@@ -303,7 +329,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     alignItems: "center",
-    paddingHorizontal: horizontalScale(20),
   },
   logo: {
     width: horizontalScale(80),
@@ -361,7 +386,7 @@ const styles = StyleSheet.create({
   },
   activeUnderline: {
     marginTop: verticalScale(8),
-    height: verticalScale(4),
+    height: verticalScale(2),
     width: horizontalScale(94),
     backgroundColor: COLORS.darkText,
     borderRadius: 10,

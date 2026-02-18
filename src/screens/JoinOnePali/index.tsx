@@ -6,6 +6,7 @@ import {
 } from "@stripe/stripe-react-native";
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Animated,
   Easing,
@@ -68,6 +69,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { stripePlans } = useAppSelector((state) => state.stripePlans);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,27 +87,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [showImpactLoader, setShowImpactLoader] = useState(false);
   const visiblePlans = stripePlans.filter((p) => !p.metadata.calculationMethod);
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  const startPulse = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.05,
-          duration: 600,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 600,
-          easing: Easing.in(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  };
-
 
     const hapticOptions = {
       enableVibrateFallback: true,
@@ -416,14 +397,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         dispatch(setStripePlans(activePlans));
         setSelectedPlan(activePlans[0]?.id);
         setSelectedPlanData(activePlans[0]);
-        setTimeout(() => {
-          startPulse();
-        }, 300);
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
     } finally {
       setLoadingPlans(false);
+      setIsInitialLoading(false);
     }
   };
 
@@ -480,6 +459,14 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
   if (showImpactLoader) {
     return <ImpactLoader />;
+  }
+
+  if (isInitialLoading) {
+    return (
+      <View style={styles.fullScreenLoader}>
+        <ActivityIndicator size="large" color={COLORS.darkText} />
+      </View>
+    );
   }
 
   return (
@@ -676,23 +663,13 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           </View>
         )}
         {reservationSeconds && (
-          // <Image
-          //   source={IMAGES.JoinImage}
-          //   resizeMode="cover"
-          //   style={{
-          //     width: wp(70),
-          //     height: hp(18),
-          //     marginTop: verticalScale(16),
-          //   }}
-          // />
-          <Animated.Image
+          <Image
             source={IMAGES.JoinImage}
             resizeMode="cover"
             style={{
               width: wp(70),
               height: hp(18),
               marginTop: verticalScale(16),
-              transform: [{ scale: pulseAnim }],
             }}
           />
         )}
@@ -873,5 +850,10 @@ const styles = StyleSheet.create({
     bottom: 4,
     backgroundColor: COLORS.darkGreen,
     borderRadius: 999,
+  },
+  fullScreenLoader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
