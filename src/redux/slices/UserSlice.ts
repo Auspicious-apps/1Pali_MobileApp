@@ -186,33 +186,79 @@ export const selectGrowthBadges = createSelector(
   [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => b.badge.category === "GROWTH") ?? [],
 );
-export const selectLatestGrowthBadges = createSelector(
-  [(state: RootState) => state.user.badges?.badges],
-  (badges) => {
-    if (!badges?.length) return null;
-
-    return badges.reduce((highest, current) => {
-      const currentMonths = current.badge?.requirement?.consecutiveMonths ?? 0;
-
-      const highestMonths = highest.badge?.requirement?.consecutiveMonths ?? 0;
-
-      return currentMonths > highestMonths ? current : highest;
-    }, badges[0]);
-  },
-);
 
 export const selectCommunityBadges = createSelector(
   [(state: RootState) => state.user.badges],
   (badges) =>
     badges?.badges.filter((b) => b.badge.category === "COMMUNITY") ?? [],
 );
+
 export const selectImpactBadges = createSelector(
   [(state: RootState) => state.user.badges],
   (badges) => badges?.badges.filter((b) => b.badge.category === "IMPACT") ?? [],
 );
-export const selectArtBadges = createSelector(
+
+export const selectIdentityBadges = createSelector(
   [(state: RootState) => state.user.badges],
-  (badges) => badges?.badges.filter((b) => b.badge.category === "ART") ?? [],
+  (badges) =>
+    badges?.badges.filter((b) => b.badge.category === "IDENTITY") ?? [],
+);
+
+export const selectLatestGrowthBadges = createSelector(
+  [(state: RootState) => state.user.badges?.badges],
+  (badges) => {
+    if (!badges?.length) return null;
+
+    return badges
+      .filter((b) => b.badge?.category === "GROWTH")
+      .reduce((highest, current) => {
+        const currentMonths =
+          current.badge?.requirement?.consecutiveMonths ?? 0;
+
+        const highestMonths =
+          highest.badge?.requirement?.consecutiveMonths ?? 0;
+
+        return currentMonths > highestMonths ? current : highest;
+      }, badges[0]);
+  },
+);
+
+export const selectLatestImpactBadges = createSelector(
+  [(state: RootState) => state.user.badges?.badges],
+  (badges) => {
+    if (!badges?.length) return null;
+
+    return badges
+      .filter((b) => b.badge?.category === "IMPACT")
+      .reduce((highest, current) => {
+        const currentMonths = current.badge?.requirement?.totalShares ?? 0;
+
+        const highestMonths = highest.badge?.requirement?.totalShares ?? 0;
+
+        return currentMonths > highestMonths ? current : highest;
+      }, badges[0]);
+  },
+);
+
+export const selectLatestCommunityBadges = createSelector(
+  [(state: RootState) => state.user.badges?.badges],
+  (badges) => {
+    if (!badges?.length) return null;
+
+    console.log(
+      badges.filter((b) => b.badge?.category === "COMMUNITY"),
+      "PPOPOPO",
+    );
+
+    return badges
+      .filter((b) => b.badge?.category === "COMMUNITY")
+      .reduce((highest, current) => {
+        const currentMonths = current.badge?.requirement?.threshhold ?? 0;
+        const highestMonths = highest.badge?.requirement?.threshhold ?? 0;
+
+        return currentMonths > highestMonths ? current : highest;
+      }, badges[0]);
+  },
 );
 
 export const getUnViewedBadges = createSelector(
