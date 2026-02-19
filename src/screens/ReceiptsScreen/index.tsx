@@ -28,6 +28,9 @@ import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { ReceiptsScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { API_BASE_URL } from "@env";
+import { getLocalStorageData } from "../../utils/Helpers";
+import STORAGE_KEYS from "../../utils/Constants";
 
 const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -103,6 +106,65 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
       if (Platform.OS === "android") {
         handleFallbackDownload(url, fileName);
       }
+    } finally {
+      dispatch(setDownloadingId(null));
+    }
+  };
+
+  const downloadReceiptWithToken = async (receiptId: string) => {
+    const { fs, config } = ReactNativeBlobUtil;
+    const fileName = `receipt-${receiptId}.pdf`;
+
+    const token = await getLocalStorageData(STORAGE_KEYS.accessToken);
+
+    const path = Platform.select({
+      ios: `${fs.dirs.DocumentDir}/${fileName}`,
+      android: `${fs.dirs.DownloadDir}/${fileName}`,
+    });
+
+    try {
+      dispatch(setDownloadingId(receiptId));
+
+      const res = await config({
+        fileCache: true,
+        path: path,
+        addAndroidDownloads: {
+          useDownloadManager: true,
+          notification: true,
+          title: fileName,
+          mime: "application/pdf",
+          description: "Downloading Receipt",
+          storeInDownloads: true,
+        },
+      }).fetch(
+        "GET",
+        `https://hydrometric-untimeous-ayaan.ngrok-free.dev/api/v1/receipts/download/${receiptId}/`,
+        {
+          Authorization: `Bearer ${token}`,
+          // Remove Content-Type for GET requests
+        },
+      );
+
+      // Log response status
+      console.log("Download response status:", res.info().status);
+      console.log("Downloaded file path:", res.path());
+
+      if (Platform.OS === "ios") {
+        ReactNativeBlobUtil.ios.previewDocument(res.path());
+      } else {
+        Toast.show({
+          type: "success",
+          text1: "Download Successful",
+          text2: "Receipt saved to Downloads folder",
+        });
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Download Failed",
+        text2: "Could not authenticate or reach server",
+      });
     } finally {
       dispatch(setDownloadingId(null));
     }
@@ -213,71 +275,77 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
                   data={receipts}
                   bounces={false}
                   showsVerticalScrollIndicator={false}
-                  keyExtractor={(item) => item?.receiptId}
+                  keyExtractor={(item) => item?.id}
                   contentContainerStyle={styles.listContent}
-                  renderItem={({ item, index }) => (
-                    <View
-                      style={[
-                        styles.receiptRow,
-                        index === receipts.length - 1 && styles.lastReceiptRow,
-                      ]}
-                    >
-                      <View style={styles.receiptRowLeft}>
-                        <CustomIcon
-                          Icon={ICONS.currncyDoller}
-                          height={67}
-                          width={67}
-                        />
-                        <View style={styles.receiptTextContainer}>
-                          <View>
+                  renderItem={({ item, index }) => {
+                    console.log(item);
+                    
+                    return (
+                      <View
+                        style={[
+                          styles.receiptRow,
+                          index === receipts.length - 1 &&
+                            styles.lastReceiptRow,
+                        ]}
+                      >
+                        <View style={styles.receiptRowLeft}>
+                          <CustomIcon
+                            Icon={ICONS.currncyDoller}
+                            height={67}
+                            width={67}
+                          />
+                          <View style={styles.receiptTextContainer}>
+                            <View>
+                              <CustomText
+                                fontFamily="GabaritoRegular"
+                                fontSize={18}
+                                color={COLORS.darkText}
+                              >
+                                {formatReceiptMonth(item.date)}
+                              </CustomText>
+                              <CustomText
+                                fontFamily="GabaritoRegular"
+                                fontSize={16}
+                                color={COLORS.appText}
+                              >
+                                {formatAmount(item.price)}
+                              </CustomText>
+                            </View>
                             <CustomText
-                              fontFamily="GabaritoRegular"
-                              fontSize={18}
-                              color={COLORS.darkText}
-                            >
-                              {formatReceiptMonth(item.date)}
-                            </CustomText>
-                            <CustomText
-                              fontFamily="GabaritoRegular"
-                              fontSize={16}
+                              fontFamily="SourceSansRegular"
+                              fontSize={14}
                               color={COLORS.appText}
                             >
-                              {formatAmount(item.price)}
+                              {/* Receipt ID:  */}
+                              {item.receiptId}
                             </CustomText>
                           </View>
-                          <CustomText
-                            fontFamily="SourceSansRegular"
-                            fontSize={14}
-                            color={COLORS.appText}
-                          >
-                            {/* Receipt ID:  */}
-                            {item.receiptId}
-                          </CustomText>
                         </View>
-                      </View>
 
-                      <TouchableOpacity
-                        activeOpacity={0.7}
-                        onPress={() =>
-                          handleDownloadPDF(item.receiptUrl, item.receiptId)
-                        }
-                        disabled={isDownloading(item.receiptId)}
-                      >
-                        {isDownloading(item.receiptId) ? (
-                          <ActivityIndicator
-                            size="small"
-                            color={COLORS.darkText}
-                          />
-                        ) : (
-                          <CustomIcon
-                            Icon={ICONS.DownloadIcon}
-                            height={40}
-                            width={40}
-                          />
-                        )}
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                        <TouchableOpacity
+                          activeOpacity={0.7}
+                          onPress={() =>
+                            // handleDownloadPDF(item.receiptUrl, item.receiptId)
+                            downloadReceiptWithToken(item.id)
+                          }
+                          disabled={isDownloading(item.id)}
+                        >
+                          {isDownloading(item.id) ? (
+                            <ActivityIndicator
+                              size="small"
+                              color={COLORS.darkText}
+                            />
+                          ) : (
+                            <CustomIcon
+                              Icon={ICONS.DownloadIcon}
+                              height={40}
+                              width={40}
+                            />
+                          )}
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  }}
                 />
               )}
             </View>

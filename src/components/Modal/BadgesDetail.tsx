@@ -3,21 +3,19 @@ import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import {
   Animated,
   Easing,
-  Image,
   Modal,
   Platform,
-  Pressable,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+import { Grayscale } from "react-native-color-matrix-image-filters";
 import ICONS from "../../assets/Icons";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale } from "../../utils/Metrics";
 import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
-import { Grayscale } from "react-native-color-matrix-image-filters";
 
 interface BadgesDetailModalProps {
   isVisible: boolean;

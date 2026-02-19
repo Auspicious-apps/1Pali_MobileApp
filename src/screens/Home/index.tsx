@@ -65,7 +65,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
     loop();
   }, []);
-  
+
   const navigateToBadge = () => {
     navigation.navigate("MainStack", {
       screen: "badges",
@@ -152,34 +152,12 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           <View
             style={{
               marginTop: verticalScale(16),
-              marginBottom: verticalScale(12),
             }}
           >
             <ProgressBar />
           </View>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={14}
-            color={COLORS.darkText}
-            style={{ textAlign: "center" }}
-          >
-            {user?.globalStats?.totalDonors}
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={14}
-              color={COLORS.greyText}
-              style={{ textAlign: "center", textDecorationLine: "underline" }}
-            >
-              {" "}
-              / 1,000,000 supporters
-            </CustomText>
-          </CustomText>
         </View>
-        <ImageBackground
-          source={IMAGES.HomeTextBackgorund}
-          resizeMode="contain"
-          style={styles.TextBackground}
-        >
+        <View style={styles.TextBackground}>
           <View style={styles.dotContainer}>
             {/* Scattered glow */}
             <Animated.View
@@ -208,11 +186,11 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             fontSize={16}
             color={COLORS.DarkGreenText}
           >
-            ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} donated
-            together
+            ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} total
+            raised for Palestine
           </CustomText>
           <View />
-        </ImageBackground>
+        </View>
 
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
@@ -281,7 +259,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: wp(3.2),
-    marginTop: hp(4.8),
+    marginTop: hp(3),
   },
   dividerLine: {
     borderBottomWidth: 1,
@@ -310,13 +288,16 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   TextBackground: {
-    height: verticalScale(51),
     width: wp(90),
-    marginTop: verticalScale(32),
+    marginTop: verticalScale(20),
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     flexDirection: "row",
     paddingHorizontal: horizontalScale(20),
+    paddingVertical: verticalScale(16),
+    backgroundColor: "#F0FFF0",
+    gap: horizontalScale(20),
+    borderRadius: 24,
   },
   dotcontainer: {
     justifyContent: "center",
@@ -350,5 +331,4 @@ const styles = StyleSheet.create({
     // Android glow
     elevation: 12,
   },
-
 });

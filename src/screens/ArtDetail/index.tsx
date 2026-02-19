@@ -13,19 +13,27 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import Modal from "react-native-modal";
 import ReactNativeBlobUtil from "react-native-blob-util";
 import FastImage from "react-native-fast-image";
-import { SafeAreaView } from "react-native-safe-area-context";
+import RNFS from "react-native-fs";
+import ImageViewer from "react-native-image-zoom-viewer";
+import LinearGradient from "react-native-linear-gradient";
+import Modal from "react-native-modal";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import ShareLib from "react-native-share";
 import Toast from "react-native-toast-message";
 import Video from "react-native-video";
+import ViewShot, { captureRef } from "react-native-view-shot";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
-import ShareArtModal, { ShareType } from "../../components/Modal/ShareArtModal";
+import { ShareType } from "../../components/Modal/ShareArtModal";
 import PrimaryButton from "../../components/PrimaryButton";
 import Pulse from "../../components/PulseLoading";
 import { addNewArtBadge } from "../../redux/slices/UserSlice";
@@ -43,13 +51,9 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import ImageViewer from "react-native-image-zoom-viewer";
-import ViewShot, { captureRef } from "react-native-view-shot";
-import RNFS from "react-native-fs";
-import ShareLib, { Social } from "react-native-share";
-import LinearGradient from "react-native-linear-gradient";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
   const [isLiked, setIsLiked] = useState(false);
   const lastTap = useRef<number>(0);
@@ -81,16 +85,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const scale = useRef(new Animated.Value(1)).current;
   const lastScale = useRef(1);
   const openAnim = useRef(new Animated.Value(0)).current;
-    const [capturingCard, setCapturingCard] = useState(false);
-    const { user } = useAppSelector((state) => state.user);
-    const cardRef = useRef(null);
-  
-
-  const MediaPulse = () => (
-    <View style={styles.mediaShimmerContainer}>
-      <Pulse style={styles.mediaShimmer} />
-    </View>
-  );
+  const [capturingCard, setCapturingCard] = useState(false);
+  const { user } = useAppSelector((state) => state.user);
+  const cardRef = useRef(null);
 
   const ArtDetailPulse = () => (
     <SafeAreaView style={styles.container}>
@@ -137,26 +134,35 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         quality: 0.9,
       });
 
-      let shareFilePath = uri;
+      // 1. Define your custom file name
+      const customFileName = artDetail?.title || "Art";
+      const fileNameWithExt = `${customFileName}.png`;
 
-      if (Platform.OS === "android") {
-        const fileName = `onepali-card-${Date.now()}.png`;
-        const newPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-        await RNFS.copyFile(uri, newPath);
-        shareFilePath = `file://${newPath}`;
-      } else {
-        shareFilePath = `file://${uri}`;
+      // 2. Prepare the new path in the Cache directory
+      // This works for both iOS and Android to ensure the file system sees the name
+      const newPath = `${RNFS.CachesDirectoryPath}/${fileNameWithExt}`;
+
+      // 3. Move/Copy the captured image to the new path with the custom name
+      if (await RNFS.exists(newPath)) {
+        await RNFS.unlink(newPath); // Clean up if it exists
       }
+      await RNFS.copyFile(uri, newPath);
+
+      const shareFilePath =
+        Platform.OS === "android" ? `file://${newPath}` : newPath;
 
       setCapturingCard(false);
 
       await ShareLib.open({
         url: shareFilePath,
+        // For iOS: This sets the display name in the share sheet
+        filename: customFileName,
+        // For Android: This helps some apps identify the title
+        title: customFileName,
         type: "image/png",
         message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
       });
 
-      // ✅ CALL API AFTER SHARE
       await shareToApp("APP_SHARE_SHEET");
     } catch (error: any) {
       if (error?.message?.includes("User did not share")) {
@@ -168,8 +174,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       setCapturingCard(false);
     }
   };
-
-
   const shareToApp = async (platform: ShareType) => {
     try {
       setSharing(true);
@@ -531,17 +535,35 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            paddingBottom: Platform.select({
+              android: insets.bottom,
+              ios: verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["top"]}
+      >
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "height" : "height"}
           keyboardVerticalOffset={
             isKeyboardVisible
               ? 0
               : Platform.select({ android: verticalScale(-30), ios: 0 })
           }
         >
-          <View style={styles.header}>
+          <View
+            style={[
+              styles.header,
+              {
+                paddingTop: Platform.OS === "android" ? verticalScale(10) : 0,
+              },
+            ]}
+          >
             <View style={styles.side}>
               <TouchableOpacity activeOpacity={0.8}>
                 <CustomIcon
@@ -843,10 +865,20 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             <> */}
           <View style={styles.bottomContainer}>
             <LinearGradient
-              colors={["#F8F8FB20", COLORS.appBackground]}
+              colors={[
+                "rgba(248,248,251,0)",
+                "rgba(248,248,251,0.3)",
+                "rgba(248,248,251,0.9)",
+              ]}
+              locations={[0, 0.35, 1]}
               start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 0.8 }}
-              style={styles.gradientOverlay}
+              end={{ x: 0, y: 1 }}
+              style={[
+                styles.gradientOverlay,
+                {
+                  top: isKeyboardVisible ? 0 : -verticalScale(40),
+                },
+              ]}
             />
 
             <View style={styles.commentInputRow}>
@@ -955,29 +987,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       {uiIndex === 1 && (
         <View style={styles.fullscreenContainer}>
-          {/* <SafeAreaView style={{ flex: 1 }} edges={["top"]}> */}
-          {/* ===== HEADER ===== */}
-
-          {/* <View style={styles.fsHeader}>
-              <View style={{ width: horizontalScale(20) }} />
-
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={16}
-                color={COLORS.darkText}
-              >
-                {artDetail?.createdAt
-                  ?.slice(0, 10)
-                  ?.split("-")
-                  ?.reverse()
-                  ?.join(".")}
-              </CustomText>
-
-              <TouchableOpacity onPress={() => setUiIndex(0)}>
-                <CustomIcon Icon={ICONS.close} width={24} height={24} />
-              </TouchableOpacity>
-            </View> */}
-
           <TouchableOpacity
             onPress={() => setUiIndex(0)}
             style={{
@@ -992,68 +1001,39 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           </TouchableOpacity>
 
           {/* ===== IMAGE WRAPPER ===== */}
+          {artDetail?.mediaType === "VIDEO" ? (
+            <Video
+              source={{ uri: artDetail?.mediaUrl }}
+              resizeMode="contain"
+              controls
+              repeat
+              style={{ width: "100%", height: "100%" }}
+            />
+          ) : (
+            <ImageViewer
+              imageUrls={[{ url: artDetail?.mediaUrl || "" }]}
+              backgroundColor={COLORS.white}
+              enableSwipeDown={true}
+              onSwipeDown={() => setIsMediaFullscreen(false)}
+              renderIndicator={() => <></>}
+              saveToLocalByLongPress={false}
+            />
+          )}
 
-          <View style={styles.fsImageWrapper}>
-            {artDetail?.mediaType === "VIDEO" ? (
-              <Video
-                source={{ uri: artDetail.mediaUrl }}
-                resizeMode="cover"
-                repeat
-                controls
-                style={styles.fsImage}
-              />
-            ) : (
-              <FastImage
-                source={{ uri: artDetail?.mediaUrl }}
-                style={styles.fsImage}
-              />
-            )}
-
-            {/* ===== FLOATING BUTTONS ===== */}
-            <View style={styles.fsFloatingActions}>
-              {/* <TouchableOpacity
-                style={{}}
-                activeOpacity={0.8}
-                onPress={() =>
-                  handleDownloadImage(artDetail?.mediaUrl || "", ArtId)
-                }
-              >
-                {isDownloadingArt ? (
-                  <View
-                    style={{
-                      width: horizontalScale(66),
-                      height: verticalScale(56),
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: COLORS.darkText,
-                      borderRadius: 15,
-                    }}
-                  >
-                    <ActivityIndicator color={COLORS.white} />
-                  </View>
-                ) : (
-                  <CustomIcon
-                    Icon={ICONS.download}
-                    width={horizontalScale(66)}
-                    height={verticalScale(56)}
-                  />
-                )}
-              </TouchableOpacity> */}
-              <PrimaryButton
-                title={"Share"}
-                leftIcon={{
-                  Icon: ICONS.ShareArt,
-                  height: 20,
-                  width: 20,
-                }}
-                onPress={() => {
-                  setOpenModal(true);
-                }}
-                style={styles.saveButton}
-              />
-            </View>
-          </View>
-          {/* </SafeAreaView> */}
+          <PrimaryButton
+            title={"Share"}
+            leftIcon={{
+              Icon: ICONS.ShareArt,
+              height: 20,
+              width: 20,
+            }}
+            onPress={handleShareToMore}
+            style={{
+              position: "absolute",
+              bottom: verticalScale(30),
+              alignSelf: "center",
+            }}
+          />
         </View>
       )}
 
@@ -1070,7 +1050,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         swipeDirection="down"
         onSwipeComplete={() => setIsMediaFullscreen(false)}
       >
-        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: COLORS.white,
+            paddingTop: insets.top,
+            position: "relative",
+          }}
+        >
           {artDetail?.mediaType === "VIDEO" ? (
             <Video
               source={{ uri: artDetail?.mediaUrl }}
@@ -1094,7 +1081,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             onPress={() => setIsMediaFullscreen(false)}
             style={{
               position: "absolute",
-              top: 20,
+              top: insets.top,
               left: 20,
               zIndex: 10,
             }}
@@ -1103,14 +1090,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
       </Modal>
-
-      {/* <ShareArtModal
-        visible={OpenModal}
-        onClose={() => setOpenModal(false)}
-        onShare={shareToApp}
-        mediaUrl={artDetail?.mediaUrl}
-        mediaType={artDetail?.mediaType}
-      /> */}
     </View>
   );
 };
@@ -1124,7 +1103,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingBottom: verticalScale(5),
   },
 
   side: {
@@ -1271,12 +1249,35 @@ const styles = StyleSheet.create({
 
   fsImageWrapper: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  fsBlurBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  fsBlurImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+
+  fsCenteredImageContainer: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   fsImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
   },
 
   fsFloatingActions: {
@@ -1330,9 +1331,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: verticalScale(20),
-    paddingTop: verticalScale(20),
     justifyContent: "flex-end",
+    backgroundColor: "white",
   },
 
   gradientOverlay: {

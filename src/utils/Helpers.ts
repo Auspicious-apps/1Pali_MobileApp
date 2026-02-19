@@ -153,9 +153,32 @@ export const showInAppNotification = (
   Toast.show({
     type: "inAppNotification",
     text1: title,
+    text1Style: {
+      color: "black",
+    },
     text2: body,
+    text2Style: {
+      color: "black",
+    },
     topOffset: 60,
     visibilityTime: 6000,
     props: { icon }, // Passing custom icon to the config
   });
+};
+
+export const formatMembershipDuration = (months: number): string => {
+  if (!months || months <= 0) return "0 mo";
+
+  const years = Math.floor(months / 12);
+  const remainingMonths = months % 12;
+
+  if (years === 0) {
+    return `${months} mo`;
+  }
+
+  if (remainingMonths === 0) {
+    return `${years} yr`;
+  }
+
+  return `${years} yr ${remainingMonths} mo`;
 };

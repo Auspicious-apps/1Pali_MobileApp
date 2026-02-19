@@ -1,64 +1,155 @@
-import { StyleSheet, View, Dimensions } from "react-native";
 import React from "react";
-import { horizontalScale, verticalScale } from "../utils/Metrics";
-import COLORS from "../utils/Colors";
+import { Animated, Easing, Pressable, StyleSheet, View } from "react-native";
 import { useAppSelector } from "../redux/store";
+import COLORS from "../utils/Colors";
+import { horizontalScale, verticalScale } from "../utils/Metrics";
+import BadgeIcon from "./BadgeIcon";
+import CircularOverlay from "./CircularOverlay";
+import { CustomText } from "./CustomText";
 
-const TOTAL_GOAL = 1000000;
-const MAX_STRIPES = 10;
 const STRIPE_WIDTH = horizontalScale(14.8);
 const STRIPE_GAP = horizontalScale(12);
 const CONTAINER_PADDING = horizontalScale(18);
 
 const ProgressBar = () => {
   const { user } = useAppSelector((state) => state.user);
+  const [showFinalGoal, setShowFinalGoal] = React.useState(true);
+  const nextMilestone = user?.nextCommunityMilestone;
+  const [trackWidth, setTrackWidth] = React.useState(0);
 
-  // 1. Get the current count and CAP it at 1,000,000
-  // This ensures even if totalDonors is 1,500,000, we treat it as 1,000,000
-  const currentCount = Math.min(
-    user?.globalStats?.totalDonors || 0,
-    TOTAL_GOAL,
+  const animatedProgress = React.useRef(new Animated.Value(0)).current;
+
+  const milestoneTarget = showFinalGoal
+    ? 1000000
+    : nextMilestone?.threshold || 1000000;
+
+  const milestoneLabel = showFinalGoal
+    ? "1M supporters"
+    : `${nextMilestone?.threshold?.toLocaleString()} supporters`;
+
+  const badgeName = showFinalGoal
+    ? "Key"
+    : nextMilestone?.name || "Next Milestone Badge";
+
+  const currentValue = user?.globalStats?.totalDonors || 0;
+
+  const progressPercentage = Math.min(currentValue / milestoneTarget, 1);
+  const progressPercentValue = Math.min(
+    (currentValue / milestoneTarget) * 100,
+    100,
   );
 
-  // 2. Calculate stripes
-  const usersPerStripe = TOTAL_GOAL / MAX_STRIPES;
+  const MIN_STROKE_THRESHOLD = 0.08; // 8% feels good visually
+  const showStroke = progressPercentage > MIN_STROKE_THRESHOLD;
 
-  // Using Math.floor ensures we only show a stripe when the threshold is fully met
-  // We clamp the activeStripes between 0 and 10 as a safety measure
-  const activeStripes = Math.min(
-    Math.floor(currentCount / usersPerStripe),
-    MAX_STRIPES,
-  );
-
-  // 3. Calculate exact pixel width
-  const calculateWidth = () => {
-    if (activeStripes === 0) return 0;
-    const stripesSpace = activeStripes * STRIPE_WIDTH;
-    const gapsSpace = (activeStripes - 1) * STRIPE_GAP;
-    // We add CONTAINER_PADDING * 2 because the stripes are padded on both sides
-    return CONTAINER_PADDING * 2 + stripesSpace + gapsSpace;
-  };
-
-  const progressWidth = calculateWidth();
+  React.useEffect(() => {
+    Animated.timing(animatedProgress, {
+      toValue: progressPercentage,
+      duration: 600,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false, // width animation can't use native driver
+    }).start();
+  }, [progressPercentage]);
 
   return (
-    <View style={styles.progressOuter}>
-      <View style={styles.progressInsetShadow} pointerEvents="none" />
+    <View style={{ gap: verticalScale(12) }}>
+      <View style={styles.progressOuter}>
+        <View style={styles.progressInsetShadow} pointerEvents="none" />
 
-      <View style={styles.progressTrack}>
-        {/* State: Less than 1 stripe achieved */}
-        {activeStripes === 0 ? (
-          <View style={styles.initialCircle} />
-        ) : (
-          /* State: 1 or more stripes achieved */
-          <View style={[styles.progressFill, { width: progressWidth }]}>
-            <View style={styles.stripeContainer}>
-              {Array.from({ length: activeStripes }).map((_, index) => (
-                <View key={index} style={styles.progressHighlight} />
-              ))}
-            </View>
+        <View
+          style={styles.progressTrack}
+          onLayout={(e) => {
+            setTrackWidth(e.nativeEvent.layout.width);
+          }}
+        >
+          <Animated.View
+            style={[
+              styles.progressFill,
+              {
+                width: animatedProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [verticalScale(22), trackWidth],
+                }),
+              },
+            ]}
+          >
+            {showStroke && (
+              <Animated.View style={[styles.progressFillStroke]} />
+            )}
+          </Animated.View>
+
+          <View
+            style={{
+              position: "absolute",
+              right: -10,
+              shadowColor: "#000000",
+              shadowOffset: {
+                width: 0,
+                height: 0,
+              },
+              shadowOpacity: 0.22,
+              shadowRadius: 1.54,
+
+              // Android
+              elevation: 2,
+            }}
+          >
+            <BadgeIcon
+              badge={badgeName}
+              style={{
+                height: verticalScale(48),
+                width: verticalScale(48),
+                resizeMode: "cover",
+              }}
+            />
+
+            <CircularOverlay
+              percentage={progressPercentValue}
+              borderWidth={0}
+              size={verticalScale(48)}
+            />
           </View>
-        )}
+        </View>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: horizontalScale(6),
+        }}
+      >
+        <CustomText
+          fontFamily="GabaritoRegular"
+          fontSize={15}
+          color={COLORS.darkText}
+          style={{ textAlign: "center" }}
+        >
+          {currentValue.toLocaleString()}
+        </CustomText>
+        <CustomText
+          fontFamily="GabaritoRegular"
+          fontSize={15}
+          color={COLORS.appText}
+        >
+          of
+        </CustomText>
+        <Pressable onPress={() => setShowFinalGoal((prev) => !prev)}>
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={15}
+            color={COLORS.greyText}
+            style={{
+              textAlign: "center",
+              paddingHorizontal: horizontalScale(10),
+              paddingVertical: verticalScale(4),
+              backgroundColor: COLORS.greyBackground,
+              borderRadius: 10,
+            }}
+          >
+            {milestoneLabel}
+          </CustomText>
+        </Pressable>
       </View>
     </View>
   );
@@ -95,7 +186,15 @@ const styles = StyleSheet.create({
     height: verticalScale(22),
     backgroundColor: COLORS.DarkGreen,
     borderRadius: 50,
+    paddingTop: verticalScale(4),
+  },
+  progressFillStroke: {
+    height: verticalScale(5),
+    backgroundColor: "#ffffff64",
+    borderRadius: 50,
     justifyContent: "center",
+    alignSelf: "center",
+    width: "90%",
   },
   stripeContainer: {
     flexDirection: "row",

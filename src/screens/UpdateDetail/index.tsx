@@ -21,13 +21,13 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import ShareLib from "react-native-share";
-import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
+import Pulse from "../../components/PulseLoading";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { AddCommentToBlogResponse } from "../../service/ApiResponses/AddCommentToBlog";
 import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
@@ -40,7 +40,6 @@ import { fetchData, postData } from "../../service/ApiService";
 import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import Pulse from "../../components/PulseLoading";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -74,27 +73,29 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   const [inputHeight, setInputHeight] = useState(MIN_HEIGHT);
 
-const UpdateDetailSkeleton = () => (
-  <SafeAreaView style={styles.container}>
-    <View style={{ padding: horizontalScale(20), gap: 16 }}>
-      <Pulse
-        style={{
-          width: "100%",
-          height: hp(42.9),
-          borderRadius: 12,
-        }}
-      />
+  const UpdateDetailSkeleton = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={{ padding: horizontalScale(20), gap: 16 }}>
+        <Pulse
+          style={{
+            width: "100%",
+            height: hp(42.9),
+            borderRadius: 12,
+          }}
+        />
 
-      <Pulse style={{ width: "60%", height: 16, borderRadius: 6 }} />
-      <Pulse style={{ width: "80%", height: 28, borderRadius: 8 }} />
+        <Pulse style={{ width: "60%", height: 16, borderRadius: 6 }} />
+        <Pulse style={{ width: "80%", height: 28, borderRadius: 8 }} />
 
-      {[1, 2, 3].map((i) => (
-        <Pulse key={i} style={{ width: "100%", height: 14, borderRadius: 6 }} />
-      ))}
-    </View>
-  </SafeAreaView>
-);
-
+        {[1, 2, 3].map((i) => (
+          <Pulse
+            key={i}
+            style={{ width: "100%", height: 14, borderRadius: 6 }}
+          />
+        ))}
+      </View>
+    </SafeAreaView>
+  );
 
   const MediaSkeleton = () => (
     <View style={styles.mediaShimmerContainer}>
@@ -398,7 +399,18 @@ const UpdateDetailSkeleton = () => (
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            paddingBottom: Platform.select({
+              android: insets.bottom,
+              ios: verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["top"]}
+      >
         <TouchableOpacity
           activeOpacity={0.8}
           style={{
@@ -423,9 +435,11 @@ const UpdateDetailSkeleton = () => (
         </TouchableOpacity>
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "height" : "height"}
           keyboardVerticalOffset={
-            isKeyboardVisible ? 0 : Platform.select({ android: -80, ios: 0 })
+            isKeyboardVisible
+              ? 0
+              : Platform.select({ android: verticalScale(-30), ios: 0 })
           }
         >
           <FocusResetScrollView
@@ -481,9 +495,13 @@ const UpdateDetailSkeleton = () => (
 
                 {/* Bottom overlay stats  */}
                 <View style={styles.bottomOverlay}>
-                  <View style={styles.statPill}>
+                  <TouchableOpacity
+                    style={styles.statPill}
+                    onPress={handleLikeUnlike}
+                    activeOpacity={0.7}
+                  >
                     <CustomIcon
-                      Icon={ICONS.OnimageLike}
+                      Icon={isLiked ? ICONS.LikedIcon : ICONS.OnimageLike}
                       height={20}
                       width={20}
                     />
@@ -495,9 +513,13 @@ const UpdateDetailSkeleton = () => (
                     >
                       {blogDetail?.likesCount ?? 24}
                     </CustomText>
-                  </View>
+                  </TouchableOpacity>
 
-                  <View style={styles.statPill}>
+                  <TouchableOpacity
+                    style={styles.statPill}
+                    onPress={handleCommentIconPress}
+                    activeOpacity={0.7}
+                  >
                     <CustomIcon
                       Icon={ICONS.OnimageChat}
                       height={20}
@@ -511,7 +533,7 @@ const UpdateDetailSkeleton = () => (
                     >
                       {blogDetail?.commentsCount ?? 6}
                     </CustomText>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -719,10 +741,20 @@ const UpdateDetailSkeleton = () => (
             <> */}
           <View style={styles.bottomContainer}>
             <LinearGradient
-              colors={["#F8F8FB20", COLORS.appBackground]}
+              colors={[
+                "rgba(248,248,251,0)",
+                "rgba(248,248,251,0.3)",
+                "rgba(248,248,251,0.9)",
+              ]}
+              locations={[0, 0.35, 1]}
               start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 0.8 }}
-              style={styles.gradientOverlay}
+              end={{ x: 0, y: 1 }}
+              style={[
+                styles.gradientOverlay,
+                {
+                  top: isKeyboardVisible ? 0 : -verticalScale(40),
+                },
+              ]}
             />
             <View style={styles.commentInputRow}>
               <CustomIcon
@@ -934,9 +966,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: verticalScale(20),
-    paddingTop: verticalScale(20),
     justifyContent: "flex-end",
+    backgroundColor: "white",
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,

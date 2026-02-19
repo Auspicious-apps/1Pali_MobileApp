@@ -2,26 +2,27 @@
 export type GetUserProfileApiResponse = {
   id: string;
   email: string;
-  name: string;
-  profilePicture: string;
+  name: any;
+  profilePicture: any;
   provider: string;
   assignedNumber: number;
-  consecutivePaidMonths: string;
   joinedPosition: number;
   createdAt: string;
   totalDonations: number;
-  defaultPaymentMethodId: string;
   hasPaymentMethod: boolean;
   hasSubscription: boolean;
   subscriptionStatus: string;
-  subscribedAt: string;
   stripeCustomerId: string;
   stripePriceId: string;
+  consecutivePaidMonths: number;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string;
+  defaultPaymentMethodId: string;
+  subscribedAt: string;
   globalStats: GlobalStats;
-  nextGrowthBadge: NextGrowthBadge;
   badges: Badges;
+  nextGrowthBadge: NextGrowthBadge;
+  nextCommunityMilestone: NextCommunityMilestone;
   fcmToken: string;
 };
 
@@ -43,9 +44,10 @@ export interface Badge {
   userId: string;
   badge: Badge2;
   isViewed: boolean;
-  viewedAt: any;
+  viewedAt: string;
   awardedAt: string;
   metadata: Metadata;
+  visibility: Visibility;
 }
 
 export interface Badge2 {
@@ -75,10 +77,14 @@ export interface Requirement {
 }
 
 export interface Metadata {
-  totalDonations?: number;
-  achievedAt: string;
-  userNumber?: number;
   consecutiveMonths?: number;
+  achievedAt?: string;
+  joinedPosition?: number;
+  awardedAt?: string;
+}
+
+export interface Visibility {
+  isVisible: boolean;
 }
 
 export interface NextGrowthBadge {
@@ -96,4 +102,25 @@ export interface NextGrowthBadge {
 
 export interface Requirement2 {
   consecutiveMonths: number;
+}
+
+export interface NextCommunityMilestone {
+  name: string;
+  threshold: number;
+  usersUntilUnlock: number;
+  communityProgressPercentage: number;
+  totalCommunityUsers: number;
+  requirement: Requirement3;
+  milestone: Milestone;
+}
+
+export interface Requirement3 {
+  threshold: number;
+}
+
+export interface Milestone {
+  threshold: number;
+  achieved: boolean;
+  totalUsersAt: any;
+  achievedAt: any;
 }

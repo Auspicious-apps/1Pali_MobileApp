@@ -3829,6 +3829,7 @@ __metadata:
     react-i18next: ^16.5.1
     react-native: 0.83.1
     react-native-blob-util: ^0.24.6
+    react-native-color-matrix-image-filters: ^8.0.2
     react-native-dotenv: ^3.4.11
     react-native-fast-image: ^8.6.3
     react-native-fs: ^2.20.0
@@ -3836,8 +3837,10 @@ __metadata:
     react-native-haptic-feedback: ^2.3.3
     react-native-iap: 14.7.0
     react-native-image-picker: ^8.2.1
+    react-native-image-zoom-viewer: ^3.0.1
     react-native-keychain: ^10.0.0
     react-native-linear-gradient: ^2.8.3
+    react-native-modal: ^14.0.0-rc.1
     react-native-network-logger: ^2.0.1
     react-native-nitro-modules: 0.31.10
     react-native-permissions: ^5.4.4
@@ -4604,6 +4607,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clamp@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "clamp@npm:1.0.1"
+  checksum: 799bd7083736eb975cd4a9a7e8f1a1e38cc3cb6be0384f9732c1da263accb3205385e5c2880e661a0d5a74e0066bfbf8fcd17dd2f509595ce52dd04c84522833
+  languageName: node
+  linkType: hard
+
 "cli-cursor@npm:^3.1.0":
   version: 3.1.0
   resolution: "cli-cursor@npm:3.1.0"
@@ -4787,6 +4797,15 @@ __metadata:
     safe-buffer: 5.2.1
     vary: ~1.1.2
   checksum: 906325935180cd3507d30ed898fb129deccab03689383d55536245a94610f5003923bb14c95ee6adc8d658ee13be549407eb4346ef55169045f3e41e9969808e
+  languageName: node
+  linkType: hard
+
+"concat-color-matrices@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "concat-color-matrices@npm:1.0.0"
+  dependencies:
+    invariant: ^2.2.4
+  checksum: f67c2cad8281e89f6acfb5b82e8c62445a16142756ef80e73ecd142f682496ef0d21fc81abb65c901b4fea43fd0fcaf2ad6d3f727973d2bcf07e6e54928b4eeb
   languageName: node
   linkType: hard
 
@@ -9078,6 +9097,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-animatable@npm:1.4.0":
+  version: 1.4.0
+  resolution: "react-native-animatable@npm:1.4.0"
+  dependencies:
+    prop-types: ^15.8.1
+  checksum: a1b211aff745b97351d78643d641fa298f7d71524eaf22fee8a69257ce52e85d6b3caf8e7fd26a521af34984fba7402b7c632c35ea69d618769387d1dcb6b32a
+  languageName: node
+  linkType: hard
+
 "react-native-blob-util@npm:^0.24.6":
   version: 0.24.6
   resolution: "react-native-blob-util@npm:0.24.6"
@@ -9088,6 +9116,20 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: c4988062a6a4112cb30e46a354675ac7c015cd1776b040caa87ed47fa7ba273f3b7f235f37abc08d6ef14dca8694fa92e3812d8444eb1b97e433634af6e55504
+  languageName: node
+  linkType: hard
+
+"react-native-color-matrix-image-filters@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "react-native-color-matrix-image-filters@npm:8.0.2"
+  dependencies:
+    concat-color-matrices: ^1.0.0
+    rn-color-matrices: ^4.1.0
+    ts-tiny-invariant: ^2.0.5
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: ff9cde376f0084ab0e2785f2cc256b9725fc93a36ea1fb3bf93cb798bc176b69d1a8ca0664edb0b5eb1e9d0d3bf03e30d86f31fa2f8468eea7cf5641606cd48f
   languageName: node
   linkType: hard
 
@@ -9162,6 +9204,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-image-pan-zoom@npm:^2.1.12":
+  version: 2.1.12
+  resolution: "react-native-image-pan-zoom@npm:2.1.12"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 826ed254d27b079cb985b63c65d0f504f11987b68ae71bac0e1c0e99dc24d5816fc9b8d053eb04737c60c018ad520a1e9c4b99af26952646ccabe9fc2b3bd64f
+  languageName: node
+  linkType: hard
+
 "react-native-image-picker@npm:^8.2.1":
   version: 8.2.1
   resolution: "react-native-image-picker@npm:8.2.1"
@@ -9169,6 +9221,18 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: fc85bc278c0ba5ccef8cbacfce3001e994b34b0895be34e0c884021d2215802c2e553c5e97ff7f21a30e502be60000f90cf9555e9c2a19c71fdc76120d30e158
+  languageName: node
+  linkType: hard
+
+"react-native-image-zoom-viewer@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "react-native-image-zoom-viewer@npm:3.0.1"
+  dependencies:
+    react-native-image-pan-zoom: ^2.1.12
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: bd32e382100fece8f815bacabe276f8f05a7c1edc1ff8485149fd863780de7d11a1a8241b837adad957e53ce1e19ef249410fdb312bc43fb7071b57fb879b78d
   languageName: node
   linkType: hard
 
@@ -9196,6 +9260,18 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: f980d324e551bbc475c6406bdc5250a08242020cbe653412fa169bbdf51e28a502e225de105b4d696d6a1a1b733d44782469020f4936d8b3ce0e2c78e51cf58f
+  languageName: node
+  linkType: hard
+
+"react-native-modal@npm:^14.0.0-rc.1":
+  version: 14.0.0-rc.1
+  resolution: "react-native-modal@npm:14.0.0-rc.1"
+  dependencies:
+    react-native-animatable: 1.4.0
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.70.0"
+  checksum: 19bca96dde148c14ed4cc0e52fedd0a12ca952815e4dcbea31d0a98962d75dc3c011c677f5f9cd15f2b88f78ccd03134647b280724bc6de148c25e28eea1a7e4
   languageName: node
   linkType: hard
 
@@ -9715,6 +9791,17 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 87f4164e396f0171b0a3386cc1877a817f572148ee13a7e113b238e48e8a9f2f31d009a92ec38a591ff1567d9662c6b67fd8818a2dbbaed74bc26a87a2a4a9a0
+  languageName: node
+  linkType: hard
+
+"rn-color-matrices@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "rn-color-matrices@npm:4.1.0"
+  dependencies:
+    clamp: ^1.0.1
+  peerDependencies:
+    react-native: "*"
+  checksum: 91b92ecd6d2c7b0a54357e725ced918237f5df39f97cdf72a11f02ef0779475decb66dcd62ed5682d54e136e52f2d4f032c3a4a161b3f1dcee92eeee447bea73
   languageName: node
   linkType: hard
 
@@ -10469,6 +10556,13 @@ __metadata:
   peerDependencies:
     typescript: ">=4.8.4"
   checksum: beae72a4fa22a7cc91a8a0f3dfb487d72e30f06ac50ff72f327d061dea2d4940c6451d36578d949caad3893d4d2c7d42d53b7663597ccda54ad32cdb842c3e34
+  languageName: node
+  linkType: hard
+
+"ts-tiny-invariant@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "ts-tiny-invariant@npm:2.0.5"
+  checksum: 6a07ade2cd63ee0abfa458974fa4c8e7ec038b9f821dc60c99e8dc3453f85729984191d496beec8f87e342e564c8b0b48fa690284db4329456d6feae061d24c6
   languageName: node
   linkType: hard
 

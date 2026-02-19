@@ -1,4 +1,5 @@
 export interface GetUserReceiptResponse {
+  id: string;
   receiptId: string;
   date: string;
   price: number;

@@ -132,7 +132,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
   const handleSetupIntent = async () => {
     try {
-      // setIsLoading(true);
+      setIsLoading(true);
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
         return;
@@ -681,6 +681,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               navigation.goBack();
             }}
             style={{ marginTop: verticalScale(20) }}
+            hapticFeedback
+            hapticType="impactLight"
           />
         ) : isApplePaySupported ? (
           <PrimaryButton
@@ -693,6 +695,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             }}
             isLoading={isLoading}
             style={{ marginTop: verticalScale(20) }}
+            hapticFeedback
+            hapticType="impactLight"
           />
         ) : (
           <PrimaryButton
@@ -700,6 +704,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             onPress={handleSetupIntent}
             isLoading={isLoading}
             style={{ marginTop: verticalScale(20) }}
+            hapticFeedback
+            hapticType="impactLight"
           />
         )}
 

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
-} from 'react-native';
-import COLORS from '../utils/Colors';
-import { horizontalScale, verticalScale, wp } from '../utils/Metrics';
-import CustomIcon from './CustomIcon';
-import { CustomText } from './CustomText';
+} from "react-native";
+import COLORS from "../utils/Colors";
+import { horizontalScale, verticalScale, wp } from "../utils/Metrics";
+import CustomIcon from "./CustomIcon";
+import { CustomText } from "./CustomText";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 
 type PrimaryButtonProps = {
   title: string;
@@ -31,6 +32,17 @@ type PrimaryButtonProps = {
   isTranslate?: boolean;
   accessibilityLabel?: string;
   testID?: string;
+  hapticFeedback?: boolean;
+  hapticType?:
+    | "impactLight"
+    | "impactMedium"
+    | "impactHeavy"
+    | "selection"
+    | "notificationSuccess";
+};
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
 };
 
 const PrimaryButton: FC<PrimaryButtonProps> = ({
@@ -48,8 +60,17 @@ const PrimaryButton: FC<PrimaryButtonProps> = ({
   isTranslate = true,
   accessibilityLabel,
   testID,
+  hapticFeedback = false, // Default to false
+  hapticType = "impactLight",
 }) => {
-  const backgroundColor = disabled ? '#E5E7EF' : '#1D222B';
+  const backgroundColor = disabled ? "#E5E7EF" : "#1D222B";
+
+  const handlePress = () => {
+    if (hapticFeedback) {
+      ReactNativeHapticFeedback.trigger(hapticType, hapticOptions);
+    }
+    onPress();
+  };
 
   return (
     <TouchableOpacity
@@ -61,7 +82,7 @@ const PrimaryButton: FC<PrimaryButtonProps> = ({
         { backgroundColor },
         style,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       accessibilityLabel={accessibilityLabel}
       testID={testID}
     >
@@ -80,7 +101,7 @@ const PrimaryButton: FC<PrimaryButtonProps> = ({
             <CustomText
               fontFamily="MontserratSemiBold"
               fontSize={textSize}
-              color={disabled ? '#FFFFFF' : textColor}
+              color={disabled ? "#FFFFFF" : textColor}
               style={textStyle}
               isTranslate={isTranslate}
             >
@@ -98,21 +119,21 @@ const styles = StyleSheet.create({
     borderRadius: verticalScale(12),
     paddingVertical: verticalScale(14),
     paddingHorizontal: horizontalScale(20),
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   fullWidth: {
     width: wp(90),
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   contentContainer: {
     minHeight: verticalScale(24),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: horizontalScale(10),
   },
 });

@@ -22,7 +22,7 @@ import {
   selectClaimedNumber,
   selectReservationToken,
   setClaimedNumber,
-  setReservationToken
+  setReservationToken,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -51,7 +51,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [inputDisabled, setInputDisabled] = useState(false);
   const [rangeError, setRangeError] = useState(false);
   const [diceMode, setDiceMode] = useState(false);
-
+  const [startsWithZero, setStartsWithZero] = useState(false);
   const showClaimTitle = !diceMode && (checking || available || unavailable);
 
   const hapticOptions = {
@@ -68,6 +68,16 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     }
 
     setNumber(numeric);
+
+    if (numeric.startsWith("0")) {
+      setStartsWithZero(true);
+      setChecking(false);
+      setAvailable(false);
+      setUnavailable(false);
+      return; // Stop further execution
+    } else {
+      setStartsWithZero(false);
+    }
 
     // If user changes the number and there's an active reservation token, clear it
     if (
@@ -254,9 +264,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   color={COLORS.appText}
                   style={{ textAlign: "center" }}
                 >
-                  {showClaimTitle
-                    ? "Each number represents one person."
-                    : "Pick between 1 and 1,000,000."}
+                  Pick between 1 and 1,000,000.
                 </CustomText>
               </View>
 
@@ -316,7 +324,18 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     </TouchableOpacity>
                   )}
                 </View>
-                {rangeError ? (
+                {startsWithZero ? (
+                  <View style={styles.statusRow}>
+                    <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
+                    <CustomText
+                      fontFamily="MontserratRegular"
+                      fontSize={12}
+                      color={COLORS.redColor}
+                    >
+                      Number cannot start with zero.
+                    </CustomText>
+                  </View>
+                ) : rangeError ? (
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
@@ -381,6 +400,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
               disabled={!available}
               isLoading={isLoading}
               style={styles.button}
+              hapticFeedback
+              hapticType="impactLight"
             />
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>

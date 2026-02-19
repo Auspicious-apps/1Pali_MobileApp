@@ -46,9 +46,9 @@ const CollectBadges = () => {
     switch (category) {
       case "GROWTH":
         return IMAGES.BadgeGreenBg;
-      case "ART":
-        return IMAGES.BadgeBrownBg;
       case "IMPACT":
+        return IMAGES.BadgeBrownBg;
+      case "COMMUNITY":
         return IMAGES.BadgePinkBg;
       default:
         return IMAGES.BadgeBlackBg;
@@ -124,11 +124,13 @@ const CollectBadges = () => {
               }
 
               if (category === "COMMUNITY") {
-                return `${item?.badge?.requirement?.userNumberMax} Donors`;
+                return `${
+                  item?.badge?.milestone.split(" ")[0]
+                } supporters reached`;
               }
 
-              if (category === "ART") {
-                return `${item?.badge?.requirement?.totalShares} Share${
+              if (category === "IDENTITY") {
+                return `Joined before ${item?.badge?.milestone.split(" ")[2]} supporters${
                   item?.badge?.requirement?.totalShares! > 1 ? "s" : ""
                 }`;
               }

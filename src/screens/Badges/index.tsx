@@ -257,7 +257,6 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                           }}
                           activeOpacity={0.8}
                           onPress={() => {
-                            if (!isUnlocked) return;
                             setSelectedBadge(badge);
                             setIsBadgeModalVisible(true);
                           }}

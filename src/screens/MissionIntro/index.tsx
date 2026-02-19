@@ -309,6 +309,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 onPress={handleGoogleSignIn}
                 isLoading={isSigningIn}
                 disabled={isSigningIn || isReservationExpired}
+                hapticFeedback
+                hapticType="impactLight"
               />
             ) : (
               <PrimaryButton
@@ -317,6 +319,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 onPress={handleAppleSignIn}
                 isLoading={isLoading}
                 disabled={isLoading || isReservationExpired}
+                hapticFeedback
+                hapticType="impactLight"
               />
             )}
 
@@ -340,6 +344,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               onPress={() => navigation.goBack()}
               isLoading={isSigningIn}
               disabled={isSigningIn || isReservationExpired}
+              hapticFeedback
+              hapticType="impactLight"
             />
           </View>
         )}

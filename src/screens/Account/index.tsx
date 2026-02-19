@@ -18,25 +18,27 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import ProgressBar from "../../components/ProgressBar";
 import {
-  selectCommunityBadges,
   selectGrowthBadges,
   selectIdentityBadges,
   selectImpactBadges,
   selectLatestCommunityBadges,
-  selectLatestGrowthBadges,
+  selectLatestGrowthBadges
 } from "../../redux/slices/UserSlice";
 import { useAppSelector } from "../../redux/store";
 import { AccountScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { deleteLocalStorageData, formatDate } from "../../utils/Helpers";
+import {
+  deleteLocalStorageData,
+  formatDate,
+  formatMembershipDuration,
+} from "../../utils/Helpers";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
-  const { badges, user } = useAppSelector((state) => state.user);
+  const { user } = useAppSelector((state) => state.user);
 
   const growthBadges = useAppSelector(selectGrowthBadges);
-  const communityBadges = useAppSelector(selectCommunityBadges);
   const impactBadges = useAppSelector(selectImpactBadges);
   const identityBadges = useAppSelector(selectIdentityBadges);
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
@@ -347,7 +349,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {communityBadges?.[0]?.badge?.name}
+                      {identityBadges?.[0]?.badge?.name}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
@@ -355,7 +357,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       color={COLORS.appText}
                       style={{ textAlign: "center" }}
                     >
-                      {communityBadges?.[0]?.badge?.milestone}{" "}
+                      First{" "}
+                      {identityBadges?.[0]?.badge?.milestone.split(" ")[2]}{" "}
                     </CustomText>
                   </View>
                 </View>
@@ -370,7 +373,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {`${user?.consecutivePaidMonths!} mo`}
+                      {formatMembershipDuration(user?.consecutivePaidMonths!)}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"

@@ -337,15 +337,6 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             </View>
           </View>
         </FocusResetScrollView>
-        {/* 
-          <PrimaryButton
-            title="Continue"
-            onPress={() => {
-              navigation.navigate("claimSpot");
-            }}
-            style={styles.primaryButton}
-          /> */}
-
         <View style={styles.bottomContainer}>
           <LinearGradient
             colors={["#F8F8FB20", COLORS.appBackground]}
@@ -358,6 +349,8 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             title="Continue"
             onPress={() => navigation.navigate("claimSpot")}
             style={styles.primaryButton}
+            hapticFeedback
+            hapticType="impactLight"
           />
         </View>
       </SafeAreaView>
