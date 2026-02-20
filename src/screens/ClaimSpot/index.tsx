@@ -245,7 +245,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
               >
                 <CustomIcon Icon={ICONS.BackArrowWithBg} />
               </TouchableOpacity>
-              <Image source={IMAGES.LogoText} style={styles.logo} />
+              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
             </View>
 
             <View style={styles.content}>

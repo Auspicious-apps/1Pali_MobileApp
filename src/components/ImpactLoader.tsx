@@ -4,8 +4,10 @@ import IMAGES from '../assets/Images'
 import { horizontalScale, verticalScale } from '../utils/Metrics'
 import COLORS from '../utils/Colors'
 import { CustomText } from './CustomText'
+import { useAppSelector } from "../redux/store";
 
 const ImpactLoader = () => {
+  const { claimedNumber } = useAppSelector((state) => state.user);
   return (
     <View style={styles.container}>
       <Image
@@ -13,23 +15,16 @@ const ImpactLoader = () => {
         resizeMode="contain"
         style={styles.logo}
       />
-      <View style={{ alignItems: "center", marginTop: verticalScale(54) }}>
+      <View style={{ alignItems: "center", marginTop: verticalScale(32) }}>
         <CustomText
           fontFamily="GabaritoSemiBold"
           fontSize={32}
           color={COLORS.darkText}
-          style={{textAlign:"center"}}
+          style={{ textAlign: "center" }}
         >
-          {"Thank you for\nsupporting Palestine"}
+          {`#${claimedNumber},\n thank you for \n supporting Palestine`}
         </CustomText>
-        <View style={{marginTop: verticalScale(24),gap: verticalScale(12)}}>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={18}
-            color={COLORS.appText}
-          >
-            Setting things up...
-          </CustomText>
+        <View style={{ marginTop: verticalScale(32), gap: verticalScale(12) }}>
           <ActivityIndicator color={COLORS.appText} size={"small"} />
         </View>
       </View>

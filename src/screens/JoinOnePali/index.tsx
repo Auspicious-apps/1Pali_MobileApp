@@ -490,7 +490,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           >
             <CustomIcon Icon={ICONS.BackArrowWithBg} />
           </TouchableOpacity>
-          <Image source={IMAGES.LogoText} style={styles.logo} />
+          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
         </View>
 
         <View style={styles.headingContainer}>
@@ -523,8 +523,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             {reservationSeconds && reservationSeconds > 0 ? (
               <CustomText
                 fontFamily="GabaritoRegular"
-                fontSize={16}
-                color={COLORS.grayColor}
+                fontSize={18}
+                color={COLORS.appText}
                 style={{ textAlign: "center", marginTop: 8 }}
               >
                 {`Number #${claimedNumber} reserved for ${reservationSeconds}s`}
@@ -533,7 +533,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               <CustomText
                 color={COLORS.redColor}
                 fontFamily="GabaritoRegular"
-                fontSize={16}
+                fontSize={18}
               >
                 {`Number #${claimedNumber} Expired`}
               </CustomText>
@@ -547,8 +547,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoSemiBold"
-                fontSize={22}
+                fontFamily="GabaritoMedium"
+                fontSize={20}
                 color={COLORS.darkText}
               >
                 {reservationSeconds === 0
@@ -608,8 +608,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             <View style={styles.row}>
               <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
               <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
+                fontFamily="GabaritoRegular"
+                fontSize={15}
                 style={{ color: COLORS.appText }}
               >
                 Monthly donation to Gaza (via MECA)
@@ -619,8 +619,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             <View style={styles.row}>
               <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
               <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
+                fontFamily="GabaritoRegular"
+                fontSize={15}
                 style={{ color: COLORS.appText }}
               >
                 Weekly artwork from students in Palestine
@@ -630,8 +630,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             <View style={styles.row}>
               <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
               <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
+                fontFamily="GabaritoRegular"
+                fontSize={15}
                 style={{ color: COLORS.appText }}
               >
                 Ongoing updates on how funds are used
@@ -643,7 +643,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             <View style={styles.footer}>
               <View style={styles.trialRow}>
                 <CustomText
-                  fontFamily="SourceSansRegular"
+                  fontFamily="GabaritoRegular"
                   fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
@@ -746,6 +746,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
+    marginTop: verticalScale(15),
   },
   header: {
     width: wp(90),
@@ -756,8 +757,8 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(12),
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
   },
   headingContainer: {

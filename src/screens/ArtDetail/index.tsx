@@ -51,6 +51,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import { BlurView } from "@react-native-community/blur";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -88,6 +89,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [capturingCard, setCapturingCard] = useState(false);
   const { user } = useAppSelector((state) => state.user);
   const cardRef = useRef(null);
+  const [inputHeight, setInputHeight] = useState(50);
 
   const ArtDetailPulse = () => (
     <SafeAreaView style={styles.container}>
@@ -529,6 +531,20 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     }
   }, [isMediaFullscreen]);
 
+  useEffect(() => {
+    if (uiIndex === 1) {
+      openAnim.setValue(0);
+
+      Animated.timing(openAnim, {
+        toValue: 1,
+        duration: 260, // smoother
+        useNativeDriver: true,
+      }).start();
+    } else {
+      openAnim.setValue(0);
+    }
+  }, [uiIndex]);
+
   if (loading) {
     return <ArtDetailPulse />;
   }
@@ -614,25 +630,31 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
             //   lastScrollY.current = currentY;
             // }}
-            contentContainerStyle={{ paddingTop: verticalScale(20) }}
+            contentContainerStyle={{
+              paddingTop: verticalScale(20),
+              paddingBottom: verticalScale(100),
+            }}
           >
-            <TouchableWithoutFeedback onPress={handleImageTap}>
+            <TouchableOpacity activeOpacity={0.8} onPress={handleImageTap}>
               <View style={styles.imageWrapper}>
                 {artDetail?.mediaType === "IMAGE" && (
                   <>
-                    <FastImage
-                      source={{ uri: artDetail.mediaUrl }}
-                      style={styles.updateImage}
-                      onLoadStart={() => {
-                        if (!mediaLoadedRef.current) {
-                          setImageLoading(true);
-                        }
-                      }}
-                      onLoadEnd={() => {
-                        mediaLoadedRef.current = true;
-                        setImageLoading(false);
-                      }}
-                    />
+                    <View style={styles.weekCard}>
+                      <FastImage
+                        source={{ uri: artDetail.mediaUrl }}
+                        resizeMode="cover"
+                        style={styles.updateImage}
+                        onLoadStart={() => {
+                          if (!mediaLoadedRef.current) {
+                            setImageLoading(true);
+                          }
+                        }}
+                        onLoadEnd={() => {
+                          mediaLoadedRef.current = true;
+                          setImageLoading(false);
+                        }}
+                      />
+                    </View>
                   </>
                 )}
 
@@ -683,7 +705,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   />
                 </Animated.View>
               </View>
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
             <View
               style={{
                 justifyContent: "space-between",
@@ -763,7 +785,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   fontSize={16}
                   color={COLORS.greyish}
                 >
-                  Share Art
+                  Share
                 </CustomText>
               </TouchableOpacity>
             </View>
@@ -861,29 +883,32 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             </View>
           </FocusResetScrollView>
 
-          {/* {showCommentInput && (
-            <> */}
-          <View style={styles.bottomContainer}>
+          {/* ===== Bottom Fade Overlay ===== */}
+          <View pointerEvents="none" style={styles.bottomFadeWrapper}>
             <LinearGradient
               colors={[
-                "rgba(248,248,251,0)",
-                "rgba(248,248,251,0.3)",
-                "rgba(248,248,251,0.9)",
+                "rgba(255,255,255,0)",
+                "rgba(255,255,255,0.4)",
+                "rgba(255,255,255,0.85)",
+                "rgba(255,255,255,1)",
               ]}
-              locations={[0, 0.35, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={[
-                styles.gradientOverlay,
-                {
-                  top: isKeyboardVisible ? 0 : -verticalScale(40),
-                },
-              ]}
+              locations={[0, 0.35, 0.75, 1]}
+              style={styles.bottomFade}
             />
+          </View>
 
+          {/* {showCommentInput && (
+            <> */}
+          <View
+            style={styles.bottomContainer}
+            onLayout={(e) => {
+              const h = e.nativeEvent.layout.height;
+              setInputHeight(h);
+            }}
+          >
             <View style={styles.commentInputRow}>
               <CustomIcon
-                Icon={ICONS.SimpleUserIcon}
+                Icon={ICONS.changedUser}
                 height={verticalScale(40)}
                 width={horizontalScale(40)}
               />
@@ -986,21 +1011,46 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       </SafeAreaView>
 
       {uiIndex === 1 && (
-        <View style={styles.fullscreenContainer}>
+        <Animated.View
+          pointerEvents={uiIndex === 1 ? "auto" : "none"}
+          style={[
+            styles.fullscreenContainer,
+            {
+              opacity: openAnim,
+              transform: [
+                {
+                  scale: openAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.97, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          {/* ===== BLURRY BACKGROUND IMAGE ===== */}
+          {!!artDetail?.mediaUrl && artDetail?.mediaType !== "VIDEO" && (
+            <Image
+              source={{ uri: artDetail.mediaUrl }}
+              blurRadius={15}
+              resizeMode="cover"
+              style={StyleSheet.absoluteFill}
+            />
+          )}
+
+          {/* ===== OPTIONAL DARK OVERLAY (premium look) ===== */}
+          <View style={styles.blurOverlay} />
+
+          {/* ===== CLOSE BUTTON ===== */}
           <TouchableOpacity
             onPress={() => setUiIndex(0)}
-            style={{
-              position: "absolute",
-              top: verticalScale(50),
-              right: horizontalScale(12),
-              zIndex: 10,
-            }}
+            style={styles.closeBtn}
             activeOpacity={0.8}
           >
             <CustomIcon Icon={ICONS.WhiteCloseIcon} width={32} height={32} />
           </TouchableOpacity>
 
-          {/* ===== IMAGE WRAPPER ===== */}
+          {/* ===== MAIN MEDIA ===== */}
           {artDetail?.mediaType === "VIDEO" ? (
             <Video
               source={{ uri: artDetail?.mediaUrl }}
@@ -1012,36 +1062,34 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           ) : (
             <ImageViewer
               imageUrls={[{ url: artDetail?.mediaUrl || "" }]}
-              backgroundColor={COLORS.white}
-              enableSwipeDown={true}
-              onSwipeDown={() => setIsMediaFullscreen(false)}
+              backgroundColor="transparent"
+              enableSwipeDown
+              onSwipeDown={() => setUiIndex(0)}
               renderIndicator={() => <></>}
               saveToLocalByLongPress={false}
             />
           )}
 
+          {/* ===== SHARE BUTTON ===== */}
           <PrimaryButton
             title={"Share"}
             leftIcon={{
-              Icon: ICONS.ShareArt,
+              Icon: ICONS.DarkUpload,
               height: 20,
               width: 20,
             }}
             onPress={handleShareToMore}
-            style={{
-              position: "absolute",
-              bottom: verticalScale(30),
-              alignSelf: "center",
-            }}
+            style={styles.shareBtn}
+            textColor={COLORS.darkText}
           />
-        </View>
+        </Animated.View>
       )}
 
       <Modal
         isVisible={isMediaFullscreen}
         style={{ margin: 0 }}
         backdropOpacity={1}
-        backdropColor={COLORS.white}
+        backdropColor="transparent"
         animationIn="zoomIn"
         animationOut="zoomOut"
         useNativeDriver
@@ -1053,11 +1101,30 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         <View
           style={{
             flex: 1,
-            backgroundColor: COLORS.white,
+            backgroundColor: "transparent",
             paddingTop: insets.top,
             position: "relative",
           }}
         >
+          {/* ✅ BLUR BACKGROUND IMAGE */}
+          {!!artDetail?.mediaUrl && artDetail?.mediaType !== "VIDEO" && (
+            <Image
+              source={{ uri: artDetail.mediaUrl }}
+              blurRadius={20}
+              resizeMode="cover"
+              style={StyleSheet.absoluteFill}
+            />
+          )}
+
+          {/* ✅ PREMIUM DARK OVERLAY */}
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              backgroundColor: "rgba(0,0,0,0.35)",
+            }}
+          />
+
+          {/* ✅ MAIN MEDIA */}
           {artDetail?.mediaType === "VIDEO" ? (
             <Video
               source={{ uri: artDetail?.mediaUrl }}
@@ -1069,14 +1136,15 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           ) : (
             <ImageViewer
               imageUrls={[{ url: artDetail?.mediaUrl || "" }]}
-              backgroundColor={COLORS.white}
-              enableSwipeDown={true}
+              backgroundColor="transparent"
+              enableSwipeDown
               onSwipeDown={() => setIsMediaFullscreen(false)}
               renderIndicator={() => <></>}
               saveToLocalByLongPress={false}
             />
           )}
 
+          {/* ✅ CLOSE BUTTON */}
           <TouchableOpacity
             onPress={() => setIsMediaFullscreen(false)}
             style={{
@@ -1126,9 +1194,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   updateImage: {
+    height: hp(44.7),
     width: "100%",
-    height: hp(49),
-    borderRadius: 12,
+    borderRadius: 30,
   },
   scrollContent: {
     paddingBottom: verticalScale(20),
@@ -1150,7 +1218,7 @@ const styles = StyleSheet.create({
     paddingLeft: horizontalScale(16),
     paddingRight: horizontalScale(8),
     paddingVertical: verticalScale(8),
-    backgroundColor: COLORS.light,
+    backgroundColor: COLORS.commentBar,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1178,12 +1246,8 @@ const styles = StyleSheet.create({
     gap: horizontalScale(4),
   },
   imageWrapper: {
-    width: wp(95),
-    height: hp(49),
-    alignSelf: "center",
-    borderRadius: 20,
-    overflow: "hidden",
     position: "relative",
+    paddingHorizontal: horizontalScale(16),
   },
 
   likeOverlay: {
@@ -1235,6 +1299,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+
+  blurOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+
+  closeBtn: {
+    position: "absolute",
+    top: verticalScale(50),
+    right: horizontalScale(12),
+    zIndex: 10,
+  },
+
+  shareBtn: {
+    position: "absolute",
+    bottom: verticalScale(30),
+    alignSelf: "center",
+    backgroundColor: COLORS.appBackground,
   },
 
   fsHeader: {
@@ -1333,10 +1416,34 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: "flex-end",
     backgroundColor: "white",
+    zIndex: 10,
   },
 
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,
     height: verticalScale(40),
+  },
+  weekCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 30,
+    padding: verticalScale(6),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  bottomFadeWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: verticalScale(50),
+    height: verticalScale(60),
+    zIndex: 5,
+  },
+
+  bottomFade: {
+    width: "100%",
+    height: "100%",
   },
 });

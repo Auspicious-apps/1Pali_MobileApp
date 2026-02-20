@@ -191,7 +191,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
           }}
         >
           <View style={{ alignItems: "center", width: "100%" }}>
-            <Image source={IMAGES.LogoText} style={styles.logo} />
+            <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
             <View style={{ marginTop: verticalScale(30), width: "100%" }}>
               <CustomText
                 fontFamily="GabaritoSemiBold"
@@ -203,7 +203,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
-                fontSize={15}
+                fontSize={18}
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
@@ -386,7 +386,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 </View>
               </View>
               {/* Progress Bar */}
-              <ProgressBar />
+              <ProgressBar hideFooter isAccountScreen />
 
               {user?.nextGrowthBadge && (
                 <CustomText
@@ -471,12 +471,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
+    paddingTop: verticalScale(15),
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
-    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 1)",

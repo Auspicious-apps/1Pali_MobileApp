@@ -1,6 +1,8 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   FlatList,
   Image,
   StyleSheet,
@@ -39,6 +41,18 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const flatListRef = useRef<FlatList>(null);
   const TABS: TabType[] = ["Growth", "Community", "Impact"];
   const lastIndexRef = useRef(0);
+  const underlineX = useRef(new Animated.Value(0)).current;
+
+  const moveUnderline = (index: number) => {
+    const tabWidth = wp(85) / TABS.length;
+
+    Animated.timing(underlineX, {
+      toValue: index * tabWidth,
+      duration: 250,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
 
   const getBadgesByTab = (tab: TabType) =>
     badges.filter((b) => b.category === TAB_CATEGORY_MAP[tab].toUpperCase());
@@ -54,9 +68,10 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
       lastIndexRef.current = index;
       const tab = TABS[index];
       if (tab) setActiveTab(tab);
+
+      moveUnderline(index);
     }
   };
-
   const [loading, setLoading] = useState(false);
 
   const TAB_CATEGORY_MAP = {
@@ -155,7 +170,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 }}
               />
             </TouchableOpacity>
-            <View>
+            <View style={{ gap: verticalScale(8) }}>
               <CustomText
                 fontFamily="GabaritoMedium"
                 fontSize={20}
@@ -165,31 +180,28 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 {latestIdentityBadge?.name}
               </CustomText>
               <CustomText
-                fontFamily="SourceSansRegular"
+                fontFamily="GabaritoRegular"
                 fontSize={15}
-                color={"#1D222B50"}
+                color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                Among the{" "}
-                {latestIdentityBadge?.name
-                  // ?.split(" ")
-                  // .slice(0, -1)
-                  // .join(" ")
-                  .toLowerCase()}
+                {latestIdentityBadge?.milestone}
               </CustomText>
             </View>
           </View>
 
+          {/* Tabs */}
           <View style={styles.tabContainer}>
-            {["Growth", "Community", "Impact"].map((tab) => {
+            {TABS.map((tab) => {
               const isActive = activeTab === tab;
 
               return (
                 <TouchableOpacity
                   key={tab}
-                  // onPress={() => setActiveTab(tab as any)}
                   onPress={() => {
-                    const index = TABS.indexOf(tab as TabType);
+                    const index = TABS.indexOf(tab);
+                    moveUnderline(index);
+
                     flatListRef.current?.scrollToIndex({
                       index,
                       animated: true,
@@ -205,11 +217,22 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                   >
                     {tab}
                   </CustomText>
-
-                  {isActive && <View style={styles.activeUnderline} />}
                 </TouchableOpacity>
               );
             })}
+          </View>
+
+          {/* Animated Underline */}
+          <View style={styles.underlineWrapper}>
+            <Animated.View
+              style={[
+                styles.activeUnderline,
+                {
+                  width: wp(85) / TABS.length,
+                  transform: [{ translateX: underlineX }],
+                },
+              ]}
+            />
           </View>
           <FlatList
             ref={flatListRef}
@@ -373,11 +396,8 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     width: "85%",
     marginTop: verticalScale(28),
-    borderBottomWidth: 1,
-    borderColor: COLORS.appBackground,
   },
   tabButton: {
     alignItems: "center",
@@ -386,8 +406,13 @@ const styles = StyleSheet.create({
   activeUnderline: {
     marginTop: verticalScale(8),
     height: verticalScale(2),
-    width: horizontalScale(94),
     backgroundColor: COLORS.darkText,
     borderRadius: 10,
+  },
+  underlineWrapper: {
+    width: "85%",
+    alignItems: "flex-start",
+    borderBottomWidth: 1,
+    borderColor: COLORS.appBackground,
   },
 });

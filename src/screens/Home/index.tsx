@@ -90,7 +90,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <Image source={IMAGES.LogoText} style={styles.logo} />
+        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
         <View style={{ marginTop: verticalScale(32) }}>
           <CustomText
             fontFamily="GabaritoSemiBold"
@@ -204,10 +204,8 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           </CustomText>
           <View style={styles.dividerLine} />
         </View>
-        <View style={styles.partnersRow}>
-          <Image source={IMAGES.MecaImage} style={styles.mecaImage} />
-          <Image source={IMAGES.Paliroot} style={styles.palirootImage} />
-        </View>
+
+        <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
         <MyBadgesModal
           isVisible={isBadgesSHeet}
           setIsVisible={setIsBadgesSheet}
@@ -231,11 +229,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
-    // paddingTop: verticalScale(20),
+    paddingTop: verticalScale(15),
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
     marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
@@ -244,7 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginHorizontal: horizontalScale(10),
-    marginTop: verticalScale(12),
+    marginTop: verticalScale(24),
     width: wp(90),
     shadowColor: "#000",
     shadowOffset: {
@@ -259,7 +257,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: wp(3.2),
-    marginTop: hp(3),
+    marginTop: verticalScale(32),
   },
   dividerLine: {
     borderBottomWidth: 1,
@@ -270,26 +268,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: hp(2.7),
   },
-  partnersRow: {
-    flexDirection: "row",
-    gap: wp(7.7),
-    marginTop: verticalScale(16),
-  },
+
   mecaImage: {
-    width: wp(36),
-    height: hp(6),
+    width: wp(80),
+    height: verticalScale(40),
     alignSelf: "center",
     resizeMode: "contain",
-  },
-  palirootImage: {
-    width: wp(35.7),
-    height: hp(3.3),
-    alignSelf: "center",
-    resizeMode: "contain",
+    marginTop: verticalScale(12),
   },
   TextBackground: {
     width: wp(90),
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(12),
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",

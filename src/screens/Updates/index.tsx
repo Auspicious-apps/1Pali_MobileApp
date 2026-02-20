@@ -87,7 +87,8 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
       <View
         style={{
           paddingHorizontal: horizontalScale(8),
-          marginVertical: verticalScale(16),
+          marginTop: verticalScale(16),
+          marginBottom: verticalScale(10),
           gap: verticalScale(8),
         }}
       >
@@ -214,6 +215,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingHorizontal: horizontalScale(16),
+    paddingTop: verticalScale(15),
   },
   logo: {
     width: horizontalScale(54),

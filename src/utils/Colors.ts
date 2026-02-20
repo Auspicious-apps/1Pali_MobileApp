@@ -29,6 +29,7 @@ const COLORS = {
   DarkGreenText: "#001F01",
   midOrange: "#C27C1F",
   greey: "#D9D9D9",
+  commentBar: "#F2F3F7",
 };
 
 export default COLORS;

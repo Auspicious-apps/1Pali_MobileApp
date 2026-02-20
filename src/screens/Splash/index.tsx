@@ -118,7 +118,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             OnePali
           </CustomText>
           <CustomText
-            fontFamily="SourceSansRegular"
+            fontFamily="GabaritoRegular"
             fontSize={18}
             color={COLORS.appText}
             style={styles.subtitleText}
@@ -130,7 +130,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
           <Image source={IMAGES.GetStartedImage} style={styles.globalImage} />
         </View>
 
-        <View style={styles.dividerRow}>
+        {/* <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
           <CustomText
             fontFamily="GabaritoRegular"
@@ -141,7 +141,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             In collaboration with
           </CustomText>
           <View style={styles.dividerLine} />
-        </View>
+        </View> */}
         <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
 
         {!isCheckingAuth && (
@@ -184,8 +184,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingVertical:
-      Platform.OS === "ios" ? verticalScale(0) : verticalScale(15),
+    marginTop: verticalScale(15),
   },
   contentContainer: {
     flex: 1,
@@ -233,14 +232,15 @@ const styles = StyleSheet.create({
 
   mecaImage: {
     width: wp(80),
-    height: hp(5.6),
+    height: verticalScale(40),
     alignSelf: "center",
     resizeMode: "contain",
-    marginTop: verticalScale(8),
+    marginTop: verticalScale(24),
   },
 
   button: {
-    marginVertical: verticalScale(15),
+    marginTop: verticalScale(32),
+    marginBottom: verticalScale(16),
   },
   loadingContainer: {
     alignItems: "center",

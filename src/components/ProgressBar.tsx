@@ -6,18 +6,31 @@ import { horizontalScale, verticalScale } from "../utils/Metrics";
 import BadgeIcon from "./BadgeIcon";
 import CircularOverlay from "./CircularOverlay";
 import { CustomText } from "./CustomText";
+import HapticFeedback from "react-native-haptic-feedback";
 
 const STRIPE_WIDTH = horizontalScale(14.8);
 const STRIPE_GAP = horizontalScale(12);
 const CONTAINER_PADDING = horizontalScale(18);
 
-const ProgressBar = () => {
+const COMMUNITY_BADGE_MAP: any = {
+  1000: "olive",
+  10000: "watermelon",
+  50000: "jaffa",
+  100000: "tatreez",
+  250000: "kaffiyez",
+  500000: "fig",
+  1000000: "key",
+};
+
+const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
   const { user } = useAppSelector((state) => state.user);
   const [showFinalGoal, setShowFinalGoal] = React.useState(true);
   const nextMilestone = user?.nextCommunityMilestone;
   const [trackWidth, setTrackWidth] = React.useState(0);
 
   const animatedProgress = React.useRef(new Animated.Value(0)).current;
+
+  const growthBadgeName = user?.nextGrowthBadge?.name || "Growth Badge";
 
   const milestoneTarget = showFinalGoal
     ? 1000000
@@ -27,9 +40,18 @@ const ProgressBar = () => {
     ? "1M supporters"
     : `${nextMilestone?.threshold?.toLocaleString()} supporters`;
 
-  const badgeName = showFinalGoal
-    ? "Key"
-    : nextMilestone?.name || "Next Milestone Badge";
+
+    console.log(nextMilestone, "NEXT MILESTONE. ");
+    
+
+  // const badgeName = showFinalGoal
+  //   ? "Key"
+  //   : nextMilestone?.name || "Next Milestone Badge";
+  const badgeName = isAccountScreen
+    ? growthBadgeName
+    : COMMUNITY_BADGE_MAP[milestoneTarget] ??
+      nextMilestone?.name ??
+      "Next Milestone Badge";
 
   const currentValue = user?.globalStats?.totalDonors || 0;
 
@@ -41,6 +63,11 @@ const ProgressBar = () => {
 
   const MIN_STROKE_THRESHOLD = 0.08; // 8% feels good visually
   const showStroke = progressPercentage > MIN_STROKE_THRESHOLD;
+
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
 
   React.useEffect(() => {
     Animated.timing(animatedProgress, {
@@ -111,46 +138,55 @@ const ProgressBar = () => {
           </View>
         </View>
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: horizontalScale(6),
-        }}
-      >
-        <CustomText
-          fontFamily="GabaritoRegular"
-          fontSize={15}
-          color={COLORS.darkText}
-          style={{ textAlign: "center" }}
+      {!hideFooter && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: horizontalScale(6),
+          }}
         >
-          {currentValue.toLocaleString()}
-        </CustomText>
-        <CustomText
-          fontFamily="GabaritoRegular"
-          fontSize={15}
-          color={COLORS.appText}
-        >
-          of
-        </CustomText>
-        <Pressable onPress={() => setShowFinalGoal((prev) => !prev)}>
           <CustomText
             fontFamily="GabaritoRegular"
             fontSize={15}
-            color={COLORS.greyText}
-            style={{
-              textAlign: "center",
-              paddingHorizontal: horizontalScale(10),
-              paddingVertical: verticalScale(4),
-              backgroundColor: COLORS.greyBackground,
-              borderRadius: 10,
+            color={COLORS.darkText}
+            style={{ textAlign: "center" }}
+          >
+            {currentValue.toLocaleString()}
+          </CustomText>
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={15}
+            color={COLORS.appText}
+          >
+            of
+          </CustomText>
+          <Pressable
+            disabled={isAccountScreen}
+            onPress={() => {
+              if (isAccountScreen) return;
+              HapticFeedback.trigger("impactLight", hapticOptions);
+              setShowFinalGoal((prev) => !prev);
             }}
           >
-            {milestoneLabel}
-          </CustomText>
-        </Pressable>
-      </View>
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              color={COLORS.greyText}
+              style={{
+                textAlign: "center",
+                paddingHorizontal: horizontalScale(16),
+                paddingVertical: verticalScale(4),
+                backgroundColor: COLORS.greyBackground,
+                borderRadius: 100,
+              }}
+            >
+              {milestoneLabel}
+            </CustomText>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 };

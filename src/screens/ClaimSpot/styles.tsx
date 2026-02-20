@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
+    marginTop: verticalScale(15),
   },
   keyboardView: {
     flex: 1,
@@ -25,8 +26,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
   },
   side: { width: horizontalScale(40), alignItems: "flex-start" },

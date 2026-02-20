@@ -68,10 +68,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
-  const MAX_HEIGHT = verticalScale(96); // ~4 lines
+  const MAX_HEIGHT = verticalScale(96); 
   const MIN_HEIGHT = verticalScale(40);
-
-  const [inputHeight, setInputHeight] = useState(MIN_HEIGHT);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -447,6 +445,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="never"
             scrollEventThrottle={16}
+            contentContainerStyle={{
+              paddingBottom: verticalScale(100),
+            }}
             // onScroll={(e) => {
             //   const currentY = e.nativeEvent.contentOffset.y;
             //   const isScrollingDown = currentY > lastScrollY.current;
@@ -736,29 +737,29 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               )}
             </View>
           </FocusResetScrollView>
-
-          {/* {showCommentInput && (
-            <> */}
-          <View style={styles.bottomContainer}>
+          <View pointerEvents="none" style={styles.bottomFadeWrapper}>
             <LinearGradient
               colors={[
-                "rgba(248,248,251,0)",
-                "rgba(248,248,251,0.3)",
-                "rgba(248,248,251,0.9)",
+                "rgba(255,255,255,0)",
+                "rgba(255,255,255,0.4)",
+                "rgba(255,255,255,0.85)",
+                "rgba(255,255,255,1)",
               ]}
-              locations={[0, 0.35, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={[
-                styles.gradientOverlay,
-                {
-                  top: isKeyboardVisible ? 0 : -verticalScale(40),
-                },
-              ]}
+              locations={[0, 0.35, 0.75, 1]}
+              style={styles.bottomFade}
             />
+          </View>
+          {/* {showCommentInput && (
+            <> */}
+          <View
+            style={styles.bottomContainer}
+            onLayout={(e) => {
+              const h = e.nativeEvent.layout.height;
+            }}
+          >
             <View style={styles.commentInputRow}>
               <CustomIcon
-                Icon={ICONS.SimpleUserIcon}
+                Icon={ICONS.changedUser}
                 height={verticalScale(40)}
                 width={horizontalScale(40)}
               />
@@ -807,13 +808,15 @@ export default UpdateDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: COLORS.white,
   },
   safeArea: {
     flex: 1,
+    backgroundColor: COLORS.white,
   },
   keyboardView: {
     flex: 1,
+    backgroundColor: COLORS.white,
   },
   updateImage: {
     width: "100%",
@@ -837,7 +840,7 @@ const styles = StyleSheet.create({
     paddingLeft: horizontalScale(16),
     paddingRight: horizontalScale(8),
     paddingVertical: verticalScale(8),
-    backgroundColor: COLORS.greyish,
+    backgroundColor: COLORS.commentBar,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -967,10 +970,24 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     justifyContent: "flex-end",
-    backgroundColor: "white",
+    backgroundColor: COLORS.white,
+    zIndex: 10,
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,
     height: verticalScale(40),
+  },
+  bottomFadeWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: verticalScale(50),
+    height: verticalScale(50),
+    zIndex: 5,
+  },
+
+  bottomFade: {
+    width: "100%",
+    height: "100%",
   },
 });

@@ -23,7 +23,6 @@ import { ArtScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
 import Pulse from "../../components/PulseLoading";
-import ArtDetail from "../ArtDetail";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SIDE_PADDING = horizontalScale(20);
@@ -180,7 +179,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               fontSize={42}
               color={COLORS.darkText}
             >
-              Artworks
+              Art
             </CustomText>
 
             <CustomText
@@ -238,21 +237,25 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
                     onLoadStart={() => setWeekImageLoading(true)}
                     onLoadEnd={() => setWeekImageLoading(false)}
                   />
+                  {!weekImageLoading && (
+                    <View style={styles.statPill}>
+                      <CustomText
+                        fontFamily="GabaritoRegular"
+                        fontSize={12}
+                        color={COLORS.appBackground}
+                        style={{ marginLeft: 6 }}
+                      >
+                        {artOfTheWeek
+                          ?.publishedAt!.slice(0, 10)
+                          .split("-")
+                          .reverse()
+                          .join(".")}
+                      </CustomText>
+                    </View>
+                  )}
                 </View>
 
                 <View style={styles.weekContent}>
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
-                    color={COLORS.appText}
-                    style={{ textAlign: "center" }}
-                  >
-                    {artOfTheWeek
-                      ?.publishedAt!.slice(0, 10)
-                      .split("-")
-                      .reverse()
-                      .join(".")}
-                  </CustomText>
                   <View>
                     <CustomText
                       fontFamily="GabaritoSemiBold"
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    paddingTop: Platform.OS === "android" ? verticalScale(10) : 0,
+    paddingTop: verticalScale(15),
   },
   scrollContent: { flexGrow: 1 },
 
@@ -415,5 +418,16 @@ const styles = StyleSheet.create({
     height: verticalScale(70),
     resizeMode: "contain",
     marginBottom: verticalScale(24),
+  },
+  statPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: horizontalScale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: 30,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    position: "absolute",
+    top: verticalScale(8),
+    right: horizontalScale(8),
   },
 });

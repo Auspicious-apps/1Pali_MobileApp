@@ -84,13 +84,15 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               One cause, one million supporters
             </CustomText>
             <CustomText
-              fontFamily="SourceSansRegular"
+              fontFamily="GabaritoRegular"
               fontSize={18}
               color={COLORS.appText}
-              style={{ lineHeight: verticalScale(20), width: "95%" }}
+              style={{ lineHeight: verticalScale(20) }}
             >
-              OnePali is built on people showing up together. Each member
-              donates $1 per month. Small amounts add up when shared by many.
+              {/* OnePali is built on people showing up together. Each member
+              donates $1 per month. Small amounts add up when shared by many. */}
+              Join others giving $1 a month for Palestine. Small contributions
+              create real impact.
             </CustomText>
           </View>
 

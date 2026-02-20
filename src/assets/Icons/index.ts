@@ -75,6 +75,8 @@ import OnimageChat from "./OnimageChat.svg";
 import DarkSendIcon from "./DarkSendIcon.svg";
 import ShareArt from "./ShareArt.svg";
 import WhiteCloseIcon from "./WhiteCloseIcon.svg";
+import changedUser from "./ChangedUser.svg";
+import DarkUpload from "./DarkUpload.svg";
 
 const ICONS = {
   diceIcon,
@@ -154,6 +156,8 @@ const ICONS = {
   DarkSendIcon,
   ShareArt,
   WhiteCloseIcon,
+  changedUser,
+  DarkUpload,
 };
 
 export default ICONS;
