@@ -1,12 +1,12 @@
 import React from "react";
 import { Animated, Easing, Pressable, StyleSheet, View } from "react-native";
+import HapticFeedback from "react-native-haptic-feedback";
 import { useAppSelector } from "../redux/store";
 import COLORS from "../utils/Colors";
 import { horizontalScale, verticalScale } from "../utils/Metrics";
 import BadgeIcon from "./BadgeIcon";
 import CircularOverlay from "./CircularOverlay";
 import { CustomText } from "./CustomText";
-import HapticFeedback from "react-native-haptic-feedback";
 
 const STRIPE_WIDTH = horizontalScale(14.8);
 const STRIPE_GAP = horizontalScale(12);
@@ -24,13 +24,14 @@ const COMMUNITY_BADGE_MAP: any = {
 
 const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
   const { user } = useAppSelector((state) => state.user);
+
   const [showFinalGoal, setShowFinalGoal] = React.useState(true);
   const nextMilestone = user?.nextCommunityMilestone;
   const [trackWidth, setTrackWidth] = React.useState(0);
-
+  const growthBadge = user?.nextGrowthBadge;
   const animatedProgress = React.useRef(new Animated.Value(0)).current;
 
-  const growthBadgeName = user?.nextGrowthBadge?.name || "Growth Badge";
+  console.log(user?.nextGrowthBadge);
 
   const milestoneTarget = showFinalGoal
     ? 1000000
@@ -40,26 +41,21 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
     ? "1M supporters"
     : `${nextMilestone?.threshold?.toLocaleString()} supporters`;
 
-
-    console.log(nextMilestone, "NEXT MILESTONE. ");
-    
-
-  // const badgeName = showFinalGoal
-  //   ? "Key"
-  //   : nextMilestone?.name || "Next Milestone Badge";
   const badgeName = isAccountScreen
-    ? growthBadgeName
-    : COMMUNITY_BADGE_MAP[milestoneTarget] ??
-      nextMilestone?.name ??
-      "Next Milestone Badge";
+    ? user?.nextGrowthBadge.name!
+    : showFinalGoal
+    ? "Key"
+    : nextMilestone?.name || "key";
 
   const currentValue = user?.globalStats?.totalDonors || 0;
 
-  const progressPercentage = Math.min(currentValue / milestoneTarget, 1);
-  const progressPercentValue = Math.min(
-    (currentValue / milestoneTarget) * 100,
-    100,
-  );
+  const progressPercentage = isAccountScreen
+    ? growthBadge?.progressPercentage! / 100 || 0
+    : Math.min(currentValue / milestoneTarget, 1);
+
+  const progressPercentValue = isAccountScreen
+    ? growthBadge?.progressPercentage || 0
+    : Math.min((currentValue / milestoneTarget) * 100, 100);
 
   const MIN_STROKE_THRESHOLD = 0.08; // 8% feels good visually
   const showStroke = progressPercentage > MIN_STROKE_THRESHOLD;
@@ -131,7 +127,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
             />
 
             <CircularOverlay
-              percentage={progressPercentValue}
+              percentage={progressPercentValue!}
               borderWidth={0}
               size={verticalScale(48)}
             />

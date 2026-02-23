@@ -68,7 +68,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
-  const MAX_HEIGHT = verticalScale(96); 
+  const MAX_HEIGHT = verticalScale(96);
   const MIN_HEIGHT = verticalScale(40);
 
   const UpdateDetailSkeleton = () => (
@@ -433,11 +433,21 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         </TouchableOpacity>
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "height" : "height"}
+          behavior={
+            Platform.OS === "ios"
+              ? "height"
+              : Number(Platform.Version) > 33
+              ? "height"
+              : "padding"
+          }
           keyboardVerticalOffset={
             isKeyboardVisible
               ? 0
-              : Platform.select({ android: verticalScale(-30), ios: 0 })
+              : Platform.select({
+                  android:
+                    Number(Platform.Version) > 33 ? verticalScale(-30) : 0,
+                  ios: 0,
+                })
           }
         >
           <FocusResetScrollView

@@ -92,10 +92,8 @@ export interface NextGrowthBadge {
   name: string;
   title: string;
   description: string;
-  iconPngUrl: string;
-  unlocksAt: number;
   monthsRemaining: number;
-  currentProgress: number;
+  daysRemaining: number;
   requirement: Requirement2;
   progressPercentage: number;
 }
