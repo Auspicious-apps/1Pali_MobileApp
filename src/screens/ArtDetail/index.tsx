@@ -167,6 +167,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       if (result.success) {
         let platform: ShareType = "APP_SHARE_SHEET";
+        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
+          platform = "APP_SHARE_SHEET";
+        }
+        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
+          platform = "APP_SHARE_SHEET";
+        }
+        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
+          platform = "APP_SHARE_SHEET";
+        }
+        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
+          platform = "APP_SHARE_SHEET";
+        }
 
         await shareToApp(platform);
       }
