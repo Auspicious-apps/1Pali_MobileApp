@@ -155,7 +155,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       setCapturingCard(false);
 
-      await ShareLib.open({
+      const result = await ShareLib.open({
         url: shareFilePath,
         // For iOS: This sets the display name in the share sheet
         filename: customFileName,
@@ -165,7 +165,11 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
       });
 
-      await shareToApp("APP_SHARE_SHEET");
+      if (result.success) {
+        let platform: ShareType = "APP_SHARE_SHEET";
+
+        await shareToApp(platform);
+      }
     } catch (error: any) {
       if (error?.message?.includes("User did not share")) {
         console.log("User cancelled sharing");
@@ -176,6 +180,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       setCapturingCard(false);
     }
   };
+
   const shareToApp = async (platform: ShareType) => {
     try {
       setSharing(true);
