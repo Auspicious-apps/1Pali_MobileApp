@@ -34,6 +34,7 @@ import { ClaimSpotProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
+import Toast from "react-native-toast-message";
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -180,7 +181,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
   // Reserve the specific number via API and navigate on success
   const handleReserveNumber = async () => {
-    if (checking || !available || !number) return;
+    // if (checking || !available || !number) return;
+    if (checking || !available || !number || isLoading) return;
 
     const numValue = Number(number);
 
@@ -208,9 +210,24 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
       dispatch(clearReservationTimer());
       navigation.navigate("missionIntro", { showNumber: true });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error reserving number:", e);
-      // On API error, clear the reservation token to allow retry with a different number
+
+      setAvailable(false);
+      setUnavailable(true);
+      setChecking(false);
+
+      const message =
+        e?.response?.data?.message ||
+        "This number was just taken. Please try another.";
+
+      Toast.show({
+        type: "error",
+        text1: message,
+      });
+
+      CheckNumberAvailable(number);
+
       dispatch(clearReservationToken());
     } finally {
       setInputDisabled(false);

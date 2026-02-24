@@ -179,8 +179,8 @@ const styles = StyleSheet.create({
     marginHorizontal: horizontalScale(10),
   },
   tabBar: {
-    paddingTop: verticalScale(5),
-    paddingBottom: isAndroid ? verticalScale(0) : verticalScale(5),
+    // paddingTop: verticalScale(5),
+    paddingBottom: isAndroid ? verticalScale(5) : verticalScale(5),
   },
   tabContent: {
     flexGrow: 1,
