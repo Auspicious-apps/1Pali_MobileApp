@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import Svg, { Circle, Path } from "react-native-svg";
+import Svg, { Circle, Defs, Mask, Path, Rect } from "react-native-svg";
 
 const polarToCartesian = (
   centerX: number,
@@ -23,19 +23,18 @@ const describeArc = (
   startAngle: number,
   endAngle: number,
 ) => {
-  const start = polarToCartesian(x, y, radius, endAngle);
-  const end = polarToCartesian(x, y, radius, startAngle);
+  const start = polarToCartesian(x, y, radius, startAngle);
+  const end = polarToCartesian(x, y, radius, endAngle);
 
   const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
 
-  return [
-    `M ${x} ${y}`,
-    `L ${start.x} ${start.y}`,
-    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
-    "Z",
-  ].join(" ");
+  return `
+    M ${x} ${y}
+    L ${start.x} ${start.y}
+    A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}
+    Z
+  `;
 };
-
 interface Props {
   percentage: number;
   size?: number;
@@ -55,8 +54,7 @@ const CircularOverlay = ({
   const radius = effectiveSize / 2;
   const adjustedRadius = radius - borderWidth / 2;
 
-  const invertedPercentage = 100 - percentage;
-  const angle = (invertedPercentage / 100) * 360;
+  const angle = (percentage / 100) * 360;
 
   return (
     <View
@@ -76,14 +74,35 @@ const CircularOverlay = ({
         height={effectiveSize}
         viewBox={`0 0 ${effectiveSize} ${effectiveSize}`}
       >
-        <Circle cx={radius} cy={radius} r={adjustedRadius} fill="transparent" />
+        <Defs>
+          <Mask id="mask">
+            {/* Everything visible by default */}
+            <Rect
+              x="0"
+              y="0"
+              width={effectiveSize}
+              height={effectiveSize}
+              fill="white"
+            />
 
-        {percentage > 0 && (
-          <Path
-            d={describeArc(radius, radius, adjustedRadius, 0, angle)}
-            fill={color}
-          />
-        )}
+            {/* This arc becomes transparent (black removes) */}
+            {percentage > 0 && (
+              <Path
+                d={describeArc(radius, radius, adjustedRadius, 0, angle)}
+                fill="black"
+              />
+            )}
+          </Mask>
+        </Defs>
+
+        {/* Full Circle with mask applied */}
+        <Circle
+          cx={radius}
+          cy={radius}
+          r={adjustedRadius}
+          fill={color}
+          mask="url(#mask)"
+        />
       </Svg>
     </View>
   );

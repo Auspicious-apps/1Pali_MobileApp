@@ -614,11 +614,21 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       >
         <KeyboardAvoidingView
           style={styles.keyboardView}
-          behavior={Platform.OS === "ios" ? "height" : "height"}
+          behavior={
+            Platform.OS === "ios"
+              ? "height"
+              : Number(Platform.Version) > 33
+              ? "height"
+              : "padding"
+          }
           keyboardVerticalOffset={
             isKeyboardVisible
               ? 0
-              : Platform.select({ android: verticalScale(-30), ios: 0 })
+              : Platform.select({
+                  android:
+                    Number(Platform.Version) > 33 ? verticalScale(-30) : 0,
+                  ios: 0,
+                })
           }
         >
           <View
@@ -945,13 +955,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
           {/* {showCommentInput && (
             <> */}
-          <View
-            style={styles.bottomContainer}
-            onLayout={(e) => {
-              const h = e.nativeEvent.layout.height;
-              setInputHeight(h);
-            }}
-          >
+          <View style={styles.bottomContainer}>
             <View style={styles.commentInputRow}>
               <CustomIcon
                 Icon={ICONS.changedUser}
