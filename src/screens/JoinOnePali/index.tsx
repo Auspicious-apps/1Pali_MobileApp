@@ -141,6 +141,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       const planId = enabled ? feesAmount.planId : selectedPlan;
 
       if (user && user.hasPaymentMethod) {
+        setShowImpactLoader(true);
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
             ENDPOINTS.ConfirmSetupIntent,
@@ -150,9 +151,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             },
           );
 
-        if (confirmSetupIntentresponse.data.success) {
           setIsLoading(false);
-          setShowImpactLoader(true);
+        if (confirmSetupIntentresponse.data.success) {
           // Start polling instead of a single fetch
           const isSubscriptionActive = await pollUserProfile(3);
 
@@ -163,6 +163,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               params: { screen: "home" },
             });
           } else {
+            setShowImpactLoader(false);
             Alert.alert(
               "Subscription Pending",
               "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
@@ -210,6 +211,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           Alert.alert("Payment failed", paymentError.message);
           return;
         }
+        setShowImpactLoader(true);
         setIsLoading(false);
 
         if (!setupIntentId) {
@@ -250,6 +252,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       console.log("SetupIntent error:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
+      setShowImpactLoader(false);
       setIsLoading(false);
     }
   };

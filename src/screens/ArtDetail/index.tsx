@@ -183,6 +183,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       console.log("Result:", result?.message);
 
       if (result?.success) {
+        const activityType = result?.message;
+        if (
+          activityType === "com.apple.UIKit.activity.SaveToCameraRoll" ||
+          activityType === "com.apple.DocumentManagerUICore.SaveToFiles"
+        ) {
+          console.log("User only saved the image — skipping share API");
+          return;
+        }
         let platform: ShareType = "APP_SHARE_SHEET";
 
         if ((result.message = "Instagram")) {
