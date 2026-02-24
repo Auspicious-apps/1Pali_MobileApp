@@ -124,7 +124,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   contentContainer: {
-    paddingBottom: verticalScale(24),
+    paddingBottom:
+      Platform.OS === "android" ? verticalScale(100) : verticalScale(70),
   },
   dotContainer: {
     flexDirection: "row",

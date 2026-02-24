@@ -62,15 +62,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   });
 
   const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
-    const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [toggleWidth, setToggleWidth] = useState(0);
-    const slideAnim = React.useRef(new Animated.Value(0)).current;
-    const visiblePlans = stripePlans.filter(
-      (plan) => !plan.metadata.calculationMethod,
-    );
-    const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const [toggleWidth, setToggleWidth] = useState(0);
+  const slideAnim = React.useRef(new Animated.Value(0)).current;
+  const visiblePlans = stripePlans.filter(
+    (plan) => !plan.metadata.calculationMethod,
+  );
+  const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
 
   // Edge case: Check if fee plan is available
   const isFeesPlanAvailable = !!feesAmount.planId && feesAmount.amount !== "0";
@@ -80,10 +78,10 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     (enabled && feesAmount.planId !== user?.stripePriceId) ||
     (!enabled && selectedPlanId !== user?.stripePriceId);
 
- const hapticOptions = {
-   enableVibrateFallback: true,
-   ignoreAndroidSystemSettings: false,
- };
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
 
   const handlePlanChange = async () => {
     // Edge case: Validate plan selection before API call
@@ -286,18 +284,22 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     }
   }, [selectedPlanData, stripePlans, selectedPlanId]);
 
-    useEffect(() => {
-      const index = visiblePlans.findIndex((p) => p.id === selectedPlan);
+  useEffect(() => {
+    if (!selectedPlanData || ITEM_WIDTH <= 0) return;
 
-      if (index >= 0 && ITEM_WIDTH > 0) {
-        Animated.timing(slideAnim, {
-          toValue: index * ITEM_WIDTH,
-          duration: 220,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }).start();
-      }
-    }, [selectedPlan, ITEM_WIDTH]);
+    const index = visiblePlans.findIndex((p) =>
+      selectedPlanData?.nickname.includes(p.nickname),
+    );
+
+    if (index === -1) return;
+
+    Animated.timing(slideAnim, {
+      toValue: index * ITEM_WIDTH,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [selectedPlanData, ITEM_WIDTH, visiblePlans]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -326,12 +328,12 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
         </CustomText>
 
         <CustomText
-          fontFamily="SourceSansRegular"
-          fontSize={14}
+          fontFamily="GabaritoRegular"
+          fontSize={18}
           color={COLORS.appText}
           style={styles.subHeading}
         >
-          Change donation amount, or cancel recurring donations
+          Update your OnePali subscription
         </CustomText>
       </View>
       {loadingPlans ? (
@@ -345,24 +347,12 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
         <>
           {/* Heading */}
 
-          <CustomText
-            fontFamily="SourceSansRegular"
-            fontSize={14}
-            style={{
-              color: COLORS.appText,
-              textAlign: "center",
-              marginTop: verticalScale(32),
-            }}
-          >
-            Current Selection:
-          </CustomText>
-
           <View style={styles.card}>
             {/* Header */}
             <View style={styles.header}>
               <CustomText
                 fontFamily="GabaritoMedium"
-                fontSize={22}
+                fontSize={20}
                 color={COLORS.darkText}
               >
                 OnePali Supporter
@@ -433,6 +423,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   const isSelected = selectedPlanData?.nickname.includes(
                     plan.nickname,
                   );
+                  const isFirst = index === 0;
 
                   return (
                     <TouchableOpacity
@@ -443,7 +434,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                         HapticFeedback.trigger("impactLight", hapticOptions);
                         setEnabled(false);
                         setPreviousPlanId(null);
-                        setSelectedPlan(plan.id);
                         dispatch(setSelectedPlanId(plan.id));
                         dispatch(setSelectedPlanData(plan));
                       }}
@@ -462,47 +452,49 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 })}
             </View>
 
-            {/* Benefits */}
-            <View style={styles.row}>
-              <CustomIcon Icon={ICONS.HeartFill} height={16} width={16} />
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
-                style={{ color: COLORS.appText }}
-              >
-                Monthly donation to Gaza (via MECA)
-              </CustomText>
-            </View>
+            <View style={{ gap: verticalScale(8) }}>
+              {/* Benefits */}
+              <View style={styles.row}>
+                <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={15}
+                  style={{ color: COLORS.appText }}
+                >
+                  Monthly donation to Gaza (via MECA)
+                </CustomText>
+              </View>
 
-            <View style={styles.row}>
-              <CustomIcon Icon={ICONS.HeartFill} height={16} width={16} />
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
-                style={{ color: COLORS.appText }}
-              >
-                Weekly artwork from students in Palestine
-              </CustomText>
-            </View>
+              <View style={styles.row}>
+                <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={15}
+                  style={{ color: COLORS.appText }}
+                >
+                  Weekly artwork from students in Palestine
+                </CustomText>
+              </View>
 
-            <View style={styles.row}>
-              <CustomIcon Icon={ICONS.HeartFill} height={16} width={16} />
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
-                style={{ color: COLORS.appText }}
-              >
-                Ongoing updates on how funds are used
-              </CustomText>
+              <View style={styles.row}>
+                <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={15}
+                  style={{ color: COLORS.appText }}
+                >
+                  Ongoing updates on how funds are used
+                </CustomText>
+              </View>
             </View>
-            <View style={styles.divider} />
+            {/* <View style={styles.divider} /> */}
 
             {/* Footer */}
             <View style={styles.footer}>
               <View style={styles.trialRow}>
                 <CustomText
-                  fontFamily="SourceSansMedium"
-                  fontSize={14}
+                  fontFamily="GabaritoRegular"
+                  fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
                   Sure, I’ll cover the ${feesAmount.amount} processing fee
@@ -554,8 +546,8 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               />
             </View>
             <CustomText
-              fontFamily="SourceSansMedium"
-              fontSize={14}
+              fontFamily="GabaritoRegular"
+              fontSize={15}
               style={{ color: COLORS.appText, marginTop: verticalScale(20) }}
             >
               {user?.cancelAtPeriodEnd
@@ -640,6 +632,26 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </View>
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={15}
+            style={{
+              color: COLORS.appText,
+              textAlign: "center",
+              marginTop: verticalScale(24),
+            }}
+          >
+            Current Subscription:{" "}
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              style={{
+                color: COLORS.darkText,
+              }}
+            >
+              ${user?.totalDonations}/mo
+            </CustomText>
+          </CustomText>
         </>
       )}
     </SafeAreaView>
@@ -672,13 +684,14 @@ const styles = StyleSheet.create({
 
   subHeading: {
     textAlign: "center",
+    marginTop: verticalScale(8),
   },
 
   card: {
     backgroundColor: "rgba(248, 248, 251, 1)",
     borderRadius: 20,
     padding: 16,
-    marginTop: verticalScale(8),
+    marginTop: verticalScale(24),
     width: wp(90),
     shadowColor: "#000",
     shadowOffset: {
@@ -704,13 +717,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: horizontalScale(8),
-    marginBottom: verticalScale(4),
   },
 
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: verticalScale(12),
   },
   trialRow: {
     flexDirection: "row",

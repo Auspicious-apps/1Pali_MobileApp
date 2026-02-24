@@ -77,6 +77,7 @@ import ShareArt from "./ShareArt.svg";
 import WhiteCloseIcon from "./WhiteCloseIcon.svg";
 import changedUser from "./ChangedUser.svg";
 import DarkUpload from "./DarkUpload.svg";
+import WhiteBack from "./WhiteBack.svg";
 
 const ICONS = {
   diceIcon,
@@ -158,6 +159,7 @@ const ICONS = {
   WhiteCloseIcon,
   changedUser,
   DarkUpload,
+  WhiteBack,
 };
 
 export default ICONS;

@@ -73,7 +73,7 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({
         <SafeAreaView style={styles.overlay}>
           <View style={styles.card}>
             <Image
-              source={IMAGES.ChangedSplash}
+              source={IMAGES.OnePaliLogo}
               style={styles.image}
               resizeMode="contain"
             />
