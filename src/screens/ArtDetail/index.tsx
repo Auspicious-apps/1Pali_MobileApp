@@ -63,7 +63,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const { ArtId } = route.params;
   const [artDetail, setArtDetail] = useState<GetArtByIdResponse>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [commentText, setCommentText] = useState("");
   const commentInputRef = useRef<TextInput>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -71,7 +71,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
   const [sharing, setSharing] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
   const commentsSectionY = useRef(0);
@@ -91,6 +91,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [capturingCard, setCapturingCard] = useState(false);
   const { user } = useAppSelector((state) => state.user);
   const cardRef = useRef(null);
+  const scrollRef = useRef<any>(null);
+
+  const formatDateMMDDYYYY = (date?: string) => {
+    if (!date) return "";
+
+    const d = new Date(date);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yyyy = d.getFullYear();
+
+    return `${mm}.${dd}.${yyyy}`;
+  };
 
   const ArtDetailPulse = () => (
     <SafeAreaView style={styles.container}>
@@ -166,19 +178,27 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
       });
 
-      if (result.success) {
+      console.log("=== SHARE RESULT ===");
+      console.log("Platform:", Platform.OS);
+      console.log("Result:", result?.message);
+
+      if (result?.success) {
         let platform: ShareType = "APP_SHARE_SHEET";
-        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
+
+        if ((result.message = "Instagram")) {
+          platform = "INSTAGRAM";
+        } else if ((result.message = "Facebook")) {
+          platform = "FACEBOOK";
+        } else if ((result.message = "WhatsApp")) {
+          platform = "WHATSAPP";
+        } else if ((result.message = "Messages")) {
+          platform = "MESSAGE";
+        } else if (
+          (result.message = "com.apple.UIKit.activity.CopyToPasteboard")
+        ) {
           platform = "APP_SHARE_SHEET";
-        }
-        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
-          platform = "APP_SHARE_SHEET";
-        }
-        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
-          platform = "APP_SHARE_SHEET";
-        }
-        if ((result.message = "com.apple.UIKit.activity.CopyToPasteboard")) {
-          platform = "APP_SHARE_SHEET";
+        } else {
+          console.log(" Shared via unknown app");
         }
 
         await shareToApp(platform);
@@ -394,18 +414,36 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     }
   };
 
+  // const handleCommentIconPress = () => {
+  //   manualOpen.current = true;
+  //   setShowCommentInput(true);
+
+  //   setTimeout(() => {
+  //     commentInputRef.current?.focus();
+  //   }, 100);
+  // };
   const handleCommentIconPress = () => {
     manualOpen.current = true;
     setShowCommentInput(true);
 
-    setTimeout(() => {
-      commentInputRef.current?.focus();
-    }, 100);
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        y: Math.max(0, commentsSectionY.current - verticalScale(20)),
+        animated: true,
+      });
+
+      setTimeout(() => {
+        commentInputRef.current?.focus();
+      }, 350);
+    });
   };
 
   const handleLikeUnlike = async () => {
     setIsLiked((prevLiked) => {
       const nextLiked = !prevLiked;
+      if (nextLiked) {
+        triggerLikeAnimation();
+      }
 
       setArtDetail((prev) => {
         const updated = prev
@@ -521,11 +559,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   }, [ArtId]);
 
   useEffect(() => {
-    setImageLoading(true);
-    mediaLoadedRef.current = false;
-  }, [artDetail?.mediaUrl]);
-
-  useEffect(() => {
     // iOS: Smooth animations
     if (Platform.OS === "ios") {
       Keyboard.addListener("keyboardWillShow", () =>
@@ -635,11 +668,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 fontSize={18}
                 color={COLORS.darkText}
               >
-                {artDetail?.createdAt
-                  ?.slice(0, 10)
-                  ?.split("-")
-                  ?.reverse()
-                  ?.join(".")}
+                {formatDateMMDDYYYY(artDetail?.createdAt)}
               </CustomText>
             </View>
 
@@ -651,6 +680,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
           <FocusResetScrollView
+            ref={scrollRef}
             bounces={false}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="never"
@@ -860,7 +890,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             >
               <CustomText
                 fontFamily="SourceSansRegular"
-                fontSize={14}
+                fontSize={16}
                 color={COLORS.darkText}
               >
                 {artDetail?.description}

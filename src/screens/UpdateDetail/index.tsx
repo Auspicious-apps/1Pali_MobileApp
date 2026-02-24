@@ -73,6 +73,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
+  const scrollRef = useRef<any>(null);
+  const commentsSectionRef = useRef<View>(null);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -188,6 +190,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const handleLikeUnlike = async () => {
     const nextLiked = !isLiked;
 
+    if (nextLiked) {
+      triggerLikeAnimation();
+    }
     setIsLiked(nextLiked);
     setBlogDetail((prev) => {
       const updated = prev
@@ -300,13 +305,43 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     }
   };
 
+  // const handleCommentIconPress = () => {
+  //   manualOpen.current = true;
+  //   setShowCommentInput(true);
+
+  //   setTimeout(() => {
+  //     commentInputRef.current?.focus();
+  //   }, 100);
+  // };
   const handleCommentIconPress = () => {
     manualOpen.current = true;
     setShowCommentInput(true);
 
-    setTimeout(() => {
-      commentInputRef.current?.focus();
-    }, 100);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (!commentsSectionRef.current || !scrollRef.current) {
+          commentInputRef.current?.focus();
+          return;
+        }
+
+        commentsSectionRef.current.measureLayout(
+          scrollRef.current,
+          (x, y) => {
+            scrollRef.current?.scrollTo({
+              y: Math.max(0, y - verticalScale(20)),
+              animated: true,
+            });
+
+            setTimeout(() => {
+              commentInputRef.current?.focus();
+            }, 400);
+          },
+          () => {
+            commentInputRef.current?.focus();
+          },
+        );
+      }, 200);
+    });
   };
 
   const handleShare = async () => {
@@ -437,7 +472,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                 : verticalScale(60),
             left: horizontalScale(20),
             zIndex: 10,
-            backgroundColor: "#E5E7EF",
             borderRadius: 100,
             height: 32,
             width: 32,
@@ -447,7 +481,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           }}
           onPress={() => navigation.goBack()}
         >
-          <CustomIcon Icon={ICONS.BackArrowWithBg} height={26} width={26} />
+          <CustomIcon Icon={ICONS.WhiteBack} height={32} width={32} />
         </TouchableOpacity>
         <KeyboardAvoidingView
           style={styles.keyboardView}
@@ -469,6 +503,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           }
         >
           <FocusResetScrollView
+            ref={scrollRef}
             bounces={false}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="never"
@@ -602,7 +637,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             >
               <CustomText
                 fontFamily="SourceSansRegular"
-                fontSize={15}
+                fontSize={16}
                 color={COLORS.darkText}
               >
                 {blogDetail?.content}
@@ -723,26 +758,28 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                 </TouchableOpacity> */}
               </View>
 
-              {/* COMMENTS */}
-              <FlatList
-                data={comments}
-                keyExtractor={(item) => item.id}
-                renderItem={renderCommentItem}
-                scrollEnabled={false}
-                contentContainerStyle={styles.commentsList}
-                ListEmptyComponent={
-                  !commentsLoading ? (
-                    <CustomText
-                      fontFamily="SourceSansMedium"
-                      fontSize={16}
-                      color={COLORS.appText}
-                      style={{ textAlign: "center", marginVertical: 12 }}
-                    >
-                      No comments yet
-                    </CustomText>
-                  ) : null
-                }
-              />
+              <View ref={commentsSectionRef}>
+                {/* COMMENTS */}
+                <FlatList
+                  data={comments}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderCommentItem}
+                  scrollEnabled={false}
+                  contentContainerStyle={styles.commentsList}
+                  ListEmptyComponent={
+                    !commentsLoading ? (
+                      <CustomText
+                        fontFamily="SourceSansMedium"
+                        fontSize={16}
+                        color={COLORS.appText}
+                        style={{ textAlign: "center", marginVertical: 12 }}
+                      >
+                        No comments yet
+                      </CustomText>
+                    ) : null
+                  }
+                />
+              </View>
               {hasNext && (
                 <TouchableOpacity
                   activeOpacity={0.8}

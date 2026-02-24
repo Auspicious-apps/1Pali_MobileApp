@@ -37,6 +37,16 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
 
   const artOfTheWeek = artworks.length > 0 ? artworks[0] : null;
   const gridArtworks = artworks.length > 1 ? artworks.slice(1) : [];
+  const formatDateMMDDYYYY = (date?: string) => {
+    if (!date) return "";
+
+    const d = new Date(date);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yyyy = d.getFullYear();
+
+    return `${mm}.${dd}.${yyyy}`;
+  };
 
   const WeekSkeleton = () => (
     <View style={styles.weekCard}>
@@ -132,11 +142,11 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
 
         <CustomText
           style={styles.monthText}
-          fontFamily="SourceSansRegular"
+          fontFamily="GabaritoRegular"
           fontSize={15}
           color={COLORS.appText}
         >
-          {item?.publishedAt!.slice(0, 10).split("-").reverse().join(".")}
+          {formatDateMMDDYYYY(item?.publishedAt)}
         </CustomText>
       </TouchableOpacity>
     ),
@@ -241,15 +251,10 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
                     <View style={styles.statPill}>
                       <CustomText
                         fontFamily="GabaritoRegular"
-                        fontSize={12}
+                        fontSize={15}
                         color={COLORS.appBackground}
-                        style={{ marginLeft: 6 }}
                       >
-                        {artOfTheWeek
-                          ?.publishedAt!.slice(0, 10)
-                          .split("-")
-                          .reverse()
-                          .join(".")}
+                        {formatDateMMDDYYYY(artOfTheWeek?.publishedAt)}
                       </CustomText>
                     </View>
                   )}
@@ -371,7 +376,7 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     backgroundColor: COLORS.white,
     borderRadius: 20,
-    padding: horizontalScale(10),
+    padding: horizontalScale(6),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
@@ -392,7 +397,8 @@ const styles = StyleSheet.create({
   },
 
   monthText: {
-    marginTop: verticalScale(10),
+    marginTop: verticalScale(8),
+    marginBottom: verticalScale(2),
     textAlign: "center",
   },
 

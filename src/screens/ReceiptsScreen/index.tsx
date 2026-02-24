@@ -222,14 +222,14 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
           <View style={styles.titleContainer}>
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={32}
+              fontSize={36}
               color={COLORS.darkText}
             >
               Receipts
             </CustomText>
             <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={14}
+              fontFamily="GabaritoRegular"
+              fontSize={18}
               color={COLORS.appText}
               style={styles.subtitle}
             >
@@ -279,7 +279,7 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
                   contentContainerStyle={styles.listContent}
                   renderItem={({ item, index }) => {
                     console.log(item);
-                    
+
                     return (
                       <View
                         style={[
@@ -420,7 +420,11 @@ const styles = StyleSheet.create({
   },
   side: { width: horizontalScale(40), alignItems: "flex-start" },
   center: { flex: 1, alignItems: "center" },
-  titleContainer: { marginTop: verticalScale(32), alignItems: "center" },
+  titleContainer: {
+    marginTop: verticalScale(32),
+    alignItems: "center",
+    gap: verticalScale(8),
+  },
   subtitle: { textAlign: "center" },
   yearFilter: {
     backgroundColor: COLORS.greyish,
