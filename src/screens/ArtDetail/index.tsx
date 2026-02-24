@@ -723,7 +723,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               paddingBottom: verticalScale(100),
             }}
           >
-            <TouchableOpacity activeOpacity={0.8} onPress={handleImageTap}>
+            <TouchableOpacity activeOpacity={1} onPress={handleImageTap}>
               <View style={styles.imageWrapper}>
                 {artDetail?.mediaType === "IMAGE" && (
                   <>

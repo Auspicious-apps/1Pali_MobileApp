@@ -238,15 +238,60 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     ]).start();
   };
 
+  // const handleImageDoubleTap = () => {
+  //   const now = Date.now();
+  //   const DOUBLE_PRESS_DELAY = 300;
+
+  //   if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
+  //     if (!isLiked) {
+  //       handleLikeUnlike();
+  //       triggerLikeAnimation();
+  //     }
+  //   }
+
+  //   lastTap.current = now;
+  // };
+
   const handleImageDoubleTap = () => {
     const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
+    const DOUBLE_PRESS_DELAY = 250;
 
     if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      if (!isLiked) {
-        handleLikeUnlike();
-        triggerLikeAnimation();
+      lastTap.current = 0;
+
+      triggerLikeAnimation();
+
+      setIsLiked((prev) => {
+        const nextLiked = !prev;
+
+        setBlogDetail((prevDetail) => {
+          if (!prevDetail) return prevDetail;
+          const updated = {
+            ...prevDetail,
+            likesCount: prevDetail.likesCount + (nextLiked ? 1 : -1),
+          };
+          dispatch(updateBlogDetail({ blogId, data: updated }));
+          return updated;
+        });
+
+        return nextLiked;
+      });
+
+      if (!likeRequestInProgress.current) {
+        likeRequestInProgress.current = true;
+
+        postData<LikeUnlikeBlogResponse>(
+          `${ENDPOINTS.LikeUnlikeBlog}/${blogId}/like`,
+        )
+          .catch(() => {
+            setIsLiked((prev) => !prev);
+          })
+          .finally(() => {
+            likeRequestInProgress.current = false;
+          });
       }
+
+      return;
     }
 
     lastTap.current = now;
