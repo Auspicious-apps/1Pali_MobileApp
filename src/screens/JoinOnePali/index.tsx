@@ -641,15 +641,13 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
             {/* Footer */}
             <View style={styles.footer}>
-              <View style={styles.trialRow}>
-                <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={15}
-                  style={{ color: COLORS.appText }}
-                >
-                  Sure, I’ll cover the ${feesAmount.amount} processing fee
-                </CustomText>
-              </View>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                style={{ color: COLORS.appText, flex: 1 }}
+              >
+                Sure, I’ll cover the ${feesAmount.amount} processing fee
+              </CustomText>
 
               <CustomSwitch
                 value={enabled}
@@ -716,7 +714,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               flexWrap: "wrap",
               justifyContent: "center",
               width: Platform.OS === "ios" ? wp(50) : wp(50),
-              marginTop: verticalScale(16),
             }}
           >
             <CustomText
@@ -840,6 +837,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: horizontalScale(10),
   },
   trialRow: {
     flexDirection: "row",
