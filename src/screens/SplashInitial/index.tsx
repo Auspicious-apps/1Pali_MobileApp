@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, Image, StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 import IMAGES from "../../assets/Images";
 import { syncFCMTokenWithBackend } from "../../Firebase/NotificationService";
@@ -129,7 +129,7 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Animated.Image
+      {/* <Animated.Image
         source={IMAGES.SplashInitial}
         style={[
           styles.image,
@@ -137,7 +137,8 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
             transform: [{ scale: scaleAnim }],
           },
         ]}
-      />
+      /> */}
+      <Image source={IMAGES.SplashInitial} style={styles.image} />
     </View>
   );
 };

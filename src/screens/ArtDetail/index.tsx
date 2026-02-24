@@ -500,19 +500,39 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     ]).start();
   };
 
+  // const handleImageTap = () => {
+  //   const now = Date.now();
+  //   const DOUBLE_PRESS_DELAY = 250;
+
+  //   if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
+  //     if (!isLiked && !likeRequestInProgress.current) {
+  //       handleLikeUnlike();
+  //       triggerLikeAnimation();
+  //     }
+  //   } else {
+  //     setTimeout(() => {
+  //       if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
+  //         setIsMediaFullscreen(true);
+  //       }
+  //     }, DOUBLE_PRESS_DELAY);
+  //   }
+
+  //   lastTap.current = now;
+  // };
+
   const handleImageTap = () => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 250;
 
     if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      if (!isLiked && !likeRequestInProgress.current) {
+      if (!likeRequestInProgress.current) {
         handleLikeUnlike();
         triggerLikeAnimation();
       }
     } else {
       setTimeout(() => {
         if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
-          setIsMediaFullscreen(true);
+          setUiIndex((prev) => (prev === 0 ? 1 : 0));
         }
       }, DOUBLE_PRESS_DELAY);
     }
@@ -1258,7 +1278,7 @@ const styles = StyleSheet.create({
   updateImage: {
     height: hp(44.7),
     width: "100%",
-    borderRadius: 30,
+    borderRadius: 24,
   },
   scrollContent: {
     paddingBottom: verticalScale(20),

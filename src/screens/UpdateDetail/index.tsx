@@ -46,6 +46,8 @@ import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
+ const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
@@ -75,6 +77,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
   const scrollRef = useRef<any>(null);
   const commentsSectionRef = useRef<View>(null);
+  const [sliderWidth, setSliderWidth] = useState(0);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -123,24 +126,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-
-  const renderSlide = ({ item, index }: { item: string; index: number }) => {
-    const isLoading = sliderLoading[index] !== false;
-    return (
-      <View style={styles.slideTextCont}>
-        <FastImage
-          source={{ uri: item }}
-          style={styles.image}
-          onLoadStart={() =>
-            setSliderLoading((prev) => ({ ...prev, [index]: true }))
-          }
-          onLoadEnd={() =>
-            setSliderLoading((prev) => ({ ...prev, [index]: false }))
-          }
-        />
-      </View>
-    );
-  };
 
   const handleBlogDetail = async () => {
     try {
@@ -450,7 +435,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView
+      {/* <SafeAreaView
         style={[
           styles.safeArea,
           {
@@ -461,288 +446,298 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           },
         ]}
         edges={["top"]}
+      > */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={{
+          position: "absolute",
+          top:
+            Platform.OS === "android"
+              ? verticalScale(20) + insets.top
+              : verticalScale(60),
+          left: horizontalScale(20),
+          zIndex: 10,
+          borderRadius: 100,
+          height: 32,
+          width: 32,
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: 0.7,
+        }}
+        onPress={() => navigation.goBack()}
       >
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={{
-            position: "absolute",
-            top:
-              Platform.OS === "android"
-                ? verticalScale(20) + insets.top
-                : verticalScale(60),
-            left: horizontalScale(20),
-            zIndex: 10,
-            borderRadius: 100,
-            height: 32,
-            width: 32,
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: 0.7,
+        <CustomIcon Icon={ICONS.WhiteBack} height={32} width={32} />
+      </TouchableOpacity>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={
+          Platform.OS === "ios"
+            ? "height"
+            : Number(Platform.Version) > 33
+            ? "height"
+            : "padding"
+        }
+        keyboardVerticalOffset={
+          isKeyboardVisible
+            ? 0
+            : Platform.select({
+                android: Number(Platform.Version) > 33 ? verticalScale(-30) : 0,
+                ios: 0,
+              })
+        }
+      >
+        <FocusResetScrollView
+          ref={scrollRef}
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="never"
+          scrollEventThrottle={16}
+          contentContainerStyle={{
+            paddingBottom: verticalScale(100),
           }}
-          onPress={() => navigation.goBack()}
+          // onScroll={(e) => {
+          //   const currentY = e.nativeEvent.contentOffset.y;
+          //   const isScrollingDown = currentY > lastScrollY.current;
+
+          //   if (isScrollingDown && currentY > 250) {
+          //     setShowCommentInput(true);
+          //     manualOpen.current = false;
+          //   }
+
+          //   if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
+          //     setShowCommentInput(false);
+          //   }
+
+          //   lastScrollY.current = currentY;
+          // }}
         >
-          <CustomIcon Icon={ICONS.WhiteBack} height={32} width={32} />
-        </TouchableOpacity>
-        <KeyboardAvoidingView
-          style={styles.keyboardView}
-          behavior={
-            Platform.OS === "ios"
-              ? "height"
-              : Number(Platform.Version) > 33
-              ? "height"
-              : "padding"
-          }
-          keyboardVerticalOffset={
-            isKeyboardVisible
-              ? 0
-              : Platform.select({
-                  android:
-                    Number(Platform.Version) > 33 ? verticalScale(-30) : 0,
-                  ios: 0,
-                })
-          }
-        >
-          <FocusResetScrollView
-            ref={scrollRef}
-            bounces={false}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="never"
-            scrollEventThrottle={16}
-            contentContainerStyle={{
-              paddingBottom: verticalScale(100),
-            }}
-            // onScroll={(e) => {
-            //   const currentY = e.nativeEvent.contentOffset.y;
-            //   const isScrollingDown = currentY > lastScrollY.current;
-
-            //   if (isScrollingDown && currentY > 250) {
-            //     setShowCommentInput(true);
-            //     manualOpen.current = false;
-            //   }
-
-            //   if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
-            //     setShowCommentInput(false);
-            //   }
-
-            //   lastScrollY.current = currentY;
-            // }}
-          >
-            {/* IMAGE */}
-            <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
-              <View>
-                {imageLoading && <MediaSkeleton />}
+          {/* IMAGE */}
+          <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+            <View>
+              {imageLoading && <MediaSkeleton />}
+              <FastImage
+                source={{ uri: blogDetail?.coverPhotoUrl }}
+                style={styles.updateImage}
+                onLoadStart={() => setImageLoading(true)}
+                onLoadEnd={() => setImageLoading(false)}
+              />
+              {/* Like animation overlay */}
+              <Animated.View
+                style={[
+                  styles.likeOverlay,
+                  {
+                    transform: [{ scale: likeScale }],
+                    opacity: likeScale,
+                  },
+                ]}
+              >
                 <FastImage
-                  source={{ uri: blogDetail?.coverPhotoUrl }}
-                  style={styles.updateImage}
-                  onLoadStart={() => setImageLoading(true)}
-                  onLoadEnd={() => setImageLoading(false)}
+                  source={IMAGES.ImageLike}
+                  style={{
+                    width: horizontalScale(99),
+                    height: verticalScale(87),
+                  }}
+                  resizeMode="contain"
                 />
-                {/* Like animation overlay */}
-                <Animated.View
-                  style={[
-                    styles.likeOverlay,
-                    {
-                      transform: [{ scale: likeScale }],
-                      opacity: likeScale,
-                    },
-                  ]}
+              </Animated.View>
+
+              {/* Bottom overlay stats  */}
+              <View style={styles.bottomOverlay}>
+                <TouchableOpacity
+                  style={styles.statPill}
+                  onPress={handleLikeUnlike}
+                  activeOpacity={0.7}
                 >
-                  <FastImage
-                    source={IMAGES.ImageLike}
-                    style={{
-                      width: horizontalScale(99),
-                      height: verticalScale(87),
-                    }}
-                    resizeMode="contain"
+                  <CustomIcon
+                    Icon={isLiked ? ICONS.LikedIcon : ICONS.OnimageLike}
+                    height={20}
+                    width={20}
                   />
-                </Animated.View>
-
-                {/* Bottom overlay stats  */}
-                <View style={styles.bottomOverlay}>
-                  <TouchableOpacity
-                    style={styles.statPill}
-                    onPress={handleLikeUnlike}
-                    activeOpacity={0.7}
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appBackground}
+                    style={{ marginLeft: 6 }}
                   >
-                    <CustomIcon
-                      Icon={isLiked ? ICONS.LikedIcon : ICONS.OnimageLike}
-                      height={20}
-                      width={20}
-                    />
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.appBackground}
-                      style={{ marginLeft: 6 }}
-                    >
-                      {blogDetail?.likesCount ?? 24}
-                    </CustomText>
-                  </TouchableOpacity>
+                    {blogDetail?.likesCount ?? 24}
+                  </CustomText>
+                </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.statPill}
-                    onPress={handleCommentIconPress}
-                    activeOpacity={0.7}
+                <TouchableOpacity
+                  style={styles.statPill}
+                  onPress={handleCommentIconPress}
+                  activeOpacity={0.7}
+                >
+                  <CustomIcon Icon={ICONS.OnimageChat} height={20} width={20} />
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appBackground}
+                    style={{ marginLeft: 6 }}
                   >
-                    <CustomIcon
-                      Icon={ICONS.OnimageChat}
-                      height={20}
-                      width={20}
-                    />
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.appBackground}
-                      style={{ marginLeft: 6 }}
-                    >
-                      {blogDetail?.commentsCount ?? 6}
-                    </CustomText>
-                  </TouchableOpacity>
-                </View>
+                    {blogDetail?.commentsCount ?? 6}
+                  </CustomText>
+                </TouchableOpacity>
               </View>
-            </TouchableWithoutFeedback>
-
-            {/* HEADER */}
-            <View
-              style={{
-                marginTop: verticalScale(27),
-                paddingHorizontal: horizontalScale(20),
-                gap: verticalScale(8),
-              }}
-            >
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={14}
-                color={COLORS.appText}
-              >
-                {blogDetail?.publishMonthYear}
-              </CustomText>
-
-              <CustomText
-                fontFamily="GabaritoSemiBold"
-                fontSize={32}
-                color={COLORS.darkText}
-              >
-                {blogDetail?.title}
-              </CustomText>
             </View>
+          </TouchableWithoutFeedback>
 
-            {/* CONTENT */}
+          {/* HEADER */}
+          <View
+            style={{
+              marginTop: verticalScale(27),
+              paddingHorizontal: horizontalScale(20),
+              gap: verticalScale(8),
+            }}
+          >
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={14}
+              color={COLORS.appText}
+            >
+              {blogDetail?.publishMonthYear}
+            </CustomText>
+
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={32}
+              color={COLORS.darkText}
+            >
+              {blogDetail?.title}
+            </CustomText>
+          </View>
+
+          {/* CONTENT */}
+          <View
+            style={{
+              marginTop: verticalScale(16),
+              paddingHorizontal: horizontalScale(20),
+              gap: verticalScale(12),
+            }}
+          >
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={16}
+              color={COLORS.darkText}
+            >
+              {blogDetail?.content}
+            </CustomText>
+
             <View
-              style={{
-                marginTop: verticalScale(16),
-                paddingHorizontal: horizontalScale(20),
-                gap: verticalScale(12),
+              style={{ width: "100%", alignItems: "center" }}
+              onLayout={(e) => {
+                const w = e.nativeEvent.layout.width;
+                if (w !== sliderWidth) {
+                  setSliderWidth(w);
+                }
               }}
             >
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={16}
-                color={COLORS.darkText}
-              >
-                {blogDetail?.content}
-              </CustomText>
-
-              <View style={{ alignItems: "center" }}>
+              {sliderWidth > 0 && (
                 <FlatList
                   data={blogDetail?.photos || []}
+                  bounces={false}
                   horizontal
                   pagingEnabled
+                  snapToInterval={sliderWidth}
+                  snapToAlignment="center"
+                  decelerationRate="normal"
+                  disableIntervalMomentum={true}
                   showsHorizontalScrollIndicator={false}
                   keyExtractor={(item, index) => item + index}
-                  renderItem={renderSlide}
+                  renderItem={({ item, index }) => (
+                    <View style={{ width: sliderWidth, alignItems: "center" }}>
+                      <FastImage
+                        source={{ uri: item }}
+                        style={[
+                          styles.image,
+                          { width: sliderWidth - horizontalScale(5) },
+                        ]}
+                      />
+                    </View>
+                  )}
                   onMomentumScrollEnd={(e) => {
                     const index = Math.round(
-                      e.nativeEvent.contentOffset.x /
-                        Dimensions.get("window").width,
+                      e.nativeEvent.contentOffset.x / sliderWidth,
                     );
                     setActiveIndex(index);
                   }}
-                  contentContainerStyle={{
-                    gap: horizontalScale(1),
-                  }}
+                  contentContainerStyle={{ alignItems: "flex-start" }}
                 />
+              )}
 
-                {/* DOTS */}
-                <View style={styles.dots}>
-                  {blogDetail?.photos?.map((_, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.dot,
-                        activeIndex === i && styles.activeDot,
-                      ]}
-                    />
-                  ))}
-                </View>
+              {/* DOTS */}
+              <View style={styles.dots}>
+                {blogDetail?.photos?.map((_, i) => (
+                  <View
+                    key={i}
+                    style={[styles.dot, activeIndex === i && styles.activeDot]}
+                  />
+                ))}
               </View>
+            </View>
 
-              {/* ACTIONS */}
+            {/* ACTIONS */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                borderBottomWidth: 1,
+                borderBottomColor: COLORS.greyish,
+                paddingVertical: verticalScale(12),
+                justifyContent: "space-between",
+              }}
+            >
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  borderBottomWidth: 1,
-                  borderBottomColor: COLORS.greyish,
-                  paddingVertical: verticalScale(12),
-                  justifyContent: "space-between",
+                  gap: horizontalScale(12),
                 }}
               >
                 <View
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    gap: horizontalScale(12),
+                    gap: horizontalScale(4),
                   }}
                 >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: horizontalScale(4),
-                    }}
-                  >
-                    <TouchableOpacity onPress={handleLikeUnlike}>
-                      <CustomIcon
-                        Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                        height={24}
-                        width={24}
-                      />
-                    </TouchableOpacity>
+                  <TouchableOpacity onPress={handleLikeUnlike}>
+                    <CustomIcon
+                      Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                      height={24}
+                      width={24}
+                    />
+                  </TouchableOpacity>
 
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.appText}
-                    >
-                      {blogDetail?.likesCount}
-                    </CustomText>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: horizontalScale(4),
-                    }}
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
                   >
-                    <TouchableOpacity onPress={handleCommentIconPress}>
-                      <CustomIcon
-                        Icon={ICONS.chatIcon}
-                        height={24}
-                        width={24}
-                      />
-                    </TouchableOpacity>
-
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.appText}
-                    >
-                      {blogDetail?.commentsCount}
-                    </CustomText>
-                  </View>
+                    {blogDetail?.likesCount}
+                  </CustomText>
                 </View>
-                {/* <TouchableOpacity
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(4),
+                  }}
+                >
+                  <TouchableOpacity onPress={handleCommentIconPress}>
+                    <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
+                  </TouchableOpacity>
+
+                  <CustomText
+                    fontFamily="GabaritoMedium"
+                    fontSize={16}
+                    color={COLORS.appText}
+                  >
+                    {blogDetail?.commentsCount}
+                  </CustomText>
+                </View>
+              </View>
+              {/* <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={handleShare}
                   style={styles.ShareButton}
@@ -756,114 +751,114 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                     Share Update
                   </CustomText>
                 </TouchableOpacity> */}
-              </View>
+            </View>
 
-              <View ref={commentsSectionRef}>
-                {/* COMMENTS */}
-                <FlatList
-                  data={comments}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderCommentItem}
-                  scrollEnabled={false}
-                  contentContainerStyle={styles.commentsList}
-                  ListEmptyComponent={
-                    !commentsLoading ? (
-                      <CustomText
-                        fontFamily="SourceSansMedium"
-                        fontSize={16}
-                        color={COLORS.appText}
-                        style={{ textAlign: "center", marginVertical: 12 }}
-                      >
-                        No comments yet
-                      </CustomText>
-                    ) : null
-                  }
-                />
-              </View>
-              {hasNext && (
+            <View ref={commentsSectionRef}>
+              {/* COMMENTS */}
+              <FlatList
+                data={comments}
+                keyExtractor={(item) => item.id}
+                renderItem={renderCommentItem}
+                scrollEnabled={false}
+                contentContainerStyle={styles.commentsList}
+                ListEmptyComponent={
+                  !commentsLoading ? (
+                    <CustomText
+                      fontFamily="SourceSansMedium"
+                      fontSize={16}
+                      color={COLORS.appText}
+                      style={{ textAlign: "center", marginVertical: 12 }}
+                    >
+                      No comments yet
+                    </CustomText>
+                  ) : null
+                }
+              />
+            </View>
+            {hasNext && (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => fetchBlogComments(page + 1)}
+                disabled={commentsLoading}
+              >
+                {commentsLoading ? (
+                  <ActivityIndicator color={COLORS.darkText} />
+                ) : (
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={16}
+                    color={COLORS.darkGreen}
+                    style={{ textAlign: "center" }}
+                  >
+                    Load more comments
+                  </CustomText>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+        </FocusResetScrollView>
+        <View pointerEvents="none" style={styles.bottomFadeWrapper}>
+          <LinearGradient
+            colors={[
+              "rgba(255,255,255,0)",
+              "rgba(255,255,255,0.4)",
+              "rgba(255,255,255,0.85)",
+              "rgba(255,255,255,1)",
+            ]}
+            locations={[0, 0.35, 0.75, 1]}
+            style={styles.bottomFade}
+          />
+        </View>
+        {/* {showCommentInput && (
+            <> */}
+        <View
+          style={styles.bottomContainer}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+          }}
+        >
+          <View style={styles.commentInputRow}>
+            <CustomIcon
+              Icon={ICONS.changedUser}
+              height={verticalScale(40)}
+              width={horizontalScale(40)}
+            />
+            <View style={styles.commentInputWrapper}>
+              <TextInput
+                ref={commentInputRef}
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Add a comment..."
+                placeholderTextColor={COLORS.appText}
+                multiline
+                textAlignVertical="top"
+                style={styles.commentInput}
+              />
+
+              {commentText.trim().length > 0 && (
                 <TouchableOpacity
                   activeOpacity={0.8}
-                  onPress={() => fetchBlogComments(page + 1)}
-                  disabled={commentsLoading}
+                  onPress={handleSendComment}
+                  disabled={sendingComment}
                 >
-                  {commentsLoading ? (
-                    <ActivityIndicator color={COLORS.darkText} />
+                  {sendingComment ? (
+                    <ActivityIndicator size="small" color={COLORS.darkText} />
                   ) : (
-                    <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={16}
-                      color={COLORS.darkGreen}
-                      style={{ textAlign: "center" }}
-                    >
-                      Load more comments
-                    </CustomText>
+                    <CustomIcon
+                      Icon={ICONS.DarkSendIcon}
+                      height={24}
+                      width={24}
+                    />
                   )}
                 </TouchableOpacity>
               )}
             </View>
-          </FocusResetScrollView>
-          <View pointerEvents="none" style={styles.bottomFadeWrapper}>
-            <LinearGradient
-              colors={[
-                "rgba(255,255,255,0)",
-                "rgba(255,255,255,0.4)",
-                "rgba(255,255,255,0.85)",
-                "rgba(255,255,255,1)",
-              ]}
-              locations={[0, 0.35, 0.75, 1]}
-              style={styles.bottomFade}
-            />
           </View>
-          {/* {showCommentInput && (
-            <> */}
-          <View
-            style={styles.bottomContainer}
-            onLayout={(e) => {
-              const h = e.nativeEvent.layout.height;
-            }}
-          >
-            <View style={styles.commentInputRow}>
-              <CustomIcon
-                Icon={ICONS.changedUser}
-                height={verticalScale(40)}
-                width={horizontalScale(40)}
-              />
-              <View style={styles.commentInputWrapper}>
-                <TextInput
-                  ref={commentInputRef}
-                  value={commentText}
-                  onChangeText={setCommentText}
-                  placeholder="Add a comment..."
-                  placeholderTextColor={COLORS.appText}
-                  multiline
-                  textAlignVertical="top"
-                  style={styles.commentInput}
-                />
-
-                {commentText.trim().length > 0 && (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleSendComment}
-                    disabled={sendingComment}
-                  >
-                    {sendingComment ? (
-                      <ActivityIndicator size="small" color={COLORS.darkText} />
-                    ) : (
-                      <CustomIcon
-                        Icon={ICONS.DarkSendIcon}
-                        height={24}
-                        width={24}
-                      />
-                    )}
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          </View>
-          {/* </>
+        </View>
+        {/* </>
           )} */}
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+      </KeyboardAvoidingView>
+      {/* </SafeAreaView> */}
     </View>
   );
 };
@@ -874,6 +869,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+    paddingBottom: verticalScale(10),
   },
   safeArea: {
     flex: 1,
@@ -947,12 +943,9 @@ const styles = StyleSheet.create({
   slideTextCont: {
     gap: verticalScale(10),
     alignItems: "center",
-    width: wp(100) - verticalScale(40),
   },
   image: {
-    width: wp(96) - verticalScale(42),
     height: hp(44),
-    resizeMode: "cover",
     borderRadius: 20,
   },
   dots: {
