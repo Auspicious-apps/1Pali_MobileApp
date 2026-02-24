@@ -9,6 +9,7 @@ export type GetUserProfileApiResponse = {
   joinedPosition: number;
   createdAt: string;
   totalDonations: number;
+  totalDonationsExcludingFees: number;
   hasPaymentMethod: boolean;
   hasSubscription: boolean;
   subscriptionStatus: string;

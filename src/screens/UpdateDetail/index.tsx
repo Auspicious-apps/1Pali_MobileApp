@@ -46,7 +46,7 @@ import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
- const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();

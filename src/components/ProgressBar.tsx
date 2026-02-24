@@ -57,7 +57,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
     ? growthBadge?.progressPercentage || 0
     : Math.min((currentValue / milestoneTarget) * 100, 100);
 
-  const MIN_STROKE_THRESHOLD = 0.08; // 8% feels good visually
+  const MIN_STROKE_THRESHOLD = 0.0; // 8% feels good visually
   const showStroke = progressPercentage > MIN_STROKE_THRESHOLD;
 
   const hapticOptions = {

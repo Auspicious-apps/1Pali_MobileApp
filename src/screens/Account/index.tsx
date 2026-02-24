@@ -17,16 +17,16 @@ import BadgeIcon from "../../components/BadgeIcon";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import ProgressBar from "../../components/ProgressBar";
+import { clearCollectBadges } from "../../redux/slices/CollectBadgesSlice";
+import { clearReceipts } from "../../redux/slices/ReceiptsSlice";
 import {
+  clearUserData,
   selectGrowthBadges,
   selectIdentityBadges,
   selectImpactBadges,
   selectLatestCommunityBadges,
   selectLatestGrowthBadges,
-  clearUserData,
 } from "../../redux/slices/UserSlice";
-import { clearCollectBadges } from "../../redux/slices/CollectBadgesSlice";
-import { clearReceipts } from "../../redux/slices/ReceiptsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { AccountScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
@@ -268,11 +268,13 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     fontSize={14}
                     color={COLORS.appText}
                   >
-                    {Number(user?.consecutivePaidMonths!) +
-                      " " +
-                      (Number(user?.consecutivePaidMonths!) > 1
-                        ? "months"
-                        : "month")}
+                    {latestGrowthBadge?.badge.name === "Seed"
+                      ? "Day 1  "
+                      : Number(user?.consecutivePaidMonths!) +
+                        " " +
+                        (Number(user?.consecutivePaidMonths!) > 1
+                          ? "months"
+                          : "month")}
                   </CustomText>
                 </View>
                 <View
@@ -347,7 +349,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {`$${user?.totalDonations}`}
+                      {`$${user?.totalDonationsExcludingFees}`}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"
