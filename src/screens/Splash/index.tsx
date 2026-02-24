@@ -42,7 +42,6 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       } else {
         setIsCheckingAuth(false);
       }
-      console.log(accessToken);
     } catch (error) {
       console.error("Error checking authentication:", error);
       setIsCheckingAuth(false);
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    marginTop: verticalScale(15),
+    marginTop: verticalScale(5),
   },
   contentContainer: {
     flex: 1,

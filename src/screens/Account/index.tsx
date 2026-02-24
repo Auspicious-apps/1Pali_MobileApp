@@ -22,9 +22,12 @@ import {
   selectIdentityBadges,
   selectImpactBadges,
   selectLatestCommunityBadges,
-  selectLatestGrowthBadges
+  selectLatestGrowthBadges,
+  clearUserData,
 } from "../../redux/slices/UserSlice";
-import { useAppSelector } from "../../redux/store";
+import { clearCollectBadges } from "../../redux/slices/CollectBadgesSlice";
+import { clearReceipts } from "../../redux/slices/ReceiptsSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { AccountScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
@@ -36,6 +39,7 @@ import {
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.user);
 
   const growthBadges = useAppSelector(selectGrowthBadges);
@@ -122,13 +126,29 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             text: "Sign out",
             style: "destructive",
             onPress: async () => {
-              deleteLocalStorageData(STORAGE_KEYS.accessToken);
-              if (Platform.OS === "android") {
-                await GoogleSignin.signOut();
+              try {
+                // Clear Redux slices
+                dispatch(clearUserData());
+                dispatch(clearCollectBadges());
+                dispatch(clearReceipts());
+
+                // Clear local storage tokens
+                deleteLocalStorageData(STORAGE_KEYS.accessToken);
+                deleteLocalStorageData(STORAGE_KEYS.refreshToken);
+                deleteLocalStorageData(STORAGE_KEYS.expiresIn);
+
+                // Sign out from Google if on Android
+                if (Platform.OS === "android") {
+                  await GoogleSignin.signOut();
+                }
+
+                // Navigate to sign in
+                navigation.replace("OnBoardingStack", {
+                  screen: "signIn",
+                });
+              } catch (error) {
+                console.log("Logout error:", error);
               }
-              navigation.replace("OnBoardingStack", {
-                screen: "signIn",
-              });
             },
           },
         ]);

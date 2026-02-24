@@ -4,11 +4,19 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useEffect, useState } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Linking,
+  Platform,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
@@ -30,7 +38,6 @@ import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
 import { hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
-import CustomIcon from "../../components/CustomIcon";
 
 const initialTimer = 200;
 
@@ -108,8 +115,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
         // Navigate based on user state
         if (user.hasSubscription && user.hasSubscription) {
-          dispatch(setUserData(signInResponse.data?.data?.user?.user));
-          dispatch(setBadges(signInResponse.data?.data?.user?.user?.badges));
+          dispatch(setUserData(signInResponse.data?.data?.user?.user as any));
+          dispatch(
+            setBadges(signInResponse.data?.data?.user?.user?.badges as any),
+          );
           dispatch(
             setClaimedNumber(signInResponse.data?.data?.user?.assignedNumber),
           );
@@ -175,8 +184,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           if (isNewUser || !user.assignedNumber) {
             navigation.navigate("joinOnePali");
           } else {
-            dispatch(setUserData(signinResponse.data.data.user.user));
-            dispatch(setBadges(signinResponse.data.data.user.user.badges));
+            dispatch(setUserData(signinResponse.data.data.user.user as any));
+            dispatch(
+              setBadges(signinResponse.data.data.user.user.badges as any),
+            );
             dispatch(
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
@@ -334,7 +345,44 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 width: wp(50),
               }}
             >
-              By joining OnePali, you accept our Terms of Use and Privacy Policy
+              By joining OnePali, you accept our{" "}
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL("https://onepali.app/terms-condition");
+                }}
+              >
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                  style={{ textDecorationLine: "underline" }}
+                >
+                  Terms of Use
+                </CustomText>
+              </TouchableOpacity>{" "}
+              <TouchableOpacity activeOpacity={1}>
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                >
+                  and{" "}
+                </CustomText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL("https://onepali.app/privacy-policy");
+                }}
+              >
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                  style={{ textDecorationLine: "underline" }}
+                >
+                  Privacy Policy
+                </CustomText>
+              </TouchableOpacity>
             </CustomText>
           </View>
         ) : (

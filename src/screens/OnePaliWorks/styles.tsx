@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: horizontalScale(20),
     paddingBottom:
       Platform.OS === "ios" ? verticalScale(20) : verticalScale(10),
-    paddingTop: Platform.OS === "ios" ? verticalScale(15) : verticalScale(15),
+    paddingTop:  verticalScale(5),
   },
   appIcon: {
     width: horizontalScale(54),

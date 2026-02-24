@@ -11,6 +11,7 @@ import {
   Animated,
   Easing,
   Image,
+  Linking,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -58,7 +59,6 @@ import {
 import HapticFeedback from "react-native-haptic-feedback";
 import ImpactLoader from "../../components/ImpactLoader";
 
-
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const [enabled, setEnabled] = useState(true);
@@ -88,10 +88,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const visiblePlans = stripePlans.filter((p) => !p.metadata.calculationMethod);
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
 
-    const hapticOptions = {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false,
-    };
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
 
   const pollUserProfile = async (retries = 3): Promise<boolean> => {
     try {
@@ -277,8 +277,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           );
 
         if (confirmSetupIntentresponse.data.success) {
-           setIsLoading(false);
-           setShowImpactLoader(true);
+          setIsLoading(false);
+          setShowImpactLoader(true);
           // Start polling instead of a single fetch
           const isSubscriptionActive = await pollUserProfile(3);
 
@@ -342,8 +342,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             `Payment initialization failed: ${initError.message}`,
           );
         }
-      setIsLoading(false);
-      setShowImpactLoader(true);
+        setIsLoading(false);
+        setShowImpactLoader(true);
 
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
@@ -723,9 +723,50 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               fontFamily="GabaritoMedium"
               fontSize={12}
               color={COLORS.grayColor}
-              style={{ textAlign: "center", width: wp(50) }}
+              style={{
+                textAlign: "center",
+                marginTop: verticalScale(16),
+                width: wp(50),
+              }}
             >
-              By joining OnePali, you accept our Terms of Use and Privacy Policy
+              By joining OnePali, you accept our{" "}
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL("https://onepali.app/terms-condition");
+                }}
+              >
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                  style={{ textDecorationLine: "underline" }}
+                >
+                  Terms of Use
+                </CustomText>
+              </TouchableOpacity>{" "}
+              <TouchableOpacity activeOpacity={1}>
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                >
+                  and{" "}
+                </CustomText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL("https://onepali.app/privacy-policy");
+                }}
+              >
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                  style={{ textDecorationLine: "underline" }}
+                >
+                  Privacy Policy
+                </CustomText>
+              </TouchableOpacity>
             </CustomText>
           </View>
         )}
@@ -746,7 +787,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
-    marginTop: verticalScale(15),
+    marginTop: verticalScale(5),
   },
   header: {
     width: wp(90),

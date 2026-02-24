@@ -91,8 +91,10 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
         // Navigate based on user state
         if (user.hasSubscription && user.hasSubscription) {
-          dispatch(setUserData(signInResponse.data?.data?.user?.user));
-          dispatch(setBadges(signInResponse.data?.data?.user?.user?.badges));
+          dispatch(setUserData(signInResponse.data?.data?.user?.user as any));
+          dispatch(
+            setBadges(signInResponse.data?.data?.user?.user?.badges as any),
+          );
           dispatch(
             setClaimedNumber(signInResponse.data?.data?.user?.assignedNumber),
           );
@@ -118,7 +120,11 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         error.message &&
         error.message === "User does not exist. Sign up required."
       ) {
-        navigation.goBack();
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.replace("splash");
+        }
         Toast.show({
           type: "error",
           text1: "Apple Sign-In Failed",
@@ -168,9 +174,9 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
           if (isNewUser || !user.assignedNumber) {
             navigation.navigate("joinOnePali");
           } else {
-            dispatch(setUserData(signinResponse.data.data.user.user));
-            dispatch(setBadges(signinResponse.data.data.user.user.badges));
-            dispatch(
+            dispatch(setUserData(signinResponse.data.data.user.user as any));
+            dispatch(setBadges(signinResponse.data.data.user.user.badges as any));
+            dispatch( 
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
 

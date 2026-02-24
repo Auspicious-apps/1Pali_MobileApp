@@ -18,10 +18,13 @@ const CollectBadgesSlice = createSlice({
     closeCollectBadgesModal: (state) => {
       state.isVisible = false;
     },
+    clearCollectBadges: (state) => {
+      state.isVisible = false;
+    },
   },
 });
 
-export const { openCollectBadgesModal, closeCollectBadgesModal } =
+export const { openCollectBadgesModal, closeCollectBadgesModal, clearCollectBadges } =
   CollectBadgesSlice.actions;
 
 export default CollectBadgesSlice.reducer;
