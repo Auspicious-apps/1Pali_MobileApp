@@ -118,9 +118,11 @@ const CollectBadges = () => {
               const category = item.badge.category;
 
               if (category === "GROWTH") {
-                return `${item?.badge?.requirement?.consecutiveMonths} Month${
-                  item?.badge?.requirement?.consecutiveMonths! > 1 ? "s" : ""
-                } `;
+                if (item?.badge?.name === "Seed") {
+                  return "Day 1";
+                } else {
+                  return `${item?.badge?.requirement?.consecutiveMonths} months`;
+                }
               }
 
               if (category === "COMMUNITY") {
@@ -130,13 +132,15 @@ const CollectBadges = () => {
               }
 
               if (category === "IDENTITY") {
-                return `Joined before ${item?.badge?.milestone.split(" ")[2]} supporters${
-                  item?.badge?.requirement?.totalShares! > 1 ? "s" : ""
-                }`;
+                return `Joined before ${
+                  item?.badge?.milestone.split(" ")[2]
+                } supporters`;
               }
 
               if (category === "IMPACT") {
-                return `${item?.badge?.requirement?.totalDonations} Donated`;
+                return `${item?.badge?.requirement?.totalShares} Share${
+                  item?.badge?.requirement?.totalShares! > 1 ? "s" : ""
+                } `;
               }
 
               return "";

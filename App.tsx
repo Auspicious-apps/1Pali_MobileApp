@@ -34,7 +34,7 @@ function App() {
             <SafeAreaProvider>
               <StatusBar barStyle={"dark-content"} />
               <Routes />
-              {__DEV__ && <NetworkLogger />}
+              {/* {__DEV__ && <NetworkLogger />} */}
               <Toast
                 config={{
                   customToast: (props) => (

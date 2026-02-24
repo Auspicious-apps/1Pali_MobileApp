@@ -28,6 +28,11 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import Pulse from "../../components/PulseLoading";
+import {
+  fetchBlogDetails,
+  updateBlogDetail,
+} from "../../redux/slices/DetailsSlice";
+import { useAppDispatch } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { AddCommentToBlogResponse } from "../../service/ApiResponses/AddCommentToBlog";
 import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
@@ -43,6 +48,7 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
+  const dispatch = useAppDispatch();
 
   const { blogId } = route.params;
   const [blogDetail, setBlogDetail] = useState<GetBlogByIdResponse>();
@@ -59,7 +65,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [sendingComment, setSendingComment] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
-  const lastScrollY = useRef(0);
   const manualOpen = useRef(false);
   const [sliderLoading, setSliderLoading] = useState<Record<number, boolean>>(
     {},
@@ -68,8 +73,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
-  const MAX_HEIGHT = verticalScale(96);
-  const MIN_HEIGHT = verticalScale(40);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -140,18 +143,18 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const handleBlogDetail = async () => {
     try {
       setIsLoading(true);
-      const response = await fetchData<GetBlogByIdResponse>(
-        `${ENDPOINTS.GetBlogById}/${blogId}`,
-      );
+      const result = await dispatch(
+        fetchBlogDetails({ blogId: blogId, forceRefresh: false }),
+      ).unwrap();
 
-      if (response?.data?.success) {
-        const data = response.data.data;
+      if (result) {
+        const data = result.data;
 
         setBlogDetail({
           ...data,
           comments: sortCommentsByLatest(data.comments),
         });
-        setIsLiked(response?.data?.data?.isLikedByUser);
+        setIsLiked(data.isLikedByUser);
         setHasNext(data?.commentsPagination?.hasNext || false);
       }
     } catch (error) {
@@ -186,14 +189,19 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     const nextLiked = !isLiked;
 
     setIsLiked(nextLiked);
-    setBlogDetail((prev) =>
-      prev
+    setBlogDetail((prev) => {
+      const updated = prev
         ? {
             ...prev,
             likesCount: prev.likesCount + (nextLiked ? 1 : -1),
           }
-        : prev,
-    );
+        : prev;
+      // Update Redux cache
+      if (updated) {
+        dispatch(updateBlogDetail({ blogId: blogId, data: updated }));
+      }
+      return updated;
+    });
 
     if (likeRequestInProgress.current) return;
 
@@ -205,14 +213,19 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       );
     } catch (error) {
       setIsLiked(!nextLiked);
-      setBlogDetail((prev) =>
-        prev
+      setBlogDetail((prev) => {
+        const updated = prev
           ? {
               ...prev,
               likesCount: prev.likesCount + (nextLiked ? -1 : 1),
             }
-          : prev,
-      );
+          : prev;
+        // Update Redux cache on error rollback
+        if (updated) {
+          dispatch(updateBlogDetail({ blogId: blogId, data: updated }));
+        }
+        return updated;
+      });
       console.log("Like/Unlike error", error);
     } finally {
       likeRequestInProgress.current = false;
@@ -260,15 +273,20 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       );
 
       if (response?.data?.data?.comments?.length) {
-        setBlogDetail((prev): any =>
-          prev
+        setBlogDetail((prev): any => {
+          const updated = prev
             ? {
                 ...prev,
                 comments: response?.data?.data?.comments,
                 commentsCount: response?.data?.data?.pagination?.total,
               }
-            : prev,
-        );
+            : prev;
+          // Update Redux cache
+          if (updated) {
+            dispatch(updateBlogDetail({ blogId: blogId, data: updated }));
+          }
+          return updated;
+        });
         setComments(response?.data?.data?.comments as any);
       }
 

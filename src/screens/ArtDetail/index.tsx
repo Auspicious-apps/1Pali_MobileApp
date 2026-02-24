@@ -10,7 +10,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import ReactNativeBlobUtil from "react-native-blob-util";
@@ -36,6 +35,10 @@ import FocusResetScrollView from "../../components/FocusResetScrollView";
 import { ShareType } from "../../components/Modal/ShareArtModal";
 import PrimaryButton from "../../components/PrimaryButton";
 import Pulse from "../../components/PulseLoading";
+import {
+  fetchArtDetails,
+  updateArtDetail,
+} from "../../redux/slices/DetailsSlice";
 import { addNewArtBadge } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -51,7 +54,6 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { BlurView } from "@react-native-community/blur";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -89,7 +91,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [capturingCard, setCapturingCard] = useState(false);
   const { user } = useAppSelector((state) => state.user);
   const cardRef = useRef(null);
-  const [inputHeight, setInputHeight] = useState(50);
 
   const ArtDetailPulse = () => (
     <SafeAreaView style={styles.container}>
@@ -312,21 +313,21 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const handleArtDetail = async () => {
     try {
       setLoading(true);
-      const response = await fetchData<GetArtByIdResponse>(
-        `${ENDPOINTS.GetArtById}/${ArtId}`,
-      );
+      const result = await dispatch(
+        fetchArtDetails({ artId: ArtId, forceRefresh: false }),
+      ).unwrap();
 
-      if (response?.data?.success) {
-        const data = response.data.data;
+      if (result) {
+        const data = result.data;
 
         setArtDetail({
           ...data,
           comments: data.comments,
         });
-        setIsLiked(response?.data?.data?.isLikedByUser);
+        setIsLiked(data.isLikedByUser);
         setComments(data.comments);
         setPage(1);
-        setHasNext(response?.data?.data?.commentsPagination?.hasNext);
+        setHasNext(data.commentsPagination?.hasNext);
       }
     } catch (error) {
       console.log("error", error);
@@ -368,15 +369,20 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       );
 
       if (response?.data?.data?.comments?.length) {
-        setArtDetail((prev): any =>
-          prev
+        setArtDetail((prev): any => {
+          const updated = prev
             ? {
                 ...prev,
                 comments: response?.data?.data?.comments,
                 commentsCount: response?.data?.data?.pagination?.total,
               }
-            : prev,
-        );
+            : prev;
+          // Update Redux cache
+          if (updated) {
+            dispatch(updateArtDetail({ artId: ArtId, data: updated }));
+          }
+          return updated;
+        });
         setComments(response?.data?.data?.comments as any);
         setCommentText("");
         commentInputRef.current?.blur();
@@ -401,14 +407,19 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     setIsLiked((prevLiked) => {
       const nextLiked = !prevLiked;
 
-      setArtDetail((prev) =>
-        prev
+      setArtDetail((prev) => {
+        const updated = prev
           ? {
               ...prev,
               likesCount: prev.likesCount + (nextLiked ? 1 : -1),
             }
-          : prev,
-      );
+          : prev;
+        // Update Redux cache
+        if (updated) {
+          dispatch(updateArtDetail({ artId: ArtId, data: updated }));
+        }
+        return updated;
+      });
 
       pendingLikeState.current = nextLiked;
       return nextLiked;
