@@ -214,7 +214,11 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         error.message === "User does not exist. Sign up required."
       ) {
         errorMessage = "User does not exist. Sign up required.";
-        navigation.goBack();
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.navigate("splash");
+        }
       } else {
         const message = error.message || "An unexpected error occurred";
         errorMessage = message;
