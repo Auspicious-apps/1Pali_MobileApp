@@ -123,7 +123,7 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
           style={{
             position: "absolute",
             left: 0,
-            top: insets.top,
+            top: insets.top + 5,
             zIndex: 10,
             padding: horizontalScale(20),
             paddingVertical: verticalScale(10),
@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(16),
     alignItems: "center",
     justifyContent: "center",
+    marginTop: verticalScale(15),
   },
   logo: {
     width: horizontalScale(80),
