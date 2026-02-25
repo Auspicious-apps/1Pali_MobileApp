@@ -184,7 +184,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
         const { error: initError } = await initPaymentSheet({
           setupIntentClientSecret: clientSecret,
-          merchantDisplayName: "1Pali",
+          merchantDisplayName: "OnePali",
           customerId: customerId,
 
           googlePay: {
@@ -314,7 +314,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             applePay: {
               cartItems: [
                 {
-                  label: "1Pali Supporter Membership",
+                  label: "OnePali Supporter Membership",
                   amount: amount.toString(),
                   paymentType: PlatformPay.PaymentType.Immediate,
                 },
@@ -333,7 +333,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               allowCreditCards: true,
               isEmailRequired: true,
               currencyCode: currency,
-              label: "1Pali Supporter Membership",
+              label: "OnePali Supporter Membership",
               merchantCountryCode: "US",
               testEnv: true,
             },

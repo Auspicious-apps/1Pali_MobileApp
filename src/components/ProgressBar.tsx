@@ -31,8 +31,6 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
   const growthBadge = user?.nextGrowthBadge;
   const animatedProgress = React.useRef(new Animated.Value(0)).current;
 
-  console.log(user?.nextGrowthBadge);
-
   const milestoneTarget = showFinalGoal
     ? 1000000
     : nextMilestone?.threshold || 1000000;
@@ -57,7 +55,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
     ? growthBadge?.progressPercentage || 0
     : Math.min((currentValue / milestoneTarget) * 100, 100);
 
-  const MIN_STROKE_THRESHOLD = 0.0; // 8% feels good visually
+  const MIN_STROKE_THRESHOLD = 0.01; 
   const showStroke = progressPercentage > MIN_STROKE_THRESHOLD;
 
   const hapticOptions = {
@@ -96,9 +94,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
               },
             ]}
           >
-            {showStroke && (
-              <Animated.View style={[styles.progressFillStroke]} />
-            )}
+            {showStroke && <View style={styles.progressFillStroke} />}
           </Animated.View>
 
           <View
@@ -205,7 +201,7 @@ const styles = StyleSheet.create({
   progressTrack: {
     borderRadius: 100,
     justifyContent: "center",
-    paddingHorizontal: horizontalScale(6),
+    paddingHorizontal: horizontalScale(4),
     paddingVertical: verticalScale(4),
   },
   initialCircle: {
@@ -218,15 +214,17 @@ const styles = StyleSheet.create({
     height: verticalScale(22),
     backgroundColor: COLORS.DarkGreen,
     borderRadius: 50,
-    paddingTop: verticalScale(4),
+    position: "relative", // Ensure this is the reference point
   },
   progressFillStroke: {
     height: verticalScale(5),
     backgroundColor: "#ffffff64",
     borderRadius: 50,
-    justifyContent: "center",
-    alignSelf: "center",
-    width: "90%",
+    // This is the key change:
+    position: "absolute",
+    top: verticalScale(3), // Adjust to center vertically within the bar
+    left: 10, // Fixed margin left
+    right: 10, // Fixed margin right
   },
   stripeContainer: {
     flexDirection: "row",

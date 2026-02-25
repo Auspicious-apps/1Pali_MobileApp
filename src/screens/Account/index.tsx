@@ -197,6 +197,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
     );
   };
 
+  console.log(user?.nextGrowthBadge, "popoop");
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -408,7 +410,10 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 </View>
               </View>
               {/* Progress Bar */}
-              <ProgressBar hideFooter isAccountScreen />
+
+              <View style={{}}>
+                <ProgressBar hideFooter isAccountScreen />
+              </View>
 
               {user?.nextGrowthBadge && (
                 <CustomText
