@@ -78,6 +78,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const scrollRef = useRef<any>(null);
   const commentsSectionRef = useRef<View>(null);
   const [sliderWidth, setSliderWidth] = useState(0);
+  const blockHeartAnim = useRef(false);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -175,6 +176,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const handleLikeUnlike = async () => {
     const nextLiked = !isLiked;
 
+    if (!nextLiked) {
+      blockHeartAnim.current = true;
+    }
     if (nextLiked) {
       triggerLikeAnimation();
     }
@@ -184,6 +188,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         ? {
             ...prev,
             likesCount: prev.likesCount + (nextLiked ? 1 : -1),
+            isLikedByUser: nextLiked,
           }
         : prev;
       // Update Redux cache
@@ -208,6 +213,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           ? {
               ...prev,
               likesCount: prev.likesCount + (nextLiked ? -1 : 1),
+              isLikedByUser: !nextLiked,
             }
           : prev;
         // Update Redux cache on error rollback
@@ -219,10 +225,12 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       console.log("Like/Unlike error", error);
     } finally {
       likeRequestInProgress.current = false;
+      blockHeartAnim.current = false;
     }
   };
 
   const triggerLikeAnimation = () => {
+    likeScale.stopAnimation();
     likeScale.setValue(0);
 
     Animated.sequence([
@@ -251,47 +259,16 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   //   lastTap.current = now;
   // };
-
   const handleImageDoubleTap = () => {
     const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 250;
+    const DOUBLE_PRESS_DELAY = 300;
 
     if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      lastTap.current = 0;
-
       triggerLikeAnimation();
 
-      setIsLiked((prev) => {
-        const nextLiked = !prev;
-
-        setBlogDetail((prevDetail) => {
-          if (!prevDetail) return prevDetail;
-          const updated = {
-            ...prevDetail,
-            likesCount: prevDetail.likesCount + (nextLiked ? 1 : -1),
-          };
-          dispatch(updateBlogDetail({ blogId, data: updated }));
-          return updated;
-        });
-
-        return nextLiked;
-      });
-
-      if (!likeRequestInProgress.current) {
-        likeRequestInProgress.current = true;
-
-        postData<LikeUnlikeBlogResponse>(
-          `${ENDPOINTS.LikeUnlikeBlog}/${blogId}/like`,
-        )
-          .catch(() => {
-            setIsLiked((prev) => !prev);
-          })
-          .finally(() => {
-            likeRequestInProgress.current = false;
-          });
+      if (!isLiked && !likeRequestInProgress.current) {
+        handleLikeUnlike();
       }
-
-      return;
     }
 
     lastTap.current = now;

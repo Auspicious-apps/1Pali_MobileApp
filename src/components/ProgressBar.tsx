@@ -42,7 +42,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
     : `${nextMilestone?.threshold?.toLocaleString()} supporters`;
 
   const badgeName = isAccountScreen
-    ? user?.nextGrowthBadge.name!
+    ? user?.nextGrowthBadge?.name!
     : showFinalGoal
     ? "Key"
     : nextMilestone?.name || "key";

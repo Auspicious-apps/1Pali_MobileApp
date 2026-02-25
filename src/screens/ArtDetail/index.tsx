@@ -92,6 +92,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const { user } = useAppSelector((state) => state.user);
   const cardRef = useRef(null);
   const scrollRef = useRef<any>(null);
+  const blockHeartAnim = useRef(false);
 
   const formatDateMMDDYYYY = (date?: string) => {
     if (!date) return "";
@@ -449,6 +450,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const handleLikeUnlike = async () => {
     setIsLiked((prevLiked) => {
       const nextLiked = !prevLiked;
+       if (!nextLiked) {
+         blockHeartAnim.current = true;
+       }
       if (nextLiked) {
         triggerLikeAnimation();
       }
@@ -458,6 +462,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           ? {
               ...prev,
               likesCount: prev.likesCount + (nextLiked ? 1 : -1),
+              isLikedByUser: nextLiked,
             }
           : prev;
         // Update Redux cache
@@ -489,10 +494,15 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       console.log("Like sync error", error);
     } finally {
       likeRequestInProgress.current = false;
+
+      setTimeout(() => {
+        blockHeartAnim.current = false;
+      }, 300);
     }
   };
 
   const triggerLikeAnimation = () => {
+    likeScale.stopAnimation();
     likeScale.setValue(0);
 
     Animated.sequence([
@@ -533,14 +543,15 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     const DOUBLE_PRESS_DELAY = 250;
 
     if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      if (!likeRequestInProgress.current) {
+      triggerLikeAnimation();
+
+      if (!isLiked && !likeRequestInProgress.current) {
         handleLikeUnlike();
-        triggerLikeAnimation();
       }
     } else {
       setTimeout(() => {
         if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
-          setUiIndex((prev) => (prev === 0 ? 1 : 0));
+          setIsMediaFullscreen(true);
         }
       }, DOUBLE_PRESS_DELAY);
     }

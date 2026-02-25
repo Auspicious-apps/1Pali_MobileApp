@@ -42,7 +42,7 @@ import HapticFeedback from "react-native-haptic-feedback";
 
 const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.user);
+  const { user } = useAppSelector((state) => state?.user);
   const { stripePlans, selectedPlanId, selectedPlanData } = useAppSelector(
     (state) => state.stripePlans,
   );
@@ -491,15 +491,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
             {/* Footer */}
             <View style={styles.footer}>
-              <View style={styles.trialRow}>
-                <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={15}
-                  style={{ color: COLORS.appText }}
-                >
-                  Sure, I’ll cover the ${feesAmount.amount} processing fee
-                </CustomText>
-              </View>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                style={{ color: COLORS.appText, flex: 1 }}
+              >
+                Sure, I’ll cover the ${feesAmount.amount} processing fee
+              </CustomText>
 
               <CustomSwitch
                 value={enabled}
@@ -724,6 +722,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: verticalScale(12),
+    gap: horizontalScale(10),
   },
   trialRow: {
     flexDirection: "row",
