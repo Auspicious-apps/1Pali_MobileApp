@@ -7,7 +7,7 @@ import {
   Platform,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { Grayscale } from "react-native-color-matrix-image-filters";
 import ICONS from "../../assets/Icons";
@@ -129,7 +129,11 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                   top: verticalScale(8),
                 }}
               >
-                <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
+                <CustomIcon
+                  Icon={ICONS.CloseIcon}
+                  height={verticalScale(30)}
+                  width={verticalScale(30)}
+                />
               </TouchableOpacity>
             </View>
 
@@ -140,7 +144,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                   style={[
                     styles.outerCircle,
                     {
-                      width: horizontalScale(151),
+                      width: verticalScale(151),
                       height: verticalScale(151),
                       borderRadius: horizontalScale(151) / 2,
                     },
@@ -265,7 +269,7 @@ const styles = StyleSheet.create({
     gap: verticalScale(12),
   },
   badgeImage: {
-    width: horizontalScale(151),
+    width: verticalScale(151),
     height: verticalScale(151),
     resizeMode: "cover",
   },

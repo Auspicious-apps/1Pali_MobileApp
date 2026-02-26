@@ -14,5 +14,12 @@ export interface Plan {
   type: string;
   active: boolean;
   createdAt: string;
-  metadata: any;
+  metadata: Metadata;
+}
+
+export interface Metadata {
+  category: string;
+  createdAt: string;
+  netAmount: string;
+  processingFee: string;
 }

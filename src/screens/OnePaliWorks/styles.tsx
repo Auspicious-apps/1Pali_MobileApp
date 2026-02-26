@@ -1,6 +1,11 @@
 import { Platform, StyleSheet } from "react-native";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  isTablet,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 
 const styles = StyleSheet.create({
   container: {
@@ -13,7 +18,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: horizontalScale(20),
     paddingBottom:
       Platform.OS === "ios" ? verticalScale(20) : verticalScale(10),
-    paddingTop:  verticalScale(5),
+    paddingTop: verticalScale(5),
   },
   appIcon: {
     width: horizontalScale(54),
@@ -29,7 +34,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     width: "100%",
     textAlign: "left",
-    lineHeight: verticalScale(40),
+    lineHeight: isTablet ? verticalScale(45) : verticalScale(40),
   },
   centerText: {
     textAlign: "center",

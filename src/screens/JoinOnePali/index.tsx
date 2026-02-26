@@ -2,6 +2,7 @@ import {
   confirmPlatformPaySetupIntent,
   isPlatformPaySupported,
   PlatformPay,
+  PlatformPayButton,
   useStripe,
 } from "@stripe/stripe-react-native";
 import React, { FC, useEffect, useRef, useState } from "react";
@@ -65,7 +66,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const { user, claimedNumber, reservationToken } = useAppSelector(
     (state) => state.user,
   );
-  const reservationStatus = useAppSelector(selectReservationStatus);
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { stripePlans } = useAppSelector((state) => state.stripePlans);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
@@ -75,17 +75,17 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedPlanData, setSelectedPlanData] = useState<Plan | null>(null);
-  const [feesAmount, setFeesAmount] = useState({
-    amount: "",
-    planId: "",
-  });
+  const [correspondingGenerousPlan, setCorrespondingGenerousPlan] =
+    useState<Plan | null>(null);
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [showCard, setShowCard] = useState(false);
   const [toggleWidth, setToggleWidth] = useState(0);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
   const [showImpactLoader, setShowImpactLoader] = useState(false);
-  const visiblePlans = stripePlans.filter((p) => !p.metadata.calculationMethod);
+  const visiblePlans = stripePlans.filter(
+    (p) => p.metadata.category === "base",
+  );
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
 
   const hapticOptions = {
@@ -138,7 +138,9 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         return;
       }
 
-      const planId = enabled ? feesAmount.planId : selectedPlan;
+      const planId = enabled ? correspondingGenerousPlan?.id : selectedPlan;
+
+      console.log(planId);
 
       if (user && user.hasPaymentMethod) {
         setShowImpactLoader(true);
@@ -151,7 +153,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             },
           );
 
-          setIsLoading(false);
+        setIsLoading(false);
         if (confirmSetupIntentresponse.data.success) {
           // Start polling instead of a single fetch
           const isSubscriptionActive = await pollUserProfile(3);
@@ -265,7 +267,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         setIsLoading(false);
         return;
       }
-      const planId = enabled ? feesAmount.planId : selectedPlan;
+      const planId = enabled ? correspondingGenerousPlan?.id : selectedPlan;
 
       if (user && user.hasPaymentMethod && user.defaultPaymentMethodId) {
         const confirmSetupIntentresponse =
@@ -400,6 +402,12 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         dispatch(setStripePlans(activePlans));
         setSelectedPlan(activePlans[0]?.id);
         setSelectedPlanData(activePlans[0]);
+        const corespondingPlan = activePlans.find(
+          (p) =>
+            p.metadata.category === "generosity" &&
+            p.metadata.netAmount === activePlans[0]?.metadata.netAmount,
+        );
+        setCorrespondingGenerousPlan(corespondingPlan || null);
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
@@ -408,26 +416,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       setIsInitialLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (selectedPlanData && stripePlans.length) {
-      const currentBothPLans = stripePlans.filter((p) =>
-        p.nickname.includes(selectedPlanData?.nickname),
-      );
-
-      const planWithFees = currentBothPLans.find(
-        (p) => p.metadata.calculationMethod === "reverse-fee",
-      );
-
-      const calculatedFee = planWithFees
-        ? (
-            planWithFees.amount - parseFloat(planWithFees.metadata.netAmount)
-          ).toFixed(2)
-        : "0";
-
-      setFeesAmount({ amount: calculatedFee, planId: planWithFees?.id || "" });
-    }
-  }, [selectedPlan, selectedPlanData, stripePlans]);
 
   useEffect(() => {
     getAllPlans();
@@ -544,68 +532,89 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           </View>
         </View>
 
+        <View
+          style={{
+            paddingVertical: 16,
+            marginHorizontal: horizontalScale(10),
+            width: wp(90),
+          }}
+        >
+          <View
+            style={styles.toggleWrapper}
+            onLayout={(e) => {
+              setToggleWidth(e.nativeEvent.layout.width - 8);
+            }}
+          >
+            {ITEM_WIDTH > 0 && (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.slidingBg,
+                  {
+                    width: ITEM_WIDTH,
+                    transform: [{ translateX: slideAnim }],
+                  },
+                ]}
+              />
+            )}
+
+            {visiblePlans.map((plan) => {
+              const isSelected = selectedPlan === plan.id;
+
+              return (
+                <TouchableOpacity
+                  key={plan.id}
+                  style={styles.toggleItem}
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    HapticFeedback.trigger("impactLight", hapticOptions);
+                    setSelectedPlan(plan.id);
+                    setSelectedPlanData(plan);
+                    const corespondingPlan = stripePlans.find(
+                      (p) =>
+                        p.metadata.category === "generosity" &&
+                        p.metadata.netAmount === plan.metadata.netAmount,
+                    );
+
+                    setCorrespondingGenerousPlan(corespondingPlan || null);
+                  }}
+                  disabled={isLoading}
+                >
+                  <CustomText
+                    fontSize={18}
+                    style={[
+                      styles.toggleText,
+                      isSelected && styles.toggleTextActive,
+                    ]}
+                  >
+                    ${plan.metadata.netAmount || plan.amount}/mo
+                  </CustomText>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <CustomText
+            fontSize={13}
+            color={COLORS.appText}
+            fontFamily="SourceSansRegular"
+          >
+            Includes an additional $
+            {selectedPlanData?.metadata?.processingFee || 0} for processing to
+            maximize impact
+          </CustomText>
+        </View>
+
         {/* Payment Plan section  */}
         {!showCard && (
           <View style={styles.card}>
-            {/* Header */}
-            <View style={styles.header}>
-              <CustomText
-                fontFamily="GabaritoMedium"
-                fontSize={20}
-                color={COLORS.darkText}
-              >
-                {reservationSeconds === 0
-                  ? "OnePali Membership"
-                  : "OnePali Supporter"}
-              </CustomText>
-            </View>
-
-            <View
-              style={styles.toggleWrapper}
-              onLayout={(e) => {
-                setToggleWidth(e.nativeEvent.layout.width - 8);
-              }}
+            <CustomText
+              fontSize={20}
+              fontFamily="GabaritoSemiBold"
+              color={COLORS.darkText}
+              style={{ marginBottom: verticalScale(12) }}
             >
-              {ITEM_WIDTH > 0 && (
-                <Animated.View
-                  pointerEvents="none"
-                  style={[
-                    styles.slidingBg,
-                    {
-                      width: ITEM_WIDTH,
-                      transform: [{ translateX: slideAnim }],
-                    },
-                  ]}
-                />
-              )}
-
-              {visiblePlans.map((plan) => {
-                const isSelected = selectedPlan === plan.id;
-
-                return (
-                  <TouchableOpacity
-                    key={plan.id}
-                    style={styles.toggleItem}
-                    activeOpacity={0.9}
-                    onPress={() => {
-                      HapticFeedback.trigger("impactLight", hapticOptions);
-                      setSelectedPlan(plan.id);
-                      setSelectedPlanData(plan);
-                    }}
-                    disabled={isLoading}
-                  >
-                    <CustomText
-                      style={[
-                        styles.toggleText,
-                        isSelected && styles.toggleTextActive,
-                      ]}
-                    >
-                      ${plan.metadata.netAmount || plan.amount}/mo
-                    </CustomText>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+              What you’ll support
+            </CustomText>
 
             {/* Benefits */}
             <View style={styles.row}>
@@ -646,10 +655,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             <View style={styles.footer}>
               <CustomText
                 fontFamily="GabaritoRegular"
-                fontSize={15}
-                style={{ color: COLORS.appText, flex: 1 }}
+                fontSize={18}
+                style={{ color: COLORS.darkText, flex: 1 }}
               >
-                Sure, I’ll cover the ${feesAmount.amount} processing fee
+                Support OnePali (optional)
               </CustomText>
 
               <CustomSwitch
@@ -661,115 +670,161 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 trackColorOff={[COLORS.grey, COLORS.grey]}
               />
             </View>
-          </View>
-        )}
-        {reservationSeconds && (
-          <Image
-            source={IMAGES.JoinImage}
-            resizeMode="cover"
-            style={{
-              width: wp(70),
-              height: hp(18),
-              marginTop: verticalScale(16),
-            }}
-          />
-        )}
-        {!reservationSeconds ? (
-          <PrimaryButton
-            title="Choose a new number"
-            onPress={() => {
-              navigation.pop(1);
-              navigation.goBack();
-            }}
-            style={{ marginTop: verticalScale(20) }}
-            hapticFeedback
-            hapticType="impactLight"
-          />
-        ) : isApplePaySupported ? (
-          <PrimaryButton
-            title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
-            onPress={handleAppleSetupIntent}
-            leftIcon={{
-              Icon: Platform.OS === "ios" ? ICONS.AppleLogo : ICONS.GoogleIcon,
-              width: 22,
-              height: 22,
-            }}
-            isLoading={isLoading}
-            style={{ marginTop: verticalScale(20) }}
-            hapticFeedback
-            hapticType="impactLight"
-          />
-        ) : (
-          <PrimaryButton
-            title="Join OnePali"
-            onPress={handleSetupIntent}
-            isLoading={isLoading}
-            style={{ marginTop: verticalScale(20) }}
-            hapticFeedback
-            hapticType="impactLight"
-          />
-        )}
-
-        {reservationSeconds && (
-          <View
-            style={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              width: Platform.OS === "ios" ? wp(50) : wp(50),
-            }}
-          >
             <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={12}
-              color={COLORS.grayColor}
-              style={{
-                textAlign: "center",
-                marginTop: verticalScale(16),
-                width: wp(50),
-              }}
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              style={{ color: COLORS.appText }}
             >
-              By joining OnePali, you accept our{" "}
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL("https://onepali.app/terms-condition");
-                }}
-              >
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Terms of Use
-                </CustomText>
-              </TouchableOpacity>{" "}
-              <TouchableOpacity activeOpacity={1}>
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                >
-                  and{" "}
-                </CustomText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL("https://onepali.app/privacy-policy");
-                }}
-              >
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Privacy Policy
-                </CustomText>
-              </TouchableOpacity>
+              This mission runs on your generosity. $0.25 helps keep OnePali
+              running and growing.
             </CustomText>
           </View>
         )}
+
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "space-between",
+            paddingTop: verticalScale(10),
+          }}
+        >
+          {reservationSeconds && reservationSeconds > 0 && (
+            <View
+              style={{
+                flexDirection: "row",
+                width: wp(90),
+                justifyContent: "space-between",
+                marginTop: verticalScale(12),
+              }}
+            >
+              <CustomText
+                fontSize={18}
+                color={COLORS.darkText}
+                fontFamily="GabaritoRegular"
+              >
+                Total Monthly Donation
+              </CustomText>
+              <CustomText
+                fontSize={18}
+                color={COLORS.darkText}
+                fontFamily="GabaritoRegular"
+              >
+                ${selectedPlanData?.amount! + (enabled ? 0.25 : 0)}/mo
+              </CustomText>
+            </View>
+          )}
+
+          <View style={{ alignItems: "center" }}>
+            {!reservationSeconds ? (
+              <PrimaryButton
+                title="Choose a new number"
+                onPress={() => {
+                  navigation.pop(1);
+                  navigation.goBack();
+                }}
+                style={{ marginTop: verticalScale(20) }}
+                hapticFeedback
+                hapticType="impactLight"
+              />
+            ) : isApplePaySupported ? (
+              // <PrimaryButton
+              //   title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
+              //   onPress={handleAppleSetupIntent}
+              //   leftIcon={{
+              //     Icon: Platform.OS === "ios" ? ICONS.AppleLogo : ICONS.GoogleIcon,
+              //     width: 22,
+              //     height: 22,
+              //   }}
+              //   isLoading={isLoading}
+              //   style={{ marginTop: verticalScale(20) }}
+              //   hapticFeedback
+              //   hapticType="impactLight"
+              // />
+              <PlatformPayButton
+                type={PlatformPay.ButtonType.Donate} // This tells Stripe: "Give me the official Apple Donate button"
+                onPress={handleAppleSetupIntent}
+                appearance={PlatformPay.ButtonStyle.Black}
+                borderRadius={10}
+                disabled={isLoading}
+                style={{
+                  marginTop: verticalScale(20),
+                  height: verticalScale(50),
+                  width: wp(90),
+                }}
+              />
+            ) : (
+              <PrimaryButton
+                title="Join OnePali"
+                onPress={handleSetupIntent}
+                isLoading={isLoading}
+                style={{ marginTop: verticalScale(20) }}
+                hapticFeedback
+                hapticType="impactLight"
+              />
+            )}
+
+            {reservationSeconds && reservationSeconds > 0 && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  width: Platform.OS === "ios" ? wp(50) : wp(50),
+                }}
+              >
+                <CustomText
+                  fontFamily="GabaritoMedium"
+                  fontSize={12}
+                  color={COLORS.grayColor}
+                  style={{
+                    textAlign: "center",
+                    marginTop: verticalScale(16),
+                    width: wp(50),
+                  }}
+                >
+                  By joining OnePali, you accept our{" "}
+                  <TouchableOpacity
+                    onPress={() => {
+                      Linking.openURL("https://onepali.app/terms-condition");
+                    }}
+                  >
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={12}
+                      color={COLORS.grayColor}
+                      style={{ textDecorationLine: "underline" }}
+                    >
+                      Terms of Use
+                    </CustomText>
+                  </TouchableOpacity>{" "}
+                  <TouchableOpacity activeOpacity={1}>
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={12}
+                      color={COLORS.grayColor}
+                    >
+                      and{" "}
+                    </CustomText>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      Linking.openURL("https://onepali.app/privacy-policy");
+                    }}
+                  >
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={12}
+                      color={COLORS.grayColor}
+                      style={{ textDecorationLine: "underline" }}
+                    >
+                      Privacy Policy
+                    </CustomText>
+                  </TouchableOpacity>
+                </CustomText>
+              </View>
+            )}
+          </View>
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -811,7 +866,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginHorizontal: horizontalScale(10),
-    marginTop: verticalScale(16),
+    marginTop: verticalScale(5),
     width: wp(90),
     shadowColor: "#000",
     shadowOffset: {
@@ -826,8 +881,7 @@ const styles = StyleSheet.create({
   divider: {
     borderBottomWidth: 1,
     borderColor: COLORS.inputBackground,
-    marginBottom: verticalScale(8),
-    marginTop: verticalScale(4),
+    marginVertical: verticalScale(12),
   },
   row: {
     flexDirection: "row",
@@ -841,6 +895,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: horizontalScale(10),
+    marginBottom: verticalScale(8),
   },
   trialRow: {
     flexDirection: "row",
@@ -851,7 +906,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "stretch",
     borderRadius: 100,
-    marginBottom: verticalScale(12),
+    marginBottom: verticalScale(8),
     width: "100%",
     backgroundColor: COLORS.white,
     padding: verticalScale(4),
@@ -871,7 +926,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     zIndex: 2,
     paddingVertical: verticalScale(12),
-    paddingHorizontal: horizontalScale(24),
+    paddingHorizontal: horizontalScale(20),
   },
   toggleItemDivider: {
     // borderLeftWidth: 1,
@@ -883,10 +938,6 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     fontFamily: FONTS.GabaritoSemiBold,
-    fontSize:
-      Platform.OS === "android"
-        ? responsiveFontSize(16)
-        : responsiveFontSize(18),
     color: COLORS.appText,
   },
   toggleTextActive: {

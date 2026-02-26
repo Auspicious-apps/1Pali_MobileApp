@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import HapticFeedback from "react-native-haptic-feedback";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import FONTS from "../../assets/fonts";
@@ -38,7 +39,6 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import HapticFeedback from "react-native-haptic-feedback";
 
 const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -47,10 +47,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     (state) => state.stripePlans,
   );
 
-  const isSamePlanAsCurrent = selectedPlanId === user?.stripePriceId;
   const isUserActive = user?.subscriptionStatus === "ACTIVE";
-  const isCancelling =
-    user?.subscriptionStatus === "CANCELLING" || user?.cancelAtPeriodEnd;
 
   const [enabled, setEnabled] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -66,12 +63,9 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const [toggleWidth, setToggleWidth] = useState(0);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
   const visiblePlans = stripePlans.filter(
-    (plan) => !plan.metadata.calculationMethod,
+    (plan) => plan.metadata.category === "base",
   );
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
-
-  // Edge case: Check if fee plan is available
-  const isFeesPlanAvailable = !!feesAmount.planId && feesAmount.amount !== "0";
 
   // Edge case: Determine if plan has changed
   const isPlanChanged =
@@ -159,16 +153,34 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
       if (response?.data?.data?.plans?.length) {
         const activePlans = response?.data?.data?.plans;
 
-        const selectPlan = activePlans.filter(
-          (p) => p.id === selectedPlanId,
-        )[0];
+        // Use user's actual current plan as the source of truth
+        const currentPlanId = user?.stripePriceId || selectedPlanId;
+        const selectPlan = activePlans.find((p) => p.id === currentPlanId);
 
-        if (selectPlan.metadata.calculationMethod === "reverse-fee") {
-          setEnabled(true);
+        if (selectPlan) {
+          // Set Redux state with the actual current plan
+          dispatch(setSelectedPlanId(selectPlan.id));
+          dispatch(setSelectedPlanData(selectPlan));
+
+          // Determine if toggle should be enabled based on plan category
+          if (selectPlan.metadata.category === "generosity") {
+            setEnabled(true);
+            // Find the corresponding base plan with the same netAmount
+            const basePlan = activePlans.find(
+              (p) =>
+                p.metadata.category === "base" &&
+                p.metadata.netAmount === selectPlan.metadata.netAmount,
+            );
+            if (basePlan) {
+              setPreviousPlanId(basePlan.id);
+            }
+          } else if (selectPlan.metadata.category === "base") {
+            setEnabled(false);
+            setPreviousPlanId(null);
+          }
         }
 
         dispatch(setStripePlans(activePlans));
-        dispatch(setSelectedPlanData(selectPlan));
       }
     } catch (error) {
       console.log("Error fetching plans:", error);
@@ -262,16 +274,17 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     getAllPlans();
-  }, []);
+  }, [user?.stripePriceId]);
 
   useEffect(() => {
     if (selectedPlanData && stripePlans.length) {
-      const currentBothPLans = stripePlans.filter((p) =>
-        p.nickname.includes(selectedPlanData?.nickname),
-      );
+      // Find both base and generosity plans with the same netAmount
+      const matchingNetAmount = selectedPlanData.metadata.netAmount;
 
-      const planWithFees = currentBothPLans.find(
-        (p) => p.metadata.calculationMethod === "reverse-fee",
+      const planWithFees = stripePlans.find(
+        (p) =>
+          p.metadata.category === "generosity" &&
+          p.metadata.netAmount === matchingNetAmount,
       );
 
       const calculatedFee = planWithFees
@@ -282,13 +295,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
       setFeesAmount({ amount: calculatedFee, planId: planWithFees?.id || "" });
     }
-  }, [selectedPlanData, stripePlans, selectedPlanId]);
+  }, [selectedPlanData, stripePlans]);
 
   useEffect(() => {
     if (!selectedPlanData || ITEM_WIDTH <= 0) return;
 
-    const index = visiblePlans.findIndex((p) =>
-      selectedPlanData?.nickname.includes(p.nickname),
+    const index = visiblePlans.findIndex(
+      (p) => p.metadata.netAmount === selectedPlanData?.metadata.netAmount,
     );
 
     if (index === -1) return;
@@ -310,7 +323,11 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             navigation.goBack();
           }}
         >
-          <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+          <CustomIcon
+            Icon={ICONS.backArrow}
+            height={verticalScale(26)}
+            width={verticalScale(26)}
+          />
         </TouchableOpacity>
 
         <Image source={IMAGES.LogoText} style={styles.logo} />
@@ -345,59 +362,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
         </View>
       ) : (
         <>
-          {/* Heading */}
-
-          <View style={styles.card}>
-            {/* Header */}
-            <View style={styles.header}>
-              <CustomText
-                fontFamily="GabaritoMedium"
-                fontSize={20}
-                color={COLORS.darkText}
-              >
-                OnePali Supporter
-              </CustomText>
-            </View>
-
-            {/* <View style={styles.toggleWrapper}>
-              {stripePlans
-                .filter((plan) => !plan.metadata.calculationMethod)
-                .map((plan, index) => {
-                  const isSelected = selectedPlanData?.nickname.includes(
-                    plan.nickname,
-                  );
-                  const isFirst = index === 0;
-                  return (
-                    <TouchableOpacity
-                      key={plan.id}
-                      activeOpacity={0.8}
-                      onPress={() => {
-                        // Edge case: Reset fees toggle when manually selecting a different plan
-                        setEnabled(false);
-                        setPreviousPlanId(null);
-                        dispatch(setSelectedPlanId(plan.id));
-                        dispatch(setSelectedPlanData(plan));
-                      }}
-                      disabled={isUpdatingPlan}
-                      style={[
-                        styles.toggleItem,
-                        !isFirst && styles.toggleItemDivider,
-                        isSelected && styles.toggleItemActive,
-                      ]}
-                    >
-                      <CustomText
-                        style={[
-                          styles.toggleText,
-                          isSelected && styles.toggleTextActive,
-                        ]}
-                      >
-                        ${plan?.amount}/{plan?.interval}
-                      </CustomText>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View> */}
-
+          <View
+            style={{
+              paddingVertical: 16,
+              marginHorizontal: horizontalScale(10),
+              width: wp(90),
+            }}
+          >
             <View
               style={styles.toggleWrapper}
               onLayout={(e) => {
@@ -418,12 +389,11 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               )}
 
               {stripePlans
-                .filter((plan) => !plan.metadata.calculationMethod)
+                .filter((plan) => plan.metadata.category === "base")
                 .map((plan, index) => {
-                  const isSelected = selectedPlanData?.nickname.includes(
-                    plan.nickname,
-                  );
-                  const isFirst = index === 0;
+                  const isSelected =
+                    selectedPlanData?.metadata.netAmount ===
+                    plan.metadata.netAmount;
 
                   return (
                     <TouchableOpacity
@@ -432,7 +402,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                       activeOpacity={0.9}
                       onPress={() => {
                         HapticFeedback.trigger("impactLight", hapticOptions);
-                        setEnabled(false);
                         setPreviousPlanId(null);
                         dispatch(setSelectedPlanId(plan.id));
                         dispatch(setSelectedPlanData(plan));
@@ -451,11 +420,26 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   );
                 })}
             </View>
+            <CustomText
+              fontSize={13}
+              color={COLORS.appText}
+              fontFamily="SourceSansRegular"
+            >
+              Includes an additional $
+              {selectedPlanData?.metadata?.processingFee || 0} for processing to
+              maximize impact
+            </CustomText>
+          </View>
 
+          <View style={styles.card}>
             <View style={{ gap: verticalScale(8) }}>
               {/* Benefits */}
               <View style={styles.row}>
-                <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
+                <CustomIcon
+                  Icon={ICONS.LikedIcon}
+                  height={verticalScale(16)}
+                  width={verticalScale(16)}
+                />
                 <CustomText
                   fontFamily="GabaritoRegular"
                   fontSize={15}
@@ -466,7 +450,11 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               </View>
 
               <View style={styles.row}>
-                <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
+                <CustomIcon
+                  Icon={ICONS.LikedIcon}
+                  height={verticalScale(16)}
+                  width={verticalScale(16)}
+                />
                 <CustomText
                   fontFamily="GabaritoRegular"
                   fontSize={15}
@@ -477,7 +465,11 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               </View>
 
               <View style={styles.row}>
-                <CustomIcon Icon={ICONS.LikedIcon} height={16} width={16} />
+                <CustomIcon
+                  Icon={ICONS.LikedIcon}
+                  height={verticalScale(16)}
+                  width={verticalScale(16)}
+                />
                 <CustomText
                   fontFamily="GabaritoRegular"
                   fontSize={15}
@@ -487,52 +479,75 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 </CustomText>
               </View>
             </View>
-            {/* <View style={styles.divider} /> */}
 
             {/* Footer */}
             <View style={styles.footer}>
               <CustomText
                 fontFamily="GabaritoRegular"
-                fontSize={15}
-                style={{ color: COLORS.appText, flex: 1 }}
+                fontSize={18}
+                style={{ color: COLORS.darkText, flex: 1 }}
               >
-                Sure, I’ll cover the ${feesAmount.amount} processing fee
+                Support OnePali (optional)
               </CustomText>
 
               <CustomSwitch
                 value={enabled}
                 onValueChange={(value) => {
-                  // Edge case: Prevent toggle if fees plan not available
-                  if (value && !isFeesPlanAvailable) {
-                    Toast.show({
-                      type: "error",
-                      text1: "Not Available",
-                      text2:
-                        "Processing fees option is not available for this plan.",
-                    });
-                    return;
-                  }
-
                   // Edge case: Prevent toggle while updating plan
                   if (isUpdatingPlan) {
                     return;
                   }
 
-                  // Edge case: Store previous plan when enabling, restore when disabling
+                  // Edge case: Store base plan when enabling, switch to fee plan
                   if (value) {
-                    if (selectedPlanId) {
-                      setPreviousPlanId(selectedPlanId);
+                    // Prevent toggle if fees plan not available
+                    if (!feesAmount.planId || feesAmount.amount === "0") {
+                      Toast.show({
+                        type: "error",
+                        text1: "Not Available",
+                        text2:
+                          "Processing fees option is not available for this plan.",
+                      });
+                      return;
                     }
+
+                    // Store current base plan as previousPlanId (in case user disables later)
+                    const currentBasePlan = stripePlans.find(
+                      (p) =>
+                        p.metadata.category === "base" &&
+                        p.metadata.netAmount ===
+                          selectedPlanData?.metadata.netAmount,
+                    );
+
+                    if (currentBasePlan) {
+                      setPreviousPlanId(currentBasePlan.id);
+                    }
+
                     setEnabled(true);
                     // Auto-select the fee plan
                     if (feesAmount.planId) {
                       dispatch(setSelectedPlanId(feesAmount.planId));
+                      // Find and update selectedPlanData to the fee plan
+                      const feePlan = stripePlans.find(
+                        (p) => p.id === feesAmount.planId,
+                      );
+                      if (feePlan) {
+                        dispatch(setSelectedPlanData(feePlan));
+                      }
                     }
                   } else {
+                    // Disable: switch back to base plan
                     setEnabled(false);
-                    // Restore previous plan
+
                     if (previousPlanId) {
                       dispatch(setSelectedPlanId(previousPlanId));
+                      // Find and update selectedPlanData to the base plan
+                      const basePlan = stripePlans.find(
+                        (p) => p.id === previousPlanId,
+                      );
+                      if (basePlan) {
+                        dispatch(setSelectedPlanData(basePlan));
+                      }
                       setPreviousPlanId(null);
                     }
                   }
@@ -543,6 +558,14 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 trackColorOff={[COLORS.grey, COLORS.grey]}
               />
             </View>
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              style={{ color: COLORS.appText, marginTop: verticalScale(8) }}
+            >
+              This mission runs on your generosity. $0.25 helps keep OnePali
+              running and growing.
+            </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
               fontSize={15}
@@ -647,7 +670,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 color: COLORS.darkText,
               }}
             >
-              ${user?.totalDonations}/mo
+              ${user?.currentSubscriptionPrice}/mo
             </CustomText>
           </CustomText>
         </>
@@ -677,7 +700,7 @@ const styles = StyleSheet.create({
 
   headingContainer: {
     alignItems: "center",
-    marginTop: verticalScale(32),
+    marginTop: verticalScale(15),
   },
 
   subHeading: {
@@ -689,7 +712,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(248, 248, 251, 1)",
     borderRadius: 20,
     padding: 16,
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(14),
     width: wp(90),
     shadowColor: "#000",
     shadowOffset: {

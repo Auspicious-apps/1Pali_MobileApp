@@ -54,6 +54,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import { hasNotch } from "react-native-device-info";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -450,9 +451,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const handleLikeUnlike = async () => {
     setIsLiked((prevLiked) => {
       const nextLiked = !prevLiked;
-       if (!nextLiked) {
-         blockHeartAnim.current = true;
-       }
+      if (!nextLiked) {
+        blockHeartAnim.current = true;
+      }
       if (nextLiked) {
         triggerLikeAnimation();
       }
@@ -658,6 +659,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             paddingBottom: Platform.select({
               android: insets.bottom,
               ios: verticalScale(15),
+            }),
+            paddingTop: Platform.select({
+              android: insets.top,
+              ios: hasNotch() ? verticalScale(0) : verticalScale(15),
             }),
           },
         ]}

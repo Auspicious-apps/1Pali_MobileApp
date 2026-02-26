@@ -124,7 +124,11 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                 style={{ padding: horizontalScale(8) }}
                 activeOpacity={0.8}
               >
-                <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+                <CustomIcon
+                  Icon={ICONS.backArrow}
+                  height={verticalScale(26)}
+                  width={verticalScale(26)}
+                />
               </TouchableOpacity>
             </View>
 
@@ -165,7 +169,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               <BadgeIcon
                 badge={latestIdentityBadge?.name}
                 style={{
-                  width: horizontalScale(94),
+                  width: verticalScale(94),
                   height: verticalScale(94),
                 }}
               />
@@ -297,7 +301,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                               badge={badge?.name}
                               locked={!isUnlocked}
                               style={{
-                                width: horizontalScale(94),
+                                width: verticalScale(94),
                                 height: verticalScale(94),
                                 resizeMode: "contain",
                               }}

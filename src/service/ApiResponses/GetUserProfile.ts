@@ -25,6 +25,7 @@ export type GetUserProfileApiResponse = {
   nextGrowthBadge: NextGrowthBadge;
   nextCommunityMilestone: NextCommunityMilestone;
   fcmToken: string;
+  currentSubscriptionPrice: number;
 };
 
 export interface GlobalStats {

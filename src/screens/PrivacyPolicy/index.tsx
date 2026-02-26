@@ -57,7 +57,6 @@ const Bullet = ({ children }: any) => (
 );
 
 const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
-
   const openEmail = () => {
     Linking.openURL("mailto:meca@mecaforpeace.org");
   };
@@ -89,7 +88,11 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             paddingVertical: verticalScale(10),
           }}
         >
-          <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+          <CustomIcon
+            Icon={ICONS.backArrow}
+            height={verticalScale(26)}
+            width={verticalScale(26)}
+          />
         </TouchableOpacity>
         {/* SCROLL CONTENT */}
         <ScrollView

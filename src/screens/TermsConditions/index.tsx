@@ -66,7 +66,11 @@ const TermsConditions: FC<TermsConditionsScreenProps> = ({ navigation }) => {
             paddingVertical: verticalScale(10),
           }}
         >
-          <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+          <CustomIcon
+            Icon={ICONS.backArrow}
+            height={verticalScale(26)}
+            width={verticalScale(26)}
+          />
         </TouchableOpacity>
 
         {/* SCROLL CONTENT */}

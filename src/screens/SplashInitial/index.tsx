@@ -84,9 +84,6 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       const response = await fetchData<GetUserProfileApiResponse>(
         ENDPOINTS.GetUserProfile,
       );
-
-      console.log(response, "joihyIUGHiuyg");
-      
       if (response.data.success) {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));

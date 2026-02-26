@@ -32,7 +32,7 @@ import { ReserveSpecificNumberResponse } from "../../service/APIResponses/Reserv
 import { fetchData, postData } from "../../service/ApiService";
 import { ClaimSpotProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { verticalScale } from "../../utils/Metrics";
+import { isTablet, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
 import Toast from "react-native-toast-message";
 
@@ -271,7 +271,13 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   fontFamily="GabaritoSemiBold"
                   fontSize={42}
                   color={COLORS.darkText}
-                  style={{ textAlign: "center", lineHeight: verticalScale(40) }}
+                  style={{
+                    textAlign: "center",
+
+                    lineHeight: isTablet
+                      ? verticalScale(45)
+                      : verticalScale(40),
+                  }}
                 >
                   Choose your{"\n"}number
                 </CustomText>

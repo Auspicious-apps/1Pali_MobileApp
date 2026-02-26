@@ -271,7 +271,7 @@ const CollectBadges = () => {
               }}
               style={styles.closeBtn}
             >
-              <CustomIcon Icon={ICONS.WhiteClose} height={30} width={30} />
+              <CustomIcon Icon={ICONS.WhiteClose} height={verticalScale(30)} width={verticalScale(30)} />
             </TouchableOpacity>
           </View>
 
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   },
   closeBtn: {},
   badgeImage: {
-    width: horizontalScale(162),
+    width: verticalScale(162),
     height: verticalScale(162),
     borderRadius: 60,
   },

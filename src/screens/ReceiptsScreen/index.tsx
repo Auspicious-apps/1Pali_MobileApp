@@ -210,7 +210,11 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
                 onPress={() => navigation.goBack()}
                 activeOpacity={0.8}
               >
-                <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+                <CustomIcon
+                  Icon={ICONS.backArrow}
+                  height={verticalScale(26)}
+                  width={verticalScale(26)}
+                />
               </TouchableOpacity>
             </View>
             <View style={styles.center}>

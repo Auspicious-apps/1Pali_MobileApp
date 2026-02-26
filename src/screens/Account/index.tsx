@@ -36,7 +36,12 @@ import {
   formatDate,
   formatMembershipDuration,
 } from "../../utils/Helpers";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  isTablet,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 
 const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -168,7 +173,11 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
         style={[styles.row, isLastItem && { borderBottomWidth: 0 }]}
       >
         <View style={styles.leftRow}>
-          <CustomIcon Icon={item.icon} height={24} width={24} />
+          <CustomIcon
+            Icon={item.icon}
+            height={verticalScale(24)}
+            width={verticalScale(24)}
+          />
           <CustomText
             fontFamily="GabaritoRegular"
             fontSize={16}
@@ -190,14 +199,16 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
           )}
 
           {item.arrow && (
-            <CustomIcon Icon={ICONS.ArrowRight} height={24} width={24} />
+            <CustomIcon
+              Icon={ICONS.ArrowRight}
+              height={verticalScale(24)}
+              width={verticalScale(24)}
+            />
           )}
         </View>
       </Container>
     );
   };
-
-  console.log(user?.nextGrowthBadge, "popoop");
 
   return (
     <View style={styles.container}>
@@ -283,7 +294,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    right: horizontalScale(15),
+                    right: horizontalScale(isTablet ? 25 : 15),
                   }}
                 >
                   {[
@@ -300,8 +311,11 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                         style={{
                           width: horizontalScale(72),
                           height: verticalScale(72),
-                          marginLeft: index === 0 ? 0 : -35,
-                          borderRadius: 36,
+                          marginLeft:
+                            index === 0
+                              ? 0
+                              : horizontalScale(isTablet ? -45 : -35),
+                          borderRadius: horizontalScale(36),
                           zIndex: growthBadges?.length - index,
                           resizeMode: "contain",
                         }}
@@ -316,8 +330,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 >
                   <CustomIcon
                     Icon={ICONS.RightArrow}
-                    height={24}
-                    width={24}
+                    height={verticalScale(24)}
+                    width={verticalScale(24)}
                     style={{ marginLeft: 8 }}
                   />
                 </TouchableOpacity>
