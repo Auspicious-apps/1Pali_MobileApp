@@ -30,6 +30,8 @@ const COLORS = {
   midOrange: "#C27C1F",
   greey: "#D9D9D9",
   commentBar: "#F2F3F7",
+  midDarkGreen: "#012D24",
+  midDarkBrown: "#361A12",
 };
 
 export default COLORS;

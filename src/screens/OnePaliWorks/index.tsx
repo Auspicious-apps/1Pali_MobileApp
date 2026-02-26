@@ -19,53 +19,78 @@ import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
 import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
 import LinearGradient from "react-native-linear-gradient";
 import { BlurView } from "@react-native-community/blur";
 
-const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
+const fundImages = [IMAGES.kidsImageOne, IMAGES.CharityNavigator];
 
 const fundCards = [
   {
     id: "1",
+    icon: ICONS.once,
     title: "Choose your number ",
-    description: "Starts a $1 monthly subscription to hold your number.",
-    image: IMAGES.ClaimCard,
+    description: "Pick any number between 1 and 1,000,000 and make it yours. ",
+    image: IMAGES.NumberChoose,
     bgColor: COLORS.midBlue,
   },
   {
     id: "2",
-    title: "Support & Share",
+    icon: ICONS.twice,
+    title: "Set your monthly donation",
     description:
-      "Small monthly support fuels real impact—and sharing amplifies it.",
-    image: IMAGES.SupportImage,
-    bgColor: COLORS.midGreen,
+      "$1 a month keeps your number active and funds humanitarian aid through MECA.",
+    image: IMAGES.twiceImage,
+    bgColor: COLORS.midDarkGreen,
   },
   {
     id: "3",
-    title: "Stay in the Loop",
-    description: "See where funds go and hear from the ground.",
-    image: IMAGES.LoopImage,
-    bgColor: COLORS.midRed,
+    icon: ICONS.thrice,
+    title: "Fund aid on the ground",
+    description:
+      "Your donation powers programs and humanitarian aid delivered through MECA.",
+    image: IMAGES.thriceImage,
+    bgColor: COLORS.midDarkBrown,
   },
   {
     id: "4",
-    title: "Earn your badges",
-    description: "Unlock badges for continued support and sharing artwork.",
-    image: IMAGES.EarnBadgs,
-    bgColor: COLORS.midOrange,
+    title: "Stay connected",
+    icon: ICONS.fourice,
+    description:
+      "Get updates, share children’s artwork, and earn badges along the way.",
+    image: IMAGES.LoopImage,
+    bgColor: COLORS.midRed,
+  },
+];
+
+
+const supportItems = [
+  {
+    icon: ICONS.soup,
+    text: "Hot meals, food parcels, & medicine",
+  },
+  {
+    icon: ICONS.droplets,
+    text: "Clean water for drinking & hygiene",
+  },
+  {
+    icon: ICONS.brush,
+    text: "Arts and creative activities",
+  },
+  {
+    icon: ICONS.WorkHeart,
+    text: "Psychological support & more",
   },
 ];
 
 const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
-
-  const CARD_WIDTH = wp(84);
+  const CARD_WIDTH = wp(87);
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <FocusResetScrollView
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -77,11 +102,11 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           <View style={styles.header}>
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={Platform.OS === "android" ? 40 : 42}
+              fontSize={Platform.OS === "android" ? 42 : 42}
               color={COLORS.darkText}
               style={styles.headerTitle}
             >
-              One cause, one million supporters
+              Here’s how OnePali works
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
@@ -89,10 +114,8 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               color={COLORS.appText}
               style={{ lineHeight: verticalScale(20) }}
             >
-              {/* OnePali is built on people showing up together. Each member
-              donates $1 per month. Small amounts add up when shared by many. */}
-              Join others giving $1 a month for Palestine. Small contributions
-              create real impact.
+              A growing collective giving monthly to support Palestinian
+              children and families through the Middle East Children’s Alliance.
             </CustomText>
           </View>
 
@@ -132,24 +155,44 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 ) : (
                   <View style={styles.fundCardImage} />
                 )}
-
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={18}
-                  color={COLORS.greyish}
-                  style={styles.fundCardTitle}
+                <View
+                  style={{
+                    paddingHorizontal: horizontalScale(12),
+                    paddingVertical: verticalScale(12),
+                  }}
                 >
-                  {item.title}
-                </CustomText>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(6),
+                      marginBottom: verticalScale(8),
+                    }}
+                  >
+                    <CustomIcon
+                      Icon={item.icon}
+                      height={verticalScale(32)}
+                      width={horizontalScale(32)}
+                    />
+                    <CustomText
+                      fontFamily="GabaritoSemiBold"
+                      fontSize={22}
+                      color={COLORS.greyish}
+                      style={styles.fundCardTitle}
+                    >
+                      {item.title}
+                    </CustomText>
+                  </View>
 
-                <CustomText
-                  fontFamily="SourceSansRegular"
-                  fontSize={15}
-                  color={COLORS.greyish}
-                  style={{ lineHeight: verticalScale(17) }}
-                >
-                  {item.description}
-                </CustomText>
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
+                    color={COLORS.greyish}
+                    style={{ lineHeight: verticalScale(17) }}
+                  >
+                    {item.description}
+                  </CustomText>
+                </View>
               </View>
             )}
             onMomentumScrollEnd={(
@@ -176,13 +219,80 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                   width: 6,
                   height: 6,
                   borderRadius: 4,
-                  marginHorizontal: 4,
+                  marginRight: horizontalScale(4),
                   backgroundColor:
                     index === activeIndex ? COLORS.greyText : COLORS.greey,
                 }}
               />
             ))}
           </View>
+          <View
+            style={{
+              marginTop: verticalScale(24),
+              gap: verticalScale(8),
+              paddingHorizontal: horizontalScale(16),
+            }}
+          >
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={22}
+              style={styles.centerText}
+            >
+              What your support provides
+            </CustomText>
+
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              color={COLORS.appText}
+              style={styles.sectionDescription}
+            >
+              Your monthly donation helps fund vital aid and programs for
+              Palestinian children, including:
+            </CustomText>
+
+            <View style={styles.card}>
+              {supportItems.map((item, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: horizontalScale(8),
+                    paddingVertical: verticalScale(8),
+                    borderBottomWidth:
+                      index !== supportItems.length - 1 ? 1 : 0,
+                    borderColor: COLORS.greyish,
+                  }}
+                >
+                  <CustomIcon
+                    Icon={item.icon}
+                    height={horizontalScale(24)}
+                    width={horizontalScale(24)}
+                  />
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
+                    color={COLORS.darkText}
+                  >
+                    {item.text}
+                  </CustomText>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={15}
+            style={{
+              color: COLORS.appText,
+              textAlign: "center",
+              marginVertical: verticalScale(16),
+            }}
+          >
+            95% funds aid; 5% supports MECA operations.
+          </CustomText>
 
           <View style={styles.divider} />
 
@@ -199,15 +309,14 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               </CustomText>
 
               <CustomText
-                fontFamily="SourceSansRegular"
+                fontFamily="GabaritoRegular"
                 fontSize={15}
                 color={COLORS.appText}
                 style={styles.sectionDescription}
               >
-                OnePali is a community-driven initiative and digital platform
-                created to serve as a portal for individuals to provide
-                sustained humanitarian support to Palestine through small,
-                collective monthly donations.
+                OnePali is a community-powered donation app built to create
+                sustained humanitarian support for Palestine through small,
+                collective monthly giving.
               </CustomText>
             </View>
             <View style={{ gap: verticalScale(8) }}>
@@ -216,28 +325,39 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                 fontSize={22}
                 style={styles.centerText}
               >
-                Where funds are directed?
+                Where are funds directed?
               </CustomText>
 
               <CustomText
-                fontFamily="SourceSansRegular"
+                fontFamily="GabaritoRegular"
                 fontSize={15}
                 color={COLORS.appText}
                 style={styles.sectionDescription}
               >
-                100% of funds raised through OnePali are directed to Gaza
-                through the Middle East Children’s Alliance (MECA), who work
-                directly on the ground.
+                Donations made through OnePali go directly to the Middle East
+                Children’s Alliance (MECA), a four-star Charity Navigator
+                organization that has been operating in Gaza for nearly 40
+                years.
               </CustomText>
             </View>
 
+            <Image
+              source={IMAGES.KidsImage}
+              style={{
+                width: "100%",
+                height: hp(27),
+                resizeMode: "cover",
+                borderRadius: 17,
+                marginTop: verticalScale(16),
+              }}
+            />
             <View style={styles.imageRow}>
               {fundImages.map((img, index) => (
                 <Image
                   key={index}
                   source={img}
                   resizeMode="contain"
-                  style={[styles.image, { width: "48%" }]}
+                  style={[styles.image, { width: "49.7%" }]}
                 />
               ))}
             </View>
@@ -247,7 +367,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             <CustomText
               fontFamily="GabaritoSemiBold"
               fontSize={22}
-              style={styles.centerText}
+              style={[styles.centerText, { textAlign: "center" }]}
             >
               Who’s involved?
             </CustomText>
@@ -263,7 +383,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                     OnePali
                   </CustomText>
                   <CustomText
-                    fontFamily="SourceSansRegular"
+                    fontFamily="GabaritoRegular"
                     fontSize={15}
                     color={COLORS.appText}
                     style={{ lineHeight: verticalScale(17) }}
@@ -286,7 +406,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                     Middle East Children’s Alliance
                   </CustomText>
                   <CustomText
-                    fontFamily="SourceSansRegular"
+                    fontFamily="GabaritoRegular"
                     fontSize={15}
                     color={COLORS.appText}
                     style={{ lineHeight: verticalScale(17) }}
@@ -302,7 +422,15 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               resizeMode="contain"
               style={styles.bottomImage}
             />
-            <View style={styles.sectionWrapper}>
+            <View
+              style={[
+                styles.sectionWrapper,
+                {
+                  alignItems: "center",
+                  paddingHorizontal: horizontalScale(0),
+                },
+              ]}
+            >
               <CustomText
                 fontFamily="GabaritoSemiBold"
                 fontSize={22}
@@ -312,15 +440,19 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               </CustomText>
 
               <CustomText
-                fontFamily="SourceSansRegular"
+                fontFamily="GabaritoRegular"
                 fontSize={15}
                 color={COLORS.appText}
-                style={styles.sectionDescription}
+                style={[styles.sectionDescription, { textAlign: "center" }]}
               >
                 Updates from MECA on how funds are being used are shared
                 directly in the app, so you can clearly see where contributions
                 are going.
               </CustomText>
+              <Image
+                source={IMAGES.GetStartedBottomImage}
+                style={styles.mecaImage}
+              />
               <TouchableOpacity
                 onPress={() => {
                   Linking.openURL("https://onepali.app/");

@@ -126,6 +126,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     setChecking(false);
     setAvailable(false);
     setUnavailable(false);
+    setRangeError(false);
+    setStartsWithZero(false);
 
     try {
       const response = await fetchData<ReserveNumberResponse>(

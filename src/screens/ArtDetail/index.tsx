@@ -552,7 +552,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     } else {
       setTimeout(() => {
         if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
-          setIsMediaFullscreen(true);
+          setUiIndex(1);
         }
       }, DOUBLE_PRESS_DELAY);
     }

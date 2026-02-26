@@ -21,6 +21,10 @@ const IMAGES = {
   SplashInitial: require("./SplashInitial.png"),
   HomeTextBackgorund: require("./HomeTextBackgorund.png"),
   EarnBadgs: require("./EarnBadges.png"),
+  NumberChoose: require("./NumberChoose.png"),
+  twiceImage: require("./twiceImage.png"),
+  thriceImage: require("./thriceImage.png"),
+  CharityNavigator: require("./CharityNavigator.png"),
 };
 
 export default IMAGES;

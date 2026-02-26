@@ -78,6 +78,14 @@ import WhiteCloseIcon from "./WhiteCloseIcon.svg";
 import changedUser from "./ChangedUser.svg";
 import DarkUpload from "./DarkUpload.svg";
 import WhiteBack from "./WhiteBack.svg";
+import brush from "./brush.svg";
+import droplets from "./droplets.svg";
+import soup from "./soup.svg";
+import WorkHeart from "./WorkHeart.svg";
+import once from "./once.svg";
+import twice from "./twice.svg";
+import thrice from "./thrice.svg";
+import fourice from "./fourice.svg";
 
 const ICONS = {
   diceIcon,
@@ -160,6 +168,14 @@ const ICONS = {
   changedUser,
   DarkUpload,
   WhiteBack,
+  brush,
+  droplets,
+  soup,
+  WorkHeart,
+  once,
+  twice,
+  thrice,
+  fourice,
 };
 
 export default ICONS;

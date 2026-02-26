@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     lineHeight: isTablet ? verticalScale(45) : verticalScale(40),
   },
   centerText: {
-    textAlign: "center",
     color: COLORS.darkText,
   },
   infoCard: {
@@ -52,11 +51,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalScale(20),
   },
   sectionDescription: {
-    textAlign: "center",
     lineHeight: verticalScale(18),
   },
   FaqText: {
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(18),
     textAlign: "center",
     textDecorationLine: "underline",
   },
@@ -75,27 +73,25 @@ const styles = StyleSheet.create({
     paddingLeft: horizontalScale(20),
   },
   fundCard: {
-    padding: verticalScale(12),
+    padding: verticalScale(8),
     marginTop: verticalScale(16),
-    borderRadius: 18,
-    width: wp(84),
-    gap: verticalScale(4),
+    borderRadius: 24,
+    width: "100%",
   },
   fundCardImage: {
-    width: wp(77.1),
+    // width: wp(77.4),
+    width: "100%",
     height: verticalScale(220),
     backgroundColor: COLORS.greyish,
-    borderRadius: 12,
+    borderRadius: 18,
   },
-  fundCardTitle: {
-    marginTop: verticalScale(12),
-  },
+  fundCardTitle: {},
   divider: {
     width: horizontalScale(200),
     borderBottomWidth: 1,
     borderColor: COLORS.greyish,
     alignSelf: "center",
-    marginVertical: verticalScale(24),
+    marginBottom: verticalScale(24),
   },
   sectionWrapper: {
     marginTop: verticalScale(24),
@@ -159,6 +155,28 @@ const styles = StyleSheet.create({
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,
     height: verticalScale(40),
+  },
+  card: {
+    backgroundColor: COLORS.appBackground,
+    borderRadius: 20,
+    paddingHorizontal: horizontalScale(24),
+    paddingVertical: verticalScale(4),
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+    elevation: 6,
+    marginTop: verticalScale(12),
+  },
+  mecaImage: {
+    width: wp(80),
+    height: verticalScale(40),
+    alignSelf: "center",
+    resizeMode: "contain",
+    marginTop: verticalScale(18),
   },
 });
 
