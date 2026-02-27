@@ -33,6 +33,7 @@ const ENDPOINTS = {
   UpdatePlan: "api/v1/subscription/update-plan",
   cancelPlan: "api/v1/subscription/cancel",
   resubscribePlan: "api/v1/subscription/resubscribe",
+  RemainingSpots: "api/v1/numbers/available-spots",
 };
 
 export default ENDPOINTS;

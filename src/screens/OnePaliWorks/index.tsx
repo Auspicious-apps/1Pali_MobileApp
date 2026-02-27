@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Image,
@@ -23,6 +23,14 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
 import LinearGradient from "react-native-linear-gradient";
 import { BlurView } from "@react-native-community/blur";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { RemainingSpotsApiResponse } from "../../service/ApiResponses/RemainingSpots";
+import { fetchData } from "../../service/ApiService";
+import { useAppDispatch } from "../../redux/store";
+import {
+  getRemainingSpots,
+  setRemainingSpots,
+} from "../../redux/slices/remainingSpotsSlice";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -65,7 +73,6 @@ const fundCards = [
   },
 ];
 
-
 const supportItems = [
   {
     icon: ICONS.soup,
@@ -89,6 +96,28 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
   const CARD_WIDTH = wp(87);
+  const dispatch = useAppDispatch();
+
+  const fetchRemainingSpots = async () => {
+    try {
+      const response = await fetchData<RemainingSpotsApiResponse>(
+        ENDPOINTS.RemainingSpots,
+      );
+
+      const spots = response?.data?.data?.availableSpots;
+
+      if (spots !== undefined) {
+        dispatch(setRemainingSpots(spots));
+      }
+    } catch (error) {
+      console.error("Remaining Spots API Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRemainingSpots();
+  }, []);
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>

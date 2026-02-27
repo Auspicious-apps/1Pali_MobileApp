@@ -44,7 +44,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [unavailable, setUnavailable] = useState(false);
   const reservationToken = useAppSelector(selectReservationToken);
   const claimedNumber = useAppSelector(selectClaimedNumber);
-
+  const availableSpots = useAppSelector(
+    (state) => state.remainingSpots.availableSpots,
+  );
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const checkingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -414,7 +416,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     fontSize={12}
                     color={COLORS.grey}
                   >
-                    Each number represents one supporter.
+                    {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}
+                    spots available
                   </CustomText>
                 )}
               </View>
