@@ -25,6 +25,8 @@ const IMAGES = {
   twiceImage: require("./twiceImage.png"),
   thriceImage: require("./thriceImage.png"),
   CharityNavigator: require("./CharityNavigator.png"),
+  middleEast: require("./middleEast.png"),
+  progressImage: require("./ProgressImage.png"),
 };
 
 export default IMAGES;

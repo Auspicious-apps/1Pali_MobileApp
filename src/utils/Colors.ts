@@ -23,7 +23,7 @@ const COLORS = {
   greenish: "#136F0B",
   light: "#ECEDF3",
   darkRed: "#CF0311",
-  midBlue: "#1F3352",
+  midBlue: "#1F3558",
   midGreen: "#017A6E",
   midRed: "#7C133B",
   DarkGreenText: "#001F01",

@@ -16,8 +16,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     // paddingHorizontal: horizontalScale(20),
-    paddingBottom:
-      Platform.OS === "ios" ? verticalScale(20) : verticalScale(10),
+    paddingBottom: verticalScale(20),
     paddingTop: verticalScale(5),
   },
   appIcon: {
@@ -33,11 +32,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     width: "100%",
-    textAlign: "left",
+    textAlign: "center",
     lineHeight: isTablet ? verticalScale(45) : verticalScale(40),
   },
   centerText: {
     color: COLORS.darkText,
+    textAlign: "center",
   },
   infoCard: {
     backgroundColor: COLORS.borderColor,
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
   },
   sectionDescription: {
     lineHeight: verticalScale(18),
+    textAlign: "center",
   },
   FaqText: {
     marginTop: verticalScale(18),
@@ -61,7 +62,6 @@ const styles = StyleSheet.create({
   imageRow: {
     flexDirection: "row",
     gap: horizontalScale(10),
-    marginTop: verticalScale(16),
   },
   image: {
     height: verticalScale(150),
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
   },
   fundCard: {
     padding: verticalScale(8),
-    marginTop: verticalScale(16),
     borderRadius: 24,
     width: "100%",
   },
@@ -93,8 +92,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: verticalScale(24),
   },
+  dividers: {
+    width: "100%",
+    borderBottomWidth: 1,
+    borderColor: COLORS.greyish,
+    alignSelf: "center",
+    marginVertical: verticalScale(12),
+  },
   sectionWrapper: {
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(12),
     gap: verticalScale(8),
     paddingHorizontal: horizontalScale(20),
   },
@@ -159,7 +165,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.appBackground,
     borderRadius: 20,
-    paddingHorizontal: horizontalScale(24),
     paddingVertical: verticalScale(4),
     shadowColor: "#000",
     shadowOffset: {
@@ -177,6 +182,18 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     resizeMode: "contain",
     marginTop: verticalScale(18),
+  },
+  cardContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 26,
+    padding: horizontalScale(3),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    elevation: 5,
+    marginTop: verticalScale(16),
+    marginBottom: verticalScale(12),
   },
 });
 
