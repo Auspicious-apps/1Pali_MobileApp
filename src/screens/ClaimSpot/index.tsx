@@ -9,17 +9,18 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import HapticFeedback from "react-native-haptic-feedback";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
-  clearReservationTimer,
   clearReservationToken,
   selectClaimedNumber,
+  selectPreviousReservationToken,
   selectReservationToken,
   setClaimedNumber,
   setReservationToken,
@@ -35,7 +36,6 @@ import { ClaimSpotProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { isTablet, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
-import Toast from "react-native-toast-message";
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -44,6 +44,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [available, setAvailable] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
   const reservationToken = useAppSelector(selectReservationToken);
+  const previousReservationToken = useAppSelector(
+    selectPreviousReservationToken,
+  );
   const claimedNumber = useAppSelector(selectClaimedNumber);
   const availableSpots = useAppSelector(
     (state) => state.remainingSpots.availableSpots,
@@ -207,22 +210,27 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     try {
       const response = await postData<ReserveSpecificNumberResponse>(
         ENDPOINTS.ReserveSpecificNumber,
-        { type: "specific", number: numValue },
+        {
+          number: numValue,
+          previousReservationToken: previousReservationToken,
+        },
       );
-      dispatch(setClaimedNumber(numValue));
-      dispatch(setReservationToken(response.data.data?.reservationToken));
+      if (response.data?.success) {
+        dispatch(setClaimedNumber(numValue));
+        dispatch(setReservationToken(response.data.data?.reservationToken));
 
-      // Calculate remaining seconds from expiresInMs
-      const remainingSeconds = Math.ceil(
-        response.data.data?.expiresInMs / 1000,
-      );
-      dispatch(
-        startReservationTimer({
-          seconds: remainingSeconds,
-          expiresAt: response.data.data?.expiresAt,
-        }),
-      );
-      navigation.navigate("missionIntro", { showNumber: true });
+        // Calculate remaining seconds from expiresInMs
+        const remainingSeconds = Math.ceil(
+          response.data.data?.expiresInMs / 1000,
+        );
+        dispatch(
+          startReservationTimer({
+            seconds: remainingSeconds,
+            expiresAt: response.data.data?.expiresAt,
+          }),
+        );
+        navigation.navigate("missionIntro", { showNumber: true });
+      }
     } catch (e: any) {
       console.error("Error reserving number:", e);
 
@@ -232,7 +240,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
       const message =
         e?.response?.data?.message ||
-        "This number was just taken. Please try another.";
+        "Oops! Something went wrong while reserving your number. Please try again.";
 
       Toast.show({
         type: "error",

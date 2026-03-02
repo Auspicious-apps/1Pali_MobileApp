@@ -25,6 +25,7 @@ interface UserState {
   reservationStatus: ReservationStatus;
   timerIntervalId: any | null;
   reservationExpiresAt: string | null;
+  previousReservationToken: string | null;
 }
 
 const initialState: UserState = {
@@ -36,6 +37,7 @@ const initialState: UserState = {
   reservationStatus: "IDLE",
   timerIntervalId: null,
   reservationExpiresAt: null,
+  previousReservationToken: null,
 };
 
 export const fetchUserProfile = createAsyncThunk<
@@ -82,7 +84,14 @@ const userSlice = createSlice({
       state.reservationToken = action.payload;
     },
     clearReservationToken: (state) => {
+      state.previousReservationToken = state.reservationToken;
       state.reservationToken = null;
+    },
+    setPreviousReservationToken: (state, action: PayloadAction<string>) => {
+      state.previousReservationToken = action.payload;
+    },
+    clearPreviousReservationToken: (state) => {
+      state.previousReservationToken = null;
     },
     setBadges: (state, action: PayloadAction<Badges>) => {
       state.badges = action.payload;
@@ -204,6 +213,8 @@ export const {
   markAllBadgesViewed,
   addNewArtBadge,
   updatePlan,
+  setPreviousReservationToken,
+  clearPreviousReservationToken,
 } = userSlice.actions;
 
 export default userSlice.reducer;
@@ -306,6 +317,9 @@ export const selectIsReservationActive = (state: RootState) =>
 
 export const selectReservationToken = (state: RootState) =>
   state.user.reservationToken;
+
+export const selectPreviousReservationToken = (state: RootState) =>
+  state.user.previousReservationToken;
 
 export const selectClaimedNumber = (state: RootState) =>
   state.user.claimedNumber;
