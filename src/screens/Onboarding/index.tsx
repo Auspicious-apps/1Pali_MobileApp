@@ -16,7 +16,7 @@ const texts = [
 ];
 
 const LETTER_DELAY = 40;
-const HOLD_DURATION = 300;
+const HOLD_DURATION = 400;
 
 const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -94,6 +94,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const cardRef = useRef(null);
   const scrollRef = useRef<any>(null);
   const blockHeartAnim = useRef(false);
+  const heartAnimLock = useRef(false);
+  const HEART_ANIM_DELAY = 300;
 
   const formatDateMMDDYYYY = (date?: string) => {
     if (!date) return "";
@@ -441,14 +443,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     }
   };
 
-  // const handleCommentIconPress = () => {
-  //   manualOpen.current = true;
-  //   setShowCommentInput(true);
-
-  //   setTimeout(() => {
-  //     commentInputRef.current?.focus();
-  //   }, 100);
-  // };
   const handleCommentIconPress = () => {
     manualOpen.current = true;
     setShowCommentInput(true);
@@ -520,6 +514,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   };
 
   const triggerLikeAnimation = () => {
+    if (heartAnimLock.current) return;
+
+    heartAnimLock.current = true;
+
     likeScale.stopAnimation();
     likeScale.setValue(0);
 
@@ -533,50 +531,27 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         duration: 300,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]).start(() => {
+      setTimeout(() => {
+        heartAnimLock.current = false;
+      }, HEART_ANIM_DELAY);
+    });
   };
-
-  // const handleImageTap = () => {
-  //   const now = Date.now();
-  //   const DOUBLE_PRESS_DELAY = 250;
-
-  //   if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
-  //     if (!isLiked && !likeRequestInProgress.current) {
-  //       handleLikeUnlike();
-  //       triggerLikeAnimation();
-  //     }
-  //   } else {
-  //     setTimeout(() => {
-  //       if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
-  //         setIsMediaFullscreen(true);
-  //       }
-  //     }, DOUBLE_PRESS_DELAY);
-  //   }
-
-  //   lastTap.current = now;
-  // };
 
   const handleImageTap = () => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 250;
 
     if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      triggerLikeAnimation();
-
-      if (!isLiked && !likeRequestInProgress.current) {
+      if (!isLiked) {
         handleLikeUnlike();
       }
-    } else {
-      setTimeout(() => {
-        if (Date.now() - lastTap.current >= DOUBLE_PRESS_DELAY) {
-          setUiIndex(1);
-        }
-      }, DOUBLE_PRESS_DELAY);
+
+      triggerLikeAnimation();
     }
 
     lastTap.current = now;
   };
-
   const renderCommentItem = ({ item }: { item: Comment }) => (
     <View style={styles.commentItem}>
       <View style={{ width: "100%", gap: verticalScale(2) }}>

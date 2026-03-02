@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -79,6 +79,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const commentsSectionRef = useRef<View>(null);
   const [sliderWidth, setSliderWidth] = useState(0);
   const blockHeartAnim = useRef(false);
+  const likeLock = useRef(false);
+  const likeLockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heartAnimLock = useRef(false);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -174,6 +177,14 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   };
 
   const handleLikeUnlike = async () => {
+    if (likeLock.current) return;
+
+    likeLock.current = true;
+
+    likeLockTimer.current = setTimeout(() => {
+      likeLock.current = false;
+    }, 300);
+
     const nextLiked = !isLiked;
 
     if (!nextLiked) {
@@ -230,6 +241,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   };
 
   const triggerLikeAnimation = () => {
+    if (heartAnimLock.current) return;
+
+    heartAnimLock.current = true;
+
     likeScale.stopAnimation();
     likeScale.setValue(0);
 
@@ -243,7 +258,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         duration: 300,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]).start(() => {
+      setTimeout(() => {
+        heartAnimLock.current = false;
+      }, 250);
+    });
   };
 
   // const handleImageDoubleTap = () => {
@@ -264,10 +283,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     const DOUBLE_PRESS_DELAY = 300;
 
     if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      triggerLikeAnimation();
-
-      if (!isLiked && !likeRequestInProgress.current) {
+      if (!isLiked) {
         handleLikeUnlike();
+      } else {
+        triggerLikeAnimation();
       }
     }
 

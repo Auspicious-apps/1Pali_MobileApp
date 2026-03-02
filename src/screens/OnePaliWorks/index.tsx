@@ -350,6 +350,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                       fontSize={13}
                       style={{
                         color: COLORS.appText,
+                        flex: 1,
                       }}
                     >
                       Charity Navigator’s Highest 4-Star Rating for
