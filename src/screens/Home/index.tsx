@@ -103,7 +103,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
           {user?.subscribedAt && (
             <CustomText
               fontFamily="GabaritoRegular"
-              fontSize={16}
+              fontSize={18}
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >

@@ -198,7 +198,7 @@ const Art: FC<ArtScreenProps> = ({ navigation }) => {
               color={COLORS.appText}
               style={styles.subtitle}
             >
-              Weekly art shared by students in Palestine
+              Weekly art shared by children in Palestine
             </CustomText>
           </View>
         </View>
@@ -324,13 +324,13 @@ const styles = StyleSheet.create({
     height: verticalScale(54),
     resizeMode: "contain",
     alignSelf: "center",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
 
   header: {
     marginTop: verticalScale(32),
     marginBottom: verticalScale(20),
     alignItems: "center",
-    gap: verticalScale(8),
   },
 
   subtitle: {

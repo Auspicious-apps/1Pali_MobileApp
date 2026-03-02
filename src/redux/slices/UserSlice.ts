@@ -24,6 +24,7 @@ interface UserState {
   reservationSeconds: number | null;
   reservationStatus: ReservationStatus;
   timerIntervalId: any | null;
+  reservationExpiresAt: string | null;
 }
 
 const initialState: UserState = {
@@ -34,6 +35,7 @@ const initialState: UserState = {
   reservationSeconds: null,
   reservationStatus: "IDLE",
   timerIntervalId: null,
+  reservationExpiresAt: null,
 };
 
 export const fetchUserProfile = createAsyncThunk<
@@ -85,9 +87,30 @@ const userSlice = createSlice({
     setBadges: (state, action: PayloadAction<Badges>) => {
       state.badges = action.payload;
     },
-    startReservationTimer: (state, action: PayloadAction<number>) => {
-      state.reservationSeconds = action.payload;
+    startReservationTimer: (
+      state,
+      action: PayloadAction<{ seconds: number; expiresAt: string }>,
+    ) => {
+      state.reservationSeconds = action.payload.seconds;
+      state.reservationExpiresAt = action.payload.expiresAt;
       state.reservationStatus = "ACTIVE";
+    },
+
+    recalculateReservationTimer: (state) => {
+      if (state.reservationExpiresAt) {
+        const now = Date.now();
+        const expirationTime = new Date(state.reservationExpiresAt).getTime();
+        const remainingMs = expirationTime - now;
+        const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+
+        if (remainingSeconds <= 0) {
+          state.reservationSeconds = 0;
+          state.reservationStatus = "EXPIRED";
+        } else {
+          state.reservationSeconds = remainingSeconds;
+          state.reservationStatus = "ACTIVE";
+        }
+      }
     },
 
     decrementReservationTimer: (state) => {
@@ -101,6 +124,7 @@ const userSlice = createSlice({
     clearReservationTimer: (state) => {
       state.reservationSeconds = null;
       state.reservationStatus = "IDLE";
+      state.reservationExpiresAt = null;
       if (state.timerIntervalId) {
         clearInterval(state.timerIntervalId);
         state.timerIntervalId = null;
@@ -174,6 +198,7 @@ export const {
   clearReservationToken,
   setBadges,
   startReservationTimer,
+  recalculateReservationTimer,
   decrementReservationTimer,
   clearReservationTimer,
   markAllBadgesViewed,

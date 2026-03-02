@@ -823,8 +823,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           <LinearGradient
             colors={[
               "rgba(255,255,255,0)",
-              "rgba(255,255,255,0.4)",
-              "rgba(255,255,255,0.85)",
+              "rgba(255, 255, 255, 0.1)",
+              "rgba(255,255,255,0.6)",
               "rgba(255,255,255,1)",
             ]}
             locations={[0, 0.35, 0.75, 1]}

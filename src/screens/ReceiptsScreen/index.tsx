@@ -218,7 +218,7 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.center}>
-              <Image source={IMAGES.LogoText} style={styles.logo} />
+              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
             </View>
             <View style={styles.side} />
           </View>
@@ -418,9 +418,11 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1, paddingBottom: verticalScale(32) },
   header: { width: "100%", flexDirection: "row", marginTop: verticalScale(10) },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
+    alignSelf: "center",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   side: { width: horizontalScale(40), alignItems: "flex-start" },
   center: { flex: 1, alignItems: "center" },

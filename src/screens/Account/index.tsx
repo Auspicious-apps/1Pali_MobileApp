@@ -518,6 +518,7 @@ const styles = StyleSheet.create({
     width: horizontalScale(54),
     height: verticalScale(54),
     resizeMode: "contain",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 1)",

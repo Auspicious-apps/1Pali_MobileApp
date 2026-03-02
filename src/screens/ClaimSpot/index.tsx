@@ -23,6 +23,7 @@ import {
   selectReservationToken,
   setClaimedNumber,
   setReservationToken,
+  startReservationTimer,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -194,7 +195,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     if (reservationToken !== null && claimedNumber === numValue) {
       // Reservation already exists for this number, proceed to sign-in
       dispatch(setClaimedNumber(numValue));
-      dispatch(clearReservationTimer());
       navigation.navigate("missionIntro", { showNumber: true });
       return;
     }
@@ -212,7 +212,16 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
       dispatch(setClaimedNumber(numValue));
       dispatch(setReservationToken(response.data.data?.reservationToken));
 
-      dispatch(clearReservationTimer());
+      // Calculate remaining seconds from expiresInMs
+      const remainingSeconds = Math.ceil(
+        response.data.data?.expiresInMs / 1000,
+      );
+      dispatch(
+        startReservationTimer({
+          seconds: remainingSeconds,
+          expiresAt: response.data.data?.expiresAt,
+        }),
+      );
       navigation.navigate("missionIntro", { showNumber: true });
     } catch (e: any) {
       console.error("Error reserving number:", e);
@@ -355,8 +364,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="MontserratRegular"
-                      fontSize={12}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.redColor}
                     >
                       Number cannot start with zero.
@@ -366,8 +375,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="MontserratRegular"
-                      fontSize={12}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.redColor}
                     >
                       Pick a number between 1 and 1,000,000
@@ -378,7 +387,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     <CustomIcon Icon={ICONS.loader} width={16} height={16} />
                     <CustomText
                       fontFamily="GabaritoRegular"
-                      fontSize={12}
+                      fontSize={15}
                       color={COLORS.grey}
                     >
                       Checking...
@@ -393,7 +402,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     />
                     <CustomText
                       fontFamily="GabaritoRegular"
-                      fontSize={12}
+                      fontSize={15}
                       color={COLORS.green}
                     >
                       Available
@@ -403,17 +412,17 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="MontserratRegular"
-                      fontSize={12}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.redColor}
                     >
-                      Taken, try another or click the dice
+                      Taken, try another or tap the dice
                     </CustomText>
                   </View>
                 ) : (
                   <CustomText
                     fontFamily="GabaritoRegular"
-                    fontSize={12}
+                    fontSize={15}
                     color={COLORS.grey}
                   >
                     {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}

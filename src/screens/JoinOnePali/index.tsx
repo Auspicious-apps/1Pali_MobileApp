@@ -598,9 +598,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             color={COLORS.appText}
             fontFamily="SourceSansRegular"
           >
-            Includes an additional $
-            {selectedPlanData?.metadata?.processingFee || 0} for processing to
-            maximize impact
+            Plus ${selectedPlanData?.metadata?.processingFee || 0} processing so
+            100% of your ${selectedPlanData?.metadata.netAmount} goes to MECA
           </CustomText>
         </View>
 
@@ -613,7 +612,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               color={COLORS.darkText}
               style={{ marginBottom: verticalScale(12) }}
             >
-              What you’ll support
+              With your donation
             </CustomText>
 
             {/* Benefits */}
@@ -624,7 +623,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
-                Monthly donation to Gaza (via MECA)
+                Direct aid to children & families via MECA
               </CustomText>
             </View>
 
@@ -635,7 +634,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
-                Weekly artwork from students in Palestine
+                Weekly artwork from children in Palestine
               </CustomText>
             </View>
 
@@ -646,7 +645,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
-                Ongoing updates on how funds are used
+                Updates on where funds are being directed
               </CustomText>
             </View>
             <View style={styles.divider} />

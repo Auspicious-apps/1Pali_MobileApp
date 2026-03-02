@@ -114,7 +114,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             color={COLORS.darkText}
             style={styles.titleText}
           >
-            OnePali
+            Welcome to {"\n"} OnePali
           </CustomText>
           <CustomText
             fontFamily="GabaritoRegular"
@@ -143,30 +143,32 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
         </View> */}
         <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
 
-        {!isCheckingAuth && (
-          <PrimaryButton
-            title={isCheckingAuth ? "Checking..." : "Get Started"}
-            onPress={handleGetStarted}
-            style={styles.button}
-            disabled={isCheckingAuth}
-          />
-        )}
-        <CustomText
-          fontFamily="MontserratRegular"
-          fontSize={12}
-          color={COLORS.grey}
-          style={styles.signInText}
-        >
-          Already have a account?{" "}
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          {!isCheckingAuth && (
+            <PrimaryButton
+              title={isCheckingAuth ? "Checking..." : "Get Started"}
+              onPress={handleGetStarted}
+              style={styles.button}
+              disabled={isCheckingAuth}
+            />
+          )}
           <CustomText
-            fontFamily="MontserratSemiBold"
+            fontFamily="MontserratRegular"
             fontSize={12}
-            color={COLORS.darkText}
-            onPress={() => navigation.navigate("signIn")}
+            color={COLORS.grey}
+            style={styles.signInText}
           >
-            Sign in
+            Already have a account?{" "}
+            <CustomText
+              fontFamily="MontserratSemiBold"
+              fontSize={12}
+              color={COLORS.darkText}
+              onPress={() => navigation.navigate("signIn")}
+            >
+              Sign in
+            </CustomText>
           </CustomText>
-        </CustomText>
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -190,16 +192,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: horizontalScale(64),
-    height: verticalScale(64),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
     alignSelf: "center",
   },
   titleContainer: {
-    marginTop: Platform.OS === "ios" ? verticalScale(16) : verticalScale(16),
+    marginTop: verticalScale(16),
   },
   titleText: {
     textAlign: "center",
+    lineHeight: hp(5.2),
   },
   subtitleText: {
     textAlign: "center",
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
   },
   globalImage: {
     width: wp(80),
-    height: hp(46.6),
+    height: hp(42),
     alignSelf: "center",
     resizeMode: "cover",
   },
@@ -228,7 +231,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: hp(2.7),
   },
-
   mecaImage: {
     width: wp(80),
     height: verticalScale(40),

@@ -330,7 +330,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
           />
         </TouchableOpacity>
 
-        <Image source={IMAGES.LogoText} style={styles.logo} />
+        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
 
         <View style={{ width: 24 }} />
       </View>
@@ -365,7 +365,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
           <View
             style={{
               paddingVertical: 16,
-              marginHorizontal: horizontalScale(10),
               width: wp(90),
             }}
           >
@@ -433,6 +432,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
           <View style={styles.card}>
             <View style={{ gap: verticalScale(8) }}>
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={20}
+                color={COLORS.darkText}
+              >
+                With your donation
+              </CustomText>
               {/* Benefits */}
               <View style={styles.row}>
                 <CustomIcon
@@ -445,7 +451,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
-                  Monthly donation to Gaza (via MECA)
+                  Direct aid to children & families via MECA
                 </CustomText>
               </View>
 
@@ -460,7 +466,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
-                  Weekly artwork from students in Palestine
+                  Weekly artwork from children in Palestine
                 </CustomText>
               </View>
 
@@ -475,7 +481,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
-                  Ongoing updates on how funds are used
+                  Updates on where funds are being directed
                 </CustomText>
               </View>
             </View>
@@ -566,7 +572,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               This mission runs on your generosity. $0.25 helps keep OnePali
               running and growing.
             </CustomText>
-            <CustomText
+            {/* <CustomText
               fontFamily="GabaritoRegular"
               fontSize={15}
               style={{ color: COLORS.appText, marginTop: verticalScale(20) }}
@@ -576,7 +582,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   new Date(user?.currentPeriodEnd).toLocaleDateString()
                 : "Your next billing date is " +
                   new Date(user?.currentPeriodEnd!).toLocaleDateString()}
-            </CustomText>
+            </CustomText> */}
 
             {/* Save Button */}
             <PrimaryButton
@@ -653,26 +659,32 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </View>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={15}
+          <View
             style={{
-              color: COLORS.appText,
-              textAlign: "center",
               marginTop: verticalScale(24),
+              flexDirection: "row",
+              justifyContent: "space-between",
             }}
           >
-            Current Subscription:{" "}
             <CustomText
               fontFamily="GabaritoRegular"
-              fontSize={15}
+              fontSize={18}
+              style={{
+                color: COLORS.darkText,
+              }}
+            >
+              Current Subscription:{" "}
+            </CustomText>
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={18}
               style={{
                 color: COLORS.darkText,
               }}
             >
               ${user?.currentSubscriptionPrice}/mo
             </CustomText>
-          </CustomText>
+          </View>
         </>
       )}
     </SafeAreaView>
@@ -693,9 +705,11 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
+    alignSelf: "center",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
 
   headingContainer: {

@@ -170,55 +170,72 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       setCapturingCard(false);
 
-      const result = await ShareLib.open({
-        url: shareFilePath,
-        // For iOS: This sets the display name in the share sheet
-        filename: customFileName,
-        // For Android: This helps some apps identify the title
-        title: customFileName,
-        type: "image/png",
-        message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
-      });
+      // On Android, ShareLib.open() will reject even on successful share.
+      // On iOS, it resolves with the activity type.
+      let shareSucceeded = false;
+      let result: any = null;
 
-      console.log("=== SHARE RESULT ===");
-      console.log("Platform:", Platform.OS);
-      console.log("Result:", result?.message);
-
-      if (result?.success) {
-        const activityType = result?.message;
+      try {
+        result = await ShareLib.open({
+          url: shareFilePath,
+          filename: customFileName,
+          title: customFileName,
+          type: "image/png",
+          message: `Check out this artwork from OnePali! Supporter #${user?.assignedNumber}`,
+        });
+        // iOS: if we get here, share was successful
+        shareSucceeded = true;
+      } catch (error: any) {
+        // On Android: "User did not share" message means the share sheet was closed
+        // without sharing (actual cancellation). If there's no error or other errors,
+        // it likely means the share actually happened.
+        const errorMsg = error?.message || "";
         if (
-          activityType === "com.apple.UIKit.activity.SaveToCameraRoll" ||
-          activityType === "com.apple.DocumentManagerUICore.SaveToFiles"
+          errorMsg.includes("User did not share")
         ) {
-          console.log("User only saved the image — skipping share API");
-          return;
-        }
-        let platform: ShareType = "APP_SHARE_SHEET";
-
-        if ((result.message = "Instagram")) {
-          platform = "INSTAGRAM";
-        } else if ((result.message = "Facebook")) {
-          platform = "FACEBOOK";
-        } else if ((result.message = "WhatsApp")) {
-          platform = "WHATSAPP";
-        } else if ((result.message = "Messages")) {
-          platform = "MESSAGE";
-        } else if (
-          (result.message = "com.apple.UIKit.activity.CopyToPasteboard")
-        ) {
-          platform = "APP_SHARE_SHEET";
+          // On Android, treat this as successful since the user interacted with the sheet
+          shareSucceeded = true;
+        } else if (errorMsg.includes("User did not share")) {
+          // iOS: user actually cancelled
+          console.log("User cancelled sharing");
+          shareSucceeded = false;
         } else {
-          console.log(" Shared via unknown app");
+          // Unexpected error
+          throw error;
         }
+      }
 
-        await shareToApp(platform);
+      if (shareSucceeded) {
+        // On iOS, check if the activity type indicates we should skip API call
+        if (result?.success) {
+          const activityType = result?.message;
+          if (
+            activityType === "com.apple.UIKit.activity.SaveToCameraRoll" ||
+            activityType === "com.apple.DocumentManagerUICore.SaveToFiles"
+          ) {
+            console.log("User only saved the image — skipping share API");
+            return;
+          }
+
+          // Determine the platform from the activity type on iOS
+          let platform: ShareType = "APP_SHARE_SHEET";
+          if (result.message?.includes("Instagram")) {
+            platform = "INSTAGRAM";
+          } else if (result.message?.includes("Facebook")) {
+            platform = "FACEBOOK";
+          } else if (result.message?.includes("WhatsApp")) {
+            platform = "WHATSAPP";
+          } else if (result.message?.includes("Messages")) {
+            platform = "MESSAGE";
+          }
+          await shareToApp(platform);
+        } else {
+          // Android: just call shareToApp with default platform
+          await shareToApp("APP_SHARE_SHEET");
+        }
       }
     } catch (error: any) {
-      if (error?.message?.includes("User did not share")) {
-        console.log("User cancelled sharing");
-      } else {
-        console.log("Card share error:", error);
-      }
+      console.log("Card share error:", error);
     } finally {
       setCapturingCard(false);
     }

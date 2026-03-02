@@ -5,6 +5,7 @@ import {
   Easing,
   FlatList,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -121,7 +122,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             <View style={styles.side}>
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
-                style={{ padding: horizontalScale(8) }}
+                style={{ padding: horizontalScale(8), marginLeft: 10 }}
                 activeOpacity={0.8}
               >
                 <CustomIcon
@@ -133,7 +134,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.center}>
-              <Image source={IMAGES.LogoText} style={styles.logo} />
+              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
             </View>
 
             <View style={styles.side} />
@@ -357,10 +358,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
-    marginTop: verticalScale(10),
+    alignSelf: "center",
+    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 1)",
@@ -383,6 +385,7 @@ const styles = StyleSheet.create({
   header: {
     width: "100%",
     flexDirection: "row",
+    marginTop: verticalScale(10),
   },
   side: {
     width: horizontalScale(40),

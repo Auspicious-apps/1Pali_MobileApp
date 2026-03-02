@@ -56,7 +56,16 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   // Start timer only on mount if not already started
   useEffect(() => {
     if (reservationSeconds === null) {
-      dispatch(startReservationTimer(initialTimer));
+      // Fallback: calculate expiresAt timestamp (initialTimer seconds from now)
+      const expiresAt = new Date(
+        Date.now() + initialTimer * 1000,
+      ).toISOString();
+      dispatch(
+        startReservationTimer({
+          seconds: initialTimer,
+          expiresAt: expiresAt,
+        }),
+      );
     }
   }, []);
 

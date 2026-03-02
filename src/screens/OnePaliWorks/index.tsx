@@ -6,31 +6,29 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
-  StyleSheet,
   View,
 } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import LinearGradient from "react-native-linear-gradient";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
-import { onePaliWorksProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import styles from "./styles";
-import LinearGradient from "react-native-linear-gradient";
-import { BlurView } from "@react-native-community/blur";
+import { setRemainingSpots } from "../../redux/slices/remainingSpotsSlice";
+import { useAppDispatch } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { RemainingSpotsApiResponse } from "../../service/ApiResponses/RemainingSpots";
 import { fetchData } from "../../service/ApiService";
-import { useAppDispatch } from "../../redux/store";
-import {
-  getRemainingSpots,
-  setRemainingSpots,
-} from "../../redux/slices/remainingSpotsSlice";
+import { onePaliWorksProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import styles from "./styles";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -93,6 +91,7 @@ const supportItems = [
 ];
 
 const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
   const CARD_WIDTH = wp(87);
@@ -120,11 +119,11 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <SafeAreaView style={[styles.safeArea, {}]} edges={["bottom", "top"]}>
         <FocusResetScrollView
           showsVerticalScrollIndicator={false}
           bounces={false}
-          contentContainerStyle={styles.contentContainer}
+          contentContainerStyle={[styles.contentContainer]}
         >
           <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
 
@@ -136,7 +135,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               color={COLORS.darkText}
               style={styles.headerTitle}
             >
-              Here’s how OnePali works
+              Here’s how {"\n"} OnePali works
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
@@ -188,7 +187,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                   )}
                   <View
                     style={{
-                      paddingHorizontal: horizontalScale(12),
+                      paddingHorizontal: horizontalScale(8),
                       paddingVertical: verticalScale(12),
                     }}
                   >
@@ -324,6 +323,8 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                     flexDirection: "row",
                     alignItems: "center",
                     gap: horizontalScale(12),
+                    width: "100%",
+                    flex: 1,
                   }}
                 >
                   <Image
@@ -334,7 +335,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                       height: verticalScale(49),
                     }}
                   />
-                  <View style={{ gap: verticalScale(4) }}>
+                  <View style={{ flex: 1 }}>
                     <CustomText
                       fontFamily="GabaritoMedium"
                       fontSize={15}
@@ -352,7 +353,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                       }}
                     >
                       Charity Navigator’s Highest 4-Star Rating for
-                      Accountability & Transparency
+                      Accountability & Transparency{" "}
                     </CustomText>
                   </View>
                 </View>

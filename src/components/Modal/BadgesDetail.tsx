@@ -198,17 +198,18 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
             </View>
 
             {/* Divider */}
-            <View style={styles.divider} />
-
+            {!isLocked && <View style={styles.divider} />}
             {/* Description */}
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={18}
-              color={COLORS.darkText}
-              style={styles.description}
-            >
-              {badgeDescription}
-            </CustomText>
+            {!isLocked && (
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={18}
+                color={COLORS.darkText}
+                style={styles.description}
+              >
+                {badgeDescription}
+              </CustomText>
+            )}
           </Animated.View>
         </View>
       </TouchableOpacity>

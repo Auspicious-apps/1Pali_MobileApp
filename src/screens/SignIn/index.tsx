@@ -175,8 +175,10 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             navigation.navigate("joinOnePali");
           } else {
             dispatch(setUserData(signinResponse.data.data.user.user as any));
-            dispatch(setBadges(signinResponse.data.data.user.user.badges as any));
-            dispatch( 
+            dispatch(
+              setBadges(signinResponse.data.data.user.user.badges as any),
+            );
+            dispatch(
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
 
@@ -263,7 +265,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               <CustomIcon Icon={ICONS.BackArrowWithBg} />
             </TouchableOpacity>
           )}
-          <Image source={IMAGES.LogoText} style={styles.logo} />
+          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
         </View>
 
         <View style={styles.headingContainer}>
@@ -271,9 +273,12 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             fontFamily="GabaritoSemiBold"
             fontSize={42}
             color={COLORS.darkText}
-            style={{ textAlign: "center" }}
+            style={{
+              textAlign: "center",
+              lineHeight: hp(5.2),
+            }}
           >
-            Welcome Back
+            Welcome {"\n"}Back
           </CustomText>
           <CustomText
             fontFamily="GabaritoRegular"

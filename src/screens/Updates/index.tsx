@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
   header: {
     marginTop: verticalScale(32),
     marginBottom: verticalScale(24),
-    gap: verticalScale(8),
   },
   listContent: {
     paddingBottom: verticalScale(20),

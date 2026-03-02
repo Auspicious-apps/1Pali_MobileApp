@@ -1,9 +1,11 @@
 import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "react-native";
 import BadgesReducer from "./slices/BadgesSlice";
 import CollectBadgesReducer from "./slices/CollectBadgesSlice";
 import userReducer, {
   startReservationTimer,
+  recalculateReservationTimer,
   decrementReservationTimer,
   clearReservationToken,
 } from "./slices/UserSlice";
@@ -18,6 +20,7 @@ import remainingSpotsReducer from "./slices/remainingSpotsSlice";
 const timerListenerMiddleware = createListenerMiddleware();
 
 let timerInterval: any = null;
+let appStateSubscription: any = null;
 
 timerListenerMiddleware.startListening({
   actionCreator: startReservationTimer,
@@ -43,6 +46,16 @@ timerListenerMiddleware.startListening({
         }
       }
     }, 1000);
+
+    // Set up app state listener to recalculate timer when app comes back to foreground
+    if (!appStateSubscription) {
+      appStateSubscription = AppState.addEventListener("change", (state) => {
+        if (state === "active") {
+          // App has come back to foreground, recalculate timer based on expiration time
+          api.dispatch(recalculateReservationTimer());
+        }
+      });
+    }
   },
 });
 

@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
+    marginTop: verticalScale(5),
   },
 
   header: {
@@ -22,13 +23,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: horizontalScale(80),
-    height: verticalScale(70),
+    width: horizontalScale(54),
+    height: verticalScale(54),
     resizeMode: "contain",
   },
 
   headingContainer: {
-    marginTop: verticalScale(45),
+    marginTop: verticalScale(16),
     alignItems: "center",
   },
 });

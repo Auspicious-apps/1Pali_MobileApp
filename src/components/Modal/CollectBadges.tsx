@@ -110,7 +110,7 @@ const CollectBadges = () => {
         <View style={styles.wrapper}>
           <CustomText
             fontFamily="GabaritoRegular"
-            fontSize={14}
+            fontSize={15}
             color={COLORS.white}
             style={styles.text}
           >
@@ -271,7 +271,11 @@ const CollectBadges = () => {
               }}
               style={styles.closeBtn}
             >
-              <CustomIcon Icon={ICONS.WhiteClose} height={verticalScale(30)} width={verticalScale(30)} />
+              <CustomIcon
+                Icon={ICONS.WhiteClose}
+                height={verticalScale(30)}
+                width={verticalScale(30)}
+              />
             </TouchableOpacity>
           </View>
 
@@ -383,14 +387,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   wrapper: {
-    paddingHorizontal: horizontalScale(14),
-    paddingVertical: verticalScale(6),
+    paddingHorizontal: horizontalScale(12),
+    paddingVertical: verticalScale(4),
     borderRadius: 30,
     alignSelf: "center",
     marginTop: verticalScale(16),
-    backgroundColor: "#FFFFFF10",
-    borderWidth: 2,
-    borderColor: "#FFFFFF50",
+    backgroundColor: "#ffffff29",
+    boxShadow: "rgba(255, 255, 255, 0.61) 0px 0px 2px 0.5px",
   },
   text: {
     textAlign: "center",
