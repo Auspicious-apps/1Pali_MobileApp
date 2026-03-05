@@ -158,7 +158,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
             disabled={isAccountScreen}
             onPress={() => {
               if (isAccountScreen) return;
-              HapticFeedback.trigger("impactLight", hapticOptions);
+              HapticFeedback.trigger("impactHeavy", hapticOptions);
               setShowFinalGoal((prev) => !prev);
             }}
           >

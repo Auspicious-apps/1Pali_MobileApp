@@ -27,6 +27,8 @@ const IMAGES = {
   CharityNavigator: require("./CharityNavigator.png"),
   middleEast: require("./middleEast.png"),
   progressImage: require("./ProgressImage.png"),
+  SplashBackground: require("./SplashBackground.png"),
+  PeoplesImage: require("./PeoplesImage.png"),
 };
 
 export default IMAGES;

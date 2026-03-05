@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
-    marginTop: verticalScale(5),
+    marginTop: verticalScale(15),
   },
   keyboardView: {
     flex: 1,

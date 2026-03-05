@@ -6,6 +6,8 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   StyleSheet,
   TextInput,
@@ -32,7 +34,7 @@ import {
   fetchBlogDetails,
   updateBlogDetail,
 } from "../../redux/slices/DetailsSlice";
-import { useAppDispatch } from "../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { AddCommentToBlogResponse } from "../../service/ApiResponses/AddCommentToBlog";
 import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
@@ -45,8 +47,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+import uuid from "react-native-uuid";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -65,23 +66,28 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [pendingComments, setPendingComments] = useState<
+    {
+      id: string;
+      content: string;
+    }[]
+  >([]);
+  const { user } = useAppSelector((state) => state.user);
   const [sendingComment, setSendingComment] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
   const manualOpen = useRef(false);
-  const [sliderLoading, setSliderLoading] = useState<Record<number, boolean>>(
-    {},
-  );
   const lastTap = useRef<number>(0);
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
   const scrollRef = useRef<any>(null);
   const commentsSectionRef = useRef<View>(null);
-  const [sliderWidth, setSliderWidth] = useState(0);
   const blockHeartAnim = useRef(false);
   const likeLock = useRef(false);
   const likeLockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heartAnimLock = useRef(false);
+  const flatListRef = useRef(null);
+  const CARD_WIDTH = wp(85);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
@@ -265,19 +271,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     });
   };
 
-  // const handleImageDoubleTap = () => {
-  //   const now = Date.now();
-  //   const DOUBLE_PRESS_DELAY = 300;
-
-  //   if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
-  //     if (!isLiked) {
-  //       handleLikeUnlike();
-  //       triggerLikeAnimation();
-  //     }
-  //   }
-
-  //   lastTap.current = now;
-  // };
   const handleImageDoubleTap = () => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
@@ -295,14 +288,22 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   const handleSendComment = async () => {
     if (!commentText.trim()) return;
-
+    const tempId = uuid.v4();
+    const newPending = { id: tempId, content: commentText.trim() };
+    setPendingComments((prev) => [newPending, ...prev]);
+    setCommentText("");
+    commentInputRef.current?.blur();
+    // Optimistically update comment count
+    setBlogDetail((prev) =>
+      prev
+        ? { ...prev, commentsCount: (prev.commentsCount || 0) + 1 }
+        : prev
+    );
     try {
-      setSendingComment(true);
       const response = await postData<AddCommentToBlogResponse>(
         `${ENDPOINTS.AddCommentToBlog}/${blogId}/comments`,
-        { content: commentText.trim() },
+        { content: newPending.content },
       );
-
       if (response?.data?.data?.comments?.length) {
         setBlogDetail((prev): any => {
           const updated = prev
@@ -320,25 +321,21 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         });
         setComments(response?.data?.data?.comments as any);
       }
-
-      // Always clear the input and blur after sending
-      setCommentText("");
-      commentInputRef.current?.blur();
+      // Remove pending comment on success
+      setPendingComments((prev) => prev.filter((c) => c.id !== tempId));
     } catch (error) {
+      // Remove pending comment on failure
+      setPendingComments((prev) => prev.filter((c) => c.id !== tempId));
+      // Rollback optimistic comment count
+      setBlogDetail((prev) =>
+        prev
+          ? { ...prev, commentsCount: Math.max((prev.commentsCount || 1) - 1, 0) }
+          : prev
+      );
       console.log("Add comment error", error);
-    } finally {
-      setSendingComment(false);
     }
   };
 
-  // const handleCommentIconPress = () => {
-  //   manualOpen.current = true;
-  //   setShowCommentInput(true);
-
-  //   setTimeout(() => {
-  //     commentInputRef.current?.focus();
-  //   }, 100);
-  // };
   const handleCommentIconPress = () => {
     manualOpen.current = true;
     setShowCommentInput(true);
@@ -442,52 +439,52 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     return <UpdateDetailSkeleton />;
   }
 
-  const renderCommentItem = ({ item }: { item: Comment }) => (
-    <View style={styles.commentItem}>
-      <View style={{ width: "100%", gap: verticalScale(2) }}>
-        <CustomText
-          fontFamily="GabaritoMedium"
-          fontSize={15}
-          color={COLORS.darkText}
-        >
-          # {item?.user?.assignedNumber}
-        </CustomText>
-
-        <CustomText
-          fontFamily="SourceSansRegular"
-          fontSize={14}
-          color={COLORS.darkText}
-        >
-          {item.content}
-        </CustomText>
-
-        <View style={styles.commentMetaRow}>
+  const renderCommentItem = ({ item }: { item: any }) => {
+    // If it's a pending comment, show with low opacity
+    const isPending = !item.user || !item.user.assignedNumber;
+    return (
+      <Animated.View
+        style={[styles.commentItem, isPending && { opacity: 0.5 }]}
+      >
+        <View style={{ width: "100%", gap: verticalScale(2) }}>
+          <CustomText
+            fontFamily="GabaritoMedium"
+            fontSize={15}
+            color={COLORS.darkText}
+          >
+            {item?.user?.assignedNumber
+              ? `# ${item.user.assignedNumber}`
+              : isPending && user?.assignedNumber
+              ? `# ${user.assignedNumber}`
+              : "# ..."}
+          </CustomText>
           <CustomText
             fontFamily="SourceSansRegular"
-            fontSize={12}
-            color={COLORS.appText}
+            fontSize={14}
+            color={COLORS.darkText}
           >
-            {timeAgo(item?.createdAt)}
+            {item.content}
           </CustomText>
+          <View style={styles.commentMetaRow}>
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={12}
+              color={COLORS.appText}
+            >
+              {item.createdAt
+                ? timeAgo(item.createdAt)
+                : isPending
+                ? "Sending..."
+                : ""}
+            </CustomText>
+          </View>
         </View>
-      </View>
-    </View>
-  );
+      </Animated.View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* <SafeAreaView
-        style={[
-          styles.safeArea,
-          {
-            paddingBottom: Platform.select({
-              android: insets.bottom,
-              ios: verticalScale(15),
-            }),
-          },
-        ]}
-        edges={["top"]}
-      > */}
       <TouchableOpacity
         activeOpacity={0.8}
         style={{
@@ -536,21 +533,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           contentContainerStyle={{
             paddingBottom: verticalScale(100),
           }}
-          // onScroll={(e) => {
-          //   const currentY = e.nativeEvent.contentOffset.y;
-          //   const isScrollingDown = currentY > lastScrollY.current;
-
-          //   if (isScrollingDown && currentY > 250) {
-          //     setShowCommentInput(true);
-          //     manualOpen.current = false;
-          //   }
-
-          //   if (!isScrollingDown && currentY < 200 && !manualOpen.current) {
-          //     setShowCommentInput(false);
-          //   }
-
-          //   lastScrollY.current = currentY;
-          // }}
         >
           {/* IMAGE */}
           <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
@@ -652,59 +634,60 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           <View
             style={{
               marginTop: verticalScale(16),
-              paddingHorizontal: horizontalScale(20),
               gap: verticalScale(12),
             }}
           >
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={16}
-              color={COLORS.darkText}
-            >
-              {blogDetail?.content}
-            </CustomText>
+            <View style={{ paddingHorizontal: horizontalScale(20) }}>
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={16}
+                color={COLORS.darkText}
+              >
+                {blogDetail?.content}
+              </CustomText>
+            </View>
 
-            <View
-              style={{ width: "100%", alignItems: "center" }}
-              onLayout={(e) => {
-                const w = e.nativeEvent.layout.width;
-                if (w !== sliderWidth) {
-                  setSliderWidth(w);
-                }
-              }}
-            >
-              {sliderWidth > 0 && (
-                <FlatList
-                  data={blogDetail?.photos || []}
-                  bounces={false}
-                  horizontal
-                  pagingEnabled
-                  snapToInterval={sliderWidth}
-                  snapToAlignment="center"
-                  decelerationRate="normal"
-                  disableIntervalMomentum={true}
-                  showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item, index) => item + index}
-                  renderItem={({ item, index }) => (
-                    <View style={{ width: sliderWidth, alignItems: "center" }}>
-                      <FastImage
-                        source={{ uri: item }}
-                        style={[
-                          styles.image,
-                          { width: sliderWidth - horizontalScale(5) },
-                        ]}
-                      />
-                    </View>
-                  )}
-                  onMomentumScrollEnd={(e) => {
-                    const index = Math.round(
-                      e.nativeEvent.contentOffset.x / sliderWidth,
-                    );
+            <View style={{ width: "100%", alignItems: "center" }}>
+              <FlatList
+                ref={flatListRef}
+                data={blogDetail?.photos || []}
+                keyExtractor={(item, index) => item + index}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.fundsListContent}
+                snapToInterval={CARD_WIDTH + horizontalScale(12)}
+                snapToAlignment="start"
+                decelerationRate="fast"
+                disableIntervalMomentum
+                scrollEventThrottle={16}
+                onScroll={(event) => {
+                  const index = Math.round(
+                    event.nativeEvent.contentOffset.x /
+                      (CARD_WIDTH + horizontalScale(12)),
+                  );
+
+                  if (index !== activeIndex) {
                     setActiveIndex(index);
-                  }}
-                  contentContainerStyle={{ alignItems: "flex-start" }}
-                />
-              )}
+                  }
+                }}
+                renderItem={({ item, index }) => (
+                  <View style={{ width: CARD_WIDTH, alignItems: "center" }}>
+                    <FastImage
+                      source={{ uri: item }}
+                      style={[styles.image, { width: CARD_WIDTH }]}
+                    />
+                  </View>
+                )}
+                onMomentumScrollEnd={(
+                  event: NativeSyntheticEvent<NativeScrollEvent>,
+                ) => {
+                  const index = Math.round(
+                    event.nativeEvent.contentOffset.x /
+                      (CARD_WIDTH + horizontalScale(12)),
+                  );
+                  setActiveIndex(index);
+                }}
+              />
 
               {/* DOTS */}
               <View style={styles.dots}>
@@ -717,125 +700,120 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               </View>
             </View>
 
-            {/* ACTIONS */}
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                borderBottomWidth: 1,
-                borderBottomColor: COLORS.greyish,
-                paddingVertical: verticalScale(12),
-                justifyContent: "space-between",
-              }}
-            >
+            <View style={{ paddingHorizontal: horizontalScale(20) }}>
+              {/* ACTIONS */}
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: horizontalScale(12),
+                  borderBottomWidth: 1,
+                  borderBottomColor: COLORS.greyish,
+                  paddingVertical: verticalScale(12),
+                  justifyContent: "space-between",
                 }}
               >
                 <View
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    gap: horizontalScale(4),
+                    gap: horizontalScale(12),
                   }}
                 >
-                  <TouchableOpacity onPress={handleLikeUnlike}>
-                    <CustomIcon
-                      Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                      height={24}
-                      width={24}
-                    />
-                  </TouchableOpacity>
-
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(4),
+                    }}
                   >
-                    {blogDetail?.likesCount}
-                  </CustomText>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: horizontalScale(4),
-                  }}
-                >
-                  <TouchableOpacity onPress={handleCommentIconPress}>
-                    <CustomIcon Icon={ICONS.chatIcon} height={24} width={24} />
-                  </TouchableOpacity>
+                    <TouchableOpacity onPress={handleLikeUnlike}>
+                      <CustomIcon
+                        Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                        height={24}
+                        width={24}
+                      />
+                    </TouchableOpacity>
 
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appText}
-                  >
-                    {blogDetail?.commentsCount}
-                  </CustomText>
-                </View>
-              </View>
-              {/* <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleShare}
-                  style={styles.ShareButton}
-                  disabled={sharing}
-                >
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.greyish}
-                  >
-                    Share Update
-                  </CustomText>
-                </TouchableOpacity> */}
-            </View>
-
-            <View ref={commentsSectionRef}>
-              {/* COMMENTS */}
-              <FlatList
-                data={comments}
-                keyExtractor={(item) => item.id}
-                renderItem={renderCommentItem}
-                scrollEnabled={false}
-                contentContainerStyle={styles.commentsList}
-                ListEmptyComponent={
-                  !commentsLoading ? (
                     <CustomText
-                      fontFamily="SourceSansMedium"
+                      fontFamily="GabaritoMedium"
                       fontSize={16}
                       color={COLORS.appText}
-                      style={{ textAlign: "center", marginVertical: 12 }}
                     >
-                      No comments yet
+                      {blogDetail?.likesCount}
                     </CustomText>
-                  ) : null
-                }
-              />
-            </View>
-            {hasNext && (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => fetchBlogComments(page + 1)}
-                disabled={commentsLoading}
-              >
-                {commentsLoading ? (
-                  <ActivityIndicator color={COLORS.darkText} />
-                ) : (
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={16}
-                    color={COLORS.darkGreen}
-                    style={{ textAlign: "center" }}
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(4),
+                    }}
                   >
-                    Load more comments
-                  </CustomText>
-                )}
-              </TouchableOpacity>
-            )}
+                    <TouchableOpacity onPress={handleCommentIconPress}>
+                      <CustomIcon
+                        Icon={ICONS.chatIcon}
+                        height={24}
+                        width={24}
+                      />
+                    </TouchableOpacity>
+
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={16}
+                      color={COLORS.appText}
+                    >
+                      {blogDetail?.commentsCount}
+                    </CustomText>
+                  </View>
+                </View>
+              </View>
+
+              <View ref={commentsSectionRef}>
+                {/* COMMENTS */}
+                <FlatList
+                  data={[
+                    ...pendingComments.map((c) => ({ ...c, pending: true })),
+                    ...comments,
+                  ]}
+                  keyExtractor={(item) => item.id || item.tempId}
+                  renderItem={renderCommentItem}
+                  scrollEnabled={false}
+                  contentContainerStyle={styles.commentsList}
+                  ListEmptyComponent={
+                    !commentsLoading ? (
+                      <CustomText
+                        fontFamily="SourceSansMedium"
+                        fontSize={16}
+                        color={COLORS.appText}
+                        style={{ textAlign: "center", marginVertical: 12 }}
+                      >
+                        No comments yet
+                      </CustomText>
+                    ) : null
+                  }
+                />
+              </View>
+              {hasNext && (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => fetchBlogComments(page + 1)}
+                  disabled={commentsLoading}
+                >
+                  {commentsLoading ? (
+                    <ActivityIndicator color={COLORS.darkText} />
+                  ) : (
+                    <CustomText
+                      fontFamily="SourceSansRegular"
+                      fontSize={16}
+                      color={COLORS.darkGreen}
+                      style={{ textAlign: "center" }}
+                    >
+                      Load more comments
+                    </CustomText>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </FocusResetScrollView>
         <View pointerEvents="none" style={styles.bottomFadeWrapper}>
@@ -882,15 +860,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   onPress={handleSendComment}
                   disabled={sendingComment}
                 >
-                  {sendingComment ? (
-                    <ActivityIndicator size="small" color={COLORS.darkText} />
-                  ) : (
-                    <CustomIcon
-                      Icon={ICONS.DarkSendIcon}
-                      height={24}
-                      width={24}
-                    />
-                  )}
+                  <CustomIcon
+                    Icon={ICONS.DarkSendIcon}
+                    height={24}
+                    width={24}
+                  />
                 </TouchableOpacity>
               )}
             </View>
@@ -999,14 +973,14 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(12),
   },
   dot: {
-    width: horizontalScale(7),
-    height: verticalScale(7),
+    width: horizontalScale(6),
+    height: verticalScale(6),
     borderRadius: 4,
-    backgroundColor: COLORS.greyish,
+    backgroundColor: COLORS.greey,
     marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: COLORS.darkText,
+    backgroundColor: COLORS.greyText,
     width: horizontalScale(7),
     height: verticalScale(7),
     borderRadius: 4,
@@ -1088,5 +1062,10 @@ const styles = StyleSheet.create({
   bottomFade: {
     width: "100%",
     height: "100%",
+  },
+  fundsListContent: {
+    gap: horizontalScale(12),
+    paddingRight: horizontalScale(20),
+    paddingLeft: horizontalScale(20),
   },
 });

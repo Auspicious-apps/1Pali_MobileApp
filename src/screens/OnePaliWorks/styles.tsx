@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from "react-native";
+import { Dimensions, Platform, StyleSheet } from "react-native";
 import COLORS from "../../utils/Colors";
 import {
   horizontalScale,
@@ -7,17 +7,18 @@ import {
   wp,
 } from "../../utils/Metrics";
 
+const { height, width } = Dimensions.get("window");
+
+const isIphoneSE = Platform.OS === "ios" && height <= 667;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: COLORS.appBackground,
+    backgroundColor: COLORS.white,
   },
   safeArea: {
-    flex: 1,
-    // paddingHorizontal: horizontalScale(20),
-    paddingBottom: verticalScale(20),
-    paddingTop: verticalScale(5),
+    paddingTop: verticalScale(15),
+    marginBottom: verticalScale(8),
   },
   appIcon: {
     width: horizontalScale(54),
@@ -33,7 +34,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     width: "100%",
     textAlign: "center",
-    lineHeight: isTablet ? verticalScale(45) : verticalScale(40),
+    lineHeight: isTablet
+      ? verticalScale(45)
+      : isIphoneSE
+      ? verticalScale(46)
+      : verticalScale(40),
   },
   centerText: {
     color: COLORS.darkText,
@@ -69,7 +74,7 @@ const styles = StyleSheet.create({
   },
   fundsListContent: {
     gap: horizontalScale(12),
-    paddingRight: horizontalScale(5),
+    paddingRight: horizontalScale(20),
     paddingLeft: horizontalScale(20),
   },
   fundCard: {
@@ -127,12 +132,10 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(16),
   },
   primaryButton: {
-    marginTop: verticalScale(10),
     zIndex: 10,
   },
   contentContainer: {
-    paddingBottom:
-      Platform.OS === "android" ? verticalScale(100) : verticalScale(70),
+    paddingBottom: verticalScale(50),
   },
   dotContainer: {
     flexDirection: "row",
@@ -147,15 +150,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#000",
     marginHorizontal: 4,
-  },
-  bottomContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: verticalScale(20),
-    paddingTop: verticalScale(20),
-    justifyContent: "flex-end",
   },
 
   gradientOverlay: {
@@ -194,6 +188,19 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginTop: verticalScale(16),
     marginBottom: verticalScale(12),
+  },
+  bottomFadeWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: verticalScale(50),
+    height: verticalScale(60),
+    zIndex: 5,
+  },
+
+  bottomFade: {
+    width: "100%",
+    height: "100%",
   },
 });
 

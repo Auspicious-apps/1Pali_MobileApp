@@ -1,5 +1,7 @@
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
+  Animated,
+  Dimensions,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -37,6 +39,8 @@ import COLORS from "../../utils/Colors";
 import { isTablet, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
 
+const { height, width } = Dimensions.get("window");
+
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const [number, setNumber] = useState("");
@@ -60,6 +64,33 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   const [diceMode, setDiceMode] = useState(false);
   const [startsWithZero, setStartsWithZero] = useState(false);
   const showClaimTitle = !diceMode && (checking || available || unavailable);
+  const diceShake = useRef(new Animated.Value(0)).current;
+  const isIphoneSE = Platform.OS === "ios" && height <= 667;
+
+  const shakeDice = () => {
+    Animated.sequence([
+      Animated.timing(diceShake, {
+        toValue: 1,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(diceShake, {
+        toValue: -1,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(diceShake, {
+        toValue: 1,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(diceShake, {
+        toValue: 0,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   const hapticOptions = {
     enableVibrateFallback: true,
@@ -68,7 +99,19 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
   const handleChange = (text: string) => {
     setDiceMode(false);
+
     const numeric = text.replace(/[^0-9]/g, "");
+    if (numeric.length === 1 && numeric === "0") {
+      setStartsWithZero(true);
+      return;
+    }
+
+    if (numeric.startsWith("0")) {
+      setStartsWithZero(true);
+      return;
+    }
+
+    setStartsWithZero(false);
 
     if (numeric.length > number.length) {
       HapticFeedback.trigger("impactLight", hapticOptions);
@@ -124,6 +167,10 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
   };
 
   const handleDicePress = async () => {
+    setTimeout(() => {
+      HapticFeedback.trigger("impactHeavy", hapticOptions);
+    }, 10);
+    shakeDice();
     setDiceMode(true);
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
     if (checkingTimeout.current) clearTimeout(checkingTimeout.current);
@@ -204,8 +251,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
     setIsLoading(true);
     setInputDisabled(true);
-    inputRef.current?.blur();
-    Keyboard.dismiss();
+    // inputRef.current?.blur();
+    // Keyboard.dismiss();
 
     try {
       const response = await postData<ReserveSpecificNumberResponse>(
@@ -256,6 +303,12 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    if (available) {
+      Keyboard.dismiss();
+    }
+  }, [available]);
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -297,6 +350,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
                     lineHeight: isTablet
                       ? verticalScale(45)
+                      : isIphoneSE
+                      ? verticalScale(50)
                       : verticalScale(40),
                   }}
                 >
@@ -304,7 +359,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                 </CustomText>
                 <CustomText
                   fontFamily="GabaritoRegular"
-                  fontSize={16}
+                  fontSize={18}
                   color={COLORS.appText}
                   style={{ textAlign: "center" }}
                 >
@@ -330,7 +385,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                     inputMode="numeric"
                     maxLength={7}
                     autoFocus
-                    editable={!checking && !inputDisabled}
+                    // editable={!checking && !inputDisabled}
+                    editable={!inputDisabled}
                   />
 
                   {checking || !number.length ? (
@@ -338,33 +394,72 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                       activeOpacity={0.8}
                       onPress={handleDicePress}
                     >
-                      <CustomIcon
-                        Icon={ICONS.diceIcon}
-                        width={32}
-                        height={32}
-                      />
+                      <Animated.View
+                        style={{
+                          transform: [
+                            {
+                              rotate: diceShake.interpolate({
+                                inputRange: [-1, 1],
+                                outputRange: ["-15deg", "15deg"],
+                              }),
+                            },
+                          ],
+                        }}
+                      >
+                        <CustomIcon
+                          Icon={ICONS.SpotDice}
+                          width={32}
+                          height={32}
+                        />
+                      </Animated.View>
                     </TouchableOpacity>
                   ) : available ? (
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={handleDicePress}
                     >
-                      <CustomIcon
-                        Icon={ICONS.diceIcon}
-                        width={32}
-                        height={32}
-                      />
+                      <Animated.View
+                        style={{
+                          transform: [
+                            {
+                              rotate: diceShake.interpolate({
+                                inputRange: [-1, 1],
+                                outputRange: ["-15deg", "15deg"],
+                              }),
+                            },
+                          ],
+                        }}
+                      >
+                        <CustomIcon
+                          Icon={ICONS.SpotDice}
+                          width={32}
+                          height={32}
+                        />
+                      </Animated.View>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={handleDicePress}
                     >
-                      <CustomIcon
-                        Icon={ICONS.diceIcon}
-                        width={32}
-                        height={32}
-                      />
+                      <Animated.View
+                        style={{
+                          transform: [
+                            {
+                              rotate: diceShake.interpolate({
+                                inputRange: [-1, 1],
+                                outputRange: ["-15deg", "15deg"],
+                              }),
+                            },
+                          ],
+                        }}
+                      >
+                        <CustomIcon
+                          Icon={ICONS.SpotDice}
+                          width={32}
+                          height={32}
+                        />
+                      </Animated.View>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -372,8 +467,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="GabaritoRegular"
-                      fontSize={15}
+                      fontFamily="SourceSansRegular"
+                      fontSize={14}
                       color={COLORS.redColor}
                     >
                       Number cannot start with zero.
@@ -394,9 +489,9 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.loader} width={16} height={16} />
                     <CustomText
-                      fontFamily="GabaritoRegular"
-                      fontSize={15}
-                      color={COLORS.grey}
+                      fontFamily="SourceSansRegular"
+                      fontSize={14}
+                      color={COLORS.appText}
                     >
                       Checking...
                     </CustomText>
@@ -409,8 +504,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                       height={16}
                     />
                     <CustomText
-                      fontFamily="GabaritoRegular"
-                      fontSize={15}
+                      fontFamily="SourceSansRegular"
+                      fontSize={14}
                       color={COLORS.green}
                     >
                       Available
@@ -420,8 +515,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="GabaritoRegular"
-                      fontSize={15}
+                      fontFamily="SourceSansRegular"
+                      fontSize={14}
                       color={COLORS.redColor}
                     >
                       Taken, try another or tap the dice
@@ -429,12 +524,13 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   </View>
                 ) : (
                   <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
-                    color={COLORS.grey}
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.appText}
                   >
-                    {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}
-                    spots available
+                    {/* {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}
+                    spots remaining */}
+                    Pick a number between 1 and 1,000,000
                   </CustomText>
                 )}
               </View>

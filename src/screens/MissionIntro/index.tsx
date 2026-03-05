@@ -296,7 +296,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 color={COLORS.grayColor}
                 style={{ textAlign: "center", marginTop: 8 }}
               >
-                {`Number #${claimedNumber} reserved for ${reservationSeconds}s`}
+                {`#${claimedNumber} reserved for ${reservationSeconds}s`}
               </CustomText>
             ) : (
               <CustomText
@@ -304,7 +304,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 fontFamily="GabaritoRegular"
                 fontSize={16}
               >
-                {`Number #${claimedNumber} Expired`}
+                {`#${claimedNumber} Expired`}
               </CustomText>
             ))}
         </View>
@@ -320,8 +320,58 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           }}
         />
 
+        <CustomText
+          fontFamily="SourceSansRegular"
+          fontSize={13}
+          color={COLORS.grayColor}
+          style={{
+            textAlign: "center",
+            marginTop: verticalScale(63),
+            width: wp(60),
+            alignItems: "center",
+          }}
+        >
+          By joining OnePali, you accept our{" "}
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL("https://onepali.app/terms-condition");
+            }}
+          >
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={13}
+              color={COLORS.grayColor}
+              style={{ textDecorationLine: "underline" }}
+            >
+              Terms of Use
+            </CustomText>
+          </TouchableOpacity>{" "}
+          <TouchableOpacity activeOpacity={1}>
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={13}
+              color={COLORS.grayColor}
+            >
+              and{" "}
+            </CustomText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL("https://onepali.app/privacy-policy");
+            }}
+          >
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={13}
+              color={COLORS.grayColor}
+              style={{ textDecorationLine: "underline" }}
+            >
+              Privacy Policy
+            </CustomText>
+          </TouchableOpacity>
+        </CustomText>
         {reservationSeconds && reservationSeconds > 0 ? (
-          <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
+          <View style={{ alignItems: "center", marginTop: verticalScale(12) }}>
             {Platform.OS === "android" ? (
               <PrimaryButton
                 title="Sign in with Google"
@@ -343,59 +393,14 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 hapticType="impactLight"
               />
             )}
-
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={12}
-              color={COLORS.grayColor}
-              style={{
-                textAlign: "center",
-                marginTop: verticalScale(16),
-                width: wp(50),
-              }}
-            >
-              By joining OnePali, you accept our{" "}
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL("https://onepali.app/terms-condition");
-                }}
-              >
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Terms of Use
-                </CustomText>
-              </TouchableOpacity>{" "}
-              <TouchableOpacity activeOpacity={1}>
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                >
-                  and{" "}
-                </CustomText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL("https://onepali.app/privacy-policy");
-                }}
-              >
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  Privacy Policy
-                </CustomText>
-              </TouchableOpacity>
-            </CustomText>
           </View>
         ) : (
-          <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
+          <View
+            style={{
+              marginTop: verticalScale(12),
+              alignItems: "center",
+            }}
+          >
             <PrimaryButton
               title="Choose a new number"
               onPress={() => navigation.goBack()}

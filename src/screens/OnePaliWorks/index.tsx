@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
   Linking,
@@ -45,27 +46,27 @@ const fundCards = [
   {
     id: "2",
     icon: ICONS.twice,
-    title: "Set your monthly donation",
+    title: "Set your donation",
     description:
-      "$1, $3, or $5 per month funds humanitarian aid and keeps your number active.",
+      "$1, $3, or $5 per month funds humanitarian aid & keeps your number active.",
     image: IMAGES.twiceImage,
     bgColor: COLORS.midDarkGreen,
   },
   {
     id: "3",
     icon: ICONS.thrice,
-    title: "Deliver humanitarian aid",
+    title: "Make an impact",
     description:
-      "Your donation supports food, water, education, and care programs through MECA.",
+      "Your donation supports food, water, education, & care through MECA.",
     image: IMAGES.thriceImage,
     bgColor: COLORS.midDarkBrown,
   },
   {
     id: "4",
-    title: "Track your impact",
+    title: "Stay connected",
     icon: ICONS.fourice,
     description:
-      "Get updates, view children’s artwork, and earn badges along the way.",
+      "Get updates on your impact, artwork from children, & badges along the way.",
     image: IMAGES.LoopImage,
     bgColor: COLORS.midRed,
   },
@@ -82,7 +83,7 @@ const supportItems = [
   },
   {
     icon: ICONS.brush,
-    text: "Arts and creative programs",
+    text: "Arts & creative programs",
   },
   {
     icon: ICONS.WorkHeart,
@@ -90,12 +91,15 @@ const supportItems = [
   },
 ];
 
+  const { height, width } = Dimensions.get("window");
+
 const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
-  const CARD_WIDTH = wp(87);
+  const CARD_WIDTH = wp(84);
   const dispatch = useAppDispatch();
+  const isIphoneSE = Platform.OS === "ios" && height <= 667;
 
   const fetchRemainingSpots = async () => {
     try {
@@ -206,7 +210,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                       />
                       <CustomText
                         fontFamily="GabaritoSemiBold"
-                        fontSize={20}
+                        fontSize={22}
                         color={COLORS.greyish}
                         style={styles.fundCardTitle}
                       >
@@ -350,7 +354,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                       fontSize={13}
                       style={{
                         color: COLORS.appText,
-                        flex: 1,
+                        flexShrink: 1,
                       }}
                     >
                       Charity Navigator’s Highest 4-Star Rating for
@@ -359,11 +363,21 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
                   </View>
                 </View>
                 <View style={styles.dividers} />
-                <Image
-                  source={IMAGES.progressImage}
-                  resizeMode="contain"
-                  style={{ width: "100%", height: verticalScale(12) }}
-                />
+                <View
+                  style={{
+                    width: "100%",
+                    alignItems: "center",
+                    flex: 1,
+                    overflow: "hidden",
+                    borderRadius: 50,
+                  }}
+                >
+                  <Image
+                    source={IMAGES.progressImage}
+                    resizeMode="cover"
+                    style={{ width: "100%", height: verticalScale(12) }}
+                  />
+                </View>
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={13}
@@ -417,64 +431,6 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           </View>
 
           <View style={styles.sectionWrapper}>
-            {/* <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={22}
-              style={[styles.centerText, { textAlign: "center" }]}
-            >
-              Who’s involved?
-            </CustomText>
-            <View style={styles.whoCard}>
-              <View style={styles.rowContainer}>
-                <CustomIcon Icon={ICONS.calenderIcon} width={24} height={24} />
-                <View style={{ gap: verticalScale(4) }}>
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={20}
-                    color={COLORS.darkText}
-                  >
-                    OnePali
-                  </CustomText>
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
-                    color={COLORS.appText}
-                    style={{ lineHeight: verticalScale(17) }}
-                  >
-                    Organizes the collective and facilitates monthly
-                    contributions.
-                  </CustomText>
-                </View>
-              </View>
-
-              <View style={styles.innerDivider} />
-              <View style={styles.rowContainer}>
-                <CustomIcon Icon={ICONS.truckIcon} width={24} height={24} />
-                <View style={{ gap: verticalScale(4) }}>
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={20}
-                    color={COLORS.darkText}
-                  >
-                    Middle East Children’s Alliance
-                  </CustomText>
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
-                    color={COLORS.appText}
-                    style={{ lineHeight: verticalScale(17) }}
-                  >
-                    Distributes aid on the ground and shares updates directly in
-                    OnePali.
-                  </CustomText>
-                </View>
-              </View>
-            </View>
-            <Image
-              source={IMAGES.Image}
-              resizeMode="contain"
-              style={styles.bottomImage}
-            /> */}
             <View
               style={[
                 styles.sectionWrapper,
@@ -524,22 +480,24 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             </View>
           </View>
         </FocusResetScrollView>
-        <View style={styles.bottomContainer}>
+        <View pointerEvents="none" style={styles.bottomFadeWrapper}>
           <LinearGradient
-            colors={["#F8F8FB20", COLORS.appBackground]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 0.8 }}
-            style={styles.gradientOverlay}
-          />
-
-          <PrimaryButton
-            title="Continue"
-            onPress={() => navigation.navigate("claimSpot")}
-            style={styles.primaryButton}
-            hapticFeedback
-            hapticType="impactLight"
+            colors={[
+              "rgba(255,255,255,0)",
+              "rgba(255,255,255,0.85)",
+              "rgba(255,255,255,1)",
+            ]}
+            locations={[0, 0.35, 0.75, 1]}
+            style={styles.bottomFade}
           />
         </View>
+        <PrimaryButton
+          title="Continue"
+          onPress={() => navigation.navigate("claimSpot")}
+          style={styles.primaryButton}
+          hapticFeedback
+          hapticType="impactLight"
+        />
       </SafeAreaView>
     </View>
   );

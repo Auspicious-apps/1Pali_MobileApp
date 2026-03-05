@@ -518,7 +518,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center", marginTop: 8 }}
               >
-                {`Number #${claimedNumber} reserved for ${reservationSeconds}s`}
+                {`#${claimedNumber} reserved for ${reservationSeconds}s`}
               </CustomText>
             ) : (
               <CustomText
@@ -526,7 +526,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontFamily="GabaritoRegular"
                 fontSize={18}
               >
-                {`Number #${claimedNumber} Expired`}
+                {`#${claimedNumber} Expired`}
               </CustomText>
             )}
           </View>
@@ -597,6 +597,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             fontSize={13}
             color={COLORS.appText}
             fontFamily="SourceSansRegular"
+            style={{ textAlign: "center" }}
           >
             Plus ${selectedPlanData?.metadata?.processingFee || 0} processing so
             100% of your ${selectedPlanData?.metadata.netAmount} goes to MECA
@@ -608,7 +609,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           <View style={styles.card}>
             <CustomText
               fontSize={20}
-              fontFamily="GabaritoSemiBold"
+              fontFamily="GabaritoMedium"
               color={COLORS.darkText}
               style={{ marginBottom: verticalScale(12) }}
             >
@@ -645,7 +646,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
-                Updates on where funds are being directed
+                Monthly updates on how funds are used
               </CustomText>
             </View>
             <View style={styles.divider} />
@@ -762,7 +763,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               />
             )}
 
-            {reservationSeconds && reservationSeconds > 0 && (
+            {/* {reservationSeconds && reservationSeconds > 0 && (
               <View
                 style={{
                   flexDirection: "row",
@@ -821,7 +822,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                   </TouchableOpacity>
                 </CustomText>
               </View>
-            )}
+            )} */}
           </View>
         </View>
       </SafeAreaView>
@@ -841,7 +842,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: horizontalScale(20),
-    marginTop: verticalScale(5),
+    marginTop: verticalScale(15),
+    marginBottom: verticalScale(8),
   },
   header: {
     width: wp(90),

@@ -1,6 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { FC, useEffect, useState } from "react";
-import { Image, Platform, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ImageBackground,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 import IMAGES from "../../assets/Images";
@@ -20,8 +27,15 @@ import { SplashScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { getLocalStorageData } from "../../utils/Helpers";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  hp,
+  responsiveFontSize,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 
+const { height, width } = Dimensions.get("window");
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
@@ -104,43 +118,35 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ImageBackground source={IMAGES.SplashBackground} style={styles.container}>
       <SafeAreaView style={styles.innerContainer}>
         <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
         <View style={styles.titleContainer}>
           <CustomText
             fontFamily="GabaritoSemiBold"
             fontSize={42}
-            color={COLORS.darkText}
+            color={COLORS.appBackground}
             style={styles.titleText}
           >
-            Welcome to {"\n"} OnePali
+            Welcome to OnePali
           </CustomText>
           <CustomText
             fontFamily="GabaritoRegular"
             fontSize={18}
-            color={COLORS.appText}
+            color={COLORS.appBackground}
             style={styles.subtitleText}
           >
-            One cause. One million supporters.
+            Be one in a million supporting Palestine.
           </CustomText>
         </View>
         <View style={styles.globalImageContainer}>
-          <Image source={IMAGES.GetStartedImage} style={styles.globalImage} />
+          <Image
+            source={IMAGES.PeoplesImage}
+            resizeMode="contain"
+            style={styles.globalImage}
+          />
         </View>
 
-        {/* <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={16}
-            color={COLORS.greyText}
-            style={styles.collabText}
-          >
-            In collaboration with
-          </CustomText>
-          <View style={styles.dividerLine} />
-        </View> */}
         <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
 
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
@@ -150,42 +156,42 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
               onPress={handleGetStarted}
               style={styles.button}
               disabled={isCheckingAuth}
+              textSize={responsiveFontSize(18)}
             />
           )}
           <CustomText
-            fontFamily="MontserratRegular"
-            fontSize={12}
-            color={COLORS.grey}
+            fontFamily="GabaritoRegular"
+            fontSize={15}
+            color={COLORS.appText}
             style={styles.signInText}
           >
-            Already have a account?{" "}
+            Have an account?{" "}
             <CustomText
-              fontFamily="MontserratSemiBold"
-              fontSize={12}
+              fontFamily="GabaritoRegular"
+              fontSize={15}
               color={COLORS.darkText}
               onPress={() => navigation.navigate("signIn")}
             >
-              Sign in
+              Log in
             </CustomText>
           </CustomText>
         </View>
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 };
 
 export default Splash;
 
+const isIphoneSE = Platform.OS === "ios" && height <= 667;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.appBackground,
-    justifyContent: "center",
-    alignItems: "center",
   },
   innerContainer: {
     flex: 1,
-    marginTop: verticalScale(5),
+    marginTop: verticalScale(15),
+    marginBottom: verticalScale(12),
   },
   contentContainer: {
     flex: 1,
@@ -198,11 +204,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   titleContainer: {
-    marginTop: verticalScale(16),
+    marginTop: verticalScale(24),
   },
   titleText: {
     textAlign: "center",
     lineHeight: hp(5.2),
+    width: "80%",
+    alignSelf: "center",
   },
   subtitleText: {
     textAlign: "center",
@@ -211,10 +219,8 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? verticalScale(16) : verticalScale(16),
   },
   globalImage: {
-    width: wp(80),
+    width: "100%",
     height: hp(42),
-    alignSelf: "center",
-    resizeMode: "cover",
   },
   dividerRow: {
     flexDirection: "row",
@@ -236,12 +242,12 @@ const styles = StyleSheet.create({
     height: verticalScale(40),
     alignSelf: "center",
     resizeMode: "contain",
-    marginTop: verticalScale(24),
+    marginTop: isIphoneSE ? verticalScale(24) : verticalScale(0),
   },
 
   button: {
     marginTop: verticalScale(32),
-    marginBottom: verticalScale(16),
+    marginBottom: verticalScale(12),
   },
   loadingContainer: {
     alignItems: "center",
