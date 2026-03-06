@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import dayjs from "dayjs";
+import { createNavigationContainerRef } from "@react-navigation/native";
+import { RootStackParams } from "../typings/routes";
 
 export const getLocalStorageData = async (key: string) => {
   const value = await AsyncStorage.getItem(key);
@@ -181,4 +183,13 @@ export const formatMembershipDuration = (months: number): string => {
   }
 
   return `${years} yr ${remainingMonths} mo`;
+};
+
+
+export const navigationRef = createNavigationContainerRef<RootStackParams>();
+
+export const navigate = (name: keyof RootStackParams, params?: any) => {
+  if (navigationRef.isReady()) {
+    navigationRef.navigate(name, params);
+  }
 };

@@ -31,6 +31,7 @@ import {
   RootStackParams,
 } from "../typings/routes";
 import SignIn from "../screens/SignIn";
+import { navigationRef } from "../utils/Helpers";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -108,7 +109,7 @@ export default function Routes() {
   };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={navigatorScreenOptions}>
         <Stack.Screen name="splashInitial" component={SplashInitial} />
         <Stack.Screen name="OnBoardingStack" component={OnBoardingStack} />

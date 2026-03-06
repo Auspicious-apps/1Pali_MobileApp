@@ -5,6 +5,7 @@ import {
   showInAppNotification,
   getLocalStorageData,
   storeLocalStorageData,
+  navigate,
 } from "../utils/Helpers";
 import STORAGE_KEYS from "../utils/Constants";
 import { postData } from "../service/ApiService";
@@ -196,12 +197,48 @@ export const initializeFirebaseMessaging = async () => {
 };
 
 // Handle notification data payload
+// const handleNotificationData = (data: Record<string, any>) => {
+//   try {
+//     // Example: Handle different notification types
+//     console.log(data, "Notification Data");
+//   } catch (error) {
+//     console.error("Error handling notification data:", error);
+//   }
+// };
+
 const handleNotificationData = (data: Record<string, any>) => {
   try {
-    // Example: Handle different notification types
-    console.log(data, "Notification Data");
+    console.log("Notification Data:", data);
+
+    const { resourceType, type, resourceId } = data;
+
+    // ART notifications
+    if (resourceType === "ART") {
+      if (type === "ART_PUBLISHED" || type === "ART_UPDATED") {
+        navigate("MainStack", {
+          screen: "artDetail",
+          params: {
+            ArtId: resourceId,
+          },
+        });
+        return;
+      }
+    }
+    // UPDATE notifications
+    if (resourceType === "BLOG") {
+      if (type === "BLOG_PUBLISHED" || type === "BLOG_UPDATED") {
+        navigate("MainStack", {
+          screen: "updateDetail",
+          params: {
+            blogId: resourceId,
+          },
+        });
+        return;
+      }
+    }
+    console.log("Unhandled notification:", data);
   } catch (error) {
-    console.error("Error handling notification data:", error);
+    console.error("Notification navigation error:", error);
   }
 };
 

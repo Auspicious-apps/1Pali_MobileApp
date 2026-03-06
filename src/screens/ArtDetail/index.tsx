@@ -57,6 +57,8 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { hasNotch } from "react-native-device-info";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
+  // Used to force TextInput remount to reset height
+  const [inputKey, setInputKey] = useState(0);
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
   const [isLiked, setIsLiked] = useState(false);
@@ -443,6 +445,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     setComments((prev) => [optimisticComment, ...prev]);
     setPendingComments((prev) => ({ ...prev, [tempId]: true }));
     setCommentText("");
+    setInputKey((k) => k + 1); // force TextInput remount
     commentInputRef.current?.blur();
 
     try {
@@ -1101,6 +1104,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               />
               <View style={styles.commentInputWrapper}>
                 <TextInput
+                  key={inputKey}
                   ref={commentInputRef}
                   value={commentText}
                   onChangeText={setCommentText}

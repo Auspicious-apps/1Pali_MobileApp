@@ -5,6 +5,7 @@ import {
   Easing,
   Image,
   ImageBackground,
+  Linking,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -29,6 +30,7 @@ import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { initializeFirebaseMessaging } from "../../Firebase/NotificationService";
+import InAppReview from "react-native-in-app-review";
 
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -41,6 +43,23 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
   const pulseScale = useRef(new Animated.Value(0)).current;
   const pulseOpacity = useRef(new Animated.Value(0)).current;
+
+  const APP_STORE_ID = "6758080916";
+  const PLAY_STORE_PACKAGE = "com.onepali";
+
+  const openRateUs = () => {
+    if (InAppReview.isAvailable()) {
+      InAppReview.RequestInAppReview();
+    } else {
+      // fallback if native review not available
+      const storeUrl =
+        Platform.OS === "ios"
+          ? `https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`
+          : `https://play.google.com/store/apps/details?id=${PLAY_STORE_PACKAGE}`;
+
+      Linking.openURL(storeUrl);
+    }
+  };
 
   useEffect(() => {
     const loop = () => {
@@ -85,6 +104,14 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     initializeFirebaseMessaging();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      openRateUs();
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

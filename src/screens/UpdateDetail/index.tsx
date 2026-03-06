@@ -50,6 +50,8 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import uuid from "react-native-uuid";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
+  // Used to force TextInput remount to reset height
+  const [inputKey, setInputKey] = useState(0);
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
 
@@ -292,12 +294,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     const newPending = { id: tempId, content: commentText.trim() };
     setPendingComments((prev) => [newPending, ...prev]);
     setCommentText("");
+    setInputKey((k) => k + 1); // force TextInput remount
     commentInputRef.current?.blur();
     // Optimistically update comment count
     setBlogDetail((prev) =>
-      prev
-        ? { ...prev, commentsCount: (prev.commentsCount || 0) + 1 }
-        : prev
+      prev ? { ...prev, commentsCount: (prev.commentsCount || 0) + 1 } : prev,
     );
     try {
       const response = await postData<AddCommentToBlogResponse>(
@@ -329,8 +330,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       // Rollback optimistic comment count
       setBlogDetail((prev) =>
         prev
-          ? { ...prev, commentsCount: Math.max((prev.commentsCount || 1) - 1, 0) }
-          : prev
+          ? {
+              ...prev,
+              commentsCount: Math.max((prev.commentsCount || 1) - 1, 0),
+            }
+          : prev,
       );
       console.log("Add comment error", error);
     }
@@ -844,6 +848,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             />
             <View style={styles.commentInputWrapper}>
               <TextInput
+                key={inputKey}
                 ref={commentInputRef}
                 value={commentText}
                 onChangeText={setCommentText}
