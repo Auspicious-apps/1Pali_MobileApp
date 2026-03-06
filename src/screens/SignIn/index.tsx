@@ -331,6 +331,9 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
                 borderWidth: 1,
                 borderColor: "#C8CBD7",
               },
+              android: {
+                backgroundColor: "#1D222B",
+              },
             })}
             textColor={Platform.select({
               ios: COLORS.darkText,

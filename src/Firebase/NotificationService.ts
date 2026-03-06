@@ -170,6 +170,14 @@ export const initializeFirebaseMessaging = async () => {
     const token = await messaging().getToken();
     console.log("📱 FCM Token:", token);
 
+    // Sync initial FCM token if user is logged in
+    if (token) {
+      const accessToken = await getLocalStorageData(STORAGE_KEYS.accessToken);
+      if (accessToken) {
+        await updateFCMTokenInBackend(token);
+      }
+    }
+
     const unsubscribeTokenRefresh = messaging().onTokenRefresh(
       async (newToken) => {
         console.log("🔄 Token refreshed:", newToken);

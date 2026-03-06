@@ -109,7 +109,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       openRateUs();
-    }, 3000);
+    }, 15000);
 
     return () => clearTimeout(timer);
   }, []);

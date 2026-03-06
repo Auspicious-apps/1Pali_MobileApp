@@ -446,11 +446,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   disabled={isSigningIn || isReservationExpired}
                   hapticFeedback
                   hapticType="impactLight"
+                  
                   style={Platform.select({
                     ios: {
                       backgroundColor: "transparent",
                       borderWidth: 1,
                       borderColor: "#C8CBD7",
+                    },
+                    android: {
+                      backgroundColor: "#1D222B",
                     },
                   })}
                   textColor={Platform.select({
