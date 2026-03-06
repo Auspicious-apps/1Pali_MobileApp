@@ -57,6 +57,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const isReservationExpired = reservationStatus === "EXPIRED";
+  const [showCheckboxError, setShowCheckboxError] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -77,6 +78,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   }, []);
 
   const handleAppleSignIn = async () => {
+     if (!isChecked) {
+       setShowCheckboxError(true);
+       return;
+     }
     try {
       setIsLoading(true);
       if (Platform.OS !== "ios") {
@@ -163,6 +168,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!isChecked) {
+      setShowCheckboxError(true);
+      return;
+    }
     if (isSigningIn) return;
 
     setIsSigningIn(true);
@@ -347,7 +356,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   alignSelf: "flex-start",
                 }}
                 activeOpacity={0.8}
-                onPress={() => setIsChecked((prev) => !prev)}
+                onPress={() => {
+                  setIsChecked((prev) => !prev);
+                  setShowCheckboxError(false);
+                }}
               >
                 <TouchableOpacity
                   style={{
@@ -359,7 +371,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     borderRadius: 4,
                   }}
                   activeOpacity={0.8}
-                  onPress={() => setIsChecked((prev) => !prev)}
+                  onPress={() => {
+                    setIsChecked((prev) => !prev);
+                    setShowCheckboxError(false);
+                  }}
                 >
                   {isChecked && (
                     <CustomIcon
@@ -406,6 +421,16 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   </CustomText>
                 </CustomText>
               </TouchableOpacity>
+              {showCheckboxError && (
+                <CustomText
+                  fontFamily="SourceSansRegular"
+                  fontSize={10}
+                  color={COLORS.redColor}
+                  style={{ marginTop: 4 }}
+                >
+                  Please accept Terms & Privacy Policy to continue
+                </CustomText>
+              )}
               <View
                 style={{
                   alignItems: "center",
