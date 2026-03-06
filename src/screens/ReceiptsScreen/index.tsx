@@ -76,9 +76,6 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
             title: fileName,
             description: "Downloading Receipt...",
             mime: "application/pdf",
-            // CRITICAL CHANGE FOR ANDROID 15:
-            // Do not provide a full file path string here.
-            // Setting it to true or a sub-folder allows the system to manage the write.
             storeInDownloads: true,
             mediaScannable: true,
           },
@@ -138,7 +135,8 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
         },
       }).fetch(
         "GET",
-        `https://hydrometric-untimeous-ayaan.ngrok-free.dev/api/v1/receipts/download/${receiptId}/`,
+        `https://onepali-backend.onrender.com/api/v1/receipts/download/${receiptId}/`,
+        // `https://hydrometric-untimeous-ayaan.ngrok-free.dev/api/v1/receipts/download/${receiptId}/`,
         {
           Authorization: `Bearer ${token}`,
           // Remove Content-Type for GET requests

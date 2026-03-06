@@ -481,7 +481,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   fontSize={15}
                   style={{ color: COLORS.appText }}
                 >
-                  Updates on where funds are being directed
+                 Updates on where funds are directed.
                 </CustomText>
               </View>
             </View>

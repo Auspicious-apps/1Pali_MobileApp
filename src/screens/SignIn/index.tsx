@@ -4,9 +4,17 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useState } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Linking,
+  Platform,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
@@ -141,9 +149,12 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
     setIsSigningIn(true);
     try {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
+      // Check for Play Services only on Android
+      if (Platform.OS === "android") {
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
+      }
 
       const { data } = await GoogleSignin.signIn();
 
@@ -278,7 +289,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               lineHeight: hp(5.2),
             }}
           >
-            Welcome {"\n"}Back
+            Welcome Back
           </CustomText>
           <CustomText
             fontFamily="GabaritoRegular"
@@ -301,36 +312,93 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
           }}
         />
 
-        <View style={{ marginTop: verticalScale(60), alignItems: "center" }}>
-          {Platform.OS === "android" ? (
-            <PrimaryButton
-              title={`Sign in with Google`}
-              leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
-              onPress={handleGoogleSignIn}
-              isLoading={isSigningIn}
-              disabled={isSigningIn}
-            />
-          ) : (
-            <PrimaryButton
-              title={`Sign in with Apple`}
-              leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
-              onPress={handleAppleSignIn}
-              isLoading={isLoading}
-              disabled={isLoading}
-            />
+        <View
+          style={{
+            marginTop: verticalScale(60),
+            alignItems: "center",
+            gap: verticalScale(8),
+          }}
+        >
+          <PrimaryButton
+            title={`Continue with Google`}
+            leftIcon={{ Icon: ICONS.GoogleIcon, width: 16, height: 16 }}
+            onPress={handleGoogleSignIn}
+            isLoading={isSigningIn}
+            disabled={isSigningIn}
+            style={{
+              backgroundColor: "transparent",
+              borderWidth: 1,
+              borderColor: "#C8CBD7",
+            }}
+            textColor={COLORS.darkText}
+            textStyle={{
+              fontFamily: FONTS.GabaritoSemiBold,
+            }}
+            loaderColor={COLORS.darkText}
+          />
+          {Platform.OS === "ios" && (
+            <>
+              <PrimaryButton
+                title={`Continue with Apple`}
+                leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 16 }}
+                onPress={handleAppleSignIn}
+                isLoading={isLoading}
+                disabled={isLoading}
+                textStyle={{
+                  fontFamily: FONTS.GabaritoSemiBold,
+                }}
+              />
+            </>
           )}
 
           <CustomText
-            fontFamily="GabaritoMedium"
-            fontSize={12}
+            fontFamily="SourceSansRegular"
+            fontSize={13}
             color={COLORS.grayColor}
             style={{
               textAlign: "center",
-              marginTop: verticalScale(16),
-              width: wp(50),
+              width: wp(60),
+              alignItems: "center",
             }}
           >
-            By joining OnePali, you accept our Terms of Use and Privacy Policy
+            By joining OnePali, you accept our{" "}
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL("https://onepali.app/terms-condition");
+              }}
+            >
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={13}
+                color={COLORS.grayColor}
+                style={{ textDecorationLine: "underline" }}
+              >
+                Terms of Use
+              </CustomText>
+            </TouchableOpacity>{" "}
+            <TouchableOpacity activeOpacity={1}>
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={13}
+                color={COLORS.grayColor}
+              >
+                and{" "}
+              </CustomText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL("https://onepali.app/privacy-policy");
+              }}
+            >
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={13}
+                color={COLORS.grayColor}
+                style={{ textDecorationLine: "underline" }}
+              >
+                Privacy Policy
+              </CustomText>
+            </TouchableOpacity>
           </CustomText>
         </View>
       </SafeAreaView>

@@ -142,9 +142,11 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 deleteLocalStorageData(STORAGE_KEYS.refreshToken);
                 deleteLocalStorageData(STORAGE_KEYS.expiresIn);
 
-                // Sign out from Google if on Android
-                if (Platform.OS === "android") {
+                // Sign out from Google
+                try {
                   await GoogleSignin.signOut();
+                } catch (googleSignOutError) {
+                  console.log("Google sign out error:", googleSignOutError);
                 }
 
                 // Navigate to sign in

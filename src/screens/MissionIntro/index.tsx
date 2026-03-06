@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
@@ -36,7 +37,7 @@ import { MissionIntroProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
-import { hp, verticalScale, wp } from "../../utils/Metrics";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
 
 const initialTimer = 200;
@@ -48,7 +49,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const { claimedNumber } = useAppSelector((state) => state.user);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isChecked, setIsChecked] = useState(false);
   const isReservationExpired = reservationStatus === "EXPIRED";
 
   const dispatch = useAppDispatch();
@@ -160,9 +161,12 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
     setIsSigningIn(true);
     try {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
+      // Check for Play Services only on Android
+      if (Platform.OS === "android") {
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
+      }
 
       const { data } = await GoogleSignin.signIn();
 
@@ -292,8 +296,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             (reservationSeconds && reservationSeconds > 0 ? (
               <CustomText
                 fontFamily="GabaritoRegular"
-                fontSize={16}
-                color={COLORS.grayColor}
+                fontSize={18}
+                color={COLORS.greyText}
                 style={{ textAlign: "center", marginTop: 8 }}
               >
                 {`#${claimedNumber} reserved for ${reservationSeconds}s`}
@@ -313,104 +317,147 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           source={IMAGES.MissionImage}
           resizeMode="cover"
           style={{
-            width: wp(73),
-            height: hp(42),
+            width: wp(65),
+            height: hp(37),
             alignSelf: "center",
             marginTop: verticalScale(20),
           }}
         />
 
-        <CustomText
-          fontFamily="SourceSansRegular"
-          fontSize={13}
-          color={COLORS.grayColor}
+        <View
           style={{
-            textAlign: "center",
-            marginTop: verticalScale(63),
-            width: wp(60),
-            alignItems: "center",
+            flex: 1,
+            justifyContent: "flex-end",
+            marginBottom: verticalScale(24),
           }}
         >
-          By joining OnePali, you accept our{" "}
-          <TouchableOpacity
-            onPress={() => {
-              Linking.openURL("https://onepali.app/terms-condition");
-            }}
-          >
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={13}
-              color={COLORS.grayColor}
-              style={{ textDecorationLine: "underline" }}
+          {reservationSeconds && reservationSeconds > 0 ? (
+            <>
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 4,
+                  alignSelf: "flex-start",
+                }}
+                activeOpacity={0.8}
+                onPress={() => setIsChecked((prev) => !prev)}
+              >
+                <TouchableOpacity
+                  style={{
+                    height: verticalScale(16),
+                    width: horizontalScale(16),
+                    backgroundColor: isChecked ? COLORS.greyish : COLORS.white,
+                    borderWidth: 1,
+                    borderColor: COLORS.lightBorder,
+                    borderRadius: 4,
+                  }}
+                  activeOpacity={0.8}
+                  onPress={() => setIsChecked((prev) => !prev)}
+                />
+                <CustomText
+                  fontFamily="SourceSansRegular"
+                  fontSize={13}
+                  color={COLORS.lightGreyText}
+                >
+                  I agree to the{" "}
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.lightGreyText}
+                    onPress={() => {
+                      Linking.openURL("https://onepali.app/terms-condition");
+                    }}
+                    style={{ textDecorationLine: "underline" }}
+                  >
+                    Terms of Use{" "}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.lightGreyText}
+                  >
+                    &{" "}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.lightGreyText}
+                    onPress={() => {
+                      Linking.openURL("https://onepali.app/privacy-policy");
+                    }}
+                    style={{ textDecorationLine: "underline" }}
+                  >
+                    Privacy Policy
+                  </CustomText>
+                </CustomText>
+              </TouchableOpacity>
+              <View
+                style={{
+                  alignItems: "center",
+                  marginTop: verticalScale(12),
+                  gap: verticalScale(8),
+                }}
+              >
+                <PrimaryButton
+                  title="Continue with Google"
+                  leftIcon={{ Icon: ICONS.GoogleIcon, width: 16, height: 16 }}
+                  onPress={handleGoogleSignIn}
+                  isLoading={isSigningIn}
+                  disabled={isSigningIn || isReservationExpired}
+                  hapticFeedback
+                  hapticType="impactLight"
+                  style={{
+                    backgroundColor: "transparent",
+                    borderWidth: 1,
+                    borderColor: "#C8CBD7",
+                  }}
+                  textColor={COLORS.darkText}
+                  textStyle={{
+                    fontFamily: FONTS.GabaritoSemiBold,
+                  }}
+                  loaderColor={COLORS.darkText}
+                />
+                {Platform.OS === "ios" && (
+                  <>
+                    <PrimaryButton
+                      title="Continue with Apple"
+                      leftIcon={{
+                        Icon: ICONS.AppleLogo,
+                        width: 16,
+                        height: 22,
+                      }}
+                      onPress={handleAppleSignIn}
+                      isLoading={isLoading}
+                      disabled={isLoading || isReservationExpired}
+                      hapticFeedback
+                      hapticType="impactLight"
+                      textStyle={{
+                        fontFamily: FONTS.GabaritoSemiBold,
+                      }}
+                    />
+                  </>
+                )}
+              </View>
+            </>
+          ) : (
+            <View
+              style={{
+                marginTop: verticalScale(12),
+                alignItems: "center",
+              }}
             >
-              Terms of Use
-            </CustomText>
-          </TouchableOpacity>{" "}
-          <TouchableOpacity activeOpacity={1}>
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={13}
-              color={COLORS.grayColor}
-            >
-              and{" "}
-            </CustomText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              Linking.openURL("https://onepali.app/privacy-policy");
-            }}
-          >
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={13}
-              color={COLORS.grayColor}
-              style={{ textDecorationLine: "underline" }}
-            >
-              Privacy Policy
-            </CustomText>
-          </TouchableOpacity>
-        </CustomText>
-        {reservationSeconds && reservationSeconds > 0 ? (
-          <View style={{ alignItems: "center", marginTop: verticalScale(12) }}>
-            {Platform.OS === "android" ? (
               <PrimaryButton
-                title="Sign in with Google"
-                leftIcon={{ Icon: ICONS.GoogleIcon, width: 22, height: 22 }}
-                onPress={handleGoogleSignIn}
+                title="Choose a new number"
+                onPress={() => navigation.goBack()}
                 isLoading={isSigningIn}
                 disabled={isSigningIn || isReservationExpired}
                 hapticFeedback
                 hapticType="impactLight"
               />
-            ) : (
-              <PrimaryButton
-                title="Sign in with Apple"
-                leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 22 }}
-                onPress={handleAppleSignIn}
-                isLoading={isLoading}
-                disabled={isLoading || isReservationExpired}
-                hapticFeedback
-                hapticType="impactLight"
-              />
-            )}
-          </View>
-        ) : (
-          <View
-            style={{
-              marginTop: verticalScale(12),
-              alignItems: "center",
-            }}
-          >
-            <PrimaryButton
-              title="Choose a new number"
-              onPress={() => navigation.goBack()}
-              isLoading={isSigningIn}
-              disabled={isSigningIn || isReservationExpired}
-              hapticFeedback
-              hapticType="impactLight"
-            />
-          </View>
-        )}
+            </View>
+          )}
+        </View>
       </SafeAreaView>
     </View>
   );

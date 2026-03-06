@@ -90,7 +90,7 @@ const CollectBadges = () => {
         >
           {item?.badge?.category.charAt(0).toUpperCase() +
             item?.badge?.category.slice(1).toLowerCase()}{" "}
-          badge unlocked
+          Badge Unlocked
         </CustomText>
       </View>
 

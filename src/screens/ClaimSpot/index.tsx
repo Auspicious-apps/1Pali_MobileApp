@@ -363,7 +363,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   color={COLORS.appText}
                   style={{ textAlign: "center" }}
                 >
-                  Pick between 1 and 1,000,000.
+                  Your place among one million supporters
                 </CustomText>
               </View>
 

@@ -5,19 +5,19 @@ import {
   PlatformPayButton,
   useStripe,
 } from "@stripe/stripe-react-native";
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Animated,
   Easing,
   Image,
-  Linking,
   Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import HapticFeedback from "react-native-haptic-feedback";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
@@ -25,6 +25,7 @@ import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
+import ImpactLoader from "../../components/ImpactLoader";
 import PrimaryButton from "../../components/PrimaryButton";
 import {
   setSelectedPlanId,
@@ -33,7 +34,6 @@ import {
 import {
   clearReservationTimer,
   selectReservationSeconds,
-  selectReservationStatus,
   setBadges,
   setUserData,
 } from "../../redux/slices/UserSlice";
@@ -50,15 +50,7 @@ import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserPro
 import { fetchData, postData } from "../../service/ApiService";
 import { JoinOnePaliProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import {
-  horizontalScale,
-  hp,
-  responsiveFontSize,
-  verticalScale,
-  wp,
-} from "../../utils/Metrics";
-import HapticFeedback from "react-native-haptic-feedback";
-import ImpactLoader from "../../components/ImpactLoader";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -210,6 +202,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
         if (paymentError) {
           setIsLoading(false);
+          console.log(paymentError, "OPOPPOP");
+
           Alert.alert("Payment failed", paymentError.message);
           return;
         }
@@ -219,6 +213,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         if (!setupIntentId) {
           throw new Error("Missing setup intent or payment method");
         }
+
+        console.log("XXXXXXXXX");
 
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
@@ -310,7 +306,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         );
 
         const { clientSecret, amount, currency } = response?.data?.data || {};
-
+    
         const { error: initError, setupIntent } =
           await confirmPlatformPaySetupIntent(clientSecret, {
             applePay: {
@@ -332,21 +328,29 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             },
             googlePay: {
               amount: amount * 100,
-              allowCreditCards: true,
               isEmailRequired: true,
               currencyCode: currency,
               label: "OnePali Supporter Membership",
               merchantCountryCode: "US",
               testEnv: true,
-            },
+              merchantName: "OnePali",
+              billingAddressConfig: {
+                format: PlatformPay.BillingAddressFormat.Full,
+                isPhoneNumberRequired: true,
+                isRequired: true,
+              },
+            },  
           });
 
         if (initError) {
           setIsLoading(false);
+          console.log(initError, "SSSZZZZZ");
+
           throw new Error(
             `Payment initialization failed: ${initError.message}`,
           );
         }
+
         setIsLoading(false);
         setShowImpactLoader(true);
 
@@ -646,7 +650,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
-                Monthly updates on how funds are used
+                Updates on where funds are directed.
               </CustomText>
             </View>
             <View style={styles.divider} />
@@ -726,7 +730,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 hapticFeedback
                 hapticType="impactLight"
               />
-            ) : isApplePaySupported ? (
+            ) : isApplePaySupported && Platform.OS === "ios" ? (
               // <PrimaryButton
               //   title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
               //   onPress={handleAppleSetupIntent}

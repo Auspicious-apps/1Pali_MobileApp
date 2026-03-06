@@ -21,6 +21,8 @@ function App() {
   GoogleSignin.configure({
     webClientId:
       "72813689825-4a7qk1lqdocivith6ooar38skujlp358.apps.googleusercontent.com",
+    iosClientId:
+      "72813689825-3uvkvar5timqdl5bce2gkenpgrfs2g60.apps.googleusercontent.com",
   });
 
   return (

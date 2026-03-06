@@ -32,6 +32,8 @@ const COLORS = {
   commentBar: "#F2F3F7",
   midDarkGreen: "#012D24",
   midDarkBrown: "#361A12",
+  lightGreyText: "#777A80",
+  lightBorder: "#DEE2E6",
 };
 
 export default COLORS;

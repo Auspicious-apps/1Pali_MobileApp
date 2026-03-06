@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
 
   headingContainer: {
-    marginTop: verticalScale(45),
+    marginTop: verticalScale(32),
     alignItems: "center",
   },
 });
