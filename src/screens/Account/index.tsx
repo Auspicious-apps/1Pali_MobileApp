@@ -26,6 +26,7 @@ import {
   selectImpactBadges,
   selectLatestCommunityBadges,
   selectLatestGrowthBadges,
+  selectLatestImpactBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { AccountScreenProps } from "../../typings/routes";
@@ -52,6 +53,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const identityBadges = useAppSelector(selectIdentityBadges);
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
   const latestCommunityBadge = useAppSelector(selectLatestCommunityBadges);
+  const latestImpactBadge = useAppSelector(selectLatestImpactBadges);
 
   const ACCOUNT_OPTIONS = [
     {
@@ -303,7 +305,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                     latestGrowthBadge,
                     latestCommunityBadge,
                     ...identityBadges,
-                    ...impactBadges.slice(0, 1),
+                    latestImpactBadge,
                   ]
                     ?.filter(Boolean)
                     ?.map((badge, index) => (

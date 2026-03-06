@@ -163,15 +163,25 @@ const userSlice = createSlice({
     },
 
     addNewArtBadge: (state, action: PayloadAction<Badge[]>) => {
+      const now = new Date().toISOString();
+      
       if (state.badges) {
         const existingBadgeIds = new Set(state.badges.badges.map((b) => b.id));
         const newBadges = action.payload.filter(
           (b) => !existingBadgeIds.has(b.id),
         );
 
-        state.badges.badges = [...state.badges.badges, ...newBadges];
+        // Mark all old unviewed badges as viewed when new badges are earned
+        const updatedBadges = state.badges.badges.map((b) => ({
+          ...b,
+          isViewed: true,
+          viewedAt: b.isViewed ? b.viewedAt : now,
+        }));
+
+        state.badges.badges = [...updatedBadges, ...newBadges];
         state.badges.totalBadges += newBadges.length;
-        state.badges.unviewedCount += newBadges.length;
+        // Only count the new badges as unviewed
+        state.badges.unviewedCount = newBadges.length;
       } else {
         state.badges = {
           userId: state.user?.id!,

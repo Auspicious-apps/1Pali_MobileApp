@@ -108,8 +108,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const HEART_ANIM_DELAY = 300;
   const commentsRef = useRef<View>(null);
   const scrollContentRef = useRef<View>(null);
-  const CARD_WIDTH = horizontalScale(280);
-  const CARD_HEIGHT = verticalScale(360);
 
   const formatDateMMDDYYYY = (date?: string) => {
     if (!date) return "";
@@ -1155,7 +1153,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               <View
                 style={{
                   backgroundColor: COLORS.white,
-                  borderRadius: 20,
                   overflow: "hidden",
                 }}
               >
@@ -1175,7 +1172,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                       paddingHorizontal: horizontalScale(4),
                       paddingTop: verticalScale(6),
                       backgroundColor: COLORS.white,
-                      borderRadius: 12,
                       gap: verticalScale(5),
                     }}
                   >

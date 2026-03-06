@@ -39,6 +39,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
   const { badges } = useAppSelector((state) => state.badges);
+  const userBadges = useAppSelector((state) => state.user.badges?.badges ?? []);
   const flatListRef = useRef<FlatList>(null);
   const TABS: TabType[] = ["Growth", "Community", "Impact"];
   const lastIndexRef = useRef(0);
@@ -57,6 +58,13 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
 
   const getBadgesByTab = (tab: TabType) =>
     badges.filter((b) => b.category === TAB_CATEGORY_MAP[tab].toUpperCase());
+
+  // Helper to determine if a badge is unlocked
+  const isBadgeUnlocked = (badgeId: string): boolean => {
+    // Check if badge exists in user's earned badges
+    const isEarned = userBadges.some((ub) => ub.badge.id === badgeId);
+    return isEarned;
+  };
 
   const latestIdentityBadge = badges.filter(
     (b) => b.category === "IDENTITY",
@@ -274,7 +282,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
                       gap: horizontalScale(20),
                     }}
                     renderItem={({ item: badge }) => {
-                      const isUnlocked = badge?.isUnlocked;
+                      const isUnlocked = isBadgeUnlocked(badge?.id);
 
                       return (
                         <TouchableOpacity
@@ -339,7 +347,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
         badgeLabel={selectedBadge?.title}
         badgeMonths={selectedBadge?.milestone}
         badgeDescription={selectedBadge?.description}
-        isLocked={!selectedBadge?.isUnlocked}
+        isLocked={selectedBadge ? !isBadgeUnlocked(selectedBadge.id) : true}
       />
     </View>
   );

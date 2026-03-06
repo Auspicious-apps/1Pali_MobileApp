@@ -325,16 +325,26 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             onPress={handleGoogleSignIn}
             isLoading={isSigningIn}
             disabled={isSigningIn}
-            style={{
-              backgroundColor: "transparent",
-              borderWidth: 1,
-              borderColor: "#C8CBD7",
-            }}
-            textColor={COLORS.darkText}
-            textStyle={{
-              fontFamily: FONTS.GabaritoSemiBold,
-            }}
-            loaderColor={COLORS.darkText}
+            style={Platform.select({
+              ios: {
+                backgroundColor: "transparent",
+                borderWidth: 1,
+                borderColor: "#C8CBD7",
+              },
+            })}
+            textColor={Platform.select({
+              ios: COLORS.darkText,
+              default: COLORS.white,
+            })}
+            textStyle={Platform.select({
+              ios: {
+                fontFamily: FONTS.GabaritoSemiBold,
+              },
+            })}
+            loaderColor={Platform.select({
+              ios: COLORS.darkText,
+              default: COLORS.white,
+            })}
           />
           {Platform.OS === "ios" && (
             <>
