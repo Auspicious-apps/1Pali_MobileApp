@@ -39,7 +39,7 @@ const { height, width } = Dimensions.get("window");
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
-
+  const isIphoneSE = Platform.OS === "ios" && height <= 667;
   const { user } = useAppSelector((state) => state.user);
 
   const checkAuthenticationStatus = async () => {
@@ -154,6 +154,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             <PrimaryButton
               title={isCheckingAuth ? "Checking..." : "Get Started"}
               onPress={handleGetStarted}
+              activeOpacity={1}
               style={styles.button}
               disabled={isCheckingAuth}
               textSize={responsiveFontSize(18)}
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     textAlign: "center",
-    lineHeight: hp(5.2),
+    lineHeight: isIphoneSE ? hp(6.2) : hp(5.5),
     width: "80%",
     alignSelf: "center",
   },

@@ -87,6 +87,7 @@ import twice from "./twice.svg";
 import thrice from "./thrice.svg";
 import fourice from "./fourice.svg";
 import SpotDice from "./SpotDice.svg";
+import CheckedIcon from "./CheckedIcon.svg";
 
 const ICONS = {
   diceIcon,
@@ -178,6 +179,7 @@ const ICONS = {
   thrice,
   fourice,
   SpotDice,
+  CheckedIcon,
 };
 
 export default ICONS;

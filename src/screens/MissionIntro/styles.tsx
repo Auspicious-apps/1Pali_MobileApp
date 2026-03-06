@@ -32,6 +32,11 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(32),
     alignItems: "center",
   },
+  googleSignin: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.borderColor,
+  },
 });
 
 export default styles;

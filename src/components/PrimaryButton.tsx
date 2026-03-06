@@ -16,6 +16,7 @@ import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 type PrimaryButtonProps = {
   title: string;
   onPress: () => void;
+  activeOpacity?: number;
   textColor?: string;
   style?: ViewStyle;
   disabled?: boolean;
@@ -48,6 +49,7 @@ const hapticOptions = {
 const PrimaryButton: FC<PrimaryButtonProps> = ({
   title,
   onPress,
+  activeOpacity = 0.8,
   disabled = false,
   textColor = COLORS.white,
   style,
@@ -75,7 +77,7 @@ const PrimaryButton: FC<PrimaryButtonProps> = ({
   return (
     <TouchableOpacity
       disabled={disabled || isLoading}
-      activeOpacity={0.8}
+      activeOpacity={activeOpacity}
       style={[
         styles.button,
         isFullWidth && styles.fullWidth,

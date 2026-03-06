@@ -37,7 +37,13 @@ import { MissionIntroProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { storeLocalStorageData } from "../../utils/Helpers";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  hp,
+  responsiveFontSize,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 import styles from "./styles";
 
 const initialTimer = 200;
@@ -354,7 +360,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   }}
                   activeOpacity={0.8}
                   onPress={() => setIsChecked((prev) => !prev)}
-                />
+                >
+                  {isChecked && (
+                    <CustomIcon
+                      Icon={ICONS.CheckedIcon}
+                      height={verticalScale(16)}
+                      width={verticalScale(16)}
+                    />
+                  )}
+                </TouchableOpacity>
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={13}
