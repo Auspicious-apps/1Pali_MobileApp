@@ -453,12 +453,20 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       );
 
       if (response?.data?.data?.comments?.length) {
+        const newCommentsRaw = response?.data?.data?.comments;
+        const pagination = response?.data?.data?.pagination;
+        // Map comments to include userId and artId
+        const newComments = newCommentsRaw.map((c: any) => ({
+          ...c,
+          userId: c.user?.id || user?.id || "",
+          artId: ArtId,
+        }));
         setArtDetail((prev): any => {
           const updated = prev
             ? {
                 ...prev,
-                comments: response?.data?.data?.comments,
-                commentsCount: response?.data?.data?.pagination?.total,
+                comments: newComments,
+                commentsCount: pagination?.total,
               }
             : prev;
           if (updated) {
@@ -466,7 +474,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           }
           return updated;
         });
-        setComments(response?.data?.data?.comments as any);
+        setComments(newComments);
+        setHasNext(pagination?.hasNext ?? false);
+        setPage(1); // Reset to first page after new comment
       }
     } catch (error) {
       // Remove the optimistic comment on failure

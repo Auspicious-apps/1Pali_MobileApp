@@ -306,12 +306,19 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         { content: newPending.content },
       );
       if (response?.data?.data?.comments?.length) {
+        const newCommentsRaw = response?.data?.data?.comments;
+        const pagination = response?.data?.data?.pagination;
+        // Map comments to include blogId if needed (for type safety)
+        const newComments = newCommentsRaw.map((c: any) => ({
+          ...c,
+          blogId: blogId,
+        }));
         setBlogDetail((prev): any => {
           const updated = prev
             ? {
                 ...prev,
-                comments: response?.data?.data?.comments,
-                commentsCount: response?.data?.data?.pagination?.total,
+                comments: newComments,
+                commentsCount: pagination?.total,
               }
             : prev;
           // Update Redux cache
@@ -320,7 +327,9 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           }
           return updated;
         });
-        setComments(response?.data?.data?.comments as any);
+        setComments(newComments);
+        setHasNext(pagination?.hasNext ?? false);
+        setPage(1); // Reset to first page after new comment
       }
       // Remove pending comment on success
       setPendingComments((prev) => prev.filter((c) => c.id !== tempId));
@@ -779,7 +788,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                     ...pendingComments.map((c) => ({ ...c, pending: true })),
                     ...comments,
                   ]}
-                  keyExtractor={(item) => item.id || item.tempId}
+                  keyExtractor={(item) => item.id}
                   renderItem={renderCommentItem}
                   scrollEnabled={false}
                   contentContainerStyle={styles.commentsList}
