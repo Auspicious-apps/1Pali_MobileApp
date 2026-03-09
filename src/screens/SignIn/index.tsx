@@ -365,7 +365,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             </>
           )}
 
-          <CustomText
+          {/* <CustomText
             fontFamily="SourceSansRegular"
             fontSize={13}
             color={COLORS.grayColor}
@@ -413,7 +413,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
                 Privacy Policy
               </CustomText>
             </TouchableOpacity>
-          </CustomText>
+          </CustomText> */}
         </View>
       </SafeAreaView>
     </View>

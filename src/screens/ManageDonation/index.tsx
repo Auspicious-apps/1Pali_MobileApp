@@ -262,7 +262,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     }
 
     if (status === "CANCELLING") {
-      return "Resume Donation";
+      return "Restart Donation";
     }
 
     if (status === "CANCELLED") {

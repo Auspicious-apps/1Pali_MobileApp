@@ -32,6 +32,38 @@ import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import { initializeFirebaseMessaging } from "../../Firebase/NotificationService";
 import InAppReview from "react-native-in-app-review";
 
+const badgeMetadata = [
+  {
+    name: "Seed",
+    description: "You’ve planted a promise",
+  },
+  {
+    name: "Sprout",
+    description: "Your support is breaking through",
+  },
+  {
+    name: "Sapling",
+    description: "A steady presence is forming",
+  },
+  {
+    name: "Rooted",
+    description: "You are part of this land now",
+  },
+  {
+    name: "Branch",
+    description: "Your impact is reaching further",
+  },
+  {
+    name: "Trunk",
+    description: "You are part of the foundation",
+  },
+  { name: "Bloom", description: "Your commitment has brought life" },
+  {
+    name: "Eternal",
+    description: "Your presence is now part of our history",
+  },
+];
+
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const isFocused = useIsFocused();
@@ -144,7 +176,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             onPress={() => setIsBadgesSheet(true)}
           >
             <BadgeIcon
-              badge={growthBadges[0]?.badge?.name}
+              badge={latestGrowthBadge?.badge?.name}
               style={{
                 width: horizontalScale(125),
                 height: verticalScale(125),
@@ -169,9 +201,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                {latestGrowthBadge?.badge?.name === "Seed"
-                  ? "First month of Support"
-                  : `${latestGrowthBadge?.badge?.requirement.consecutiveMonths} months of Support`}
+                {badgeMetadata.find((b) => b.name === latestGrowthBadge?.badge?.name)?.description}
               </CustomText>
             </View>
           )}

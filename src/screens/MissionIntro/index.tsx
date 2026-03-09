@@ -36,7 +36,10 @@ import { postData } from "../../service/ApiService";
 import { MissionIntroProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { storeLocalStorageData } from "../../utils/Helpers";
+import {
+  deleteLocalStorageData,
+  storeLocalStorageData,
+} from "../../utils/Helpers";
 import {
   horizontalScale,
   hp,
@@ -446,7 +449,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   disabled={isSigningIn || isReservationExpired}
                   hapticFeedback
                   hapticType="impactLight"
-                  
                   style={Platform.select({
                     ios: {
                       backgroundColor: "transparent",
@@ -502,9 +504,19 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             >
               <PrimaryButton
                 title="Choose a new number"
-                onPress={() => navigation.goBack()}
-                isLoading={isSigningIn}
-                disabled={isSigningIn || isReservationExpired}
+                onPress={() => {
+                  if (Platform.OS === "android") {
+                    GoogleSignin.signOut().then(() => {
+                      navigation.goBack();
+                      deleteLocalStorageData(STORAGE_KEYS.accessToken);
+                      deleteLocalStorageData(STORAGE_KEYS.refreshToken);
+                      deleteLocalStorageData(STORAGE_KEYS.expiresIn);
+                    });
+                  } else {
+                    navigation.goBack();
+                  }
+                }}
+                disabled={isSigningIn}
                 hapticFeedback
                 hapticType="impactLight"
               />

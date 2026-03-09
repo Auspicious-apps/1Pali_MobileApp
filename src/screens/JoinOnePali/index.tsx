@@ -51,6 +51,9 @@ import { fetchData, postData } from "../../service/ApiService";
 import { JoinOnePaliProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { deleteLocalStorageData } from "../../utils/Helpers";
+import STORAGE_KEYS from "../../utils/Constants";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -306,7 +309,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         );
 
         const { clientSecret, amount, currency } = response?.data?.data || {};
-    
+
         const { error: initError, setupIntent } =
           await confirmPlatformPaySetupIntent(clientSecret, {
             applePay: {
@@ -339,7 +342,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 isPhoneNumberRequired: true,
                 isRequired: true,
               },
-            },  
+            },
           });
 
         if (initError) {
@@ -723,8 +726,18 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               <PrimaryButton
                 title="Choose a new number"
                 onPress={() => {
-                  navigation.pop(1);
-                  navigation.goBack();
+                  if (Platform.OS === "android") {
+                    GoogleSignin.signOut().then(() => {
+                      navigation.pop(1);
+                      navigation.goBack();
+                      deleteLocalStorageData(STORAGE_KEYS.accessToken);
+                      deleteLocalStorageData(STORAGE_KEYS.refreshToken);
+                      deleteLocalStorageData(STORAGE_KEYS.expiresIn);
+                    });
+                  } else {
+                    navigation.pop(1);
+                    navigation.goBack();
+                  }
                 }}
                 style={{ marginTop: verticalScale(20) }}
                 hapticFeedback
