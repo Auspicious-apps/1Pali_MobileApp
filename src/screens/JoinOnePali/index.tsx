@@ -255,7 +255,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   };
 
-  const handleAppleSetupIntent = async () => {
+  const handlePlatformSetupIntent = async () => {
     try {
       setIsLoading(true);
       if (!selectedPlan) {
@@ -730,32 +730,35 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 hapticFeedback
                 hapticType="impactLight"
               />
-            ) : isApplePaySupported && Platform.OS === "ios" ? (
-              // <PrimaryButton
-              //   title={Platform.OS === "ios" ? "Apple Pay" : "Google Pay"}
-              //   onPress={handleAppleSetupIntent}
-              //   leftIcon={{
-              //     Icon: Platform.OS === "ios" ? ICONS.AppleLogo : ICONS.GoogleIcon,
-              //     width: 22,
-              //     height: 22,
-              //   }}
-              //   isLoading={isLoading}
-              //   style={{ marginTop: verticalScale(20) }}
-              //   hapticFeedback
-              //   hapticType="impactLight"
-              // />
-              <PlatformPayButton
-                type={PlatformPay.ButtonType.Donate} // This tells Stripe: "Give me the official Apple Donate button"
-                onPress={handleAppleSetupIntent}
-                appearance={PlatformPay.ButtonStyle.Black}
-                borderRadius={10}
-                disabled={isLoading}
-                style={{
-                  marginTop: verticalScale(20),
-                  height: verticalScale(50),
-                  width: wp(90),
-                }}
-              />
+            ) : isApplePaySupported ? (
+              <View style={{ width: wp(90), alignItems: "center" }}>
+                <PlatformPayButton
+                  type={PlatformPay.ButtonType.Donate}
+                  onPress={handlePlatformSetupIntent}
+                  appearance={PlatformPay.ButtonStyle.Black}
+                  borderRadius={10}
+                  disabled={isLoading}
+                  style={{
+                    marginTop: verticalScale(20),
+                    height: verticalScale(50),
+                    width: wp(90),
+                  }}
+                />
+                <TouchableOpacity
+                  onPress={handleSetupIntent}
+                  disabled={isLoading}
+                  style={{ marginTop: verticalScale(12) }}
+                >
+                  <CustomText
+                    fontSize={14}
+                    color={COLORS.darkText}
+                    fontFamily="GabaritoMedium"
+                    style={{ textDecorationLine: "underline" }}
+                  >
+                    Use other payment methods
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
             ) : (
               <PrimaryButton
                 title="Join OnePali"

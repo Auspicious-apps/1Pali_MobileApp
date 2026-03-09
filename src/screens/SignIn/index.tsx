@@ -238,6 +238,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         } else {
           navigation.navigate("splash");
         }
+        GoogleSignin.signOut(); // Clear any partial sign-in state
       } else {
         const message = error.message || "An unexpected error occurred";
         errorMessage = message;
