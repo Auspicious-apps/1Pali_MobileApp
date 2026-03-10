@@ -3,6 +3,7 @@ import Toast from "react-native-toast-message";
 import dayjs from "dayjs";
 import { createNavigationContainerRef } from "@react-navigation/native";
 import { RootStackParams } from "../typings/routes";
+import COLORS from "./Colors";
 
 export const getLocalStorageData = async (key: string) => {
   const value = await AsyncStorage.getItem(key);
@@ -156,11 +157,11 @@ export const showInAppNotification = (
     type: "inAppNotification",
     text1: title,
     text1Style: {
-      color: "black",
+      color: COLORS.darkText,
     },
     text2: body,
     text2Style: {
-      color: "black",
+      color: COLORS.darkText,
     },
     topOffset: 60,
     visibilityTime: 6000,

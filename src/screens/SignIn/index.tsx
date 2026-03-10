@@ -257,62 +257,63 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          {navigation.canGoBack() && (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.8}
+        <View style={{ flex: 1 }}>
+          <View style={styles.header}>
+            {navigation.canGoBack() && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.8}
+                style={{
+                  backgroundColor: "#E5E7EF",
+                  borderRadius: 100,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  height: 32,
+                  width: 32,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CustomIcon Icon={ICONS.BackArrowWithBg} />
+              </TouchableOpacity>
+            )}
+            <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+          </View>
+
+          <View style={styles.headingContainer}>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={42}
+              color={COLORS.darkText}
               style={{
-                backgroundColor: "#E5E7EF",
-                borderRadius: 100,
-                position: "absolute",
-                top: 0,
-                left: 0,
-                height: 32,
-                width: 32,
-                alignItems: "center",
-                justifyContent: "center",
+                textAlign: "center",
+                lineHeight: hp(5.2),
               }}
             >
-              <CustomIcon Icon={ICONS.BackArrowWithBg} />
-            </TouchableOpacity>
-          )}
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-        </View>
+              Welcome Back
+            </CustomText>
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={16}
+              color={COLORS.grayColor}
+              style={{ textAlign: "center" }}
+            >
+              Sign In to continue
+            </CustomText>
+          </View>
 
-        <View style={styles.headingContainer}>
-          <CustomText
-            fontFamily="GabaritoSemiBold"
-            fontSize={42}
-            color={COLORS.darkText}
+          <Image
+            source={IMAGES.MissionImage}
+            resizeMode="cover"
             style={{
-              textAlign: "center",
-              lineHeight: hp(5.2),
+              width: wp(75),
+              height: hp(48),
+              alignSelf: "center",
+              marginTop: verticalScale(20),
             }}
-          >
-            Welcome Back
-          </CustomText>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={16}
-            color={COLORS.grayColor}
-            style={{ textAlign: "center" }}
-          >
-            Sign In to continue
-          </CustomText>
+          />
         </View>
-
-        <Image
-          source={IMAGES.MissionImage}
-          resizeMode="cover"
-          style={{
-            width: wp(73),
-            height: hp(42),
-            alignSelf: "center",
-            marginTop: verticalScale(20),
-          }}
-        />
-
         <View
           style={{
             marginTop: verticalScale(60),

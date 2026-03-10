@@ -61,7 +61,9 @@ const CollectBadges = () => {
 
       dispatch(closeCollectBadgesModal());
       dispatch(markAllBadgesViewed());
-      navigation.navigate("badges");
+      // Get the category of the first badge (or fallback to GROWTH)
+      const badgeCategory = unViewedBadges[0]?.badge?.category || "GROWTH";
+      navigation.navigate("badges", { badgeCategory });
 
       const response = await postData(ENDPOINTS.ViewedBadges, {
         badgeIds: unViewedBadges.map((badge) => badge.id),

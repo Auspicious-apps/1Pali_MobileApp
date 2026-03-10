@@ -1194,21 +1194,13 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                       }}
                     >
                       <Image
-                        source={IMAGES.OnePaliLogo}
+                        source={IMAGES.LogoOnepali}
                         resizeMode="contain"
                         style={{
-                          width: horizontalScale(18),
-                          height: horizontalScale(18),
+                          width: horizontalScale(73),
+                          height: horizontalScale(15),
                         }}
                       />
-
-                      <CustomText
-                        fontFamily="SourceSansRegular"
-                        fontSize={20}
-                        color={COLORS.darkText}
-                      >
-                        OnePali
-                      </CustomText>
                     </View>
                     <FastImage
                       source={{ uri: artDetail?.mediaUrl }}

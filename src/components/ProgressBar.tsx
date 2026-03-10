@@ -7,6 +7,8 @@ import { horizontalScale, verticalScale } from "../utils/Metrics";
 import BadgeIcon from "./BadgeIcon";
 import CircularOverlay from "./CircularOverlay";
 import { CustomText } from "./CustomText";
+import CustomIcon from "./CustomIcon";
+import ICONS from "../assets/Icons";
 
 const STRIPE_WIDTH = horizontalScale(14.8);
 const STRIPE_GAP = horizontalScale(12);
@@ -139,44 +141,61 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
             gap: horizontalScale(6),
           }}
         >
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={15}
-            color={COLORS.darkText}
-            style={{ textAlign: "center" }}
-          >
-            {currentValue.toLocaleString()}
-          </CustomText>
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={15}
-            color={COLORS.appText}
-          >
-            of
-          </CustomText>
-          <Pressable
-            disabled={isAccountScreen}
-            onPress={() => {
-              if (isAccountScreen) return;
-              HapticFeedback.trigger("impactHeavy", hapticOptions);
-              setShowFinalGoal((prev) => !prev);
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: horizontalScale(16),
+              paddingVertical: verticalScale(4),
+              borderRadius: 100,
+              borderWidth: 1,
+              borderColor: COLORS.commentBar,
+              gap: horizontalScale(4),
             }}
           >
             <CustomText
               fontFamily="GabaritoRegular"
               fontSize={15}
-              color={COLORS.greyText}
+              color={COLORS.darkText}
+              style={{ textAlign: "center" }}
+            >
+              {currentValue.toLocaleString()}
+            </CustomText>
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              color={COLORS.appText}
+            >
+              of
+            </CustomText>
+            <Pressable
+              disabled={isAccountScreen}
+              onPress={() => {
+                if (isAccountScreen) return;
+                HapticFeedback.trigger("impactHeavy", hapticOptions);
+                setShowFinalGoal((prev) => !prev);
+              }}
               style={{
-                textAlign: "center",
-                paddingHorizontal: horizontalScale(16),
-                paddingVertical: verticalScale(4),
-                backgroundColor: COLORS.greyBackground,
+                flexDirection: "row",
+                alignItems: "center",
                 borderRadius: 100,
+                gap: horizontalScale(4),
               }}
             >
-              {milestoneLabel}
-            </CustomText>
-          </Pressable>
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                color={COLORS.greyText}
+              >
+                {milestoneLabel}
+              </CustomText>
+              <CustomIcon
+                Icon={ICONS.Switcher}
+                height={verticalScale(16)}
+                width={verticalScale(16)}
+              />
+            </Pressable>
+          </View>
         </View>
       )}
     </View>

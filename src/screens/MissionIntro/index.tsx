@@ -347,6 +347,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             flex: 1,
             justifyContent: "flex-end",
             marginBottom: verticalScale(24),
+            paddingHorizontal: horizontalScale(20),
           }}
         >
           {reservationSeconds && reservationSeconds > 0 ? (
@@ -354,7 +355,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               <TouchableOpacity
                 style={{
                   flexDirection: "row",
-                  alignItems: "center",
                   gap: 4,
                   alignSelf: "flex-start",
                 }}
@@ -364,38 +364,34 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   setShowCheckboxError(false);
                 }}
               >
-                <TouchableOpacity
-                  style={{
-                    height: verticalScale(16),
-                    width: horizontalScale(16),
-                    backgroundColor: isChecked ? COLORS.greyish : COLORS.white,
-                    borderWidth: 1,
-                    borderColor: COLORS.lightBorder,
-                    borderRadius: 4,
-                  }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setIsChecked((prev) => !prev);
-                    setShowCheckboxError(false);
-                  }}
-                >
-                  {isChecked && (
-                    <CustomIcon
-                      Icon={ICONS.CheckedIcon}
-                      height={verticalScale(16)}
-                      width={verticalScale(16)}
-                    />
-                  )}
-                </TouchableOpacity>
+                {isChecked ? (
+                  <CustomIcon
+                    Icon={ICONS.CheckedIcon}
+                    height={verticalScale(24)}
+                    width={verticalScale(24)}
+                  />
+                ) : (
+                  <View
+                    style={{
+                      height: verticalScale(24),
+                      width: horizontalScale(24),
+                      backgroundColor: COLORS.white,
+                      borderWidth: 1,
+                      borderColor: COLORS.lightBorder,
+                      borderRadius: 6,
+                    }}
+                  />
+                )}
                 <CustomText
-                  fontFamily="SourceSansRegular"
-                  fontSize={13}
+                  fontFamily="GabaritoRegular"
+                  fontSize={15}
                   color={COLORS.lightGreyText}
                 >
-                  I agree to the{" "}
+                  I have reviewed and agree to the Middle East Children's
+                  Alliance's
                   <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
                     color={COLORS.lightGreyText}
                     onPress={() => {
                       Linking.openURL("https://onepali.app/terms-condition");
@@ -405,15 +401,33 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     Terms of Use{" "}
                   </CustomText>
                   <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
                     color={COLORS.lightGreyText}
                   >
-                    &{" "}
+                    and{" "}
                   </CustomText>
                   <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
+                    color={COLORS.lightGreyText}
+                    onPress={() => {
+                      Linking.openURL("https://onepali.app/privacy-policy");
+                    }}
+                    style={{ textDecorationLine: "underline" }}
+                  >
+                    Privacy Policy,
+                  </CustomText>
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
+                    color={COLORS.lightGreyText}
+                  >
+                    and OnePali's{" "}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
                     color={COLORS.lightGreyText}
                     onPress={() => {
                       Linking.openURL("https://onepali.app/privacy-policy");

@@ -32,6 +32,28 @@ import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 type TabType = "Growth" | "Community" | "Impact";
 const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
+  // Select tab based on navigation param
+  useEffect(() => {
+    if (navigation && navigation.getState) {
+      const routeState = navigation.getState();
+      const badgeCategory =
+        routeState?.routes?.[routeState.index]?.params?.badgeCategory;
+      if (badgeCategory) {
+        const categoryMap: Record<string, TabType> = {
+          GROWTH: "Growth",
+          COMMUNITY: "Community",
+          IMPACT: "Impact",
+        };
+        const tab = categoryMap[badgeCategory.toUpperCase()];
+        if (tab) {
+          setActiveTab(tab);
+          const index = TABS.indexOf(tab);
+          moveUnderline(index);
+          flatListRef.current?.scrollToIndex({ index, animated: true });
+        }
+      }
+    }
+  }, [navigation]);
   const dispatch = useAppDispatch();
 
   const [activeTab, setActiveTab] = useState<TabType>("Growth");
@@ -259,6 +281,20 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item}
             onScroll={handleScroll}
+            getItemLayout={(_, index) => ({
+              length: wp(100),
+              offset: wp(100) * index,
+              index,
+            })}
+            onScrollToIndexFailed={({ index, averageItemLength }) => {
+              // fallback: scroll to the end or beginning
+              setTimeout(() => {
+                flatListRef.current?.scrollToIndex({
+                  index: Math.max(0, Math.min(index, TABS.length - 1)),
+                  animated: true,
+                });
+              }, 100);
+            }}
             renderItem={({ item: tab }) => {
               const tabBadges = getBadgesByTab(tab);
               const rowCount = Math.ceil(tabBadges.length / 3);

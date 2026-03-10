@@ -88,6 +88,7 @@ import thrice from "./thrice.svg";
 import fourice from "./fourice.svg";
 import SpotDice from "./SpotDice.svg";
 import CheckedIcon from "./CheckedIcon.svg";
+import Switcher from "./Switcher.svg";
 
 const ICONS = {
   diceIcon,
@@ -180,6 +181,7 @@ const ICONS = {
   fourice,
   SpotDice,
   CheckedIcon,
+  Switcher,
 };
 
 export default ICONS;

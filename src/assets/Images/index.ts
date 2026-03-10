@@ -29,6 +29,7 @@ const IMAGES = {
   progressImage: require("./ProgressImage.png"),
   SplashBackground: require("./SplashBackground.png"),
   PeoplesImage: require("./PeoplesImage.png"),
+  LogoOnepali: require("./LogoOnepali.png"),
 };
 
 export default IMAGES;

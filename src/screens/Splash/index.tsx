@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginTop: verticalScale(24),
+    gap: Platform.OS === "ios" ? verticalScale(0) : verticalScale(6),
   },
   titleText: {
     textAlign: "center",
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
   },
   globalImage: {
     width: "100%",
-    height: hp(42),
+    height: Platform.OS === "ios" ? hp(42) : hp(45),
   },
   dividerRow: {
     flexDirection: "row",
