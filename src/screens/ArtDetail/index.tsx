@@ -193,7 +193,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           filename: customFileName,
           title: customFileName,
           type: "image/png",
-          message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n We're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+          message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
         });
         // iOS: if we get here, share was successful
         shareSucceeded = true;
