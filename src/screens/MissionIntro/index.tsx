@@ -28,7 +28,7 @@ import {
   setUserData,
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { store, useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
 import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
@@ -43,13 +43,12 @@ import {
 import {
   horizontalScale,
   hp,
-  responsiveFontSize,
   verticalScale,
-  wp,
+  wp
 } from "../../utils/Metrics";
 import styles from "./styles";
 
-const initialTimer = 200;
+const initialTimer = 300;
 
 const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const { showNumber } = route.params || {};
@@ -125,6 +124,28 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
       if (signInResponse?.data.success) {
         const { tokens, user, isNewUser } = signInResponse?.data?.data;
 
+        // Get current state from Redux to avoid stale closure values
+        const currentState = store.getState();
+        const currentReservationSeconds = currentState.user.reservationSeconds;
+        const currentReservationStatus = currentState.user.reservationStatus;
+        const isCurrentReservationExpired =
+          currentReservationStatus === "EXPIRED";
+
+        // Check if reservation has expired during sign-in process
+        if (
+          isCurrentReservationExpired ||
+          (currentReservationSeconds && currentReservationSeconds <= 0)
+        ) {
+          Toast.show({
+            type: "error",
+            text1: "Reservation Expired",
+            text2:
+              "Your reservation has expired. Please go back and reserve a number again.",
+          });
+          setIsLoading(false);
+          return;
+        }
+
         // Store all tokens in local storage
         await storeLocalStorageData(
           STORAGE_KEYS?.accessToken,
@@ -195,6 +216,29 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         );
         if (signinResponse.data.success) {
           const { tokens, user, isNewUser } = signinResponse?.data?.data;
+
+          // Get current state from Redux to avoid stale closure values
+          const currentState = store.getState();
+          const currentReservationSeconds =
+            currentState.user.reservationSeconds;
+          const currentReservationStatus = currentState.user.reservationStatus;
+          const isCurrentReservationExpired =
+            currentReservationStatus === "EXPIRED";
+
+          // Check if reservation has expired during sign-in process
+          if (
+            isCurrentReservationExpired ||
+            (currentReservationSeconds && currentReservationSeconds <= 0)
+          ) {
+            Toast.show({
+              type: "error",
+              text1: "Reservation Expired",
+              text2:
+                "Your reservation has expired. Please go back and reserve a number again.",
+            });
+            setIsSigningIn(false);
+            return;
+          }
 
           // Store all tokens in local storage
           await storeLocalStorageData(
@@ -383,15 +427,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   />
                 )}
                 <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={15}
+                  fontFamily="SourceSansRegular"
+                  fontSize={13}
                   color={COLORS.lightGreyText}
                 >
                   I have reviewed and agree to the Middle East Children's
                   Alliance's
                   <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
                     color={COLORS.lightGreyText}
                     onPress={() => {
                       Linking.openURL("https://onepali.app/terms-condition");
@@ -401,15 +445,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     Terms of Use{" "}
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
                     color={COLORS.lightGreyText}
                   >
                     and{" "}
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
                     color={COLORS.lightGreyText}
                     onPress={() => {
                       Linking.openURL("https://onepali.app/privacy-policy");
@@ -419,15 +463,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     Privacy Policy,
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
                     color={COLORS.lightGreyText}
                   >
                     and OnePali's{" "}
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
                     color={COLORS.lightGreyText}
                     onPress={() => {
                       Linking.openURL("https://onepali.app/privacy-policy");

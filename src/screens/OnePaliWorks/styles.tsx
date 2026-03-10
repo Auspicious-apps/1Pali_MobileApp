@@ -85,9 +85,10 @@ const styles = StyleSheet.create({
   fundCardImage: {
     // width: wp(77.4),
     width: "100%",
-    height: verticalScale(220),
+    height: verticalScale(186),
     backgroundColor: COLORS.greyish,
     borderRadius: 18,
+    resizeMode:"cover"
   },
   fundCardTitle: {},
   divider: {

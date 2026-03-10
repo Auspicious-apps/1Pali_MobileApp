@@ -16,7 +16,10 @@ import { fetchData } from "../../service/ApiService";
 import { SplashInitialScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { getLocalStorageData } from "../../utils/Helpers";
+import {
+  deleteLocalStorageData,
+  getLocalStorageData,
+} from "../../utils/Helpers";
 import { verticalScale } from "../../utils/Metrics";
 
 const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
@@ -85,17 +88,16 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         ENDPOINTS.GetUserProfile,
       );
       if (response.data.success) {
-        dispatch(setUserData(response.data.data));
-        dispatch(setBadges(response.data.data.badges));
-        // Sync FCM token with backend on splash after successful login
-        syncFCMTokenWithBackend(response.data.data.fcmToken).catch((err) =>
-          console.log("FCM sync error (non-critical):", err),
-        );
-
         if (
           response.data.data.hasSubscription &&
           response.data.data.assignedNumber
         ) {
+          dispatch(setUserData(response.data.data));
+          dispatch(setBadges(response.data.data.badges));
+          // Sync FCM token with backend on splash after successful login
+          syncFCMTokenWithBackend(response.data.data.fcmToken).catch((err) =>
+            console.log("FCM sync error (non-critical):", err),
+          );
           dispatch(setClaimedNumber(response.data.data.assignedNumber));
           dispatch(setSelectedPlanId(response.data.data.stripePriceId));
           navigation.replace("MainStack", {
@@ -104,7 +106,10 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
           });
           return;
         } else {
-          navigation.replace("OnBoardingStack", { screen: "onboarding" });
+          await deleteLocalStorageData(STORAGE_KEYS.accessToken);
+          await deleteLocalStorageData(STORAGE_KEYS.refreshToken);
+          await deleteLocalStorageData(STORAGE_KEYS.expiresIn);
+          navigation.replace("OnBoardingStack", { screen: "splash" });
         }
       }
     } catch (error: any) {

@@ -4,15 +4,14 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
+import ENDPOINTS from "../../service/ApiEndpoints";
 import {
   Badge,
   Badges,
   GetUserProfileApiResponse,
 } from "../../service/ApiResponses/GetUserProfile";
-import { RootState } from "../store";
 import { fetchData } from "../../service/ApiService";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import badges from "../../assets/badges";
+import { RootState } from "../store";
 
 type ReservationStatus = "ACTIVE" | "EXPIRED" | "IDLE";
 
@@ -164,7 +163,7 @@ const userSlice = createSlice({
 
     addNewArtBadge: (state, action: PayloadAction<Badge[]>) => {
       const now = new Date().toISOString();
-      
+
       if (state.badges) {
         const existingBadgeIds = new Set(state.badges.badges.map((b) => b.id));
         const newBadges = action.payload.filter(

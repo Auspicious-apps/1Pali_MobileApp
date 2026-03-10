@@ -57,10 +57,16 @@ function App() {
                       </View>
 
                       <View style={styles.textContainer}>
-                        <CustomText fontFamily="bold" fontSize={14}>
-                          {text1}
+                        <CustomText
+                          fontFamily="bold"
+                          fontSize={14}
+                          color={COLORS.darkText}
+                        >
+                          {text1 || "Notification"}
                         </CustomText>
-                        <CustomText fontSize={12}>{text2}</CustomText>
+                        <CustomText fontSize={12} color={COLORS.darkText}>
+                          {text2}
+                        </CustomText>
                       </View>
                     </View>
                   ),

@@ -176,7 +176,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             onPress={() => setIsBadgesSheet(true)}
           >
             <BadgeIcon
-              badge={latestGrowthBadge?.badge?.name}
+              badge={latestGrowthBadge?.badge?.name!}
               style={{
                 width: horizontalScale(125),
                 height: verticalScale(125),
@@ -201,7 +201,11 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
-                {badgeMetadata.find((b) => b.name === latestGrowthBadge?.badge?.name)?.description}
+                {
+                  badgeMetadata.find(
+                    (b) => b.name === latestGrowthBadge?.badge?.name,
+                  )?.description
+                }
               </CustomText>
             </View>
           )}
