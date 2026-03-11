@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import ReactNativeBlobUtil from "react-native-blob-util";
+import { hasNotch } from "react-native-device-info";
 import FastImage from "react-native-fast-image";
 import RNFS from "react-native-fs";
 import ImageViewer from "react-native-image-zoom-viewer";
@@ -54,7 +55,6 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { hasNotch } from "react-native-device-info";
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   // Used to force TextInput remount to reset height
@@ -81,12 +81,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [imageLoading, setImageLoading] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
-  const commentsSectionY = useRef(0);
-  const lastScrollY = useRef(0);
   const manualOpen = useRef(false);
   const likeRequestInProgress = useRef(false);
   const pendingLikeState = useRef<boolean | null>(null);
-  const [OpenModal, setOpenModal] = useState(false);
   const [uiIndex, setUiIndex] = useState(0);
   const mediaLoadedRef = useRef(false);
   // Store the local cached image path for full screen
@@ -119,6 +116,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
     return `${mm}.${dd}.${yyyy}`;
   };
+  213;
 
   const ArtDetailPulse = () => (
     <SafeAreaView style={styles.container}>
@@ -162,7 +160,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       const uri = await captureRef(cardRef, {
         format: "png",
-        quality: 0.9,
+        quality: 1,
       });
 
       // 1. Define your custom file name
@@ -195,7 +193,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           filename: customFileName,
           title: customFileName,
           type: "image/png",
-          message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n We're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+          message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
         });
         // iOS: if we get here, share was successful
         shareSucceeded = true;
@@ -586,21 +584,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       }, HEART_ANIM_DELAY);
     });
   };
-
-  // const handleImageTap = () => {
-  //   const now = Date.now();
-  //   const DOUBLE_PRESS_DELAY = 250;
-
-  //   if (lastTap.current && now - lastTap.current < DOUBLE_PRESS_DELAY) {
-  //     if (!isLiked) {
-  //       handleLikeUnlike();
-  //     }
-
-  //     triggerLikeAnimation();
-  //   }
-
-  //   lastTap.current = now;
-  // };
 
   const singleTapTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 

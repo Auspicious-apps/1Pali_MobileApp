@@ -4,14 +4,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useState } from "react";
-import {
-  Alert,
-  Image,
-  Linking,
-  Platform,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import FONTS from "../../assets/fonts";
@@ -98,7 +91,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         await storeLocalStorageData("userData", user);
 
         // Navigate based on user state
-        if (user.hasSubscription && user.hasSubscription) {
+        if (user.hasSubscription && user.assignedNumber) {
           dispatch(setUserData(signInResponse.data?.data?.user?.user as any));
           dispatch(
             setBadges(signInResponse.data?.data?.user?.user?.badges as any),
@@ -116,7 +109,27 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
           return;
         }
 
-        navigation.navigate("joinOnePali");
+        if (!user.assignedNumber) {
+          Toast.show({
+            type: "error",
+            text1: "Oops! No Number assigned",
+            text2:
+              "User does not have an assigned number. Please select a number to continue.",
+          });
+          navigation.replace("claimSpot");
+          return;
+        } else {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate("splash");
+          }
+          Toast.show({
+            type: "error",
+            text1: "Oops! No user found.",
+            text2: "User does not exist. Sign up required.",
+          });
+        }
       }
     } catch (error: any) {
       console.log("error", error);
@@ -135,7 +148,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         }
         Toast.show({
           type: "error",
-          text1: "Apple Sign-In Failed",
+          text1: "Oops! No user found.",
           text2: "User does not exist. Sign up required.",
         });
       }
@@ -183,7 +196,14 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
-            navigation.navigate("joinOnePali");
+            navigation.navigate("claimSpot");
+            Toast.show({
+              type: "error",
+              text1: "Oops! No Number assigned",
+              text2:
+                "User does not have an assigned number. Please select a number to continue.",
+            });
+            return;
           } else {
             dispatch(setUserData(signinResponse.data.data.user.user as any));
             dispatch(
@@ -192,7 +212,6 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             dispatch(
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
-
             navigation.replace("MainStack", {
               screen: "tabs",
               params: {

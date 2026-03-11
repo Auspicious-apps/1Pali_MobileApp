@@ -251,8 +251,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
 
     setIsLoading(true);
     setInputDisabled(true);
-    // inputRef.current?.blur();
-    // Keyboard.dismiss();
 
     try {
       const response = await postData<ReserveSpecificNumberResponse>(

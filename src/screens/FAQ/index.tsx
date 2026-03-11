@@ -22,62 +22,92 @@ const FAQ_DATA = [
   {
     title: "What is OnePali?",
     description:
-      "OnePali is a community-driven initiative and digital platform created to serve as a portal for individuals to provide sustained humanitarian support to Palestine through small, collective monthly donations. Our goal is to unite 1 million people in a global movement of micro-philanthropy. By contributing as little as $1 a month, we aim to create a consistent and powerful stream of community-funded aid for children and families.",
+      "OnePali is a $1 monthly donation app supporting families in Palestine through the Middle East Children’s Alliance (MECA).",
   },
   {
     title: "Where funds are directed?",
     description:
-      "100% of funds raised through OnePali are directed to Gaza through the Middle East Children’s Alliance (MECA), who work directly on the ground.",
+      "All donations made through OnePali are deposited directly into MECA’s accounts and used to provide humanitarian aid and programs for children on the ground in Palestine.",
   },
   {
-    title: "Who’s involved?",
+    title: "What does my contribution support?",
     description:
-      "OnePali organizes the collective and facilitates monthly contributions. The Middle East Children’s Alliance distributes aid on the group and shares updates directly in OnePali.",
-  },
-  {
-    title: "Who is PaliRoots?",
-    description:
-      "PaliRoots is a mission-driven brand dedicated to promoting Palestinian culture and identity while giving back to the community. Through creative design and global partnerships, PaliRoots raises awareness and funding for essential humanitarian projects across Palestine.",
+      "Your contribution supports hot meals and food parcels, clean water for drinking and hygiene, arts and creative activities, and psychological support for children and families in Palestine.",
   },
   {
     title: "Who is MECA?",
     description:
-      "The Middle East Children’s Alliance (MECA) is a US-based 501(c)(3) nonprofit humanitarian aid organization that has been protecting the rights and improving the lives of children in the Middle East since 1988. Based in Berkeley, California, MECA is a top-rated charity (holding a 4-star rating from Charity Navigator) and is the primary partner for OnePali.",
+      "The Middle East Children’s Alliance (MECA) is a nonprofit organization founded in 1988 that works to protect the rights and improve the lives of children and families in Palestine and the Middle East. MECA holds a 4-star rating from Charity Navigator.",
+  },
+  {
+    title: "Who is PaliRoots?",
+    description:
+      "PaliRoots is a mission-driven heritage brand dedicated to promoting Palestinian culture and supporting humanitarian initiatives. OnePali is developed in collaboration with PaliRoots.",
+  },
+  {
+    title: "What is my Supporter Number?",
+    description:
+      "Your Supporter Number represents your place within the 1-million-person collective. It remains active as long as your monthly contribution continues. One supporter number per account! Your Supporter Number cannot be changed.",
   },
   {
     title: "How much do I contribute?",
     description:
-      "OnePali organizes the collective and facilitates monthly contributions. The Middle East Children’s Alliance distributes aid on the group and shares updates directly in OnePali.",
+      "The standard contribution is $1 per month. You may choose to give $3 or $5 per month if you’d like to increase your support.",
   },
   {
-    title: "Is my donation tax-deductible?",
+    title: "How do processing fees work?",
     description:
-      "Yes. Because your donations are processed directly by MECA, a 501(c)(3) organization, they are tax-deductible to the fullest extent of the law. You will receive a donation receipt via email for your records.",
+      "Payment processing fees are applied by Stripe. These fees are added on top of your selected donation so that the full $1, $3, or $5 goes directly to MECA.",
   },
   {
-    title: "What is my number?",
+    title: "What is the optional $0.25 support for OnePali?",
     description:
-      "Your Supporter Number is a symbolic identifier that represents your unique place within the 1-million-person movement. It serves as your public username within the community registry. This number is a non-transferable social identifier and does not unlock any digital goods, services, or premium app features.",
+      "You have the option to add $0.25 per month to support the OnePali platform. \nThis optional contribution helps cover technology, infrastructure, and operational costs required to maintain and grow the app. This amount can be toggled on or off before confirming your donation or in the settings.",
   },
   {
     title: "Is my contribution recurring?",
     description:
-      "Yes. To ensure MECA has a predictable budget for long-term relief projects, contributions are set as recurring monthly donations. You have full control and can pause or cancel your support at any time through the app.",
+      "Yes. Donations are set as recurring monthly contributions to provide consistent support. You may pause or cancel at any time through the app.",
+  },
+  {
+    title: "What happens if I cancel or miss a payment?",
+    description:
+      "You can cancel your monthly donation at any time. \nIf a payment fails or your contribution is canceled, your Supporter Number will remain reserved for 7 days. After 7 days without an active contribution, the account and number are released.",
+  },
+  {
+    title: "How do I delete my account?",
+    description:
+      "If your monthly contribution payment fails or is not renewed, your account will be automatically deleted 7 days after your next payment date. You may also request account deletion at any time through the app settings in accordance with our privacy policy.",
   },
   {
     title: "Is my payment secure?",
     description:
-      "Yes. All donations are processed via Stripe, a global leader in payment security. OnePali does not see or store your credit card information. Your data is protected by PCI-standard encryption, ensuring your transaction with MECA is handled with the highest level of security.",
+      "All donations are processed securely through Stripe, a global leader in payment security. Your information is protected with industry-standard encryption.",
+  },
+  {
+    title: "Is my donation tax-deductible?",
+    description:
+      "Yes. Donations are processed directly by MECA, a registered 501(c)(3) nonprofit organization. You will receive a donation receipt for your records.",
+  },
+  {
+    title: "Is this eligible for Zakat?",
+    description:
+      "Yes. Donations are processed directly by MECA, a registered nonprofit providing humanitarian assistance to eligible recipients. If you are giving with the intention of Zakat, your contribution qualifies under charitable distribution to those in need. For personal religious guidance, donors should consult a qualified scholar.",
+  },
+  {
+    title: "Is OnePali a nonprofit organization?",
+    description:
+      "OnePali is a platform that facilitates monthly donations. Funds are deposited directly to MECA, a registered 501(c)(3) nonprofit organization.",
   },
   {
     title: "Who can join OnePali?",
     description:
-      "Anyone with a supported payment method who wishes to support humanitarian efforts in Palestine can join the movement.",
+      "Anyone who wishes to provide sustained humanitarian support to families in Palestine can join.",
   },
   {
-    title: "Who can join OnePali?",
+    title: "How is my data used?",
     description:
-      "For support regarding your donations, tax receipts, or the work on the ground, please contact MECA directly at meca@mecaforpeace.org.",
+      "We collect only the information necessary to process your donation and provide updates. We do not sell or share your personal data. See our Privacy Policy here. ",
   },
 ];
 
