@@ -416,14 +416,14 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Privacy Policy,
+                    Privacy Policy
                   </CustomText>
                   <CustomText
                     fontFamily="GabaritoRegular"
                     fontSize={15}
                     color={COLORS.lightGreyText}
                   >
-                    and OnePali's{" "}
+                    , and OnePali's{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="GabaritoRegular"

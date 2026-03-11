@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(16),
     width: horizontalScale(100),
     alignSelf: "center",
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: COLORS.borderColor,
   },
   description: {
