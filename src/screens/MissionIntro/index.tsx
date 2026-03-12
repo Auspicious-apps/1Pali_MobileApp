@@ -406,29 +406,31 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 {isChecked ? (
                   <View
                     style={{
-                      height: verticalScale(20),
-                      width: horizontalScale(20),
+                      height: verticalScale(24),
+                      width: horizontalScale(24),
                       backgroundColor: COLORS.white,
                       borderWidth: 1,
                       borderColor: COLORS.lightBorder,
                       borderRadius: 6,
+                      marginTop: verticalScale(3),
                     }}
                   >
                     <CustomIcon
                       Icon={ICONS.CheckedIcon}
-                      height={verticalScale(20)}
-                      width={horizontalScale(20)}
+                      height={verticalScale(24)}
+                      width={horizontalScale(24)}
                     />
                   </View>
                 ) : (
                   <View
                     style={{
-                      height: verticalScale(20),
-                      width: horizontalScale(20),
+                      height: verticalScale(24),
+                      width: horizontalScale(24),
                       backgroundColor: COLORS.white,
                       borderWidth: 1,
                       borderColor: COLORS.lightBorder,
                       borderRadius: 6,
+                      marginTop: verticalScale(3),
                     }}
                   />
                 )}
@@ -448,7 +450,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Terms of Use{" "}
+                    Terms of Service{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
@@ -466,14 +468,14 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Privacy Policy,{" "}
+                    Privacy Policy{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
                     color={COLORS.lightGreyText}
                   >
-                    and OnePali's{" "}
+                    , and OnePali's{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"

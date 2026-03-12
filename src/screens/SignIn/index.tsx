@@ -307,15 +307,14 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               color={COLORS.darkText}
               style={{
                 textAlign: "center",
-                lineHeight: hp(5.2),
               }}
             >
               Welcome Back
             </CustomText>
             <CustomText
               fontFamily="GabaritoRegular"
-              fontSize={16}
-              color={COLORS.grayColor}
+              fontSize={18}
+              color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
               Sign In to continue
@@ -324,20 +323,21 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
           <Image
             source={IMAGES.MissionImage}
-            resizeMode="cover"
+            resizeMode="contain"
             style={{
               width: wp(75),
               height: hp(48),
               alignSelf: "center",
-              marginTop: verticalScale(20),
+              marginTop: verticalScale(24),
             }}
           />
         </View>
         <View
           style={{
-            marginTop: verticalScale(60),
             alignItems: "center",
             gap: verticalScale(8),
+            marginBottom:
+              Platform.OS === "android" ? verticalScale(20) : verticalScale(0),
           }}
         >
           <PrimaryButton
