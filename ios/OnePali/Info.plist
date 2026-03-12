@@ -32,6 +32,24 @@
 				<string>com.googleusercontent.apps.72813689825-3uvkvar5timqdl5bce2gkenpgrfs2g60</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>onepali</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>One Pali Payment Scheme</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>onepalideeplink</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

@@ -1,3 +1,4 @@
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
   confirmPlatformPaySetupIntent,
   isPlatformPaySupported,
@@ -12,6 +13,7 @@ import {
   Animated,
   Easing,
   Image,
+  Linking,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -41,6 +43,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { ConsfirmSetupIntentApiResponse } from "../../service/ApiResponses/ConfirmSetupIntentApiResponse";
 import { CreateApplePaySetupIntentApiResponse } from "../../service/ApiResponses/CreateApplePaySetupIntentApiResponse";
+import { CreateExternalCheckoutSessionApiResponse } from "../../service/ApiResponses/CreateExternalCheckoutSessionApiResponse";
 import { CreateSetupIntentResponse } from "../../service/ApiResponses/CreateSetupIntent";
 import {
   GetAllStripeePlansResponse,
@@ -50,10 +53,9 @@ import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserPro
 import { fetchData, postData } from "../../service/ApiService";
 import { JoinOnePaliProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { deleteLocalStorageData } from "../../utils/Helpers";
 import STORAGE_KEYS from "../../utils/Constants";
+import { deleteLocalStorageData } from "../../utils/Helpers";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -63,7 +65,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   );
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { stripePlans } = useAppSelector((state) => state.stripePlans);
-  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -134,8 +136,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       }
 
       const planId = enabled ? correspondingGenerousPlan?.id : selectedPlan;
-
-      console.log(planId);
 
       if (user && user.hasPaymentMethod) {
         setShowImpactLoader(true);
@@ -216,8 +216,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         if (!setupIntentId) {
           throw new Error("Missing setup intent or payment method");
         }
-
-        console.log("XXXXXXXXX");
 
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
@@ -393,6 +391,74 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   };
 
+  const handleExternalPayment = async () => {
+    try {
+      setIsLoading(true);
+      if (!selectedPlan) {
+        Alert.alert("Error", "Please select a plan");
+        setIsLoading(false);
+        return;
+      }
+      const planId = enabled ? correspondingGenerousPlan?.id : selectedPlan;
+
+      // Get checkout URL from backend
+      const response = await postData<CreateExternalCheckoutSessionApiResponse>(
+        ENDPOINTS.CreateExternalPaymentCheckoutLink,
+        {
+          priceId: planId,
+          successUrl:
+            "https://onepali-backend.onrender.com/subscription/success",
+          cancelUrl:
+            "https://onepali-backend.onrender.com/subscription/cancelled",
+          reservationToken: reservationToken,
+        },
+      );
+
+      if (response?.data?.success && response?.data?.data?.checkoutUrl) {
+        setIsLoading(false);
+
+        // Alert user that they will be redirected to external payment processor
+        Alert.alert(
+          "Secure Payment",
+          "You will be redirected to a secure payment page. This will open in your browser.",
+          [
+            {
+              text: "Cancel",
+              onPress: () => {},
+              style: "cancel",
+            },
+            {
+              text: "Continue",
+              onPress: async () => {
+                try {
+                  // Open the checkout URL in default browser (Safari on iOS, Chrome on Android)
+                  // COMPLIANT with Apple Guideline 3.2.2 - external payments must happen outside the app
+                  await Linking.openURL(response?.data?.data?.checkoutUrl);
+                } catch (error) {
+                  console.error("Failed to open checkout URL:", error);
+                  Alert.alert(
+                    "Error",
+                    "Unable to open payment page. Please try again.",
+                  );
+                }
+              },
+            },
+          ],
+        );
+      } else {
+        throw new Error("Invalid checkout URL received from server");
+      }
+    } catch (error: any) {
+      console.log("External payment error:", error);
+      Alert.alert(
+        "Error",
+        error.message || "Failed to process payment. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getAllPlans = async () => {
     try {
       setLoadingPlans(true);
@@ -424,15 +490,86 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     }
   };
 
+  // Handle payment success from deep link
+  const handlePaymentSuccess = async () => {
+    try {
+      setIsLoading(true);
+      setShowImpactLoader(true);
+
+      // Poll user profile to check if subscription is active
+      const isSubscriptionActive = await pollUserProfile(3);
+      if (isSubscriptionActive) {
+        // Only navigate once the backend confirms the sub is active
+        navigation.replace("MainStack", {
+          screen: "tabs",
+          params: { screen: "home" },
+        });
+      } else {
+        Alert.alert(
+          "Subscription Pending",
+          "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
+        );
+      }
+    } catch (error) {
+      console.error("Payment success handling error:", error);
+      Alert.alert(
+        "Error",
+        "Failed to verify subscription. Please contact support.",
+      );
+      setShowImpactLoader(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle payment cancellation from deep link
+  const handlePaymentCancel = () => {
+    Alert.alert("Payment Cancelled", "User cancelled the subscription.", [
+      {
+        text: "OK",
+        onPress: () => {
+          // Stay on the same screen to let user try again
+          // App state is preserved
+        },
+      },
+    ]);
+  };
+
+  const handleNavigation = async () => {
+    try {
+      // Check deep link if app opened via URL.
+      const initialUrl = await Linking.getInitialURL();
+      console.log("[DeepLink][initial]", initialUrl);
+    } catch (error) {
+      console.error("[DeepLink][initial][error]", error);
+    }
+  };
+
   useEffect(() => {
-    getAllPlans();
+    handleNavigation();
+
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      console.log("[DeepLink][event]", url);
+      if (url === "https://onepali-backend.onrender.com/subscription/success") {
+        handlePaymentSuccess();
+      } else if (
+        url === "https://onepali-backend.onrender.com/subscription/cancelled"
+      ) {
+        handlePaymentCancel();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   useEffect(() => {
+    getAllPlans();
     (async function () {
-      setIsApplePaySupported(await isPlatformPaySupported());
+      setIsPlatformPayAvailable(await isPlatformPaySupported());
     })();
-  }, [isPlatformPaySupported]);
+  }, []);
 
   // Handle UI changes when reservation expires
   useEffect(() => {
@@ -743,106 +880,75 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
                 hapticFeedback
                 hapticType="impactLight"
               />
-            ) : isApplePaySupported ? (
-              <View style={{ width: wp(90), alignItems: "center" }}>
-                <PlatformPayButton
-                  type={PlatformPay.ButtonType.Donate}
-                  onPress={handlePlatformSetupIntent}
-                  appearance={PlatformPay.ButtonStyle.Black}
-                  borderRadius={10}
-                  disabled={isLoading}
-                  style={{
-                    marginTop: verticalScale(20),
-                    height: verticalScale(50),
-                    width: wp(90),
-                  }}
+            ) : Platform.OS === "ios" ? (
+              isPlatformPayAvailable ? (
+                <View style={{ width: wp(90), alignItems: "center" }}>
+                  <PlatformPayButton
+                    type={PlatformPay.ButtonType.Donate}
+                    onPress={handlePlatformSetupIntent}
+                    appearance={PlatformPay.ButtonStyle.Black}
+                    borderRadius={10}
+                    disabled={isLoading}
+                    style={{
+                      marginTop: verticalScale(20),
+                      height: verticalScale(50),
+                      width: wp(90),
+                    }}
+                  />
+                </View>
+              ) : (
+                <PrimaryButton
+                  title="Join OnePali"
+                  onPress={handleExternalPayment}
+                  isLoading={isLoading}
+                  style={{ marginTop: verticalScale(20) }}
+                  hapticFeedback
+                  hapticType="impactLight"
                 />
-                <TouchableOpacity
-                  onPress={handleSetupIntent}
-                  disabled={isLoading}
-                  style={{ marginTop: verticalScale(12) }}
-                >
-                  <CustomText
-                    fontSize={14}
-                    color={COLORS.darkText}
-                    fontFamily="GabaritoMedium"
-                    style={{ textDecorationLine: "underline" }}
-                  >
-                    Use other payment methods
-                  </CustomText>
-                </TouchableOpacity>
-              </View>
+              )
             ) : (
-              <PrimaryButton
-                title="Join OnePali"
-                onPress={handleSetupIntent}
-                isLoading={isLoading}
-                style={{ marginTop: verticalScale(20) }}
-                hapticFeedback
-                hapticType="impactLight"
-              />
-            )}
-
-            {/* {reservationSeconds && reservationSeconds > 0 && (
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                  width: Platform.OS === "ios" ? wp(50) : wp(50),
-                }}
-              >
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={12}
-                  color={COLORS.grayColor}
-                  style={{
-                    textAlign: "center",
-                    marginTop: verticalScale(16),
-                    width: wp(50),
-                  }}
-                >
-                  By joining OnePali, you accept our{" "}
-                  <TouchableOpacity
-                    onPress={() => {
-                      Linking.openURL("https://onepali.app/terms-condition");
+              <View style={{ width: wp(90), alignItems: "center" }}>
+                {isPlatformPayAvailable ? (
+                  <PlatformPayButton
+                    type={PlatformPay.ButtonType.Donate}
+                    onPress={handlePlatformSetupIntent}
+                    appearance={PlatformPay.ButtonStyle.Black}
+                    borderRadius={10}
+                    disabled={isLoading}
+                    style={{
+                      marginTop: verticalScale(20),
+                      height: verticalScale(50),
+                      width: wp(90),
                     }}
+                  />
+                ) : (
+                  <PrimaryButton
+                    title="Join OnePali"
+                    onPress={handleSetupIntent}
+                    isLoading={isLoading}
+                    style={{ marginTop: verticalScale(20) }}
+                    hapticFeedback
+                    hapticType="impactLight"
+                  />
+                )}
+                {isPlatformPayAvailable && (
+                  <TouchableOpacity
+                    onPress={handleSetupIntent}
+                    disabled={isLoading}
+                    style={{ marginTop: verticalScale(12) }}
                   >
                     <CustomText
+                      fontSize={14}
+                      color={COLORS.darkText}
                       fontFamily="GabaritoMedium"
-                      fontSize={12}
-                      color={COLORS.grayColor}
                       style={{ textDecorationLine: "underline" }}
                     >
-                      Terms of Use
-                    </CustomText>
-                  </TouchableOpacity>{" "}
-                  <TouchableOpacity activeOpacity={1}>
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={12}
-                      color={COLORS.grayColor}
-                    >
-                      and{" "}
+                      Use other payment methods
                     </CustomText>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      Linking.openURL("https://onepali.app/privacy-policy");
-                    }}
-                  >
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={12}
-                      color={COLORS.grayColor}
-                      style={{ textDecorationLine: "underline" }}
-                    >
-                      Privacy Policy
-                    </CustomText>
-                  </TouchableOpacity>
-                </CustomText>
+                )}
               </View>
-            )} */}
+            )}
           </View>
         </View>
       </SafeAreaView>

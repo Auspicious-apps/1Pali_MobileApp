@@ -2172,6 +2172,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-in-app-review (4.4.2):
+    - React-Core
   - react-native-netinfo (11.5.2):
     - boost
     - DoubleConversion
@@ -3731,6 +3733,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-color-matrix-image-filters (from `../node_modules/react-native-color-matrix-image-filters`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-video (from `../node_modules/react-native-video`)
@@ -3927,6 +3930,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-color-matrix-image-filters"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-in-app-review:
+    :path: "../node_modules/react-native-in-app-review"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-safe-area-context:
@@ -4113,6 +4118,7 @@ SPEC CHECKSUMS:
   react-native-blur: b83ffbc5380d8bd2f06804b4b0e848be3507e65c
   react-native-color-matrix-image-filters: 14d58d0a043d79f7826dcc3ca6b3383d992b3ffb
   react-native-image-picker: 6051cfd030121b880a58f1cc0e5e33e9887804e4
+  react-native-in-app-review: 1516ba69d60d58053b7eb3aaaf8d2a5a74af8b57
   react-native-netinfo: 64f05e94821ee3f3adcd9b67b35c1480e5564915
   react-native-safe-area-context: eda63a662750758c1fdd7e719c9f1026c8d161cb
   react-native-video: 15a8286469ec8098852debb32ce6a32906695e1d

@@ -11,6 +11,8 @@ const ENDPOINTS = {
   GetStripePlans: "api/v1/subscription/plans",
   CreateSetupIntent: "api/v1/subscription/setup-intent",
   CreateApplePaySetupIntent: "api/v1/subscription/apple-pay/setup-intent",
+  CreateExternalPaymentCheckoutLink:
+    "api/v1/subscription/checkout-session",
   ConfirmSetupIntent: "api/v1/subscription/confirm-setup-intent",
   ConfirmApplePaySetupIntent:
     "/api/v1/subscription/apple-pay/confirm-setup-intent",

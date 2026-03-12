@@ -214,8 +214,11 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
     setAvailable(false);
     setUnavailable(false);
     try {
-      const response = await fetchData<NumberCheckResponse>(
+      const response = await postData<NumberCheckResponse>(
         `${ENDPOINTS.CheckNumberAvailable}/${num}`,
+        {
+          previousReservationToken: previousReservationToken,
+        },
       );
       setChecking(false);
       if (response?.data?.data?.isAvailable) {

@@ -40,12 +40,7 @@ import {
   deleteLocalStorageData,
   storeLocalStorageData,
 } from "../../utils/Helpers";
-import {
-  horizontalScale,
-  hp,
-  verticalScale,
-  wp
-} from "../../utils/Metrics";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
 
 const initialTimer = 300;
@@ -399,7 +394,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               <TouchableOpacity
                 style={{
                   flexDirection: "row",
-                  gap: 4,
+                  gap: horizontalScale(12),
                   alignSelf: "flex-start",
                 }}
                 activeOpacity={0.8}
@@ -409,16 +404,27 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 }}
               >
                 {isChecked ? (
-                  <CustomIcon
-                    Icon={ICONS.CheckedIcon}
-                    height={verticalScale(24)}
-                    width={verticalScale(24)}
-                  />
+                  <View
+                    style={{
+                      height: verticalScale(20),
+                      width: horizontalScale(20),
+                      backgroundColor: COLORS.white,
+                      borderWidth: 1,
+                      borderColor: COLORS.lightBorder,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <CustomIcon
+                      Icon={ICONS.CheckedIcon}
+                      height={verticalScale(20)}
+                      width={horizontalScale(20)}
+                    />
+                  </View>
                 ) : (
                   <View
                     style={{
-                      height: verticalScale(24),
-                      width: horizontalScale(24),
+                      height: verticalScale(20),
+                      width: horizontalScale(20),
                       backgroundColor: COLORS.white,
                       borderWidth: 1,
                       borderColor: COLORS.lightBorder,
@@ -432,7 +438,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   color={COLORS.lightGreyText}
                 >
                   I have reviewed and agree to the Middle East Children's
-                  Alliance's
+                  Alliance's{" "}
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
@@ -460,7 +466,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Privacy Policy,
+                    Privacy Policy,{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
@@ -478,7 +484,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Privacy Policy
+                    Privacy Policy.
                   </CustomText>
                 </CustomText>
               </TouchableOpacity>
