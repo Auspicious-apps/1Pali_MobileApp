@@ -1,9 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import STORAGE_KEYS from "../utils/Constants";
-import { getLocalStorageData, storeLocalStorageData } from "../utils/Helpers";
+import {
+  getLocalStorageData,
+  navigationRef,
+  showCustomToast,
+  storeLocalStorageData,
+} from "../utils/Helpers";
 import ENDPOINTS from "./ApiEndpoints";
 import { RefreshTokenResponse } from "./ApiResponses/RefreshToken";
+import Toast from "react-native-toast-message";
+import { Alert, Linking } from "react-native";
 
 type ApiResponse<T> = {
   data: T;
@@ -86,6 +93,34 @@ api.interceptors.response.use(
             requiresLogin: true,
           });
         }
+      }
+      if (
+        error.response.status === 403 &&
+        error.response.data.message.includes("Your account is blocked.")
+      ) {
+        await AsyncStorage.clear();
+        Alert.alert(
+          error.response.data.message,
+          "Please contact support for more information.",
+          [
+            {
+              text: "OK",
+              style: "cancel",
+            },
+            {
+              text: "Contact Us",
+              onPress: () => {
+                Linking.openURL("meca@mecaforpeace.org");
+              },
+            },
+          ],
+          { cancelable: false },
+        );
+        return Promise.reject({
+          success: false,
+          message: error.response.data.message,
+          requiresLogin: true,
+        });
       }
 
       // Extract API error response

@@ -30,6 +30,7 @@ import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
+import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -101,6 +102,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const isIphoneSE = Platform.OS === "ios" && height <= 667;
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
+  const [randomNumber, setRandomNumber] = useState<string | null>(null);
 
   const fetchRemainingSpots = async () => {
     try {
@@ -118,8 +120,36 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
     }
   };
 
+const fetchRandomNumber = async () => {
+  try {
+    const response = await fetchData<ReserveNumberResponse>(
+      ENDPOINTS.GetRandomNumber,
+    );
+
+    const generatedNumber = response?.data?.data?.number;
+
+    if (generatedNumber) {
+      return String(generatedNumber);
+    }
+
+    return null;
+  } catch (error) {
+    console.error("GetRandomNumber API Error:", error);
+    return null;
+  }
+};
+
+
   useEffect(() => {
     fetchRemainingSpots();
+  }, []);
+
+  useEffect(() => {
+    fetchRandomNumber().then((num) => {
+      if (num) {
+        setRandomNumber(num);
+      }
+    });
   }, []);
 
   return (
@@ -505,7 +535,12 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
         </View>
         <PrimaryButton
           title="Continue"
-          onPress={() => navigation.navigate("claimSpot")}
+          onPress={() => {
+            navigation.navigate("claimSpot", {
+              prefilledNumber: randomNumber,
+              skipCheck: true,
+            });
+          }}
           style={styles.primaryButton}
           hapticFeedback
           hapticType="impactLight"

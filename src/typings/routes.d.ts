@@ -11,7 +11,7 @@ export type OnBoardingStackParams = {
   splash: undefined;
   onboarding: undefined;
   onePaliWorks: undefined;
-  claimSpot: undefined;
+  claimSpot: { prefilledNumber?: string | null; skipCheck?: boolean };
   missionIntro?: { showNumber?: boolean };
   joinOnePali: undefined;
   signIn: undefined;
