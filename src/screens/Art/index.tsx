@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
 
   header: {
     marginTop: verticalScale(32),
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(12),
     alignItems: "center",
   },
 
@@ -428,10 +428,11 @@ const styles = StyleSheet.create({
   statPill: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: horizontalScale(12),
-    paddingVertical: verticalScale(6),
+    paddingHorizontal: horizontalScale(10),
+    paddingVertical: verticalScale(4),
     borderRadius: 30,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    // backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: "#1D222B52",
     position: "absolute",
     top: verticalScale(8),
     right: horizontalScale(8),

@@ -287,37 +287,48 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
             </CustomText>
 
             <View style={styles.card}>
-              {supportItems.map((item, index) => (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: horizontalScale(8),
-                    paddingVertical: verticalScale(8),
-                    paddingHorizontal: horizontalScale(24),
-                    borderBottomWidth:
-                      index !== supportItems.length - 1 ? 1 : 0,
-                    borderColor: COLORS.greyish,
-                  }}
-                >
-                  <CustomIcon
-                    Icon={item.icon}
-                    height={horizontalScale(24)}
-                    width={horizontalScale(24)}
-                  />
-                  <CustomText
-                    fontFamily="GabaritoRegular"
-                    fontSize={15}
-                    color={COLORS.darkText}
-                  >
-                    {item.text}
-                  </CustomText>
-                </View>
-              ))}
               <View
                 style={{
-                  backgroundColor: COLORS.commentBar,
+                  marginHorizontal: horizontalScale(24),
+                  paddingBottom: verticalScale(16),
+                  paddingTop: verticalScale(20),
+                }}
+              >
+                {supportItems.map((item, index) => (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(8),
+                      paddingTop:
+                        index === 0 ? verticalScale(0) : verticalScale(10),
+                      paddingBottom:
+                        index === supportItems.length - 1
+                          ? verticalScale(0)
+                          : verticalScale(10),
+                      borderBottomWidth:
+                        index !== supportItems.length - 1 ? 1 : 0,
+                      borderColor: COLORS.greyish,
+                    }}
+                  >
+                    <CustomIcon
+                      Icon={item.icon}
+                      height={horizontalScale(24)}
+                      width={horizontalScale(24)}
+                    />
+                    <CustomText
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
+                      color={COLORS.darkText}
+                    >
+                      {item.text}
+                    </CustomText>
+                  </View>
+                ))}
+              </View>
+              <View
+                style={{
+                  backgroundColor: COLORS.greyBackground,
                   padding: horizontalScale(12),
                   borderRadius: 20,
                   margin: verticalScale(8),

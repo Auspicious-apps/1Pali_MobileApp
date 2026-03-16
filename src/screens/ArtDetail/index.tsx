@@ -1071,7 +1071,17 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           </FocusResetScrollView>
 
           {/* ===== Bottom Fade Overlay ===== */}
-          <View pointerEvents="none" style={styles.bottomFadeWrapper}>
+          <View
+            pointerEvents="none"
+            style={[
+              styles.bottomFadeWrapper,
+              {
+                bottom: user?.canComment
+                  ? verticalScale(50)
+                  : verticalScale(15),
+              },
+            ]}
+          >
             <LinearGradient
               colors={[
                 "rgba(255,255,255,0)",
@@ -1084,49 +1094,66 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             />
           </View>
 
-          {/* {showCommentInput && (
-            <> */}
-          <View style={styles.bottomContainer}>
-            <View style={styles.commentInputRow}>
-              <CustomIcon
-                Icon={ICONS.changedUser}
-                height={verticalScale(40)}
-                width={horizontalScale(40)}
-              />
-              <View style={styles.commentInputWrapper}>
-                <TextInput
-                  key={inputKey}
-                  ref={commentInputRef}
-                  value={commentText}
-                  onChangeText={setCommentText}
-                  placeholder="Add a comment..."
-                  placeholderTextColor={COLORS.appText}
-                  multiline
-                  textAlignVertical="top"
-                  style={styles.commentInput}
+          {user?.canComment ? (
+            <View style={styles.bottomContainer}>
+              <View style={styles.commentInputRow}>
+                <CustomIcon
+                  Icon={ICONS.changedUser}
+                  height={verticalScale(40)}
+                  width={horizontalScale(40)}
                 />
-                {commentText.trim().length > 0 && (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleSendComment}
-                    disabled={sendingComment}
-                  >
-                    {sendingComment ? (
-                      <ActivityIndicator size="small" color={COLORS.darkText} />
-                    ) : (
-                      <CustomIcon
-                        Icon={ICONS.DarkSendIcon}
-                        height={24}
-                        width={24}
-                      />
-                    )}
-                  </TouchableOpacity>
-                )}
+                <View style={styles.commentInputWrapper}>
+                  <TextInput
+                    key={inputKey}
+                    ref={commentInputRef}
+                    value={commentText}
+                    onChangeText={setCommentText}
+                    placeholder="Add a comment..."
+                    placeholderTextColor={COLORS.appText}
+                    multiline
+                    textAlignVertical="top"
+                    style={styles.commentInput}
+                  />
+                  {commentText.trim().length > 0 && (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={handleSendComment}
+                      disabled={sendingComment}
+                    >
+                      {sendingComment ? (
+                        <ActivityIndicator
+                          size="small"
+                          color={COLORS.darkText}
+                        />
+                      ) : (
+                        <CustomIcon
+                          Icon={ICONS.DarkSendIcon}
+                          height={24}
+                          width={24}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             </View>
-          </View>
-          {/* </>
-          )} */}
+          ) : (
+            <View
+              style={[
+                styles.bottomContainer,
+                { paddingTop: horizontalScale(10) },
+              ]}
+            >
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                color={COLORS.appText}
+                style={{ textAlign: "center" }}
+              >
+                You can’t comment on this art.
+              </CustomText>
+            </View>
+          )}
 
           {/* Hidden Share Card  */}
           <View

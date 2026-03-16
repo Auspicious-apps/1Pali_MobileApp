@@ -106,8 +106,8 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
         </View>
         <View
           style={{
-            paddingVertical: verticalScale(6),
-            paddingHorizontal: horizontalScale(12),
+            paddingVertical: verticalScale(4),
+            paddingHorizontal: horizontalScale(10),
             backgroundColor: COLORS.greyBackground,
             alignSelf: "flex-start",
             borderRadius: 28,
@@ -115,7 +115,7 @@ const Updates: FC<UpdatesScreenProps> = ({ navigation }) => {
         >
           <CustomText
             fontFamily="GabaritoRegular"
-            fontSize={12}
+            fontSize={15}
             color={COLORS.appText}
           >
             {item?.publishMonthYear ||
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: verticalScale(32),
-    marginBottom: verticalScale(24),
+    marginBottom: verticalScale(12),
   },
   listContent: {
     paddingBottom: verticalScale(20),

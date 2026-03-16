@@ -179,8 +179,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
         <View style={styles.leftRow}>
           <CustomIcon
             Icon={item.icon}
-            height={verticalScale(24)}
-            width={verticalScale(24)}
+            height={verticalScale(32)}
+            width={verticalScale(32)}
           />
           <CustomText
             fontFamily="GabaritoRegular"

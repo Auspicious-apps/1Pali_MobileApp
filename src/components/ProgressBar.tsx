@@ -38,7 +38,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
     : nextMilestone?.threshold || 1000000;
 
   const milestoneLabel = showFinalGoal
-    ? "1M supporters"
+    ? "1,000,000 supporters"
     : `${nextMilestone?.threshold?.toLocaleString()} supporters`;
 
   const badgeName = isAccountScreen

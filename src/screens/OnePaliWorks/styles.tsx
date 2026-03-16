@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     height: verticalScale(186),
     backgroundColor: COLORS.greyish,
     borderRadius: 18,
-    resizeMode:"cover"
+    resizeMode: "cover",
   },
   fundCardTitle: {},
   divider: {
@@ -158,8 +158,8 @@ const styles = StyleSheet.create({
     height: verticalScale(40),
   },
   card: {
-    backgroundColor: COLORS.appBackground,
-    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
     paddingVertical: verticalScale(4),
     shadowColor: "#000",
     shadowOffset: {

@@ -12,6 +12,7 @@ export type GetUserProfileApiResponse = {
   totalDonationsExcludingFees: number;
   hasPaymentMethod: boolean;
   hasSubscription: boolean;
+  canComment: boolean;
   subscriptionStatus: string;
   stripeCustomerId: string;
   stripePriceId: string;

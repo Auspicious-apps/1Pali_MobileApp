@@ -324,7 +324,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.header}>
           {navigation.canGoBack() && (
             <TouchableOpacity
@@ -413,47 +413,28 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 }}
               >
                 {isChecked ? (
-                  <View
-                    style={{
-                      height: verticalScale(24),
-                      width: horizontalScale(24),
-                      backgroundColor: COLORS.white,
-                      borderWidth: 1,
-                      borderColor: COLORS.lightBorder,
-                      borderRadius: 6,
-                      marginTop: verticalScale(3),
-                    }}
-                  >
-                    <CustomIcon
-                      Icon={ICONS.CheckedIcon}
-                      height={verticalScale(24)}
-                      width={horizontalScale(24)}
-                    />
-                  </View>
+                  <CustomIcon
+                    Icon={ICONS.CheckedIcon}
+                    height={verticalScale(24)}
+                    width={horizontalScale(24)}
+                  />
                 ) : (
-                  <View
-                    style={{
-                      height: verticalScale(24),
-                      width: horizontalScale(24),
-                      backgroundColor: COLORS.white,
-                      borderWidth: 1,
-                      borderColor: COLORS.lightBorder,
-                      borderRadius: 6,
-                      marginTop: verticalScale(3),
-                    }}
+                  <CustomIcon
+                    Icon={ICONS.CheckboxInput}
+                    height={verticalScale(24)}
+                    width={horizontalScale(24)}
                   />
                 )}
                 <CustomText
                   fontFamily="SourceSansRegular"
                   fontSize={13}
-                  color={COLORS.lightGreyText}
+                  color={COLORS.appText}
                 >
-                  I have reviewed and agree to the Middle East Children's
-                  Alliance's{" "}
+                  I agree to MECA’s{" "}
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
-                    color={COLORS.lightGreyText}
+                    color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
                         "Terms of Service",
@@ -462,19 +443,19 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Terms of Service{" "}
+                    Terms of Service
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
-                    color={COLORS.lightGreyText}
+                    color={COLORS.appText}
                   >
-                    and{" "}
+                    ,{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
-                    color={COLORS.lightGreyText}
+                    color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
                         "Privacy Policy",
@@ -488,14 +469,14 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
-                    color={COLORS.lightGreyText}
+                    color={COLORS.appText}
                   >
                     , and OnePali's{" "}
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
                     fontSize={13}
-                    color={COLORS.lightGreyText}
+                    color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
                         "Privacy Policy",
@@ -525,6 +506,26 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   gap: verticalScale(8),
                 }}
               >
+                {Platform.OS === "ios" && (
+                  <>
+                    <PrimaryButton
+                      title="Continue with Apple"
+                      leftIcon={{
+                        Icon: ICONS.AppleLogo,
+                        width: 16,
+                        height: 22,
+                      }}
+                      onPress={handleAppleSignIn}
+                      isLoading={isLoading}
+                      disabled={isLoading || isReservationExpired}
+                      hapticFeedback
+                      hapticType="impactLight"
+                      textStyle={{
+                        fontFamily: FONTS.GabaritoSemiBold,
+                      }}
+                    />
+                  </>
+                )}
                 <PrimaryButton
                   title="Continue with Google"
                   leftIcon={{ Icon: ICONS.GoogleIcon, width: 16, height: 16 }}
@@ -557,26 +558,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     default: COLORS.white,
                   })}
                 />
-                {Platform.OS === "ios" && (
-                  <>
-                    <PrimaryButton
-                      title="Continue with Apple"
-                      leftIcon={{
-                        Icon: ICONS.AppleLogo,
-                        width: 16,
-                        height: 22,
-                      }}
-                      onPress={handleAppleSignIn}
-                      isLoading={isLoading}
-                      disabled={isLoading || isReservationExpired}
-                      hapticFeedback
-                      hapticType="impactLight"
-                      textStyle={{
-                        fontFamily: FONTS.GabaritoSemiBold,
-                      }}
-                    />
-                  </>
-                )}
               </View>
             </>
           ) : (

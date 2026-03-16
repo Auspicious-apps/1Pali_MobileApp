@@ -468,11 +468,11 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={14}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.redColor}
                     >
-                      Number cannot start with zero.
+                      Number cannot start with 0
                     </CustomText>
                   </View>
                 ) : rangeError ? (
@@ -483,15 +483,15 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                       fontSize={15}
                       color={COLORS.redColor}
                     >
-                      Pick a number between 1 and 1,000,000
+                      Number must be between 1 and 1,000,000
                     </CustomText>
                   </View>
                 ) : checking ? (
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.loader} width={16} height={16} />
                     <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={14}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.appText}
                     >
                       Checking...
@@ -505,8 +505,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                       height={16}
                     />
                     <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={14}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.green}
                     >
                       Available
@@ -516,8 +516,8 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   <View style={styles.statusRow}>
                     <CustomIcon Icon={ICONS.RedClose} width={16} height={16} />
                     <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={14}
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
                       color={COLORS.redColor}
                     >
                       Taken, try another or tap the dice
@@ -525,13 +525,13 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation }) => {
                   </View>
                 ) : (
                   <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
+                    fontFamily="GabaritoRegular"
+                    fontSize={15}
                     color={COLORS.appText}
                   >
                     {/* {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}
                     spots remaining */}
-                    Pick a number between 1 and 1,000,000
+                    Pick between 1 and 1,000,000
                   </CustomText>
                 )}
               </View>

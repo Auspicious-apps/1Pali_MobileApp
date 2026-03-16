@@ -189,7 +189,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             <View>
               <CustomText
                 fontFamily="GabaritoMedium"
-                fontSize={18}
+                fontSize={20}
                 color={COLORS.darkText}
                 style={{ textAlign: "center" }}
               >
@@ -197,7 +197,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
-                fontSize={14}
+                fontSize={15}
                 color={COLORS.appText}
                 style={{ textAlign: "center" }}
               >
