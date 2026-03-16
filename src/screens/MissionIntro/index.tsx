@@ -7,7 +7,6 @@ import React, { FC, useEffect, useState } from "react";
 import {
   Alert,
   Image,
-  Linking,
   Platform,
   TouchableOpacity,
   View,
@@ -20,6 +19,7 @@ import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
+import WebViewBottomSheet from "../../components/WebViewBottomSheet";
 import {
   selectReservationSeconds,
   selectReservationStatus,
@@ -53,6 +53,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [isWebViewVisible, setIsWebViewVisible] = useState(false);
+  const [legalWebUrl, setLegalWebUrl] = useState("https://onepali.app");
+  const [legalWebTitle, setLegalWebTitle] = useState("Legal");
   const isReservationExpired = reservationStatus === "EXPIRED";
   const [showCheckboxError, setShowCheckboxError] = useState(false);
 
@@ -313,6 +316,12 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     }
   };
 
+  const openLegalSheet = (title: string, url: string) => {
+    setLegalWebTitle(title);
+    setLegalWebUrl(url);
+    setIsWebViewVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -446,7 +455,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     fontSize={13}
                     color={COLORS.lightGreyText}
                     onPress={() => {
-                      Linking.openURL("https://onepali.app/terms-condition");
+                      openLegalSheet(
+                        "Terms of Service",
+                        "https://onepali.app/terms-condition",
+                      );
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
@@ -464,7 +476,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     fontSize={13}
                     color={COLORS.lightGreyText}
                     onPress={() => {
-                      Linking.openURL("https://onepali.app/privacy-policy");
+                      openLegalSheet(
+                        "Privacy Policy",
+                        "https://onepali.app/privacy-policy",
+                      );
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
@@ -482,7 +497,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     fontSize={13}
                     color={COLORS.lightGreyText}
                     onPress={() => {
-                      Linking.openURL("https://onepali.app/privacy-policy");
+                      openLegalSheet(
+                        "Privacy Policy",
+                        "https://onepali.app/privacy-policy",
+                      );
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
@@ -590,6 +608,12 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           )}
         </View>
       </SafeAreaView>
+      <WebViewBottomSheet
+        isVisible={isWebViewVisible}
+        title={legalWebTitle}
+        url={legalWebUrl}
+        onClose={() => setIsWebViewVisible(false)}
+      />
     </View>
   );
 };

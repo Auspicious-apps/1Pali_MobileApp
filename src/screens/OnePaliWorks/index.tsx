@@ -3,7 +3,6 @@ import {
   Dimensions,
   FlatList,
   Image,
-  Linking,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -21,6 +20,7 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
+import WebViewBottomSheet from "../../components/WebViewBottomSheet";
 import { setRemainingSpots } from "../../redux/slices/remainingSpotsSlice";
 import { useAppDispatch } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -100,6 +100,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
   const CARD_WIDTH = wp(84);
   const dispatch = useAppDispatch();
   const isIphoneSE = Platform.OS === "ios" && height <= 667;
+  const [isWebViewVisible, setIsWebViewVisible] = useState(false);
 
   const fetchRemainingSpots = async () => {
     try {
@@ -460,7 +461,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
               </CustomText>
               <TouchableOpacity
                 onPress={() => {
-                  Linking.openURL("https://onepali.app/");
+                  setIsWebViewVisible(true);
                 }}
                 activeOpacity={0.8}
               >
@@ -497,6 +498,12 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
           style={styles.primaryButton}
           hapticFeedback
           hapticType="impactLight"
+        />
+        <WebViewBottomSheet
+          isVisible={isWebViewVisible}
+          title="FAQs"
+          url="https://onepali.app/"
+          onClose={() => setIsWebViewVisible(false)}
         />
       </SafeAreaView>
     </View>
