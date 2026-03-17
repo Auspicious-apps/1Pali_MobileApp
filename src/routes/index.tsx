@@ -32,6 +32,7 @@ import {
 } from "../typings/routes";
 import SignIn from "../screens/SignIn";
 import { navigationRef } from "../utils/Helpers";
+import AnimatedNumber from "../screens/AnimatedNumber";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -58,6 +59,10 @@ function OnBoardingStack() {
       <OnBoardingStackNavigator.Screen
         name="onePaliWorks"
         component={OnePaliWorks}
+      />
+      <OnBoardingStackNavigator.Screen
+        name="animatedNumber"
+        component={AnimatedNumber}
       />
       <OnBoardingStackNavigator.Screen name="claimSpot" component={ClaimSpot} />
       <OnBoardingStackNavigator.Screen

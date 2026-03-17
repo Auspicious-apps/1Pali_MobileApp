@@ -90,6 +90,8 @@ import SpotDice from "./SpotDice.svg";
 import CheckedIcon from "./CheckedIcon.svg";
 import Switcher from "./Switcher.svg";
 import CheckboxInput from "./CheckboxInput.svg";
+import QuestionMark from "./QuestionMark.svg";
+import BackArrowBg from "./BackArrowBgIcon.svg";
 
 const ICONS = {
   diceIcon,
@@ -184,6 +186,8 @@ const ICONS = {
   CheckedIcon,
   Switcher,
   CheckboxInput,
+  QuestionMark,
+  BackArrowBg,
 };
 
 export default ICONS;

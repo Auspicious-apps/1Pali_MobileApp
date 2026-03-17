@@ -932,7 +932,7 @@ const styles = StyleSheet.create({
   },
   updateImage: {
     width: "100%",
-    height: hp(42.9),
+    height: hp(54.4),
   },
   scrollContent: {},
   commentInputRow: {

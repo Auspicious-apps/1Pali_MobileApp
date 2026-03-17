@@ -11,6 +11,7 @@ export type OnBoardingStackParams = {
   splash: undefined;
   onboarding: undefined;
   onePaliWorks: undefined;
+  animatedNumber: undefined;
   claimSpot: { prefilledNumber?: string | null; skipCheck?: boolean };
   missionIntro?: { showNumber?: boolean };
   joinOnePali: undefined;
@@ -76,6 +77,10 @@ export type OnboardingProps = NativeStackScreenProps<
 export type onePaliWorksProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
   "onePaliWorks"
+>;
+export type AnimatedNumberProps = NativeStackScreenProps<
+  RootStackParams & OnBoardingStackParams,
+  "animatedNumber"
 >;
 export type ClaimSpotProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,

@@ -535,11 +535,14 @@ const fetchRandomNumber = async () => {
         </View>
         <PrimaryButton
           title="Continue"
+          // onPress={() => {
+          //   navigation.navigate("claimSpot", {
+          //     prefilledNumber: randomNumber,
+          //     skipCheck: true,
+          //   });
+          // }}
           onPress={() => {
-            navigation.navigate("claimSpot", {
-              prefilledNumber: randomNumber,
-              skipCheck: true,
-            });
+            navigation.navigate("animatedNumber");
           }}
           style={styles.primaryButton}
           hapticFeedback
