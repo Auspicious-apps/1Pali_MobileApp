@@ -179,7 +179,7 @@ const fetchRandomNumber = async () => {
               style={{ lineHeight: verticalScale(20), textAlign: "center" }}
             >
               Join a growing collective giving monthly to support Palestinian
-              children and families.
+              children & families.
             </CustomText>
           </View>
 
@@ -456,7 +456,7 @@ const fetchRandomNumber = async () => {
                 style={styles.sectionDescription}
               >
                 OnePali turns small monthly donations into reliable, sustained
-                aid. Together, we’re building a community of 1 million
+                aid. Together, we’re building a community of one million
                 supporters, proving that small amounts add up to lasting impact.
               </CustomText>
             </View>
