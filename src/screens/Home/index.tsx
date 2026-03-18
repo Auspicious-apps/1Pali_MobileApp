@@ -4,13 +4,13 @@ import {
   Animated,
   Easing,
   Image,
-  ImageBackground,
   Linking,
   Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import InAppReview from "react-native-in-app-review";
 import { SafeAreaView } from "react-native-safe-area-context";
 import IMAGES from "../../assets/Images";
 import BadgeIcon from "../../components/BadgeIcon";
@@ -18,6 +18,7 @@ import { CustomText } from "../../components/CustomText";
 import CollectBadges from "../../components/Modal/CollectBadges";
 import MyBadgesModal from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
+import { initializeFirebaseMessaging } from "../../Firebase/NotificationService";
 import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
@@ -29,8 +30,6 @@ import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import { initializeFirebaseMessaging } from "../../Firebase/NotificationService";
-import InAppReview from "react-native-in-app-review";
 
 const badgeMetadata = [
   {
@@ -76,20 +75,17 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const pulseScale = useRef(new Animated.Value(0)).current;
   const pulseOpacity = useRef(new Animated.Value(0)).current;
 
-  const APP_STORE_ID = "6758080916";
-  const PLAY_STORE_PACKAGE = "com.onepali";
-
   const openRateUs = () => {
     if (InAppReview.isAvailable()) {
       InAppReview.RequestInAppReview();
     } else {
       // fallback if native review not available
-      const storeUrl =
-        Platform.OS === "ios"
-          ? `https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`
-          : `https://play.google.com/store/apps/details?id=${PLAY_STORE_PACKAGE}`;
+      const storeUrl = Platform.select({
+        android: "https://play.google.com/store/apps/details?id=com.onepali",
+        ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
+      });
 
-      Linking.openURL(storeUrl);
+      Linking.openURL(storeUrl!);
     }
   };
 

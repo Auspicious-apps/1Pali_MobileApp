@@ -1,42 +1,49 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { fetchData, postData } from "../../service/ApiService";
 import ENDPOINTS from "../../service/ApiEndpoints";
+import { fetchData, postData } from "../../service/ApiService";
 
 import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
 import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
 
-import { SlotMachineNumber } from "../../components/SlotMachineNumber";
 import { CustomText } from "../../components/CustomText";
+import { SlotMachineNumber } from "../../components/SlotMachineNumber";
 
 import IMAGES from "../../assets/Images";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 import {
-  selectReservationToken,
-  selectPreviousReservationToken,
+  clearReservationToken,
   selectClaimedNumber,
+  selectPreviousReservationToken,
+  selectReservationToken,
   setClaimedNumber,
   setReservationToken,
   startReservationTimer,
-  clearReservationToken,
 } from "../../redux/slices/UserSlice";
 
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 
 import Toast from "react-native-toast-message";
+import ICONS from "../../assets/Icons";
+import CustomIcon from "../../components/CustomIcon";
 import PrimaryButton from "../../components/PrimaryButton";
 import COLORS from "../../utils/Colors";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
 
 const AnimatedNumber = () => {
   const navigation: any = useNavigation();
   const dispatch = useAppDispatch();
-
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
   const reservationToken = useAppSelector(selectReservationToken);
   const previousReservationToken = useAppSelector(
     selectPreviousReservationToken,
@@ -66,6 +73,25 @@ const AnimatedNumber = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (animationDone) {
+      // 2. Trigger the fluid entrance
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [animationDone]);
 
   // Reserve number API
   const handleReserveNumber = async () => {
@@ -171,7 +197,15 @@ const AnimatedNumber = () => {
 
       {/* Bottom Buttons */}
       {animationDone && (
-        <View style={styles.bottomContainer}>
+        <Animated.View
+          style={[
+            styles.bottomContainer,
+            {
+              opacity: fadeAnim, // Apply fade
+              transform: [{ translateY: slideAnim }], // Apply slide
+            },
+          ]}
+        >
           <PrimaryButton
             title={`Claim #${number}`}
             onPress={handleReserveNumber}
@@ -192,7 +226,7 @@ const AnimatedNumber = () => {
               Choose my own number
             </CustomText>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       )}
     </SafeAreaView>
   );

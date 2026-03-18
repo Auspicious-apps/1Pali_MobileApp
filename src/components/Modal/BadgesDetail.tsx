@@ -22,8 +22,9 @@ interface BadgesDetailModalProps {
   setIsVisible: Dispatch<SetStateAction<boolean>>;
   badgeLabel?: string;
   badgeMonths?: string;
-  badgeDescription: string | undefined;
+  badgeDescription?: string | undefined;
   isLocked: boolean;
+  sheetTitle?: string;
 }
 const BORDER = 6;
 
@@ -34,6 +35,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   badgeMonths,
   badgeDescription,
   isLocked,
+  sheetTitle = "Badge Details",
 }) => {
   const translateY = useRef(new Animated.Value(500)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -118,7 +120,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                 fontSize={18}
                 color={COLORS.darkText}
               >
-                Badge Details
+                {sheetTitle}
               </CustomText>
 
               <TouchableOpacity

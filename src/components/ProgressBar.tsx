@@ -1,5 +1,12 @@
-import React from "react";
-import { Animated, Easing, Pressable, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import {
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import HapticFeedback from "react-native-haptic-feedback";
 import { useAppSelector } from "../redux/store";
 import COLORS from "../utils/Colors";
@@ -9,6 +16,9 @@ import CircularOverlay from "./CircularOverlay";
 import { CustomText } from "./CustomText";
 import CustomIcon from "./CustomIcon";
 import ICONS from "../assets/Icons";
+import BadgesDetail from "./Modal/BadgesDetail";
+import { Badge } from "../service/ApiResponses/GetAllBadges";
+import { formatNumber } from "../utils/Helpers";
 
 const STRIPE_WIDTH = horizontalScale(14.8);
 const STRIPE_GAP = horizontalScale(12);
@@ -27,11 +37,13 @@ const COMMUNITY_BADGE_MAP: any = {
 const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
   const { user } = useAppSelector((state) => state.user);
 
-  const [showFinalGoal, setShowFinalGoal] = React.useState(true);
+  const [showFinalGoal, setShowFinalGoal] = React.useState(false);
   const nextMilestone = user?.nextCommunityMilestone;
   const [trackWidth, setTrackWidth] = React.useState(0);
   const growthBadge = user?.nextGrowthBadge;
   const animatedProgress = React.useRef(new Animated.Value(0)).current;
+  const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
   const milestoneTarget = showFinalGoal
     ? 1000000
@@ -57,7 +69,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
     ? growthBadge?.progressPercentage || 0
     : Math.min((currentValue / milestoneTarget) * 100, 100);
 
-  const MIN_STROKE_THRESHOLD = 0.01; 
+  const MIN_STROKE_THRESHOLD = 0.01;
   const showStroke = progressPercentage > MIN_STROKE_THRESHOLD;
 
   const hapticOptions = {
@@ -99,7 +111,8 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
             {showStroke && <View style={styles.progressFillStroke} />}
           </Animated.View>
 
-          <View
+          <TouchableOpacity
+            onPress={() => setIsBadgeModalVisible(true)}
             style={{
               position: "absolute",
               right: -10,
@@ -129,7 +142,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
               borderWidth={0}
               size={verticalScale(48)}
             />
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
       {!hideFooter && (
@@ -198,6 +211,20 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
           </View>
         </View>
       )}
+      <BadgesDetail
+        isVisible={isBadgeModalVisible}
+        setIsVisible={setIsBadgeModalVisible}
+        badgeLabel={badgeName}
+        badgeMonths={
+          showFinalGoal
+            ? `1M supporters reached`
+            : `${formatNumber(
+                nextMilestone?.threshold!,
+              )} supporters reached`
+        }
+        isLocked={true}
+        sheetTitle={showFinalGoal ? "Final Milestone" : "Next Milestone"}
+      />
     </View>
   );
 };

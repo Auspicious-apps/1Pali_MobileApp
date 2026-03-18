@@ -1,8 +1,7 @@
-import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
-  Dimensions,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -23,6 +22,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import ShareLib from "react-native-share";
+import uuid from "react-native-uuid";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
@@ -47,10 +47,8 @@ import { fetchData, postData } from "../../service/ApiService";
 import { UpdateDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import uuid from "react-native-uuid";
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
-  // Used to force TextInput remount to reset height
   const [inputKey, setInputKey] = useState(0);
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
@@ -834,7 +832,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           style={[
             styles.bottomFadeWrapper,
             {
-              bottom: user?.canComment ? verticalScale(50) : verticalScale(15),
+              bottom: user?.canComment ? verticalScale(50) : verticalScale(0),
             },
           ]}
         >
@@ -849,7 +847,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             style={styles.bottomFade}
           />
         </View>
-        {user?.canComment ? (
+        {user?.canComment && (
           <View
             style={styles.bottomContainer}
             onLayout={(e) => {
@@ -890,22 +888,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                 )}
               </View>
             </View>
-          </View>
-        ) : (
-          <View
-            style={[
-              styles.bottomContainer,
-              { paddingTop: horizontalScale(10) },
-            ]}
-          >
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={15}
-              color={COLORS.appText}
-              style={{ textAlign: "center" }}
-            >
-              You can’t comment on this blog.
-            </CustomText>
           </View>
         )}
       </KeyboardAvoidingView>

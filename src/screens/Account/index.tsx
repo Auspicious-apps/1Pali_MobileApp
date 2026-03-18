@@ -468,12 +468,16 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.7}
             onPress={async () => {
               try {
-                const inviteLink = "https://onepali.app";
+                const inviteLink = Platform.select({
+                  android:
+                    "https://play.google.com/store/apps/details?id=com.onepali",
+                  ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
+                });
 
                 await ShareLib.open({
                   title: "OnePali - $1 for Palestine",
                   message: "OnePali - $1 for Palestine",
-                  urls: [inviteLink],
+                  urls: [inviteLink!],
                 });
               } catch (e) {
                 console.log("Error sharing invite:", e);

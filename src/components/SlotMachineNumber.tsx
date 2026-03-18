@@ -11,26 +11,41 @@ interface Props {
 }
 
 export function SlotMachineNumber({ number, onRevealComplete }: Props) {
-  const finalNumber = String(number).padStart(6, "0").split("");
-
+  const paddedNumber = String(number).padStart(6, "0").split("");
   const [digits, setDigits] = useState(["0", "0", "0", "0", "0", "0"]);
   const [finished, setFinished] = useState(false);
+  const [visibleSlots, setVisibleSlots] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
 
   const colorAnim = useRef(
     [...Array(6)].map(() => new Animated.Value(0)),
   ).current;
 
+  // 1. Create a separate animated value for the Hash
+  const hashColorAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     setFinished(false);
-
+    hashColorAnim.setValue(0); // Reset hash color
     const intervals: any[] = [];
 
-    finalNumber.forEach((digit, index) => {
+    paddedNumber.forEach((digit, index) => {
       let spinCount = 0;
+
+      setVisibleSlots((prev) => {
+        const copy = [...prev];
+        copy[index] = true;
+        return copy;
+      });
 
       const interval = setInterval(() => {
         spinCount++;
-
         setDigits((prev) => {
           const copy = [...prev];
           copy[index] = Math.floor(Math.random() * 10).toString();
@@ -39,12 +54,34 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
 
         if (spinCount > 20 + index * 6) {
           clearInterval(interval);
-
           setDigits((prev) => {
             const copy = [...prev];
             copy[index] = digit;
             return copy;
           });
+
+          const isLeadingZero = paddedNumber
+            .slice(0, index + 1)
+            .every((d) => d === "0");
+          const isFirstNonZero =
+            !isLeadingZero && (index === 0 || paddedNumber[index - 1] === "0");
+
+          // 2. If this is the first digit that stays visible, animate the Hash color too
+          if (!isLeadingZero || index === paddedNumber.length - 1) {
+            Animated.timing(hashColorAnim, {
+              toValue: 1,
+              duration: 400,
+              useNativeDriver: false,
+            }).start();
+          }
+
+          if (isLeadingZero && index < paddedNumber.length - 1) {
+            setVisibleSlots((prev) => {
+              const copy = [...prev];
+              copy[index] = false;
+              return copy;
+            });
+          }
 
           Animated.timing(colorAnim[index], {
             toValue: 1,
@@ -52,7 +89,6 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
             useNativeDriver: false,
           }).start();
 
-          // when last digit revealed
           if (index === 5) {
             setFinished(true);
             onRevealComplete?.();
@@ -66,26 +102,25 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
     return () => intervals.forEach(clearInterval);
   }, [number]);
 
+  // 3. Interpolate the Hash color
+  const hashColor = hashColorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [COLORS.grey, COLORS.darkText],
+  });
+
   return (
     <View style={styles.container}>
       <CustomText style={styles.label}>Your number is</CustomText>
 
       <View style={styles.row}>
-        <Animated.Text
-          style={[
-            styles.hash,
-            {
-              color: colorAnim[0].interpolate({
-                inputRange: [0, 1],
-                outputRange: [COLORS.grey, COLORS.darkText],
-              }),
-            },
-          ]}
-        >
+        {/* Animated Hash */}
+        <Animated.Text style={[styles.hash, { color: hashColor }]}>
           #
         </Animated.Text>
 
         {digits.map((digit, index) => {
+          if (!visibleSlots[index]) return null;
+
           const color = colorAnim[index].interpolate({
             inputRange: [0, 1],
             outputRange: [COLORS.grey, COLORS.darkText],
@@ -139,6 +174,6 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(22),
     color: COLORS.darkText,
     marginTop: verticalScale(20),
-    textAlign:"center"
+    textAlign: "center",
   },
 });

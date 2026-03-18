@@ -6,6 +6,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  NativeModules,
   Platform,
   StyleSheet,
   TextInput,
@@ -55,6 +56,7 @@ import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+const { NativeShare } = NativeModules;
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   // Used to force TextInput remount to reset height
@@ -182,66 +184,68 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       setCapturingCard(false);
 
-      // On Android, ShareLib.open() will reject even on successful share.
-      // On iOS, it resolves with the activity type.
-      let shareSucceeded = false;
-      let result: any = null;
+      if (Platform.OS === "android") {
+        try {
+          const result = await NativeShare.shareWithCallback(
+            shareFilePath, // Send the raw path
+            customFileName,
+            `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+          );
 
-      try {
-        result = await ShareLib.open({
-          url: shareFilePath,
-          filename: customFileName,
-          title: customFileName,
-          type: "image/png",
-          message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
-        });
-        // iOS: if we get here, share was successful
-        shareSucceeded = true;
-      } catch (error: any) {
-        // On Android: "User did not share" message means the share sheet was closed
-        // without sharing (actual cancellation). If there's no error or other errors,
-        // it likely means the share actually happened.
-        const errorMsg = error?.message || "";
-        if (errorMsg.includes("User did not share")) {
-          // On Android, treat this as successful since the user interacted with the sheet
-          shareSucceeded = true;
-        } else if (errorMsg.includes("User did not share")) {
-          // iOS: user actually cancelled
-          console.log("User cancelled sharing");
-          shareSucceeded = false;
-        } else {
-          // Unexpected error
-          throw error;
+          if (result) {
+            if (result === "com.instagram.android") {
+              shareToApp("INSTAGRAM");
+            } else if (result.includes("whatsapp")) {
+              shareToApp("WHATSAPP");
+            } else if (result.includes("facebook")) {
+              shareToApp("FACEBOOK");
+            } else if (result.includes("messaging")) {
+              shareToApp("MESSAGE");
+            } else {
+              shareToApp("APP_SHARE_SHEET");
+            }
+          }
+        } catch (e: any) {
+          if (e.code === "USER_CANCELLED") {
+            console.log("User didn't share anything.");
+          } else {
+            console.error("Native Error:", e.message);
+          }
         }
-      }
+      } else {
+        try {
+          const result = await ShareLib.open({
+            url: shareFilePath,
+            filename: customFileName,
+            title: customFileName,
+            type: "image/png",
+            message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+          });
 
-      if (shareSucceeded) {
-        // On iOS, check if the activity type indicates we should skip API call
-        if (result?.success) {
-          const activityType = result?.message;
-          if (
-            activityType === "com.apple.UIKit.activity.SaveToCameraRoll" ||
-            activityType === "com.apple.DocumentManagerUICore.SaveToFiles"
-          ) {
-            console.log("User only saved the image — skipping share API");
-            return;
+          console.log(result, "opopo");
+          if (result.success) {
+            if (
+              result.message === "com.apple.UIKit.activity.SaveToCameraRoll" ||
+              result.message === "com.apple.DocumentManagerUICore.SaveToFiles"
+            ) {
+              console.log("User only saved the image — skipping share API");
+              return;
+            }
+            if (result.message.includes("instagram")) {
+              shareToApp("INSTAGRAM");
+            } else if (result.message.includes("whatsapp")) {
+              shareToApp("WHATSAPP");
+            } else if (result.message.includes("facebook")) {
+              shareToApp("FACEBOOK");
+            } else if (result.message.includes("messaging")) {
+              shareToApp("MESSAGE");
+            } else {
+              shareToApp("APP_SHARE_SHEET");
+            }
           }
-
-          // Determine the platform from the activity type on iOS
-          let platform: ShareType = "APP_SHARE_SHEET";
-          if (result.message?.includes("Instagram")) {
-            platform = "INSTAGRAM";
-          } else if (result.message?.includes("Facebook")) {
-            platform = "FACEBOOK";
-          } else if (result.message?.includes("WhatsApp")) {
-            platform = "WHATSAPP";
-          } else if (result.message?.includes("Messages")) {
-            platform = "MESSAGE";
-          }
-          await shareToApp(platform);
-        } else {
-          // Android: just call shareToApp with default platform
-          await shareToApp("APP_SHARE_SHEET");
+        } catch (error: any) {
+          const errorMsg = error?.message || "";
+          console.log(errorMsg, "XXXXX");
         }
       }
     } catch (error: any) {
@@ -716,7 +720,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               ios: verticalScale(15),
             }),
             paddingTop: Platform.select({
-              android: insets.top,
+              android: 0,
               ios: hasNotch() ? verticalScale(0) : verticalScale(15),
             }),
           },
@@ -1076,9 +1080,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             style={[
               styles.bottomFadeWrapper,
               {
-                bottom: user?.canComment
-                  ? verticalScale(50)
-                  : verticalScale(15),
+                bottom: user?.canComment ? verticalScale(50) : verticalScale(0),
               },
             ]}
           >
@@ -1094,7 +1096,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             />
           </View>
 
-          {user?.canComment ? (
+          {user?.canComment && (
             <View style={styles.bottomContainer}>
               <View style={styles.commentInputRow}>
                 <CustomIcon
@@ -1136,22 +1138,6 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   )}
                 </View>
               </View>
-            </View>
-          ) : (
-            <View
-              style={[
-                styles.bottomContainer,
-                { paddingTop: horizontalScale(10) },
-              ]}
-            >
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={15}
-                color={COLORS.appText}
-                style={{ textAlign: "center" }}
-              >
-                You can’t comment on this art.
-              </CustomText>
             </View>
           )}
 

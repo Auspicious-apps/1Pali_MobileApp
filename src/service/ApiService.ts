@@ -1,16 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { Alert, Linking } from "react-native";
 import STORAGE_KEYS from "../utils/Constants";
 import {
   getLocalStorageData,
   navigationRef,
-  showCustomToast,
   storeLocalStorageData,
 } from "../utils/Helpers";
 import ENDPOINTS from "./ApiEndpoints";
 import { RefreshTokenResponse } from "./ApiResponses/RefreshToken";
-import Toast from "react-native-toast-message";
-import { Alert, Linking } from "react-native";
 
 type ApiResponse<T> = {
   data: T;
@@ -21,8 +19,8 @@ type ApiResponse<T> = {
 
 // Create the Axios instance
 const api = axios.create({
-  baseURL: "https://onepali-backend.onrender.com/",
-  // baseURL: "https://hydrometric-untimeous-ayaan.ngrok-free.dev/",
+  // baseURL: "https://onepali-backend.onrender.com/",
+  baseURL: "https://hydrometric-untimeous-ayaan.ngrok-free.dev/",
   // timeout: 10000,
 });
 
@@ -100,22 +98,32 @@ api.interceptors.response.use(
       ) {
         await AsyncStorage.clear();
         Alert.alert(
-          error.response.data.message,
+          "Account Blocked",
           "Please contact support for more information.",
           [
             {
               text: "OK",
               style: "cancel",
             },
-            {
-              text: "Contact Us",
-              onPress: () => {
-                Linking.openURL("meca@mecaforpeace.org");
-              },
-            },
           ],
           { cancelable: false },
         );
+
+        if (
+          navigationRef.current
+            ?.getRootState()
+            ?.routeNames.includes("MainStack") &&
+          navigationRef.current?.getCurrentRoute()?.name !== "signIn"
+        ) {
+          navigationRef.reset({
+            index: 0,
+            routes: [{ name: "OnBoardingStack", params: { screen: "signIn" } }],
+          });
+        }
+        // navigationRef.reset({
+        //   index: 0,
+        //   routes: [{ name: "signIn" }],
+        // });
         return Promise.reject({
           success: false,
           message: error.response.data.message,

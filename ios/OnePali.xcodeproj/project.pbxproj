@@ -39,6 +39,7 @@
 		75E517D4C3B5425B9EC62FC4 /* SourceSans3-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B1D88384656D46D9B2155E2F /* SourceSans3-SemiBoldItalic.ttf */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		76E0E3BD724E4FCA8743A15F /* SourceSans3-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2CCC5C7189384A7A9A5EC4D8 /* SourceSans3-Light.ttf */; };
+		7EFDB291DE78140A9FBC85B1 /* Pods_OnePali.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14A5BE2243707659B66BA89F /* Pods_OnePali.framework */; };
 		879FB4A5FFAC44C78C3F1BE1 /* Gabarito-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BCD312BFBEF2472FBC7B5EE4 /* Gabarito-Bold.ttf */; };
 		8A0C1BFC09E34F94AAEF0042 /* Gabarito-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 40902B5220EC4EBB9D6EF62E /* Gabarito-Black.ttf */; };
 		92FAB9FF6E14483FABFEC001 /* Montserrat-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 069093C3482342FABF67412E /* Montserrat-ExtraBoldItalic.ttf */; };
@@ -56,7 +57,6 @@
 		EA418522081A459AAB973345 /* NeueMontreal-Italic.otf in Resources */ = {isa = PBXBuildFile; fileRef = AA13A04CF3BD4724B99C5286 /* NeueMontreal-Italic.otf */; };
 		EB40907646A5421F84A59CFB /* SourceSans3-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4095294071E64C61BBBC54C1 /* SourceSans3-Black.ttf */; };
 		EDF2D8857E9D4FB68AE19867 /* Gabarito-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45D34B272F4945AAAFDC1F51 /* Gabarito-SemiBold.ttf */; };
-		F2888D03726CC274584AD19D /* Pods_OnePali.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 472AE904AF3A4874E3E8E913 /* Pods_OnePali.framework */; };
 		F83D8B12ABD04A2C83CE0A4C /* index.ts in Resources */ = {isa = PBXBuildFile; fileRef = 0995CF5E04BF4109A7D8BF14 /* index.ts */; };
 		FB30E6828E66421A83D7B465 /* Montserrat-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 46A07FA5DEFB454AB0921ED5 /* Montserrat-SemiBoldItalic.ttf */; };
 		FD7F2C611BCF4B49AD03EC1D /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EA480183B4C443ADA2284572 /* Montserrat-Light.ttf */; };
@@ -74,17 +74,16 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OnePali/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OnePali/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = OnePali/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		14A5BE2243707659B66BA89F /* Pods_OnePali.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnePali.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		19870DD9D9AC45468E02519C /* SourceSans3-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-ExtraBold.ttf"; path = "../src/assets/fonts/SourceSans3-ExtraBold.ttf"; sourceTree = "<group>"; };
 		2A497E42BB6045868E718B67 /* Montserrat-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-MediumItalic.ttf"; path = "../src/assets/fonts/Montserrat-MediumItalic.ttf"; sourceTree = "<group>"; };
 		2CCC5C7189384A7A9A5EC4D8 /* SourceSans3-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-Light.ttf"; path = "../src/assets/fonts/SourceSans3-Light.ttf"; sourceTree = "<group>"; };
 		3093B6AC487F4E85BD33D217 /* NeueMontreal-LightItalic.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "NeueMontreal-LightItalic.otf"; path = "../src/assets/fonts/NeueMontreal-LightItalic.otf"; sourceTree = "<group>"; };
-		381D53ED716C38FA7E619924 /* Pods-OnePali.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.debug.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.debug.xcconfig"; sourceTree = "<group>"; };
+		3D5C56284EC1D1F4B044939E /* Pods-OnePali.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.release.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.release.xcconfig"; sourceTree = "<group>"; };
 		40902B5220EC4EBB9D6EF62E /* Gabarito-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gabarito-Black.ttf"; path = "../src/assets/fonts/Gabarito-Black.ttf"; sourceTree = "<group>"; };
 		4095294071E64C61BBBC54C1 /* SourceSans3-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-Black.ttf"; path = "../src/assets/fonts/SourceSans3-Black.ttf"; sourceTree = "<group>"; };
 		45D34B272F4945AAAFDC1F51 /* Gabarito-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gabarito-SemiBold.ttf"; path = "../src/assets/fonts/Gabarito-SemiBold.ttf"; sourceTree = "<group>"; };
-		469D2C4A4309A6D0415ED7B5 /* Pods-OnePali.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.release.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.release.xcconfig"; sourceTree = "<group>"; };
 		46A07FA5DEFB454AB0921ED5 /* Montserrat-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Montserrat-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
-		472AE904AF3A4874E3E8E913 /* Pods_OnePali.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnePali.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D04F9A2F8B541F59B74A9EA /* SourceSans3-ExtraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-ExtraLightItalic.ttf"; path = "../src/assets/fonts/SourceSans3-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
 		4F2BFD3DF4554A64BD6FFAA9 /* Gabarito-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gabarito-Regular.ttf"; path = "../src/assets/fonts/Gabarito-Regular.ttf"; sourceTree = "<group>"; };
 		51943907FF164A779751F818 /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Medium.ttf"; path = "../src/assets/fonts/Montserrat-Medium.ttf"; sourceTree = "<group>"; };
@@ -126,6 +125,7 @@
 		EE0A48EA571043D8A5BDE6F6 /* SourceSans3-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SourceSans3-Regular.ttf"; path = "../src/assets/fonts/SourceSans3-Regular.ttf"; sourceTree = "<group>"; };
 		EF6F942B74D04FA9BB46341B /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
 		F34503D8F5734654AF8B089B /* KodeMono-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KodeMono-Regular.ttf"; path = "../src/assets/fonts/KodeMono-Regular.ttf"; sourceTree = "<group>"; };
+		FA3DACF47B012B8D0262E73E /* Pods-OnePali.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnePali.debug.xcconfig"; path = "Target Support Files/Pods-OnePali/Pods-OnePali.debug.xcconfig"; sourceTree = "<group>"; };
 		FCF43366F1A94191B59D3692 /* Montserrat-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-BlackItalic.ttf"; path = "../src/assets/fonts/Montserrat-BlackItalic.ttf"; sourceTree = "<group>"; };
 		FDB5306A2F2106E1004387D3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -135,7 +135,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F2888D03726CC274584AD19D /* Pods_OnePali.framework in Frameworks */,
+				7EFDB291DE78140A9FBC85B1 /* Pods_OnePali.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,7 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				472AE904AF3A4874E3E8E913 /* Pods_OnePali.framework */,
+				14A5BE2243707659B66BA89F /* Pods_OnePali.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -255,8 +255,8 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				381D53ED716C38FA7E619924 /* Pods-OnePali.debug.xcconfig */,
-				469D2C4A4309A6D0415ED7B5 /* Pods-OnePali.release.xcconfig */,
+				FA3DACF47B012B8D0262E73E /* Pods-OnePali.debug.xcconfig */,
+				3D5C56284EC1D1F4B044939E /* Pods-OnePali.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -268,14 +268,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "OnePali" */;
 			buildPhases = (
-				D39E3EC647FF16271CD5AD51 /* [CP] Check Pods Manifest.lock */,
+				400FEC59FBDCD4363E08EAF6 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				3AE87E5D082F4032FA1373FE /* [CP] Embed Pods Frameworks */,
-				DB2AC4701BBDC42221BA0231 /* [CP] Copy Pods Resources */,
-				E0F39C3420643045B97FA741 /* [CP-User] [RNFB] Core Configuration */,
+				23F2C2CBE3542BF70D66420D /* [CP] Embed Pods Frameworks */,
+				B2571887AE9084FCFD883E00 /* [CP] Copy Pods Resources */,
+				F74A2AF22921E227923117A6 /* [CP-User] [RNFB] Core Configuration */,
 			);
 			buildRules = (
 			);
@@ -399,7 +399,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"\\\"$WITH_ENVIRONMENT\\\" \\\"$REACT_NATIVE_XCODE\\\"\"\n";
 		};
-		3AE87E5D082F4032FA1373FE /* [CP] Embed Pods Frameworks */ = {
+		23F2C2CBE3542BF70D66420D /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -416,7 +416,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D39E3EC647FF16271CD5AD51 /* [CP] Check Pods Manifest.lock */ = {
+		400FEC59FBDCD4363E08EAF6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -438,7 +438,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DB2AC4701BBDC42221BA0231 /* [CP] Copy Pods Resources */ = {
+		B2571887AE9084FCFD883E00 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -455,7 +455,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnePali/Pods-OnePali-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E0F39C3420643045B97FA741 /* [CP-User] [RNFB] Core Configuration */ = {
+		F74A2AF22921E227923117A6 /* [CP-User] [RNFB] Core Configuration */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -484,7 +484,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 381D53ED716C38FA7E619924 /* Pods-OnePali.debug.xcconfig */;
+			baseConfigurationReference = FA3DACF47B012B8D0262E73E /* Pods-OnePali.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -500,7 +500,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -519,7 +519,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 469D2C4A4309A6D0415ED7B5 /* Pods-OnePali.release.xcconfig */;
+			baseConfigurationReference = 3D5C56284EC1D1F4B044939E /* Pods-OnePali.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -534,7 +534,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
