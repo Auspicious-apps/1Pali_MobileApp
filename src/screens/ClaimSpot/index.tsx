@@ -39,11 +39,10 @@ import COLORS from "../../utils/Colors";
 import { isTablet, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
 
-const { height, width } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
-  const { skipCheck, prefilledNumber } = route?.params || {};
   const [number, setNumber] = useState("");
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState(false);
@@ -304,27 +303,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (prefilledNumber) {
-      const num = String(prefilledNumber);
-
-      setNumber(num);
-      setDiceMode(false);
-      setStartsWithZero(false);
-      setRangeError(false);
-
-      if (skipCheck) {
-        setChecking(false);
-        setAvailable(true);
-        setUnavailable(false);
-      } else {
-        CheckNumberAvailable(num);
-      }
-
-      Keyboard.dismiss();
-    }
-  }, [prefilledNumber, skipCheck]);
 
   useEffect(() => {
     if (available) {

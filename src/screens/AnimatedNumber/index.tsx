@@ -8,19 +8,14 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { fetchData, postData } from "../../service/ApiService";
-
 import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
 import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
-
 import { CustomText } from "../../components/CustomText";
 import { SlotMachineNumber } from "../../components/SlotMachineNumber";
-
 import IMAGES from "../../assets/Images";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-
 import {
   clearReservationToken,
   selectClaimedNumber,
@@ -30,9 +25,7 @@ import {
   setReservationToken,
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
-
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
 import CustomIcon from "../../components/CustomIcon";
@@ -44,12 +37,12 @@ const AnimatedNumber = () => {
   const dispatch = useAppDispatch();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+  const headerSlideAnim = useRef(new Animated.Value(-50)).current;
   const reservationToken = useAppSelector(selectReservationToken);
   const previousReservationToken = useAppSelector(
     selectPreviousReservationToken,
   );
   const claimedNumber = useAppSelector(selectClaimedNumber);
-
   const [number, setNumber] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [animationDone, setAnimationDone] = useState(false);
@@ -76,14 +69,21 @@ const AnimatedNumber = () => {
 
   useEffect(() => {
     if (animationDone) {
-      // 2. Trigger the fluid entrance
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 600,
           useNativeDriver: true,
         }),
+        // Bottom elements slide up
         Animated.spring(slideAnim, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        // NEW: Header elements slide down
+        Animated.spring(headerSlideAnim, {
           toValue: 0,
           friction: 8,
           tension: 40,
@@ -158,31 +158,37 @@ const AnimatedNumber = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      {animationDone ? (
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.8}
-          >
+      {animationDone && (
+        <Animated.View
+          style={[
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: headerSlideAnim }], // Use the header specific anim
+              zIndex: 10, // Ensure it stays on top
+            },
+          ]}
+        >
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.8}
+            >
+              <CustomIcon
+                Icon={ICONS.BackArrowBg}
+                height={verticalScale(32)}
+                width={verticalScale(32)}
+              />
+            </TouchableOpacity>
+
+            <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+
             <CustomIcon
-              Icon={ICONS.BackArrowBg}
+              Icon={ICONS.QuestionMark}
               height={verticalScale(32)}
               width={verticalScale(32)}
             />
-          </TouchableOpacity>
-
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-
-          <CustomIcon
-            Icon={ICONS.QuestionMark}
-            height={verticalScale(32)}
-            width={verticalScale(32)}
-          />
-        </View>
-      ) : (
-        <View style={styles.logoContainer}>
-          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
-        </View>
+          </View>
+        </Animated.View>
       )}
 
       {/* Center Slot Animation */}

@@ -1,13 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { FC, useEffect, useState } from "react";
+import LottieView from "lottie-react-native";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Image,
   Linking,
   StyleSheet,
   View,
 } from "react-native";
 import IMAGES from "../../assets/Images";
+import LOTTIES from "../../assets/lotties";
 import { CustomText } from "../../components/CustomText";
 import { syncFCMTokenWithBackend } from "../../Firebase/NotificationService";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
@@ -27,61 +31,40 @@ import {
   deleteLocalStorageData,
   getLocalStorageData,
 } from "../../utils/Helpers";
-import { verticalScale } from "../../utils/Metrics";
+import { hp, verticalScale, wp } from "../../utils/Metrics";
 
 const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
+  const animationProgress = useRef(new Animated.Value(0));
+  const animationRef = useRef<LottieView>(null);
+
+  const playTrimmed = () => {
+    animationRef.current?.play(0, 200);
+  };
+
+  useEffect(() => {
+    Animated.timing(animationProgress.current, {
+      toValue: 1,
+      duration: 5000,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start();
+  }, []);
+
   const dispatch = useAppDispatch();
   const [isDeepLinkFlow, setIsDeepLinkFlow] = useState(false);
   const DEEP_LINK_PROFILE_POLL_ATTEMPTS = 3;
   const DEEP_LINK_PROFILE_POLL_DELAY_MS = 3000;
 
-  // const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  // useEffect(() => {
-  //   scaleAnim.setValue(1);
-
-  //   const timer = setTimeout(() => {
-  //     Animated.sequence([
-  //       Animated.timing(scaleAnim, {
-  //         toValue: 0.78,
-  //         duration: 500,
-  //         useNativeDriver: true,
-  //       }),
-
-  //       Animated.timing(scaleAnim, {
-  //         toValue: 1.06,
-  //         duration: 350,
-  //         useNativeDriver: true,
-  //       }),
-
-  //       Animated.spring(scaleAnim, {
-  //         toValue: 1,
-  //         friction: 8,
-  //         tension: 70,
-  //         useNativeDriver: true,
-  //       }),
-  //     ]).start();
-  //   }, 150);
-
-  //   return () => clearTimeout(timer);
-  // }, []);
-
   useEffect(() => {
-    // const timer = setTimeout(() => {
     checkAuthenticationStatus();
-    // }, 1500);
-
-    // return () => clearTimeout(timer);
   }, []);
 
   const checkAuthenticationStatus = async () => {
     try {
-      // await AsyncStorage.clear();
-
       // Check if all required tokens exist
       const accessToken = await getLocalStorageData(STORAGE_KEYS.accessToken);
       const minimumSplashDurationPromise = new Promise<void>((resolve) =>
-        setTimeout(() => resolve(), 1500),
+        setTimeout(() => resolve(), 4500),
       );
 
       if (accessToken) {
@@ -178,7 +161,7 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         response.data.success &&
         response.data.data.hasSubscription &&
         response.data.data.assignedNumber &&
-        response.data.data.badges.badges.length > 0
+        response.data.data.badges.badges.length >= 2
       ) {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
@@ -261,7 +244,18 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
           </View>
         </>
       ) : (
-        <Image source={IMAGES.SplashInitial} style={styles.image} />
+        <LottieView
+          ref={animationRef}
+          source={LOTTIES.fullScreenOnePaliLogo}
+          autoPlay
+          loop={false}
+          onLayout={playTrimmed}
+          style={{
+            width: wp(100),
+            height: hp(100),
+            transform: [{ scale: 1.1 }],
+          }}
+        />
       )}
     </View>
   );

@@ -10,10 +10,7 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import LinearGradient from "react-native-linear-gradient";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
@@ -30,7 +27,6 @@ import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
-import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -38,7 +34,7 @@ const fundCards = [
   {
     id: "1",
     icon: ICONS.once,
-    title: "Choose your number",
+    title: "Claim your number",
     description:
       "Pick any number between 1 and 1,000,000. Each number represents one supporter.",
     image: IMAGES.NumberChoose,
@@ -92,17 +88,15 @@ const supportItems = [
   },
 ];
 
-  const { height, width } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 
 const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
   const CARD_WIDTH = wp(84);
   const dispatch = useAppDispatch();
   const isIphoneSE = Platform.OS === "ios" && height <= 667;
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
-  const [randomNumber, setRandomNumber] = useState<string | null>(null);
 
   const fetchRemainingSpots = async () => {
     try {
@@ -120,36 +114,8 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
     }
   };
 
-const fetchRandomNumber = async () => {
-  try {
-    const response = await fetchData<ReserveNumberResponse>(
-      ENDPOINTS.GetRandomNumber,
-    );
-
-    const generatedNumber = response?.data?.data?.number;
-
-    if (generatedNumber) {
-      return String(generatedNumber);
-    }
-
-    return null;
-  } catch (error) {
-    console.error("GetRandomNumber API Error:", error);
-    return null;
-  }
-};
-
-
   useEffect(() => {
     fetchRemainingSpots();
-  }, []);
-
-  useEffect(() => {
-    fetchRandomNumber().then((num) => {
-      if (num) {
-        setRandomNumber(num);
-      }
-    });
   }, []);
 
   return (
@@ -361,7 +327,8 @@ const fetchRandomNumber = async () => {
                   backgroundColor: COLORS.greyBackground,
                   padding: horizontalScale(12),
                   borderRadius: 20,
-                  margin: verticalScale(8),
+                  marginHorizontal: verticalScale(12),
+                  marginVertical: verticalScale(8),
                 }}
               >
                 <View
@@ -535,12 +502,6 @@ const fetchRandomNumber = async () => {
         </View>
         <PrimaryButton
           title="Continue"
-          // onPress={() => {
-          //   navigation.navigate("claimSpot", {
-          //     prefilledNumber: randomNumber,
-          //     skipCheck: true,
-          //   });
-          // }}
           onPress={() => {
             navigation.navigate("animatedNumber");
           }}

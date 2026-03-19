@@ -136,7 +136,7 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
 
       {finished && (
         <CustomText style={styles.subtext}>
-          {"Every number is a stand for \n Palestine"}
+          {"One of a million supporters"}
         </CustomText>
       )}
     </View>
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.GabaritoSemiBold,
     fontSize: responsiveFontSize(22),
     color: COLORS.darkText,
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(8),
     textAlign: "center",
   },
 });

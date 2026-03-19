@@ -1,36 +1,45 @@
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import IMAGES from '../assets/Images'
-import { horizontalScale, verticalScale } from '../utils/Metrics'
-import COLORS from '../utils/Colors'
-import { CustomText } from './CustomText'
+import LottieView from "lottie-react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import LOTTIES from "../assets/lotties";
 import { useAppSelector } from "../redux/store";
+import COLORS from "../utils/Colors";
+import { horizontalScale, verticalScale } from "../utils/Metrics";
+import { CustomText } from "./CustomText";
 
 const ImpactLoader = () => {
   const { claimedNumber } = useAppSelector((state) => state.user);
   return (
     <View style={styles.container}>
-      <Image
-        source={IMAGES.OnePaliLogo}
-        resizeMode="contain"
+      <LottieView
+        source={LOTTIES.logoLoading}
         style={styles.logo}
+        speed={0.8}
       />
-      <View style={{ alignItems: "center", marginTop: verticalScale(32) }}>
+      <View style={{ alignItems: "center", marginTop: verticalScale(20) }}>
         <CustomText
           fontFamily="GabaritoSemiBold"
-          fontSize={32}
+          fontSize={63}
           color={COLORS.darkText}
           style={{ textAlign: "center" }}
         >
-          {`#${claimedNumber},\n thank you for \n supporting Palestine`}
+          {`#${claimedNumber || 100}`}
         </CustomText>
-        <View style={{ marginTop: verticalScale(32), gap: verticalScale(12) }}>
+        <CustomText
+          fontFamily="GabaritoMedium"
+          fontSize={20}
+          color={COLORS.darkText}
+          style={{ textAlign: "center" }}
+        >
+          Thank you for supporting Palestine
+        </CustomText>
+        {/* <View style={{ marginTop: verticalScale(32), gap: verticalScale(12) }}>
           <ActivityIndicator color={COLORS.appText} size={"small"} />
-        </View>
+        </View> */}
       </View>
     </View>
   );
-}
+};
 
 export default ImpactLoader;
 
@@ -42,8 +51,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: horizontalScale(64),
-    height: verticalScale(64),
+    width: horizontalScale(100),
+    height: verticalScale(100),
     resizeMode: "contain",
     alignSelf: "center",
   },

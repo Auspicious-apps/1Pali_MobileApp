@@ -4,13 +4,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useEffect, useState } from "react";
-import {
-  Alert,
-  Image,
-  Platform,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import FONTS from "../../assets/fonts";
