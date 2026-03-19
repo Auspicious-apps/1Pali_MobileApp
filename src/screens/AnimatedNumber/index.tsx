@@ -27,10 +27,12 @@ import {
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import Toast from "react-native-toast-message";
-import ICONS from "../../assets/Icons";
-import CustomIcon from "../../components/CustomIcon";
 import PrimaryButton from "../../components/PrimaryButton";
 import COLORS from "../../utils/Colors";
+import CustomIcon from "../../components/CustomIcon";
+import ICONS from "../../assets/Icons";
+import DonationSlider from "../../components/DonationSlider";
+import NumnerDetailModal from "../../components/Modal/NumberDetailModal";
 
 const AnimatedNumber = () => {
   const navigation: any = useNavigation();
@@ -38,6 +40,8 @@ const AnimatedNumber = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const headerSlideAnim = useRef(new Animated.Value(-50)).current;
+  const [donationAmount, setDonationAmount] = useState(1);
+
   const reservationToken = useAppSelector(selectReservationToken);
   const previousReservationToken = useAppSelector(
     selectPreviousReservationToken,
@@ -47,6 +51,7 @@ const AnimatedNumber = () => {
   const [loading, setLoading] = useState(true);
   const [animationDone, setAnimationDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Fetch random number
   const fetchRandomNumber = async () => {
@@ -181,15 +186,49 @@ const AnimatedNumber = () => {
             </TouchableOpacity>
 
             <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-
+          
+          <TouchableOpacity
+            onPress={() => setIsModalVisible(true)}
+            activeOpacity={0.8}
+          >
             <CustomIcon
               Icon={ICONS.QuestionMark}
               height={verticalScale(32)}
               width={verticalScale(32)}
             />
+            </TouchableOpacity>
           </View>
         </Animated.View>
       )}
+
+      {!animationDone ? (
+        <View style={styles.logoContainer}>
+          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+
+          <TouchableOpacity
+            onPress={() => setIsModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <CustomIcon
+              Icon={ICONS.QuestionMark}
+              height={verticalScale(32)}
+              width={verticalScale(32)}
+            />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.logoContainer}>
+          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+        </View>
+      )}
+
+      {/* <DonationSlider
+        min={1}
+        max={100}
+        onValueChange={(value) => {
+          setDonationAmount(value);
+        }}
+      /> */}
 
       {/* Center Slot Animation */}
       <View style={styles.centerContainer}>
@@ -234,6 +273,11 @@ const AnimatedNumber = () => {
           </TouchableOpacity>
         </Animated.View>
       )}
+
+      <NumnerDetailModal
+        isVisible={isModalVisible}
+        setIsVisible={setIsModalVisible}
+      />
     </SafeAreaView>
   );
 };
