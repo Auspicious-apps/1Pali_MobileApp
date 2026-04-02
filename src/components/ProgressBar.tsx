@@ -216,11 +216,11 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
         setIsVisible={setIsBadgeModalVisible}
         badgeLabel={badgeName}
         badgeMonths={
-          showFinalGoal
+          isAccountScreen
+            ? `Earned at ${growthBadge?.requirement.consecutiveMonths} months`
+            : showFinalGoal
             ? `1M supporters reached`
-            : `${formatNumber(
-                nextMilestone?.threshold!,
-              )} supporters reached`
+            : `${formatNumber(nextMilestone?.threshold!)} supporters reached`
         }
         isLocked={true}
         sheetTitle={showFinalGoal ? "Final Milestone" : "Next Milestone"}

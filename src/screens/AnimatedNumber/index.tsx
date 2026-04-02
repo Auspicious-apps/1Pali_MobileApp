@@ -8,14 +8,14 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { fetchData, postData } from "../../service/ApiService";
-import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
-import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
-import { CustomText } from "../../components/CustomText";
-import { SlotMachineNumber } from "../../components/SlotMachineNumber";
+import Toast from "react-native-toast-message";
+import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
+import NumnerDetailModal from "../../components/Modal/NumberDetailModal";
+import PrimaryButton from "../../components/PrimaryButton";
+import { SlotMachineNumber } from "../../components/SlotMachineNumber";
 import {
   clearReservationToken,
   selectClaimedNumber,
@@ -26,13 +26,12 @@ import {
   startReservationTimer,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import Toast from "react-native-toast-message";
-import PrimaryButton from "../../components/PrimaryButton";
+import ENDPOINTS from "../../service/ApiEndpoints";
+import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
+import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
+import { fetchData, postData } from "../../service/ApiService";
 import COLORS from "../../utils/Colors";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
-import DonationSlider from "../../components/DonationSlider";
-import NumnerDetailModal from "../../components/Modal/NumberDetailModal";
+import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 const AnimatedNumber = () => {
   const navigation: any = useNavigation();
@@ -186,49 +185,20 @@ const AnimatedNumber = () => {
             </TouchableOpacity>
 
             <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-          
-          <TouchableOpacity
-            onPress={() => setIsModalVisible(true)}
-            activeOpacity={0.8}
-          >
-            <CustomIcon
-              Icon={ICONS.QuestionMark}
-              height={verticalScale(32)}
-              width={verticalScale(32)}
-            />
+
+            <TouchableOpacity
+              onPress={() => setIsModalVisible(true)}
+              activeOpacity={0.8}
+            >
+              <CustomIcon
+                Icon={ICONS.QuestionMark}
+                height={verticalScale(32)}
+                width={verticalScale(32)}
+              />
             </TouchableOpacity>
           </View>
         </Animated.View>
       )}
-
-      {!animationDone ? (
-        <View style={styles.logoContainer}>
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-
-          <TouchableOpacity
-            onPress={() => setIsModalVisible(true)}
-            activeOpacity={0.8}
-          >
-            <CustomIcon
-              Icon={ICONS.QuestionMark}
-              height={verticalScale(32)}
-              width={verticalScale(32)}
-            />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.logoContainer}>
-          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
-        </View>
-      )}
-
-      {/* <DonationSlider
-        min={1}
-        max={100}
-        onValueChange={(value) => {
-          setDonationAmount(value);
-        }}
-      /> */}
 
       {/* Center Slot Animation */}
       <View style={styles.centerContainer}>
@@ -238,6 +208,26 @@ const AnimatedNumber = () => {
             onRevealComplete={() => setAnimationDone(true)}
           />
         )}
+
+        <Animated.View
+          style={[
+            styles.bottomContainer,
+            {
+              opacity: fadeAnim, // Apply fade
+              transform: [{ translateY: slideAnim }], // Apply slide
+            },
+          ]}
+        >
+          {animationDone && (
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={22}
+              style={styles.subtext}
+            >
+              {"One of a million supporters"}
+            </CustomText>
+          )}
+        </Animated.View>
       </View>
 
       {/* Bottom Buttons */}
@@ -333,5 +323,9 @@ const styles = StyleSheet.create({
   chooseText: {
     color: COLORS.darkText,
     textDecorationLine: "underline",
+  },
+  subtext: {
+    color: COLORS.darkText,
+    textAlign: "center",
   },
 });

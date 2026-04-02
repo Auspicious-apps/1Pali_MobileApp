@@ -1,14 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
-import { CustomText } from "./CustomText";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import FONTS from "../assets/fonts";
 import COLORS from "../utils/Colors";
-import { responsiveFontSize, verticalScale } from "../utils/Metrics";
+import {
+  horizontalScale,
+  responsiveFontSize,
+  verticalScale,
+} from "../utils/Metrics";
+import { CustomText } from "./CustomText";
 
 interface Props {
   number: number;
   onRevealComplete?: () => void;
 }
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 
 export function SlotMachineNumber({ number, onRevealComplete }: Props) {
   const paddedNumber = String(number).padStart(6, "0").split("");
@@ -26,17 +36,20 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
   const colorAnim = useRef(
     [...Array(6)].map(() => new Animated.Value(0)),
   ).current;
-
-  // 1. Create a separate animated value for the Hash
   const hashColorAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     setFinished(false);
-    hashColorAnim.setValue(0); // Reset hash color
+    hashColorAnim.setValue(0);
     const intervals: any[] = [];
+
+    // [ ] Scramble begins: Single Light tap
+    ReactNativeHapticFeedback.trigger("impactLight", hapticOptions);
 
     paddedNumber.forEach((digit, index) => {
       let spinCount = 0;
+      // Timing: ~300ms for first, then ~1000ms (14 ticks * 70ms) for others
+      const lockThreshold = 4 + index * 10;
 
       setVisibleSlots((prev) => {
         const copy = [...prev];
@@ -46,27 +59,36 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
 
       const interval = setInterval(() => {
         spinCount++;
+
         setDigits((prev) => {
           const copy = [...prev];
           copy[index] = Math.floor(Math.random() * 10).toString();
           return copy;
         });
 
-        if (spinCount > 20 + index * 6) {
+        if (spinCount >= lockThreshold) {
           clearInterval(interval);
+
+          // [ ] Haptic Lock Logic
+          if (index === 5) {
+            // [ ] Final digit locks: Heavy
+            ReactNativeHapticFeedback.trigger("impactHeavy", hapticOptions);
+          } else {
+            // [ ] Each digit locks (1-5): Medium
+            ReactNativeHapticFeedback.trigger("impactMedium", hapticOptions);
+          }
+
           setDigits((prev) => {
             const copy = [...prev];
             copy[index] = digit;
             return copy;
           });
 
+          // Logic to hide leading zeros
           const isLeadingZero = paddedNumber
             .slice(0, index + 1)
             .every((d) => d === "0");
-          const isFirstNonZero =
-            !isLeadingZero && (index === 0 || paddedNumber[index - 1] === "0");
 
-          // 2. If this is the first digit that stays visible, animate the Hash color too
           if (!isLeadingZero || index === paddedNumber.length - 1) {
             Animated.timing(hashColorAnim, {
               toValue: 1,
@@ -91,10 +113,15 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
 
           if (index === 5) {
             setFinished(true);
-            onRevealComplete?.();
+
+            // [ ] Emotional hook fades in: Light haptic
+            setTimeout(() => {
+              ReactNativeHapticFeedback.trigger("impactLight", hapticOptions);
+              onRevealComplete?.();
+            }, 150);
           }
         }
-      }, 70);
+      }, 50);
 
       intervals.push(interval);
     });
@@ -102,7 +129,6 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
     return () => intervals.forEach(clearInterval);
   }, [number]);
 
-  // 3. Interpolate the Hash color
   const hashColor = hashColorAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [COLORS.grey, COLORS.darkText],
@@ -113,32 +139,34 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
       <CustomText style={styles.label}>Your number is</CustomText>
 
       <View style={styles.row}>
-        {/* Animated Hash */}
         <Animated.Text style={[styles.hash, { color: hashColor }]}>
           #
         </Animated.Text>
 
         {digits.map((digit, index) => {
-          if (!visibleSlots[index]) return null;
-
           const color = colorAnim[index].interpolate({
             inputRange: [0, 1],
             outputRange: [COLORS.grey, COLORS.darkText],
           });
 
           return (
-            <Animated.Text key={index} style={[styles.number, { color }]}>
-              {digit}
-            </Animated.Text>
+            <View
+              key={index}
+              style={[
+                styles.digitContainer,
+                {
+                  width: visibleSlots[index] ? horizontalScale(40) : 0,
+                  opacity: visibleSlots[index] ? 1 : 0,
+                },
+              ]}
+            >
+              <Animated.Text style={[styles.number, { color }]}>
+                {digit}
+              </Animated.Text>
+            </View>
           );
         })}
       </View>
-
-      {finished && (
-        <CustomText style={styles.subtext}>
-          {"One of a million supporters"}
-        </CustomText>
-      )}
     </View>
   );
 }
@@ -146,29 +174,37 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: verticalScale(140),
   },
-
   label: {
     fontFamily: FONTS.GabaritoRegular,
     fontSize: responsiveFontSize(18),
     color: COLORS.appText,
+    marginBottom: verticalScale(4),
   },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    height: verticalScale(80),
   },
-
+  digitContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
   hash: {
     fontFamily: FONTS.GabaritoSemiBold,
     fontSize: responsiveFontSize(72),
+    marginRight: horizontalScale(2),
   },
-
   number: {
     fontFamily: FONTS.GabaritoSemiBold,
     fontSize: responsiveFontSize(72),
+    fontVariant: ["tabular-nums"],
+    textAlign: "center",
   },
-
   subtext: {
     fontFamily: FONTS.GabaritoSemiBold,
     fontSize: responsiveFontSize(22),

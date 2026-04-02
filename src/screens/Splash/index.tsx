@@ -40,7 +40,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
   const isIphoneSE = Platform.OS === "ios" && height <= 667;
-  const { user } = useAppSelector((state) => state.user);
+  const user = useAppSelector((state) => state.user.user);
 
   const checkAuthenticationStatus = async () => {
     try {
