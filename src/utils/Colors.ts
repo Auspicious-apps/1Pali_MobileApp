@@ -34,6 +34,7 @@ const COLORS = {
   midDarkBrown: "#361A12",
   lightGreyText: "#777A80",
   lightBorder: "#DEE2E6",
+  liteGreen: "#DEE8DE",
 };
 
 export default COLORS;

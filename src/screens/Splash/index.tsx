@@ -34,6 +34,7 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
+import { logEvent } from "../../Context/analyticsService";
 
 const { height, width } = Dimensions.get("window");
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
@@ -105,8 +106,10 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   };
 
   const handleGetStarted = () => {
+    logEvent("Ob_Welcome_View");
+
     if (!user?.assignedNumber) {
-      navigation.replace("OnBoardingStack", { screen: "onboarding" });
+      navigation.replace("OnBoardingStack", { screen: "quickDonate" });
       return;
     }
     if (user?.assignedNumber && !user?.hasSubscription) {
@@ -138,13 +141,13 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             color={COLORS.appBackground}
             style={styles.subtitleText}
           >
-            Be one in a million supporting Palestine.
+            {`Join a million supporters giving\n$1/month for Palestine.`}
           </CustomText>
         </View>
         <View style={styles.globalImageContainer}>
           <Image
-            source={IMAGES.PeoplesImage}
-            resizeMode="contain"
+            source={IMAGES.NewSplashImage}
+            resizeMode="cover"
             style={styles.globalImage}
           />
         </View>
@@ -201,14 +204,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: horizontalScale(54),
-    height: verticalScale(54),
+    width: horizontalScale(48),
+    height: verticalScale(48),
     resizeMode: "contain",
     alignSelf: "center",
   },
   titleContainer: {
     marginTop: verticalScale(24),
-    gap: Platform.OS === "ios" ? verticalScale(0) : verticalScale(6),
+    gap: Platform.OS === "ios" ? verticalScale(12) : verticalScale(12),
   },
   titleText: {
     textAlign: "center",
@@ -220,11 +223,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   globalImageContainer: {
-    marginTop: Platform.OS === "ios" ? verticalScale(16) : verticalScale(16),
+    marginTop: Platform.OS === "ios" ? verticalScale(40) : verticalScale(40),
   },
   globalImage: {
     width: "100%",
-    height: Platform.OS === "ios" ? hp(42) : hp(45),
+    height: Platform.OS === "ios" ? hp(32.2) : hp(32.2),
   },
   dividerRow: {
     flexDirection: "row",
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
     height: verticalScale(40),
     alignSelf: "center",
     resizeMode: "contain",
-    marginTop: isIphoneSE ? verticalScale(24) : verticalScale(0),
+    marginTop: isIphoneSE ? verticalScale(24) : verticalScale(16),
   },
 
   button: {

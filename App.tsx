@@ -14,6 +14,8 @@ import { store } from "./src/redux/store";
 import Routes from "./src/routes";
 import COLORS from "./src/utils/Colors";
 import { horizontalScale, verticalScale } from "./src/utils/Metrics";
+import { useEffect } from "react";
+import analytics from "@react-native-firebase/analytics";
 
 LogBox.ignoreAllLogs();
 

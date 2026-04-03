@@ -162,7 +162,7 @@ const AnimatedNumber = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      {animationDone && (
+      {animationDone ? (
         <Animated.View
           style={[
             {
@@ -198,6 +198,10 @@ const AnimatedNumber = () => {
             </TouchableOpacity>
           </View>
         </Animated.View>
+      ) : (
+        <View style={styles.logoContainer}>
+          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+        </View>
       )}
 
       {/* Center Slot Animation */}
@@ -224,7 +228,7 @@ const AnimatedNumber = () => {
               fontSize={22}
               style={styles.subtext}
             >
-              {"One of a million supporters"}
+              {"Your unique identity in \n our community"}
             </CustomText>
           )}
         </Animated.View>
@@ -321,7 +325,7 @@ const styles = StyleSheet.create({
   },
 
   chooseText: {
-    color: COLORS.darkText,
+    color: COLORS.appText,
     textDecorationLine: "underline",
   },
   subtext: {

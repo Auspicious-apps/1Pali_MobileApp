@@ -26,10 +26,17 @@ const IMAGES = {
   thriceImage: require("./thriceImage.png"),
   CharityNavigator: require("./CharityNavigator.png"),
   middleEast: require("./middleEast.png"),
-  progressImage: require("./ProgressImage.png"),
+  progressImage: require("./progressImage.png"),
   SplashBackground: require("./SplashBackground.png"),
   PeoplesImage: require("./PeoplesImage.png"),
   LogoOnepali: require("./LogoOnepali.png"),
+  NewSplashImage: require("./NewSplash.png"),
+  Carousel1: require("./Carousel1.png"),
+  Carousel2: require("./Carousel2.png"),
+  Carousel3: require("./Carousel3.png"),
+  Carousel4: require("./Carousel4.png"),
+  MECA: require("./MECA.png"),
+  PeoplesDonating: require("./PeoplesDonating.png"),
 };
 
 export default IMAGES;

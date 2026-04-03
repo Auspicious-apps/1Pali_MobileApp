@@ -13,6 +13,7 @@ import { CustomText } from "./CustomText";
 interface Props {
   number: number;
   onRevealComplete?: () => void;
+  isRevealed?: boolean;
 }
 
 const hapticOptions = {
@@ -20,7 +21,11 @@ const hapticOptions = {
   ignoreAndroidSystemSettings: false,
 };
 
-export function SlotMachineNumber({ number, onRevealComplete }: Props) {
+export function SlotMachineNumber({
+  number,
+  onRevealComplete,
+  isRevealed,
+}: Props) {
   const paddedNumber = String(number).padStart(6, "0").split("");
   const [digits, setDigits] = useState(["0", "0", "0", "0", "0", "0"]);
   const [finished, setFinished] = useState(false);
@@ -136,7 +141,12 @@ export function SlotMachineNumber({ number, onRevealComplete }: Props) {
 
   return (
     <View style={styles.container}>
-      <CustomText style={styles.label}>Your number is</CustomText>
+      <CustomText style={[styles.label, { textAlign: "center" }]}>
+        {/* {isRevealed
+          ? "Every supporter has a unique number. \nThis one belongs to you."
+          : "You are OnePali supporter"} */}
+        Supporter Number
+      </CustomText>
 
       <View style={styles.row}>
         <Animated.Text style={[styles.hash, { color: hashColor }]}>

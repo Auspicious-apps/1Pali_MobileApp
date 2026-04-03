@@ -8,11 +8,11 @@ import { OnboardingProps } from '../../typings/routes';
 import HapticFeedback from "react-native-haptic-feedback";
 
 const texts = [
-  "1,000,000 people ",
-  "donating $1 each",
-  "once a month",
-  "for Palestine.",
-  "This is OnePali.",
+  "1,000,000 people",
+  "giving $1",
+  "every month",
+  "to Palestine",
+  "This is OnePali",
 ];
 
 const LETTER_DELAY = 40;
@@ -60,7 +60,7 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
         setCurrentIndex(prev => prev + 1);
       } else {
         navigation.replace("OnBoardingStack", {
-          screen: "onePaliWorks",
+          screen: "aidSupportScreen",
         });
       }
     }, totalTime);

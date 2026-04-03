@@ -10,11 +10,14 @@ export type RootStackParams = {
 export type OnBoardingStackParams = {
   splash: undefined;
   onboarding: undefined;
+  aidSupportScreen: undefined;
+  howItWorks: undefined;
   onePaliWorks: undefined;
   animatedNumber: undefined;
   claimSpot: undefined;
   missionIntro?: { showNumber?: boolean };
   joinOnePali: undefined;
+  quickDonate: undefined;
   signIn: undefined;
 };
 
@@ -74,6 +77,14 @@ export type OnboardingProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
   "onboarding"
 >;
+export type AidSupportScreenProps = NativeStackScreenProps<
+  RootStackParams & OnBoardingStackParams,
+  "aidSupportScreen"
+>;
+export type HowItWorksScreenProps = NativeStackScreenProps<
+  RootStackParams & OnBoardingStackParams,
+  "howItWorks"
+>;
 export type onePaliWorksProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
   "onePaliWorks"
@@ -93,6 +104,10 @@ export type MissionIntroProps = NativeStackScreenProps<
 export type JoinOnePaliProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,
   "joinOnePali"
+>;
+export type QuickDonateProps = NativeStackScreenProps<
+  RootStackParams & OnBoardingStackParams,
+  "quickDonate"
 >;
 export type SignInProps = NativeStackScreenProps<
   RootStackParams & OnBoardingStackParams,

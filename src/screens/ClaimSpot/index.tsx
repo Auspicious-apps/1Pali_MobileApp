@@ -38,6 +38,7 @@ import { ClaimSpotProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { isTablet, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
+import { logEvent } from "../../Context/analyticsService";
 
 const { height } = Dimensions.get("window");
 
@@ -239,6 +240,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
 
   // Reserve the specific number via API and navigate on success
   const handleReserveNumber = async () => {
+    logEvent("Ob_Number_Claimed");
     // if (checking || !available || !number) return;
     if (checking || !available || !number || isLoading) return;
 

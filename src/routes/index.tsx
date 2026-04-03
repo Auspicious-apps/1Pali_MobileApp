@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React from "react";
+import React, { useRef } from "react";
 import { Platform } from "react-native";
 import "react-native-gesture-handler";
 import BottomTabBar from "../components/BottomTabBar";
@@ -33,6 +33,10 @@ import {
 import SignIn from "../screens/SignIn";
 import { navigationRef } from "../utils/Helpers";
 import AnimatedNumber from "../screens/AnimatedNumber";
+import analytics from "@react-native-firebase/analytics";
+import AidSupportScreen from "../screens/AidSupportScreen";
+import HowItWorks from "../screens/HowItWorks";
+import QuickDonate from "../screens/QuickDonate";
 
 const Stack = createNativeStackNavigator<RootStackParams>();
 const OnBoardingStackNavigator =
@@ -48,6 +52,8 @@ const navigatorScreenOptions = {
     : "slide_from_right") as any,
 };
 
+
+
 function OnBoardingStack() {
   return (
     <OnBoardingStackNavigator.Navigator screenOptions={navigatorScreenOptions}>
@@ -55,6 +61,14 @@ function OnBoardingStack() {
       <OnBoardingStackNavigator.Screen
         name="onboarding"
         component={Onboarding}
+      />
+      <OnBoardingStackNavigator.Screen
+        name="aidSupportScreen"
+        component={AidSupportScreen}
+      />
+      <OnBoardingStackNavigator.Screen
+        name="howItWorks"
+        component={HowItWorks}
       />
       <OnBoardingStackNavigator.Screen
         name="onePaliWorks"
@@ -72,6 +86,10 @@ function OnBoardingStack() {
       <OnBoardingStackNavigator.Screen
         name="joinOnePali"
         component={JoinOnePali}
+      />
+      <OnBoardingStackNavigator.Screen
+        name="quickDonate"
+        component={QuickDonate}
       />
       <OnBoardingStackNavigator.Screen name="signIn" component={SignIn} />
     </OnBoardingStackNavigator.Navigator>

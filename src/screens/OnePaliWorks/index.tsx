@@ -27,6 +27,7 @@ import { onePaliWorksProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
+import { logEvent } from "../../Context/analyticsService";
 
 const fundImages = [IMAGES.KidsImage, IMAGES.kidsImageOne];
 
@@ -503,6 +504,7 @@ const OnePaliWorks: FC<onePaliWorksProps> = ({ navigation }) => {
         <PrimaryButton
           title="Continue"
           onPress={() => {
+            logEvent("Ob_How_It_Works");
             navigation.navigate("animatedNumber");
           }}
           style={styles.primaryButton}

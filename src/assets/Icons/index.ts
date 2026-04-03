@@ -92,6 +92,9 @@ import Switcher from "./Switcher.svg";
 import CheckboxInput from "./CheckboxInput.svg";
 import QuestionMark from "./QuestionMark.svg";
 import BackArrowBg from "./BackArrowBgIcon.svg";
+import PencilIcon from "./pencil.svg";
+import WinterClothes from "./WinterClothes.svg";
+import WhitePencil from "./WhitePencil.svg";
 
 const ICONS = {
   diceIcon,
@@ -188,6 +191,9 @@ const ICONS = {
   CheckboxInput,
   QuestionMark,
   BackArrowBg,
+  PencilIcon,
+  WinterClothes,
+  WhitePencil,
 };
 
 export default ICONS;

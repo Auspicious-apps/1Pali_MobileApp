@@ -36,6 +36,7 @@ import {
 } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
+import { logEvent } from "../../Context/analyticsService";
 
 const initialTimer = 300;
 
@@ -72,6 +73,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   }, []);
 
   const handleAppleSignIn = async () => {
+
+    logEvent("Ob_Sign_In");
+    
     if (!isChecked) {
       setShowCheckboxError(true);
       return;
@@ -169,7 +173,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           return;
         }
 
-        navigation.navigate("joinOnePali");
+        navigation.navigate("OnBoardingStack", { screen: "quickDonate" });
       }
     } catch (error: any) {
       console.log("error", error);
@@ -184,6 +188,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   };
 
   const handleGoogleSignIn = async () => {
+    logEvent("Ob_Sign_In");
+
     if (!isChecked) {
       setShowCheckboxError(true);
       return;
@@ -357,7 +363,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={18}
-                color={COLORS.greyText}
+                color={COLORS.appText}
                 style={{ textAlign: "center", marginTop: 8 }}
               >
                 {`#${claimedNumber} reserved for ${reservationSeconds}s`}
