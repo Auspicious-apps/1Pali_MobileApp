@@ -9,12 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ICONS from "../assets/Icons";
 import COLORS from "../utils/Colors";
 import { horizontalScale, isAndroid, verticalScale } from "../utils/Metrics";
 import CustomIcon from "./CustomIcon";
 import { CustomText } from "./CustomText";
-import { CommonActions } from "@react-navigation/native";
 
 type Tab = {
   name: string;
@@ -51,6 +51,9 @@ const tabs: Tab[] = [
 const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const { state, navigation } = props;
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  console.log(insets.bottom);
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -129,6 +132,13 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
         styles.mainContainer,
         keyboardVisible && {
           display: Platform.OS === "android" ? "none" : undefined,
+        },
+        {
+          paddingBottom: isAndroid
+            ? insets.bottom > 25
+              ? insets.bottom - 10
+              : verticalScale(0)
+            : verticalScale(0),
         },
       ]}
     >

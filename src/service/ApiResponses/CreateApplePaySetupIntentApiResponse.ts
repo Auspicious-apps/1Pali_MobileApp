@@ -3,4 +3,5 @@ export interface CreateApplePaySetupIntentApiResponse {
   paymentIntentId: string;
   amount: number;
   currency: string;
+  priceId: string
 }

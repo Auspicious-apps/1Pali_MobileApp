@@ -36,7 +36,7 @@ function App() {
         >
           <Provider store={store}>
             <SafeAreaProvider>
-              <StatusBar barStyle={"dark-content"} />
+              <StatusBar barStyle={"dark-content"} backgroundColor={COLORS.white} />
               <Routes />
               {__DEV__ && <NetworkLogger />}
               <Toast

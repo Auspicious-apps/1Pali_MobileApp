@@ -162,7 +162,7 @@ const AnimatedNumber = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      {animationDone ? (
+      {animationDone && (
         <Animated.View
           style={[
             {
@@ -198,10 +198,6 @@ const AnimatedNumber = () => {
             </TouchableOpacity>
           </View>
         </Animated.View>
-      ) : (
-        <View style={styles.logoContainer}>
-          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
-        </View>
       )}
 
       {/* Center Slot Animation */}

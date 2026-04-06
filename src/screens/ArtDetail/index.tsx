@@ -55,7 +55,13 @@ import { ShareArtResponse } from "../../service/ApiResponses/ShareArtResponse";
 import { fetchData, postData } from "../../service/ApiService";
 import { ArtDetailScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  hp,
+  isAndroid,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 const { NativeShare } = NativeModules;
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
@@ -1310,7 +1316,16 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               width: 20,
             }}
             onPress={handleShareToMore}
-            style={styles.shareBtn}
+            style={{
+              position: "absolute",
+              alignSelf: "center",
+              backgroundColor: COLORS.appBackground,
+              bottom: isAndroid
+                ? insets.bottom > 20
+                  ? insets.bottom + verticalScale(10)
+                  : verticalScale(30)
+                : verticalScale(30),
+            }}
             textColor={COLORS.darkText}
           />
         </Animated.View>
@@ -1549,7 +1564,6 @@ const styles = StyleSheet.create({
 
   shareBtn: {
     position: "absolute",
-    bottom: verticalScale(30),
     alignSelf: "center",
     backgroundColor: COLORS.appBackground,
   },

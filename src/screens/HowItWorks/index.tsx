@@ -1,35 +1,22 @@
-import React, { FC, useEffect, useRef, useState } from "react";
-import {
-    Dimensions,
-  FlatList,
-  Image,
-  Platform,
-  StyleSheet,
-  View,
-} from "react-native";
+import React, { FC, useState } from "react";
+import { Dimensions, Image, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
-import FocusResetScrollView from "../../components/FocusResetScrollView";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import WebViewBottomSheet from "../../components/WebViewBottomSheet";
-import { setRemainingSpots } from "../../redux/slices/remainingSpotsSlice";
+import { logEvent } from "../../Context/analyticsService";
 import { useAppDispatch } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { RemainingSpotsApiResponse } from "../../service/ApiResponses/RemainingSpots";
-import { fetchData } from "../../service/ApiService";
-import {  HowItWorksScreenProps } from "../../typings/routes";
+import { HowItWorksScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
 import {
   horizontalScale,
-  hp,
   isTablet,
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import { logEvent } from "../../Context/analyticsService";
-import COLORS from "../../utils/Colors";
-import { CustomText } from "../../components/CustomText";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
 
 const supportItems = [
   {
@@ -81,154 +68,138 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
               </CustomText>
             </View>
 
-            <View
-              style={
-                {
-                  // paddingHorizontal: horizontalScale(16),
-                }
-              }
-            >
-              <View style={styles.card}>
+            <View style={styles.card}>
+              <View
+                style={{
+                  backgroundColor: "#F2F3F790",
+                  padding: horizontalScale(12),
+                  borderRadius: 20,
+                  marginVertical: verticalScale(4),
+                }}
+              >
                 <View
                   style={{
-                    backgroundColor: "#F2F3F790",
-                    padding: horizontalScale(12),
-                    borderRadius: 20,
-                    marginVertical: verticalScale(4),
-                  }}
-                >
-                  <View
-                    style={{
-                      alignItems: "center",
-                      gap: horizontalScale(8),
-                      width: "100%",
-                    }}
-                  >
-                    <Image
-                      source={IMAGES.MECA}
-                      resizeMode="contain"
-                      style={{
-                        width: horizontalScale(140),
-                        height: verticalScale(32),
-                      }}
-                    />
-                    <View style={{ gap: verticalScale(4) }}>
-                      <CustomText
-                        fontFamily="GabaritoMedium"
-                        fontSize={20}
-                        style={{
-                          color: COLORS.darkText,
-                          textAlign: "center",
-                        }}
-                      >
-                        Middle East Children’s Alliance
-                      </CustomText>
-                      <CustomText
-                        fontFamily="GabaritoRegular"
-                        fontSize={15}
-                        style={{
-                          color: COLORS.appText,
-                          flexShrink: 1,
-                          textAlign: "center",
-                        }}
-                      >
-                        Serving children & families in Palestine {"\n"} for
-                        nearly 40 years
-                      </CustomText>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    paddingBottom: verticalScale(16),
-                    paddingTop: verticalScale(16),
-                    paddingHorizontal: horizontalScale(24),
-                  }}
-                >
-                  {supportItems.map((item, index) => (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: horizontalScale(8),
-                        paddingTop:
-                          index === 0 ? verticalScale(0) : verticalScale(10),
-                        paddingBottom:
-                          index === supportItems.length - 1
-                            ? verticalScale(0)
-                            : verticalScale(10),
-                        borderBottomWidth:
-                          index !== supportItems.length - 1 ? 1 : 0,
-                        borderColor: COLORS.greyish,
-                      }}
-                    >
-                      <CustomIcon
-                        Icon={item.icon}
-                        height={horizontalScale(24)}
-                        width={horizontalScale(24)}
-                      />
-                      <CustomText
-                        fontFamily="GabaritoRegular"
-                        fontSize={15}
-                        color={COLORS.darkText}
-                      >
-                        {item.text}
-                      </CustomText>
-                    </View>
-                  ))}
-                </View>
-                <View
-                  style={{
-                    width: "100%",
                     alignItems: "center",
-                    overflow: "hidden",
-                    borderRadius: 50,
-                    alignSelf: "center",
+                    gap: horizontalScale(8),
+                    width: "100%",
                   }}
                 >
                   <Image
-                    source={IMAGES.progressImage}
-                    resizeMode="cover"
-                    style={{ width: "100%", height: verticalScale(12) }}
+                    source={IMAGES.MECA}
+                    resizeMode="contain"
+                    style={{
+                      width: horizontalScale(140),
+                      height: verticalScale(32),
+                    }}
                   />
+                  <View style={{ gap: verticalScale(4) }}>
+                    <CustomText
+                      fontFamily="GabaritoMedium"
+                      fontSize={20}
+                      style={{
+                        color: COLORS.darkText,
+                        textAlign: "center",
+                      }}
+                    >
+                      Middle East Children’s Alliance
+                    </CustomText>
+                    <CustomText
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
+                      style={{
+                        color: COLORS.appText,
+                        flexShrink: 1,
+                        textAlign: "center",
+                      }}
+                    >
+                      Serving children & families in Palestine {"\n"} for nearly
+                      40 years
+                    </CustomText>
+                  </View>
                 </View>
-                <CustomText
-                  fontFamily="SourceSansRegular"
-                  fontSize={13}
-                  style={{
-                    color: COLORS.appText,
-                    textAlign: "center",
-                    marginTop: verticalScale(8),
-                    lineHeight: verticalScale(16),
-                  }}
-                >
-                  After processing fees, 90% goes to MECA,{"\n"} 10% keeps the
-                  OnePali platform growing 
-                </CustomText>
               </View>
+              <View
+                style={{
+                  paddingBottom: verticalScale(16),
+                  paddingTop: verticalScale(16),
+                  paddingHorizontal: horizontalScale(24),
+                }}
+              >
+                {supportItems.map((item, index) => (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: horizontalScale(8),
+                      paddingTop:
+                        index === 0 ? verticalScale(0) : verticalScale(10),
+                      paddingBottom:
+                        index === supportItems.length - 1
+                          ? verticalScale(0)
+                          : verticalScale(10),
+                      borderBottomWidth:
+                        index !== supportItems.length - 1 ? 1 : 0,
+                      borderColor: COLORS.greyish,
+                    }}
+                  >
+                    <CustomIcon
+                      Icon={item.icon}
+                      height={horizontalScale(24)}
+                      width={horizontalScale(24)}
+                    />
+                    <CustomText
+                      fontFamily="GabaritoRegular"
+                      fontSize={15}
+                      color={COLORS.darkText}
+                    >
+                      {item.text}
+                    </CustomText>
+                  </View>
+                ))}
+              </View>
+              <View
+                style={{
+                  width: "100%",
+                  alignItems: "center",
+                  overflow: "hidden",
+                  borderRadius: 50,
+                  alignSelf: "center",
+                }}
+              >
+                <Image
+                  source={IMAGES.progressImage}
+                  resizeMode="cover"
+                  style={{ width: "100%", height: verticalScale(12) }}
+                />
+              </View>
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={13}
+                style={{
+                  color: COLORS.appText,
+                  textAlign: "center",
+                  marginTop: verticalScale(8),
+                  lineHeight: verticalScale(16),
+                }}
+              >
+                After processing fees, 90% goes to MECA,{"\n"} 10% keeps the
+                OnePali platform growing
+              </CustomText>
             </View>
+            {/*  BUTTON */}
+
+            <PrimaryButton
+              title="Join OnePali"
+              onPress={() => {
+                logEvent("Ob_How_It_Works");
+                navigation.navigate("animatedNumber");
+              }}
+              style={styles.primaryButton}
+              hapticFeedback
+              hapticType="impactLight"
+            />
           </View>
-
-          {/*  BUTTON */}
-          <PrimaryButton
-            title="Join OnePali"
-            onPress={() => {
-              logEvent("Ob_How_It_Works");
-              navigation.navigate("animatedNumber");
-            }}
-            style={styles.primaryButton}
-            hapticFeedback
-            hapticType="impactLight"
-          />
         </View>
-
-        {/*  WEBVIEW */}
-        <WebViewBottomSheet
-          isVisible={isWebViewVisible}
-          title="FAQs"
-          url="https://onepali.app/"
-          onClose={() => setIsWebViewVisible(false)}
-        />
       </SafeAreaView>
     </View>
   );
@@ -272,7 +243,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   primaryButton: {
-    marginBottom: verticalScale(24),
+    marginTop: verticalScale(24),
     paddingHorizontal: horizontalScale(16),
   },
   sectionDescription: {
@@ -294,7 +265,7 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(24),
     paddingHorizontal: horizontalScale(8),
     paddingBottom: verticalScale(16),
-     width: isTablet ? wp(80) : wp(90),
+    width: isTablet ? wp(80) : wp(90),
   },
   centerText: {
     color: COLORS.darkText,

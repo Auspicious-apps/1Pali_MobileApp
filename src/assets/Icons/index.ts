@@ -95,6 +95,7 @@ import BackArrowBg from "./BackArrowBgIcon.svg";
 import PencilIcon from "./pencil.svg";
 import WinterClothes from "./WinterClothes.svg";
 import WhitePencil from "./WhitePencil.svg";
+import BackSpaceIcon from "./BackSpaceIcon.svg";
 
 const ICONS = {
   diceIcon,
@@ -194,6 +195,7 @@ const ICONS = {
   PencilIcon,
   WinterClothes,
   WhitePencil,
+  BackSpaceIcon,
 };
 
 export default ICONS;

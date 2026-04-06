@@ -495,7 +495,17 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingBottom: Platform.select({
+            android: insets.bottom,
+            ios: verticalScale(15),
+          }),
+        },
+      ]}
+    >
       <TouchableOpacity
         activeOpacity={0.8}
         style={{
@@ -902,7 +912,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    paddingBottom: verticalScale(10),
   },
   safeArea: {
     flex: 1,

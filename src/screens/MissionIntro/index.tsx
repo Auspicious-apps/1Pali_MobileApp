@@ -5,7 +5,10 @@ import {
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useEffect, useState } from "react";
 import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
@@ -42,6 +45,7 @@ const initialTimer = 300;
 
 const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const { showNumber } = route.params || {};
+  const insets = useSafeAreaInsets();
   const reservationStatus = useAppSelector(selectReservationStatus);
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { claimedNumber } = useAppSelector((state) => state.user);
@@ -73,9 +77,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   }, []);
 
   const handleAppleSignIn = async () => {
-
     logEvent("Ob_Sign_In");
-    
+
     if (!isChecked) {
       setShowCheckboxError(true);
       return;
@@ -255,7 +258,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
-            navigation.navigate("joinOnePali");
+            navigation.navigate("quickDonate");
           } else {
             dispatch(setUserData(signinResponse.data.data.user.user as any));
             dispatch(
@@ -394,7 +397,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           style={{
             flex: 1,
             justifyContent: "flex-end",
-            marginBottom: verticalScale(24),
+            marginBottom:
+              verticalScale(24) +
+              Platform.select({ android: insets.bottom, ios: 0 })!,
             paddingHorizontal: horizontalScale(20),
           }}
         >

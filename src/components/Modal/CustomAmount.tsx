@@ -1,289 +1,282 @@
-import { BlurView } from "@react-native-community/blur";
 import React, {
-  Dispatch,
-  SetStateAction,
+  forwardRef,
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
 } from "react";
-import {
-  Animated,
-  Easing,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  Keyboard,
-} from "react-native";
+import { Keyboard, StyleSheet, TouchableOpacity, View } from "react-native";
+import RBSheet from "react-native-raw-bottom-sheet";
+import ICONS from "../../assets/Icons";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, responsiveFontSize, verticalScale } from "../../utils/Metrics";
+import {
+  deviceWidth,
+  horizontalScale,
+  verticalScale,
+} from "../../utils/Metrics";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
 import PrimaryButton from "../PrimaryButton";
-import ICONS from "../../assets/Icons";
-import FONTS from "../../assets/fonts";
 
-interface CustomAmountProps {
-  isVisible: boolean;
-  setIsVisible: Dispatch<SetStateAction<boolean>>;
+const keypadButtons = [
+  [
+    { value: "1", letters: "" },
+    { value: "2", letters: "ABC" },
+    { value: "3", letters: "DEF" },
+  ],
+  [
+    { value: "4", letters: "GHI" },
+    { value: "5", letters: "JKL" },
+    { value: "6", letters: "MNO" },
+  ],
+  [
+    { value: "7", letters: "PQRS" },
+    { value: "8", letters: "TUV" },
+    { value: "9", letters: "WXYZ" },
+  ],
+];
+
+interface CustomAmountSheetProps {
   onConfirm?: (amount: string) => void;
   initialAmount?: string;
 }
 
-const CustomAmount: React.FC<CustomAmountProps> = ({
-  isVisible,
-  setIsVisible,
-  onConfirm,
-  initialAmount = '1',
-}) => {
-  const [amount, setAmount] = useState(initialAmount);
-  const inputRef = useRef<TextInput>(null);
-  const translateY = useRef(new Animated.Value(500)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
-const focusTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+export interface CustomAmountSheetRef {
+  open: () => void;
+  close: () => void;
+}
 
-  const closeModal = () => {
-    // Cancel any pending focus
-    if (focusTimeout.current) {
-      clearTimeout(focusTimeout.current);
-      focusTimeout.current = null;
-    }
-    Keyboard.dismiss();
-    setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(backdropOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 500,
-          duration: 150,
-          easing: Easing.bezier(0.4, 0, 1, 1),
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setIsVisible(false);
-      });
-    }, 50); // small delay for smooth UX
-  };
+const CustomAmount = forwardRef<CustomAmountSheetRef, CustomAmountSheetProps>(
+  ({ initialAmount, onConfirm }, ref) => {
+    const rbSheetRef = useRef<any>(null);
+    const [amount, setAmount] = useState(initialAmount ?? "0");
 
-  useEffect(() => {
-    if (isVisible) {
-      setAmount(initialAmount);
-      translateY.setValue(500);
-      backdropOpacity.setValue(0);
-      Animated.parallel([
-        Animated.timing(backdropOpacity, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 380,
-          easing: Easing.bezier(0.22, 1, 0.36, 1),
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        focusTimeout.current = setTimeout(() => {
-          if (isVisible) inputRef.current?.focus();
-        }, 400);
+    useEffect(() => {
+      setAmount(initialAmount ?? "0");
+    }, [initialAmount]);
+
+    const handleNumberPress = (num: string) => {
+      setAmount((prev) => {
+        if (!prev || prev === "0") {
+          return num;
+        }
+        return prev + num;
       });
-    } else {
-      // If modal is not visible, cancel any pending focus
-      if (focusTimeout.current) {
-        clearTimeout(focusTimeout.current);
-        focusTimeout.current = null;
-      }
-    }
-    // Cleanup on unmount
-    return () => {
-      if (focusTimeout.current) {
-        clearTimeout(focusTimeout.current);
-        focusTimeout.current = null;
+    };
+
+    const handleDelete = () => {
+      setAmount((prev) => {
+        if (!prev || prev.length <= 1) {
+          return "0";
+        }
+        return prev.slice(0, -1);
+      });
+    };
+
+    const closeModal = () => {
+      Keyboard.dismiss();
+      rbSheetRef.current?.close();
+    };
+
+    useImperativeHandle(ref, () => ({
+      open: () => {
+        setAmount(initialAmount ?? "0");
+        rbSheetRef.current?.open();
+      },
+      close: closeModal,
+    }));
+
+    const handleConfirm = () => {
+      const numAmount = parseFloat(amount);
+      if (numAmount >= 1) {
+        if (onConfirm) onConfirm(amount);
+        closeModal();
       }
     };
-  }, [isVisible, initialAmount]);
 
-  const handleConfirm = () => {
-    const numAmount = parseFloat(amount);
-    if (numAmount >= 1) {
-      if (onConfirm) onConfirm(amount);
-      closeModal();
-    }
-  };
-
-  return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={closeModal}
-    >
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={closeModal}
-        style={styles.modalBackdrop}
+    return (
+      <RBSheet
+        ref={rbSheetRef}
+        height={600}
+        openDuration={250}
+        draggable={true}
+        customStyles={{
+          container: styles.container,
+          draggableIcon: styles.draggableIcon,
+        }}
       >
-        {Platform.OS === "ios" ? (
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="dark"
-            blurAmount={2}
-            pointerEvents="none"
-          />
-        ) : (
-          <View style={styles.androidBackdrop} />
-        )}
-
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
-
-        <KeyboardAvoidingView
-          style={styles.overlay}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-        >
-          <Animated.View
-            style={[styles.modalContainer, { transform: [{ translateY }] }]}
-            onStartShouldSetResponder={() => true}
-            onResponderRelease={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <CustomText
-                fontFamily="GabaritoSemiBold"
-                fontSize={18}
-                color={COLORS.darkText}
-              >
-                Custom Amount
-              </CustomText>
-
-              <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
-                <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
-              </TouchableOpacity>
-            </View>
-
-            {/* Subtitle */}
-            <CustomText fontFamily="GabaritoRegular" fontSize={15} color={COLORS.appText} style={styles.subtitle}>
-              Enter the custom amount you would like to donate every month.
-              Minimum donation is $1.
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={18}
+              color={COLORS.darkText}
+            >
+              Custom Amount
             </CustomText>
 
-            {/* Amount Display Field */}
-            <View style={styles.inputContainer}>
-              <CustomText
-                fontFamily="GabaritoSemiBold"
-                style={styles.hashText}
-              >
-                $
-              </CustomText>
-              <TextInput
-                ref={inputRef}
-                style={styles.amountInput}
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="number-pad"
-                inputMode="decimal"
-                maxLength={8}
-                selectTextOnFocus
-                returnKeyType={Platform.OS === 'ios' ? 'default' : 'done'}
-              />
-            </View>
+            <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
+              <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
+            </TouchableOpacity>
+          </View>
 
-            {/* Confirm Button */}
-            <PrimaryButton
-              title="Confirm amount"
-              onPress={handleConfirm}
-              disabled={parseFloat(amount || "0") < 1}
-              style={{ marginBottom: 0 }}
-            />
-          </Animated.View>
-        </KeyboardAvoidingView>
-      </TouchableOpacity>
-    </Modal>
-  );
-};
+          {/* Subtitle */}
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={15}
+            color={COLORS.appText}
+            style={styles.subtitle}
+          >
+            Enter the custom amount you would like to donate every month.
+            Minimum donation is $1.
+          </CustomText>
+
+          <View style={styles.amountDisplay}>
+            <CustomText
+              color={COLORS.darkText}
+              fontSize={28}
+              fontFamily="GabaritoSemiBold"
+            >
+              $ {amount || "0"}
+            </CustomText>
+          </View>
+
+          {/* Confirm Button */}
+          <PrimaryButton
+            title="Confirm amount"
+            onPress={handleConfirm}
+            disabled={parseFloat(amount) < 1}
+            style={{ marginBottom: 0 }}
+          />
+
+          <View style={styles.keypad}>
+            {keypadButtons.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.keypadRow}>
+                {row.map((button) => (
+                  <TouchableOpacity
+                    key={button.value}
+                    style={styles.keyButton}
+                    onPress={() => handleNumberPress(button.value)}
+                  >
+                    <CustomText
+                      fontSize={24}
+                      fontFamily="GabaritoRegular"
+                      color={COLORS.darkText}
+                    >
+                      {button.value}
+                    </CustomText>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))}
+            <View style={styles.keypadRow}>
+              {/* Empty space for alignment */}
+              <View style={styles.transparentKeyButton} />
+
+              {/* 0 Button */}
+              <TouchableOpacity
+                style={styles.keyButton}
+                onPress={() => handleNumberPress("0")}
+              >
+                <CustomText
+                  fontSize={24}
+                  color={COLORS.darkText}
+                  fontFamily="GabaritoRegular"
+                >
+                  0
+                </CustomText>
+              </TouchableOpacity>
+
+              {/* Backspace Button */}
+              <TouchableOpacity
+                style={styles.transparentKeyButton}
+                onPress={handleDelete}
+              >
+                <CustomIcon Icon={ICONS.BackSpaceIcon} height={17} width={23} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </RBSheet>
+    );
+  },
+);
 
 export default CustomAmount;
 
 const styles = StyleSheet.create({
-  modalBackdrop: {
+  content: {
     flex: 1,
   },
-  androidBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  container: {
+    borderTopLeftRadius: horizontalScale(20),
+    borderTopRightRadius: horizontalScale(20),
   },
-  overlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  modalContainer: {
-    backgroundColor: COLORS.white,
-    width: "100%",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingTop: verticalScale(20),
-    paddingHorizontal: horizontalScale(20),
-    paddingBottom: verticalScale(12),
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 10,
-      },
-    }),
+  draggableIcon: {
+    backgroundColor: COLORS.greey,
+    width: horizontalScale(40),
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
+    paddingHorizontal: horizontalScale(20),
+    marginTop: verticalScale(5),
   },
   closeIcon: {
     position: "absolute",
-    right: horizontalScale(4),
+    right: horizontalScale(14),
     top: horizontalScale(-4),
   },
   subtitle: {
     marginTop: verticalScale(24),
     marginBottom: verticalScale(16),
+    paddingHorizontal: horizontalScale(20),
   },
   amountContainer: {
     backgroundColor: "#F8F8F8",
     borderRadius: 12,
     marginBottom: verticalScale(24),
   },
-  amountInput: {
-    fontFamily: FONTS.GabaritoSemiBold,
-    fontSize: responsiveFontSize(32),
-    color: COLORS.darkText,
-    width: "100%",
-    paddingVertical: verticalScale(12),
+  keypad: {
+    flex: 1,
+    backgroundColor: "#D8DADE",
+    paddingTop: verticalScale(5),
+    marginTop: verticalScale(20),
   },
-  inputContainer: {
-    backgroundColor: COLORS.inputBackground,
-    borderRadius: 12,
-    width: "100%",
+  keypadRow: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    marginBottom: verticalScale(8),
+  },
+  keyButton: {
+    width: deviceWidth / 3 - horizontalScale(10),
+    height: verticalScale(50),
+    backgroundColor: COLORS.white,
+    borderRadius: horizontalScale(8),
+    justifyContent: "center",
+    alignItems: "center",
+    boxShadow: "0px 1px 2px 0px #898A8D",
+  },
+  transparentKeyButton: {
+    width: deviceWidth / 3 - horizontalScale(10),
+    height: verticalScale(50),
+    backgroundColor: "transparent",
+    borderRadius: horizontalScale(8),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  amountDisplay: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: verticalScale(30),
+    marginHorizontal: horizontalScale(20),
+    gap: horizontalScale(10),
+    backgroundColor: COLORS.greyBackground,
+    borderRadius: horizontalScale(12),
+    paddingVertical: verticalScale(14),
     paddingHorizontal: horizontalScale(16),
-    gap: horizontalScale(12),
-    marginBottom: verticalScale(24),
-  },
-  hashText: {
-    fontSize: responsiveFontSize(32),
-    color: COLORS.darkText,
   },
 });

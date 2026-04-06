@@ -28,8 +28,10 @@ import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
 import PrimaryButton from "../PrimaryButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const CollectBadges = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const scrollX = useRef(new Animated.Value(0))?.current;
   const dispatch = useAppDispatch();
@@ -282,7 +284,16 @@ const CollectBadges = () => {
           </View>
 
           {unViewedBadges.length > 1 && (
-            <View style={styles.dotsContainer}>
+            <View
+              style={[
+                styles.dotsContainer,
+                {
+                  bottom:
+                    verticalScale(100) +
+                    Platform.select({ android: insets.bottom, ios: 0 })!,
+                },
+              ]}
+            >
               {unViewedBadges.map((_: any, index: number) => {
                 const inputRange = [
                   (index - 1) * wp(100),
@@ -328,9 +339,11 @@ const CollectBadges = () => {
             textStyle={{ color: COLORS.darkText }}
             style={{
               opacity: isLoading ? 0.6 : 1,
-              position: "absolute",
-              bottom: verticalScale(30),
+              bottom:
+                verticalScale(30) +
+                Platform.select({ android: insets.bottom, ios: 0 })!,
               alignSelf: "center",
+              position: "absolute",
               backgroundColor: COLORS.white,
               zIndex: 10000,
             }}
@@ -379,7 +392,6 @@ const styles = StyleSheet.create({
     gap: horizontalScale(8),
     alignSelf: "center",
     position: "absolute",
-    bottom: verticalScale(100),
   },
 
   dot: {

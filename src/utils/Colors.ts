@@ -35,6 +35,7 @@ const COLORS = {
   lightGreyText: "#777A80",
   lightBorder: "#DEE2E6",
   liteGreen: "#DEE8DE",
+  textGrey: "#636A79",
 };
 
 export default COLORS;

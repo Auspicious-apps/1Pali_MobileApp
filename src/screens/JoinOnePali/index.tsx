@@ -114,14 +114,14 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
       // If not active and we have retries left, wait 5 seconds and try again
       if (retries > 0) {
-        await new Promise((resolve) => setTimeout(() => resolve(true), 5000));
+        await new Promise((resolve) => setTimeout(() => resolve(true), 3000));
         return await pollUserProfile(retries - 1);
       }
 
       return false; // All retries exhausted without "active" status
     } catch (error) {
       if (retries > 0) {
-        await new Promise((resolve) => setTimeout(() => resolve(true), 5000));
+        await new Promise((resolve) => setTimeout(() => resolve(true), 3000));
         return await pollUserProfile(retries - 1);
       }
       return false;
@@ -176,7 +176,9 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         const response = await postData<CreateSetupIntentResponse>(
           ENDPOINTS.CreateSetupIntent,
           {
-            priceId: planId,
+            // priceId: planId,
+            amountInDollars: 1,
+            productId: "prod_U37d188P2YNO0d",
           },
         );
 
@@ -276,7 +278,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             ENDPOINTS.ConfirmApplePaySetupIntent,
             {
               paymentMethodId: user.defaultPaymentMethodId,
-              priceId: planId,
+              // priceId: planId,
+              amountInDollars: 10,
+              includesProcessingFees: true,
+              productId: "prod_U37d188P2YNO0d",
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
@@ -306,11 +311,14 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
         const response = await postData<CreateApplePaySetupIntentApiResponse>(
           ENDPOINTS.CreateApplePaySetupIntent,
           {
-            priceId: planId,
+            // priceId: planId,
+            amountInDollars: 10,
+            productId: "prod_U37d188P2YNO0d",
+            includesProcessingFees: true,
           },
         );
 
-        const { clientSecret, amount, currency } = response?.data?.data || {};
+        const { clientSecret, amount, currency , priceId} = response?.data?.data || {};
 
         const { error: initError, setupIntent } =
           await confirmPlatformPaySetupIntent(clientSecret, {
@@ -349,8 +357,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
 
         if (initError) {
           setIsLoading(false);
-          console.log(initError, "SSSZZZZZ");
-
           throw new Error(
             `Payment initialization failed: ${initError.message}`,
           );
@@ -364,7 +370,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
             ENDPOINTS.ConfirmApplePaySetupIntent,
             {
               paymentMethodId: setupIntent?.paymentMethod?.id,
-              priceId: planId,
+              priceId: priceId,
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },

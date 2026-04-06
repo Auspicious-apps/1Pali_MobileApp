@@ -245,11 +245,9 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         </>
       ) : (
         <LottieView
-          ref={animationRef}
-          source={LOTTIES.fullScreenOnePaliLogo}
+          source={LOTTIES.SplashLottie}
           autoPlay
           loop={false}
-          onLayout={playTrimmed}
           style={{
             width: wp(100),
             height: hp(100),

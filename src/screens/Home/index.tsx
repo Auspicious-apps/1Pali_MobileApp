@@ -30,6 +30,7 @@ import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import ImpactLoader from "../../components/ImpactLoader";
 
 const badgeMetadata = [
   {

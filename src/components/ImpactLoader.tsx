@@ -15,6 +15,8 @@ const ImpactLoader = () => {
         source={LOTTIES.logoLoading}
         style={styles.logo}
         speed={0.8}
+        autoPlay
+        loop
       />
       <View style={{ alignItems: "center", marginTop: verticalScale(20) }}>
         <CustomText

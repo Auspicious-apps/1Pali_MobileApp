@@ -16,6 +16,7 @@ import { horizontalScale, verticalScale } from "../../utils/Metrics";
 import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface BadgesDetailModalProps {
   isVisible: boolean;
@@ -37,6 +38,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   isLocked,
   sheetTitle = "Badge Details",
 }) => {
+  const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(500)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const closeModal = () => {
@@ -108,6 +110,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               styles.modalContainer,
               {
                 transform: [{ translateY }],
+                paddingBottom: insets.bottom + verticalScale(30),
               },
             ]}
             onStartShouldSetResponder={() => true}
@@ -241,7 +244,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingTop: verticalScale(10),
     paddingHorizontal: horizontalScale(16),
-    paddingBottom: verticalScale(50),
     ...Platform.select({
       ios: {
         shadowColor: "#000",

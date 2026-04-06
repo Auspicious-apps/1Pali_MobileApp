@@ -109,7 +109,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
     logEvent("Ob_Welcome_View");
 
     if (!user?.assignedNumber) {
-      navigation.replace("OnBoardingStack", { screen: "quickDonate" });
+      navigation.replace("OnBoardingStack", { screen: "onboarding" });
       return;
     }
     if (user?.assignedNumber && !user?.hasSubscription) {

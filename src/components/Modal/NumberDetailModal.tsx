@@ -14,6 +14,7 @@ import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale } from "../../utils/Metrics";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface NumnerDetailModalProps {
   isVisible: boolean;
@@ -26,6 +27,7 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
 }) => {
   const translateY = useRef(new Animated.Value(500)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
 
   const closeModal = () => {
     Animated.parallel([
@@ -94,6 +96,7 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
               styles.modalContainer,
               {
                 transform: [{ translateY }],
+                paddingBottom: insets.bottom + verticalScale(30),
               },
             ]}
             onStartShouldSetResponder={() => true}
@@ -210,7 +213,7 @@ const styles = StyleSheet.create({
   },
 
   modalContainer: {
-    backgroundColor: "#F5F6F8", 
+    backgroundColor: "#F5F6F8",
     width: "100%",
     borderRadius: 30,
     paddingTop: verticalScale(10),
