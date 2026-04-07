@@ -77,8 +77,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   }, []);
 
   const handleAppleSignIn = async () => {
-    logEvent("Ob_Sign_In");
-
     if (!isChecked) {
       setShowCheckboxError(true);
       return;
@@ -191,8 +189,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   };
 
   const handleGoogleSignIn = async () => {
-    logEvent("Ob_Sign_In");
-
     if (!isChecked) {
       setShowCheckboxError(true);
       return;
@@ -324,6 +320,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     setLegalWebUrl(url);
     setIsWebViewVisible(true);
   };
+
+  useEffect(() => {
+    logEvent("Ob_Sign_In");
+  }, []);
 
   return (
     <View style={styles.container}>

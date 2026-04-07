@@ -24,10 +24,12 @@ import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
+import ImpactLoader from "../../components/ImpactLoader";
 import CustomAmount, {
   CustomAmountSheetRef,
 } from "../../components/Modal/CustomAmount";
 import PrimaryButton from "../../components/PrimaryButton";
+import { logEvent } from "../../Context/analyticsService";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 import {
   clearReservationTimer,
@@ -46,9 +48,11 @@ import { fetchData, postData } from "../../service/ApiService";
 import { QuickDonateProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { deleteLocalStorageData } from "../../utils/Helpers";
+import {
+  calculateProcessingFeeIncludedAmount,
+  deleteLocalStorageData,
+} from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import ImpactLoader from "../../components/ImpactLoader";
 
 const visiblePlans = [
   {
@@ -72,6 +76,13 @@ const visiblePlans = [
   },
 ];
 
+const PROCESSING_FEE = 0.33;
+
+// const calculateProcessingFeeIncludedAmount = (amount: number) => {
+//   const safeAmount = Number.isFinite(amount) ? amount : 0;
+//   return (safeAmount + PROCESSING_FEE).toFixed(2);
+// };
+
 const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
@@ -87,8 +98,18 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
   const amountSheetRef = useRef<CustomAmountSheetRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showImpactLoader, setShowImpactLoader] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
+
+  const selectedPlanAmount =
+    selectedPlan.type === "custom"
+      ? parseFloat(customAmount) || 0
+      : visiblePlans.find((p) => p.id === selectedPlan.id)?.amount || 0;
+
+  const processingFeeIncludedAmount = calculateProcessingFeeIncludedAmount(
+    Number(selectedPlanAmount),
+  );
 
   const hapticOptions = {
     enableVibrateFallback: true,
@@ -148,6 +169,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
             {
               amountInDollars: selectedPlan.amount,
               productId: "prod_U37d188P2YNO0d",
+              includesProcessingFees: isChecked,
               reservationToken: reservationToken,
             },
           );
@@ -178,6 +200,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
           {
             amountInDollars: selectedPlan.amount,
             productId: "prod_U37d188P2YNO0d",
+            includesProcessingFees: isChecked,
           },
         );
 
@@ -229,6 +252,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
               // priceId: planId,
               amountInDollars: selectedPlan.amount,
               productId: "prod_U37d188P2YNO0d",
+              includesProcessingFees: isChecked,
               reservationToken: reservationToken,
               setupIntentId,
             },
@@ -280,6 +304,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
               paymentMethodId: user.defaultPaymentMethodId,
               amountInDollars: selectedPlan.amount,
               productId: "prod_U37d188P2YNO0d",
+              includesProcessingFees: isChecked,
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
@@ -311,6 +336,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
           {
             amountInDollars: selectedPlan.amount,
             productId: "prod_U37d188P2YNO0d",
+            includesProcessingFees: isChecked,
           },
         );
 
@@ -413,6 +439,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
         {
           amountInDollars: selectedPlan.amount,
           productId: "prod_U37d188P2YNO0d",
+          includesProcessingFees: isChecked,
           successUrl:
             "https://onepali-backend.onrender.com/subscription/success",
           cancelUrl:
@@ -476,6 +503,10 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
     (async function () {
       setIsPlatformPayAvailable(await isPlatformPaySupported());
     })();
+  }, []);
+
+  useEffect(() => {
+    logEvent("Ob_Paywall_View");
   }, []);
 
   if (showImpactLoader) {
@@ -623,11 +654,58 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
               initialAmount={customAmount}
             />
           </View>
+
+          <View
+            style={{
+              alignItems: "center",
+              marginTop: verticalScale(10),
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                gap: horizontalScale(6),
+                width: wp(100) - horizontalScale(14 * 2),
+                alignItems: "center",
+              }}
+              activeOpacity={0.8}
+              onPress={() => {
+                setIsChecked((prev) => !prev);
+              }}
+            >
+              {isChecked ? (
+                <CustomIcon
+                  Icon={ICONS.CheckedIcon}
+                  height={verticalScale(24)}
+                  width={horizontalScale(24)}
+                />
+              ) : (
+                <CustomIcon
+                  Icon={ICONS.CheckboxInput}
+                  height={verticalScale(24)}
+                  width={horizontalScale(24)}
+                />
+              )}
+              <CustomText
+                fontFamily="SourceSansRegular"
+                fontSize={13}
+                color={COLORS.appText}
+                style={{ flexShrink: 1 }}
+              >
+                I’ll cover the $
+                {(
+                  processingFeeIncludedAmount - Number(selectedPlanAmount)
+                ).toFixed(2)}{" "}
+                processing fee to maximize my impact.
+              </CustomText>
+            </TouchableOpacity>
+          </View>
+
           <View
             style={{
               backgroundColor: COLORS.liteGreen,
               borderRadius: 50,
-              marginTop: verticalScale(16),
+              marginTop: verticalScale(10),
               flexDirection: "row",
               alignItems: "center",
               padding: horizontalScale(12),
@@ -648,99 +726,98 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
             </CustomText>
           </View>
         </View>
+
         <View style={{ alignItems: "center" }}>
-          <View style={{ alignItems: "center" }}>
-            {!reservationSeconds ? (
-              <PrimaryButton
-                title="Choose a new number"
-                onPress={() => {
-                  if (Platform.OS === "android") {
-                    GoogleSignin.signOut().then(() => {
-                      navigation.pop(1);
-                      navigation.goBack();
-                      deleteLocalStorageData(STORAGE_KEYS.accessToken);
-                      deleteLocalStorageData(STORAGE_KEYS.refreshToken);
-                      deleteLocalStorageData(STORAGE_KEYS.expiresIn);
-                    });
-                  } else {
+          {!reservationSeconds ? (
+            <PrimaryButton
+              title="Choose a new number"
+              onPress={() => {
+                if (Platform.OS === "android") {
+                  GoogleSignin.signOut().then(() => {
                     navigation.pop(1);
                     navigation.goBack();
-                  }
-                }}
+                    deleteLocalStorageData(STORAGE_KEYS.accessToken);
+                    deleteLocalStorageData(STORAGE_KEYS.refreshToken);
+                    deleteLocalStorageData(STORAGE_KEYS.expiresIn);
+                  });
+                } else {
+                  navigation.pop(1);
+                  navigation.goBack();
+                }
+              }}
+              style={{ marginTop: verticalScale(20) }}
+              hapticFeedback
+              hapticType="impactLight"
+            />
+          ) : Platform.OS === "ios" ? (
+            isPlatformPayAvailable ? (
+              <View style={{ width: wp(90), alignItems: "center" }}>
+                <PlatformPayButton
+                  type={PlatformPay.ButtonType.Donate}
+                  onPress={handlePlatformSetupIntent}
+                  appearance={PlatformPay.ButtonStyle.Black}
+                  borderRadius={10}
+                  disabled={isLoading}
+                  style={{
+                    marginTop: verticalScale(20),
+                    height: verticalScale(50),
+                    width: wp(90),
+                  }}
+                />
+              </View>
+            ) : (
+              <PrimaryButton
+                title="Join OnePali"
+                onPress={handleExternalPayment}
+                isLoading={isLoading}
                 style={{ marginTop: verticalScale(20) }}
                 hapticFeedback
                 hapticType="impactLight"
               />
-            ) : Platform.OS === "ios" ? (
-              isPlatformPayAvailable ? (
-                <View style={{ width: wp(90), alignItems: "center" }}>
-                  <PlatformPayButton
-                    type={PlatformPay.ButtonType.Donate}
-                    onPress={handlePlatformSetupIntent}
-                    appearance={PlatformPay.ButtonStyle.Black}
-                    borderRadius={10}
-                    disabled={isLoading}
-                    style={{
-                      marginTop: verticalScale(20),
-                      height: verticalScale(50),
-                      width: wp(90),
-                    }}
-                  />
-                </View>
+            )
+          ) : (
+            <View style={{ width: wp(90), alignItems: "center" }}>
+              {isPlatformPayAvailable ? (
+                <PlatformPayButton
+                  type={PlatformPay.ButtonType.Donate}
+                  onPress={handlePlatformSetupIntent}
+                  appearance={PlatformPay.ButtonStyle.Black}
+                  borderRadius={10}
+                  disabled={isLoading}
+                  style={{
+                    marginTop: verticalScale(20),
+                    height: verticalScale(50),
+                    width: wp(90),
+                  }}
+                />
               ) : (
                 <PrimaryButton
                   title="Join OnePali"
-                  onPress={handleExternalPayment}
+                  onPress={handleSetupIntent}
                   isLoading={isLoading}
                   style={{ marginTop: verticalScale(20) }}
                   hapticFeedback
                   hapticType="impactLight"
                 />
-              )
-            ) : (
-              <View style={{ width: wp(90), alignItems: "center" }}>
-                {isPlatformPayAvailable ? (
-                  <PlatformPayButton
-                    type={PlatformPay.ButtonType.Donate}
-                    onPress={handlePlatformSetupIntent}
-                    appearance={PlatformPay.ButtonStyle.Black}
-                    borderRadius={10}
-                    disabled={isLoading}
-                    style={{
-                      marginTop: verticalScale(20),
-                      height: verticalScale(50),
-                      width: wp(90),
-                    }}
-                  />
-                ) : (
-                  <PrimaryButton
-                    title="Join OnePali"
-                    onPress={handleSetupIntent}
-                    isLoading={isLoading}
-                    style={{ marginTop: verticalScale(20) }}
-                    hapticFeedback
-                    hapticType="impactLight"
-                  />
-                )}
-                {isPlatformPayAvailable && (
-                  <TouchableOpacity
-                    onPress={handleSetupIntent}
-                    disabled={isLoading}
-                    style={{ marginTop: verticalScale(12) }}
+              )}
+              {isPlatformPayAvailable && (
+                <TouchableOpacity
+                  onPress={handleSetupIntent}
+                  disabled={isLoading}
+                  style={{ marginTop: verticalScale(12) }}
+                >
+                  <CustomText
+                    fontSize={14}
+                    color={COLORS.darkText}
+                    fontFamily="GabaritoMedium"
+                    style={{ textDecorationLine: "underline" }}
                   >
-                    <CustomText
-                      fontSize={14}
-                      color={COLORS.darkText}
-                      fontFamily="GabaritoMedium"
-                      style={{ textDecorationLine: "underline" }}
-                    >
-                      Use other payment methods
-                    </CustomText>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-          </View>
+                    Use other payment methods
+                  </CustomText>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
         </View>
       </SafeAreaView>
     </View>
@@ -780,7 +857,7 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(24),
   },
   donationText: {
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(14),
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",

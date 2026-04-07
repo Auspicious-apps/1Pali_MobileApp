@@ -240,7 +240,6 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
 
   // Reserve the specific number via API and navigate on success
   const handleReserveNumber = async () => {
-    logEvent("Ob_Number_Claimed");
     // if (checking || !available || !number) return;
     if (checking || !available || !number || isLoading) return;
 
@@ -311,6 +310,10 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
       Keyboard.dismiss();
     }
   }, [available]);
+
+  useEffect(() => {
+    logEvent("Ob_Number_Claimed");
+  }, []);
 
   return (
     <View style={styles.container}>

@@ -56,7 +56,6 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { deleteLocalStorageData } from "../../utils/Helpers";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import { logEvent } from "../../Context/analyticsService";
 
 const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -129,9 +128,6 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   };
 
   const handleSetupIntent = async () => {
-
-    logEvent("Ob_Paywall_View");
-    
     try {
       setIsLoading(true);
       if (!selectedPlan) {
@@ -318,7 +314,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           },
         );
 
-        const { clientSecret, amount, currency , priceId} = response?.data?.data || {};
+        const { clientSecret, amount, currency, priceId } =
+          response?.data?.data || {};
 
         const { error: initError, setupIntent } =
           await confirmPlatformPaySetupIntent(clientSecret, {

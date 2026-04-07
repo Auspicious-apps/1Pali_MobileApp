@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect } from "react";
 import { Dimensions, Image, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
@@ -6,9 +6,7 @@ import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
-import WebViewBottomSheet from "../../components/WebViewBottomSheet";
 import { logEvent } from "../../Context/analyticsService";
-import { useAppDispatch } from "../../redux/store";
 import { HowItWorksScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import {
@@ -38,8 +36,9 @@ const supportItems = [
 ];
 
 const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
-  const dispatch = useAppDispatch();
-  const [isWebViewVisible, setIsWebViewVisible] = useState(false);
+  useEffect(() => {
+    logEvent("Ob_How_It_Works");
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -127,6 +126,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
               >
                 {supportItems.map((item, index) => (
                   <View
+                    key={item.text + index}
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
@@ -191,7 +191,6 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
             <PrimaryButton
               title="Join OnePali"
               onPress={() => {
-                logEvent("Ob_How_It_Works");
                 navigation.navigate("animatedNumber");
               }}
               style={styles.primaryButton}

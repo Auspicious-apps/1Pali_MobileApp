@@ -40,9 +40,7 @@ const { height, width } = Dimensions.get("window");
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
-  const isIphoneSE = Platform.OS === "ios" && height <= 667;
   const user = useAppSelector((state) => state.user.user);
-
   const checkAuthenticationStatus = async () => {
     try {
       // await AsyncStorage.clear();
@@ -106,8 +104,6 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   };
 
   const handleGetStarted = () => {
-    logEvent("Ob_Welcome_View");
-
     if (!user?.assignedNumber) {
       navigation.replace("OnBoardingStack", { screen: "onboarding" });
       return;
@@ -120,6 +116,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     checkAuthenticationStatus();
+    logEvent("Ob_Welcome_View");
   }, []);
 
   return (

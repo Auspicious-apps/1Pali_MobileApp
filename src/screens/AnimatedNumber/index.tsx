@@ -32,6 +32,7 @@ import { ReserveSpecificNumberResponse } from "../../service/APIResponses/Reserv
 import { fetchData, postData } from "../../service/ApiService";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+import { logEvent } from "../../Context/analyticsService";
 
 const AnimatedNumber = () => {
   const navigation: any = useNavigation();
@@ -157,6 +158,7 @@ const AnimatedNumber = () => {
 
   useEffect(() => {
     fetchRandomNumber();
+    logEvent("Ob_Number_Claimed");
   }, []);
 
   return (

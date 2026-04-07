@@ -120,8 +120,6 @@ export const formatDate = (dateString: string) => {
   });
 };
 
-
-
 export function getSupportingDuration(subscriptionDate: string) {
   const now = dayjs();
   const start = dayjs(subscriptionDate);
@@ -186,7 +184,6 @@ export const formatMembershipDuration = (months: number): string => {
   return `${years} yr ${remainingMonths} mo`;
 };
 
-
 export const navigationRef = createNavigationContainerRef<RootStackParams>();
 
 export const navigate = (name: keyof RootStackParams, params?: any) => {
@@ -194,3 +191,14 @@ export const navigate = (name: keyof RootStackParams, params?: any) => {
     navigationRef.navigate(name, params);
   }
 };
+
+export function calculateProcessingFeeIncludedAmount(
+  baseDonationCents: number,
+): number {
+  const percentageFee = 0.029;
+  const fixedFeeCents = 30; // $0.30
+  const numerator = baseDonationCents * 100 + fixedFeeCents;
+  const denominator = 1 - percentageFee;
+
+  return Math.round(numerator / denominator) / 100; // Convert back to dollars
+}

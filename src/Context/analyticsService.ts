@@ -1,4 +1,5 @@
 import analytics from "@react-native-firebase/analytics";
+import { Platform } from "react-native";
 
 export const logScreen = async (screenName: string) => {
   try {
@@ -16,7 +17,14 @@ export const logEvent = async (
   params?: Record<string, any>,
 ) => {
   try {
-    await analytics().logEvent(eventName, params);
+    await analytics()
+      .logEvent(eventName, {
+        ...params,
+        OS: Platform.OS,
+      })
+      .then(() => {
+        console.log(`Logged event: ${eventName}`, params);
+      });
   } catch (e) {
     console.log("Analytics Event Error:", e);
   }
