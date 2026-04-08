@@ -55,7 +55,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                 color={COLORS.darkText}
                 style={styles.headerTitle}
               >
-                Here’s what {"\n"} $1 can do
+                Here’s where {"\n"} your $1 goes
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
@@ -63,7 +63,8 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                 color={COLORS.appText}
                 style={{ lineHeight: verticalScale(20), textAlign: "center" }}
               >
-                Every dollar moves through MECA, our humanitarian partner.
+                Every dollar is delivered through MECA,{"\n"} our humanitarian
+                partner.
               </CustomText>
             </View>
 

@@ -20,6 +20,7 @@ import {
   clearReservationToken,
   selectClaimedNumber,
   selectPreviousReservationToken,
+  selectReservationSeconds,
   selectReservationToken,
   setClaimedNumber,
   setReservationToken,
@@ -52,18 +53,28 @@ const AnimatedNumber = () => {
   const [animationDone, setAnimationDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const reservationSeconds = useAppSelector(selectReservationSeconds);
+  const isExpired = !reservationSeconds || reservationSeconds <= 0;
 
   // Fetch random number
   const fetchRandomNumber = async () => {
+    setLoading(true);
+    setAnimationDone(false);
+    // Reset animation values so fade/slide will replay
+    fadeAnim.setValue(0);
+    slideAnim.setValue(30);
+    headerSlideAnim.setValue(-50);
     try {
       const response = await fetchData<ReserveNumberResponse>(
         ENDPOINTS.GetRandomNumber,
       );
-
       const generatedNumber = response?.data?.data?.number;
-
+      const expiresInMs = response?.data?.data?.expiresInMs;
       if (generatedNumber) {
         setNumber(Number(generatedNumber));
+        // Reset timer if API provides expiresInMs, else fallback to 60s
+        const seconds = expiresInMs ? Math.ceil(expiresInMs / 1000) : 60;
+        dispatch(startReservationTimer({ seconds, expiresAt: null as any }));
       }
     } catch (error) {
       console.error("GetRandomNumber API Error:", error);
@@ -206,6 +217,7 @@ const AnimatedNumber = () => {
       <View style={styles.centerContainer}>
         {number !== null && (
           <SlotMachineNumber
+            key={number}
             number={number}
             onRevealComplete={() => setAnimationDone(true)}
           />
@@ -223,10 +235,10 @@ const AnimatedNumber = () => {
           {animationDone && (
             <CustomText
               fontFamily="GabaritoSemiBold"
-              fontSize={22}
+              fontSize={20}
               style={styles.subtext}
             >
-              {"Your unique identity in \n our community"}
+              Your identity among {"\n"} one million supporters
             </CustomText>
           )}
         </Animated.View>
@@ -243,13 +255,24 @@ const AnimatedNumber = () => {
             },
           ]}
         >
-          <PrimaryButton
-            title={`Claim #${number}`}
-            onPress={handleReserveNumber}
-            isLoading={isLoading}
-            hapticFeedback
-            hapticType="impactLight"
-          />
+          {isExpired && !loading ? (
+            <PrimaryButton
+              title="Claim New Number"
+              onPress={fetchRandomNumber}
+              isLoading={loading}
+              hapticFeedback
+              hapticType="impactLight"
+            />
+          ) : (
+            <PrimaryButton
+              title={number ? `Claim #${number}` : "Claim Number"}
+              onPress={handleReserveNumber}
+              isLoading={isLoading || loading}
+              hapticFeedback
+              hapticType="impactLight"
+              disabled={isExpired || loading}
+            />
+          )}
 
           <TouchableOpacity
             onPress={() => navigation.navigate("claimSpot")}

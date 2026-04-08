@@ -96,6 +96,7 @@ import PencilIcon from "./pencil.svg";
 import WinterClothes from "./WinterClothes.svg";
 import WhitePencil from "./WhitePencil.svg";
 import BackSpaceIcon from "./BackSpaceIcon.svg";
+import SliderBarHeart from "./SliderBarHeart.svg";
 
 const ICONS = {
   diceIcon,
@@ -196,6 +197,7 @@ const ICONS = {
   WinterClothes,
   WhitePencil,
   BackSpaceIcon,
+  SliderBarHeart,
 };
 
 export default ICONS;

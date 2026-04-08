@@ -53,6 +53,7 @@ import {
   deleteLocalStorageData,
 } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import DonationSlider from "../../components/DonateSlider";
 
 const visiblePlans = [
   {
@@ -99,6 +100,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showImpactLoader, setShowImpactLoader] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [showSlider, setShowSlider] = useState(false);
 
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
 
@@ -595,51 +597,67 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
               width: wp(100) - horizontalScale(16 * 2),
             }}
           >
-            <View style={styles.toggleWrapper}>
-              {visiblePlans.map((plan, idx) => {
-                const isSelected = selectedPlan.id === plan.id;
-                return (
-                  <TouchableOpacity
-                    key={plan.id}
-                    style={[
-                      styles.toggleItem,
-                      {
-                        backgroundColor: isSelected
-                          ? COLORS.darkGreen
-                          : COLORS.greyish,
-                      },
-                    ]}
-                    activeOpacity={0.9}
-                    onPress={() => {
-                      HapticFeedback.trigger("impactLight", hapticOptions);
-                      if (plan.type === "custom") {
-                        amountSheetRef.current?.open();
-                        return;
-                      }
-                      setSelectedPlan(plan);
-                    }}
-                  >
-                    {plan.type === "custom" ? (
-                      <CustomIcon
-                        Icon={isSelected ? ICONS.WhitePencil : ICONS.PencilIcon}
-                        width={18}
-                        height={18}
-                      />
-                    ) : (
-                      <CustomText
-                        fontSize={18}
-                        style={{
-                          color: isSelected ? COLORS.white : COLORS.darkText,
-                          fontFamily: FONTS.GabaritoSemiBold,
-                        }}
-                      >
-                        ${plan.amount}
-                      </CustomText>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            {showSlider ? (
+              <DonationSlider
+                value={selectedPlanAmount}
+                onChange={(val: number) => {
+                  setSelectedPlan({
+                    id: "custom",
+                    type: "custom",
+                    amount: val,
+                  });
+                  setCustomAmount(String(val));
+                }}
+              />
+            ) : (
+              <View style={styles.toggleWrapper}>
+                {visiblePlans.map((plan, idx) => {
+                  const isSelected = selectedPlan.id === plan.id;
+                  return (
+                    <TouchableOpacity
+                      key={plan.id}
+                      style={[
+                        styles.toggleItem,
+                        {
+                          backgroundColor: isSelected
+                            ? COLORS.darkGreen
+                            : COLORS.greyish,
+                        },
+                      ]}
+                      activeOpacity={0.9}
+                      onPress={() => {
+                        HapticFeedback.trigger("impactLight", hapticOptions);
+                        if (plan.type === "custom") {
+                          amountSheetRef.current?.open();
+                          return;
+                        }
+                        setSelectedPlan(plan);
+                      }}
+                    >
+                      {plan.type === "custom" ? (
+                        <CustomIcon
+                          Icon={
+                            isSelected ? ICONS.WhitePencil : ICONS.PencilIcon
+                          }
+                          width={18}
+                          height={18}
+                        />
+                      ) : (
+                        <CustomText
+                          fontSize={18}
+                          style={{
+                            color: isSelected ? COLORS.white : COLORS.darkText,
+                            fontFamily: FONTS.GabaritoSemiBold,
+                          }}
+                        >
+                          ${plan.amount}
+                        </CustomText>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
             {/* Custom Amount Modal */}
             <CustomAmount
               ref={amountSheetRef}
@@ -655,51 +673,70 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
             />
           </View>
 
-          <View
-            style={{
-              alignItems: "center",
-              marginTop: verticalScale(10),
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                flexDirection: "row",
-                gap: horizontalScale(6),
-                width: wp(100) - horizontalScale(14 * 2),
-                alignItems: "center",
-              }}
-              activeOpacity={0.8}
-              onPress={() => {
-                setIsChecked((prev) => !prev);
-              }}
-            >
-              {isChecked ? (
-                <CustomIcon
-                  Icon={ICONS.CheckedIcon}
-                  height={verticalScale(24)}
-                  width={horizontalScale(24)}
-                />
-              ) : (
-                <CustomIcon
-                  Icon={ICONS.CheckboxInput}
-                  height={verticalScale(24)}
-                  width={horizontalScale(24)}
-                />
-              )}
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={13}
-                color={COLORS.appText}
-                style={{ flexShrink: 1 }}
+          <>
+            {showSlider ? (
+              <>
+                <CustomText
+                  fontFamily="GabaritoRegular"
+                  fontSize={15}
+                  style={{
+                    color: COLORS.darkText,
+                    marginTop: verticalScale(16),
+                    marginBottom: verticalScale(16),
+                    textAlign: "center",
+                  }}
+                >
+                  A meal for a child, every month
+                </CustomText>
+              </>
+            ) : (
+              <View
+                style={{
+                  alignItems: "center",
+                  marginTop: verticalScale(10),
+                }}
               >
-                I’ll cover the $
-                {(
-                  processingFeeIncludedAmount - Number(selectedPlanAmount)
-                ).toFixed(2)}{" "}
-                processing fee to maximize my impact.
-              </CustomText>
-            </TouchableOpacity>
-          </View>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    gap: horizontalScale(6),
+                    width: wp(100) - horizontalScale(14 * 2),
+                    alignItems: "center",
+                  }}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setIsChecked((prev) => !prev);
+                  }}
+                >
+                  {isChecked ? (
+                    <CustomIcon
+                      Icon={ICONS.CheckedIcon}
+                      height={verticalScale(24)}
+                      width={horizontalScale(24)}
+                    />
+                  ) : (
+                    <CustomIcon
+                      Icon={ICONS.CheckboxInput}
+                      height={verticalScale(24)}
+                      width={horizontalScale(24)}
+                    />
+                  )}
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.appText}
+                    style={{ flexShrink: 1 }}
+                  >
+                    I’ll cover the $
+                    {(
+                      processingFeeIncludedAmount - Number(selectedPlanAmount)
+                    ).toFixed(2)}{" "}
+                    processing fee to maximize my impact.
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
 
           <View
             style={{

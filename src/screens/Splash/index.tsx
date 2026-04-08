@@ -138,7 +138,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             color={COLORS.appBackground}
             style={styles.subtitleText}
           >
-            {`Join a million supporters giving\n$1/month for Palestine.`}
+            Join a million supporters giving $1/mo  to fund relief in Palestine.
           </CustomText>
         </View>
         <View style={styles.globalImageContainer}>
