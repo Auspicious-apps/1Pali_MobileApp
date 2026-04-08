@@ -90,6 +90,7 @@ function OnBoardingStack() {
       <OnBoardingStackNavigator.Screen
         name="quickDonate"
         component={QuickDonate}
+        options={{ gestureEnabled: false }}
       />
       <OnBoardingStackNavigator.Screen name="signIn" component={SignIn} />
     </OnBoardingStackNavigator.Navigator>

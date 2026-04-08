@@ -735,7 +735,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             style={{
               backgroundColor: COLORS.liteGreen,
               borderRadius: 50,
-              marginTop: verticalScale(10),
+              marginTop: verticalScale(8),
               flexDirection: "row",
               alignItems: "center",
               padding: horizontalScale(12),

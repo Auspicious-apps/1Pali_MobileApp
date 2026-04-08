@@ -113,6 +113,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const HEART_ANIM_DELAY = 300;
   const commentsRef = useRef<View>(null);
   const scrollContentRef = useRef<View>(null);
+  const [isSharingSheetOpen, setIsSharingSheetOpen] = useState(false);
 
   const formatDateMMDDYYYY = (date?: string) => {
     if (!date) return "";
@@ -164,6 +165,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
   const handleShareToMore = async () => {
     try {
+      setIsSharingSheetOpen(true);
       setCapturingCard(true);
 
       const uri = await captureRef(cardRef, {
@@ -258,6 +260,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       console.log("Card share error:", error);
     } finally {
       setCapturingCard(false);
+       setTimeout(() => {
+         setIsSharingSheetOpen(false);
+       }, 300); 
     }
   };
 
@@ -806,7 +811,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             }}
           >
             <View ref={scrollContentRef}>
-              <TouchableOpacity activeOpacity={1} onPress={handleImageTap}>
+              <TouchableOpacity
+                activeOpacity={1}
+                // onPress={handleImageTap}
+                onPress={() => {
+                  if (isSharingSheetOpen) return;
+                  handleImageTap();
+                }}
+              >
                 <View style={styles.imageWrapper}>
                   {artDetail?.mediaType === "IMAGE" && (
                     <>

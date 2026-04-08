@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Linking,
 } from "react-native";
 import {
   SafeAreaView,
@@ -22,17 +23,12 @@ const FAQ_DATA = [
   {
     title: "What is OnePali?",
     description:
-      "OnePali is a $1 monthly donation app supporting families in Palestine through the Middle East Children’s Alliance (MECA).",
+      "OnePali is a micro-donation app built to mobilize one million monthly supporters for families in Palestine through the Middle East Children's Alliance (MECA), a registered 501(c)(3) nonprofit organization. We handle the technology, marketing, and operations — connecting donors directly to the ground. Behind OnePali is a dedicated team pushing this mission forward.",
   },
   {
-    title: "Where funds are directed?",
+    title: "Who is PaliRoots?",
     description:
-      "All donations made through OnePali are deposited directly into MECA’s accounts and used to provide humanitarian aid and programs for children on the ground in Palestine.",
-  },
-  {
-    title: "What does my contribution support?",
-    description:
-      "Your contribution supports hot meals and food parcels, clean water for drinking and hygiene, arts and creative activities, and psychological support for children and families in Palestine.",
+      "PaliRoots is a Palestinian heritage clothing brand. OnePali is built by the team behind it. Learn more at https://paliroots.com",
   },
   {
     title: "Who is MECA?",
@@ -40,29 +36,19 @@ const FAQ_DATA = [
       "The Middle East Children’s Alliance (MECA) is a nonprofit organization founded in 1988 that works to protect the rights and improve the lives of children and families in Palestine and the Middle East. MECA holds a 4-star rating from Charity Navigator.",
   },
   {
-    title: "Who is PaliRoots?",
+    title: "Where are funds directed?",
     description:
-      "PaliRoots is a mission-driven heritage brand dedicated to promoting Palestinian culture and supporting humanitarian initiatives. OnePali is developed in collaboration with PaliRoots.",
+      "Every donation is directly deposited to MECA. After processing fees, 90% goes to MECA to fund humanitarian aid and operations, and 10% keeps the OnePali platform growing.",
   },
   {
-    title: "What is my Supporter Number?",
+    title: "What does my contribution support?",
     description:
-      "Your Supporter Number represents your place within the 1-million-person collective. It remains active as long as your monthly contribution continues. One supporter number per account! Your Supporter Number cannot be changed.",
+      "Your contribution supports hot meals and food parcels, clean water for drinking and hygiene, arts and creative programs, and psychological support for children and families in Palestine.",
   },
   {
-    title: "How much do I contribute?",
+    title: "What is my supporter number?",
     description:
-      "The standard contribution is $1 per month. You may choose to give $3 or $5 per month if you’d like to increase your support.",
-  },
-  {
-    title: "How do processing fees work?",
-    description:
-      "Payment processing fees are applied by Stripe. These fees are added on top of your selected donation so that the full $1, $3, or $5 goes directly to MECA.",
-  },
-  {
-    title: "What is the optional $0.25 support for OnePali?",
-    description:
-      "You have the option to add $0.25 per month to support the OnePali platform. \nThis optional contribution helps cover technology, infrastructure, and operational costs required to maintain and grow the app. This amount can be toggled on or off before confirming your donation or in the settings.",
+      "Your supporter number is your unique identifier within the OnePali collective. It remains active as long as your monthly contribution continues. One supporter number per account. Your Supporter Number cannot be changed.",
   },
   {
     title: "Is my contribution recurring?",
@@ -72,12 +58,12 @@ const FAQ_DATA = [
   {
     title: "What happens if I cancel or miss a payment?",
     description:
-      "You can cancel your monthly donation at any time. \nIf a payment fails or your contribution is canceled, your Supporter Number will remain reserved for 7 days. After 7 days without an active contribution, the account and number are released.",
+      "You can cancel at any time. If you cancel, your supporter number is released immediately. If a payment fails, your number is held for 7 days before being released.",
   },
   {
     title: "How do I delete my account?",
     description:
-      "If your monthly contribution payment fails or is not renewed, your account will be automatically deleted 7 days after your next payment date. You may also request account deletion at any time through the app settings in accordance with our privacy policy.",
+      "To permanently delete your account, contact us at support@onepali.app",
   },
   {
     title: "Is my payment secure?",
@@ -87,7 +73,7 @@ const FAQ_DATA = [
   {
     title: "Is my donation tax-deductible?",
     description:
-      "Yes. Donations are processed directly by MECA, a registered 501(c)(3) nonprofit organization. You will receive a donation receipt for your records.",
+      "Yes. Donations are processed directly by MECA, a registered 501(c)(3) nonprofit organization. Your donation receipt is available in the app under account settings. For additional help, contact MECA at MECA@mecaforpeace.org",
   },
   {
     title: "Is this eligible for Zakat?",
@@ -95,19 +81,9 @@ const FAQ_DATA = [
       "Yes. Donations are processed directly by MECA, a registered nonprofit providing humanitarian assistance to eligible recipients. If you are giving with the intention of Zakat, your contribution qualifies under charitable distribution to those in need. For personal religious guidance, donors should consult a qualified scholar.",
   },
   {
-    title: "Is OnePali a nonprofit organization?",
+    title: "Where can I get help or ask questions?",
     description:
-      "OnePali is a platform that facilitates monthly donations. Funds are deposited directly to MECA, a registered 501(c)(3) nonprofit organization.",
-  },
-  {
-    title: "Who can join OnePali?",
-    description:
-      "Anyone who wishes to provide sustained humanitarian support to families in Palestine can join.",
-  },
-  {
-    title: "How is my data used?",
-    description:
-      "We collect only the information necessary to process your donation and provide updates. We do not sell or share your personal data. See our Privacy Policy here. ",
+      "For donation-related questions, tax receipts, or updates on the work on the ground, contact MECA at meca@mecaforpeace.org. For app support or technical issues, contact support@onepali.app",
   },
 ];
 
@@ -133,12 +109,48 @@ const Text = ({ children }: any) => (
   </CustomText>
 );
 
+const renderTextWithLinks = (text: string) => {
+  const parts = text.split(/(https?:\/\/[^\s]+|[\w.-]+@[\w.-]+\.\w+)/g);
+
+  return (
+    <CustomText
+      fontFamily="GabaritoRegular"
+      fontSize={14}
+      color={COLORS.appText}
+      style={{ lineHeight: 20, textAlign: "center" }}
+    >
+      {parts.map((part, index) => {
+        const isLink = part.startsWith("http") || part.includes("@");
+
+        if (isLink) {
+          return (
+            <CustomText
+              key={index}
+              fontFamily="GabaritoRegular"
+              fontSize={14}
+              color="#007AFF"
+              onPress={() =>
+                Linking.openURL(
+                  part.startsWith("http") ? part : `mailto:${part}`,
+                )
+              }
+            >
+              {part}
+            </CustomText>
+          );
+        }
+
+        return part; // 👈 plain text (NOT clickable)
+      })}
+    </CustomText>
+  );
+};
+
 const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
-      {/* IMPORTANT: remove bottom edge */}
       <SafeAreaView
         style={[
           styles.safeArea,
@@ -148,6 +160,7 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
         ]}
         edges={["bottom"]}
       >
+        {/* Back Button */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{
@@ -161,12 +174,13 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
         >
           <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
         </TouchableOpacity>
-        {/* FAQ CONTENT */}
+
+        {/* Content */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* HEADER */}
+          {/* Header */}
           <View style={styles.header}>
             <Image source={IMAGES.LogoText} style={styles.logo} />
           </View>
@@ -183,6 +197,7 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
           >
             FAQS
           </CustomText>
+
           {FAQ_DATA.map((item, index) => (
             <View
               key={index}
@@ -192,7 +207,10 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
               }}
             >
               <Title>{item.title}</Title>
-              <Text>{item.description}</Text>
+
+              <View style={{ alignItems: "center" }}>
+                {renderTextWithLinks(item.description)}
+              </View>
             </View>
           ))}
         </ScrollView>
