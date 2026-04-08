@@ -202,3 +202,14 @@ export function calculateProcessingFeeIncludedAmount(
 
   return Math.round(numerator / denominator) / 100; // Convert back to dollars
 }
+
+export function getRandomEvenOrOdd(min = 0, max = 100) {
+  const isEven = Math.random() < 0.5; // 50/50 chance
+
+  let num;
+  do {
+    num = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while ((isEven && num % 2 !== 0) || (!isEven && num % 2 === 0));
+
+  return num;
+}

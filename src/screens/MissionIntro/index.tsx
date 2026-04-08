@@ -17,6 +17,7 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import WebViewBottomSheet from "../../components/WebViewBottomSheet";
+import { logEvent } from "../../Context/analyticsService";
 import {
   selectReservationSeconds,
   selectReservationStatus,
@@ -35,11 +36,11 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import {
   deleteLocalStorageData,
+  getRandomEvenOrOdd,
   storeLocalStorageData,
 } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
-import { logEvent } from "../../Context/analyticsService";
 
 const initialTimer = 300;
 
@@ -174,7 +175,12 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           return;
         }
 
-        navigation.navigate("OnBoardingStack", { screen: "quickDonate" });
+        navigation.navigate("OnBoardingStack", {
+          screen: "quickDonate",
+          params: {
+            joinedPosition: user.joinedPosition || getRandomEvenOrOdd(),
+          },
+        });
       }
     } catch (error: any) {
       console.log("error", error);
@@ -254,7 +260,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
-            navigation.navigate("quickDonate");
+            navigation.navigate("quickDonate", {
+              joinedPosition: user.joinedPosition || getRandomEvenOrOdd(),
+            });
           } else {
             dispatch(setUserData(signinResponse.data.data.user.user as any));
             dispatch(

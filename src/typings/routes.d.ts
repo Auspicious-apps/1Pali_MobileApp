@@ -17,7 +17,7 @@ export type OnBoardingStackParams = {
   claimSpot: undefined;
   missionIntro?: { showNumber?: boolean };
   joinOnePali: undefined;
-  quickDonate: undefined;
+  quickDonate: {joinedPosition?: number};
   signIn: undefined;
 };
 

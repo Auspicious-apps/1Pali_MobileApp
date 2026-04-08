@@ -77,14 +77,8 @@ const visiblePlans = [
   },
 ];
 
-const PROCESSING_FEE = 0.33;
-
-// const calculateProcessingFeeIncludedAmount = (amount: number) => {
-//   const safeAmount = Number.isFinite(amount) ? amount : 0;
-//   return (safeAmount + PROCESSING_FEE).toFixed(2);
-// };
-
-const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
+const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
+  const {joinedPosition} = route.params
   const dispatch = useAppDispatch();
 
   const { user, claimedNumber, reservationToken } = useAppSelector(
@@ -100,7 +94,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showImpactLoader, setShowImpactLoader] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [showSlider, setShowSlider] = useState(false);
 
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
 
@@ -597,7 +590,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
               width: wp(100) - horizontalScale(16 * 2),
             }}
           >
-            {showSlider ? (
+            {joinedPosition! % 2 === 0 ? (
               <DonationSlider
                 value={selectedPlanAmount}
                 onChange={(val: number) => {
@@ -674,7 +667,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation }) => {
           </View>
 
           <>
-            {showSlider ? (
+            {joinedPosition! % 2 === 0 ? (
               <>
                 <CustomText
                   fontFamily="GabaritoRegular"
