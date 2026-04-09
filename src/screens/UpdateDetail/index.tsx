@@ -463,11 +463,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             fontSize={15}
             color={COLORS.darkText}
           >
+            #
             {item?.user?.assignedNumber
-              ? `# ${item.user.assignedNumber}`
-              : isPending && user?.assignedNumber
-              ? `# ${user.assignedNumber}`
-              : "# ..."}
+              ? item?.user?.assignedNumber
+              : "onepali supporter"}
           </CustomText>
           <CustomText
             fontFamily="SourceSansRegular"

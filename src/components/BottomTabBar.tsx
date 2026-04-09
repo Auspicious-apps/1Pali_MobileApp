@@ -22,6 +22,7 @@ type Tab = {
   activIcon: any;
   route: string;
 };
+
 const tabs: Tab[] = [
   {
     name: "Home",
@@ -48,12 +49,11 @@ const tabs: Tab[] = [
     route: "account",
   },
 ];
+
 const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const { state, navigation } = props;
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const insets = useSafeAreaInsets();
-
-  console.log(insets.bottom);
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -90,7 +90,6 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   const currentRoute = state.routes[state.index].name;
   const activeTab = routeToTab[currentRoute] || currentRoute;
   const scaleValue = useRef(new Animated.Value(1)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
 
   const handleTabPress = useCallback(
     (tab: Tab) => {
@@ -163,6 +162,7 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
   );
 };
 export default BottomTabBar;
+
 const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: COLORS.white,

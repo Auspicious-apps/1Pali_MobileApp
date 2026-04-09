@@ -78,7 +78,7 @@ const visiblePlans = [
 ];
 
 const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
-  const {joinedPosition} = route.params
+  const { joinedPosition } = route.params;
   const dispatch = useAppDispatch();
 
   const { user, claimedNumber, reservationToken } = useAppSelector(
@@ -122,7 +122,8 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
         profileResponse?.data?.data.subscriptionStatus === "ACTIVE" &&
         profileResponse.data.data.badges.badges.find(
           (badge) => badge.badge.category === "GROWTH",
-        )
+        ) &&
+        profileResponse.data.data.assignedNumber
       ) {
         dispatch(setUserData(profileResponse?.data?.data));
         dispatch(setBadges(profileResponse?.data?.data?.badges));
@@ -513,6 +514,28 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <View style={{ flex: 1, paddingHorizontal: horizontalScale(16) }}>
           <View style={styles.header}>
+            {!reservationSeconds && (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.pop(1);
+                  navigation.goBack();
+                }}
+                activeOpacity={0.8}
+                style={{
+                  backgroundColor: "#E5E7EF",
+                  borderRadius: 100,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  height: 32,
+                  width: 32,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CustomIcon Icon={ICONS.BackArrowWithBg} />
+              </TouchableOpacity>
+            )}
             <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
           </View>
           <View style={styles.headingContainer}>

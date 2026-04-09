@@ -244,6 +244,12 @@ const handleNotificationData = (data: Record<string, any>) => {
         return;
       }
     }
+    if (type === "SUBSCRIPTION_EXPIRATION_REMINDER") {
+      navigate("MainStack", {
+        screen: "manageDonation",
+      });
+      return;
+    }
     console.log("Unhandled notification:", data);
   } catch (error) {
     console.error("Notification navigation error:", error);

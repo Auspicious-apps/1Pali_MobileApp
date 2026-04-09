@@ -36,8 +36,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   useEffect(() => {
     if (navigation && navigation.getState) {
       const routeState = navigation.getState();
-      const badgeCategory =
-        routeState?.routes?.[routeState.index]?.params?.badgeCategory;
+      const params = routeState?.routes?.[routeState.index]?.params as { badgeCategory?: string } | undefined;
+      const badgeCategory = params?.badgeCategory;
       if (badgeCategory) {
         const categoryMap: Record<string, TabType> = {
           GROWTH: "Growth",
@@ -59,6 +59,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<TabType>("Growth");
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+  const [isTabScrollEnabled, setIsTabScrollEnabled] = useState(true);
 
   const { badges } = useAppSelector((state) => state.badges);
   const userBadges = useAppSelector((state) => state.user.badges?.badges ?? []);
@@ -140,6 +141,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <FocusResetScrollView
+          keyboardShouldPersistTaps="always"
           horizontal={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
@@ -191,6 +193,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
           </View>
           <View style={styles.card}>
             <TouchableOpacity
+              onPressIn={() => setIsTabScrollEnabled(false)}
+              onPressOut={() => setIsTabScrollEnabled(true)}
               onPress={() => {
                 setSelectedBadge(latestIdentityBadge);
                 setIsBadgeModalVisible(true);
@@ -279,6 +283,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
             snapToInterval={wp(100)}
             snapToAlignment="center"
             showsHorizontalScrollIndicator={false}
+            scrollEnabled={isTabScrollEnabled}
             keyExtractor={(item) => item}
             onScroll={handleScroll}
             getItemLayout={(_, index) => ({
@@ -322,6 +327,8 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
 
                       return (
                         <TouchableOpacity
+                          onPressIn={() => setIsTabScrollEnabled(false)}
+                          onPressOut={() => setIsTabScrollEnabled(true)}
                           style={{
                             width: wp(26),
                             alignItems: "center",
@@ -375,16 +382,16 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
               );
             }}
           />
+          <BadgesDetail
+            isVisible={isBadgeModalVisible}
+            setIsVisible={setIsBadgeModalVisible}
+            badgeLabel={selectedBadge?.title}
+            badgeMonths={selectedBadge?.milestone}
+            badgeDescription={selectedBadge?.description}
+            isLocked={selectedBadge ? !isBadgeUnlocked(selectedBadge.id) : true}
+          />
         </FocusResetScrollView>
       </SafeAreaView>
-      <BadgesDetail
-        isVisible={isBadgeModalVisible}
-        setIsVisible={setIsBadgeModalVisible}
-        badgeLabel={selectedBadge?.title}
-        badgeMonths={selectedBadge?.milestone}
-        badgeDescription={selectedBadge?.description}
-        isLocked={selectedBadge ? !isBadgeUnlocked(selectedBadge.id) : true}
-      />
     </View>
   );
 };

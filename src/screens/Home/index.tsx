@@ -22,15 +22,13 @@ import { initializeFirebaseMessaging } from "../../Firebase/NotificationService"
 import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
-  selectGrowthBadges,
-  selectLatestGrowthBadges,
+  selectLatestGrowthBadges
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import ImpactLoader from "../../components/ImpactLoader";
 
 const badgeMetadata = [
   {
@@ -69,7 +67,6 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const isFocused = useIsFocused();
 
   const { badges, user } = useAppSelector((state) => state.user);
-  const growthBadges = useAppSelector(selectGrowthBadges);
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
   const unViewedBadges = useAppSelector(getUnViewedBadges);
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);

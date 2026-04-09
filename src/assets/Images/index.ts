@@ -26,7 +26,7 @@ const IMAGES = {
   thriceImage: require("./thriceImage.png"),
   CharityNavigator: require("./CharityNavigator.png"),
   middleEast: require("./middleEast.png"),
-  progressImage: require("./progressImage.png"),
+  progressImage: require("./ProgressBar.png"),
   SplashBackground: require("./SplashBackground.png"),
   PeoplesImage: require("./PeoplesImage.png"),
   LogoOnepali: require("./LogoOnepali.png"),
