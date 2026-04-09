@@ -10,10 +10,13 @@ import {
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Animated,
+  Easing,
   Image,
   Linking,
   Platform,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -52,7 +55,13 @@ import {
   calculateProcessingFeeIncludedAmount,
   deleteLocalStorageData,
 } from "../../utils/Helpers";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  hp,
+  responsiveFontSize,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 import DonationSlider from "../../components/DonateSlider";
 
 const visiblePlans = [
@@ -77,6 +86,45 @@ const visiblePlans = [
   },
 ];
 
+const getImpactText = (amount: number) => {
+  if (amount >= 1 && amount <= 3) {
+    return "A hot meal for a child";
+  } else if (amount >= 4 && amount <= 7) {
+    return "Meals and clean water";
+  } else if (amount >= 8 && amount <= 14) {
+    return "Meals, water, and art programs for children";
+  } else if (amount >= 15 && amount <= 22) {
+    return "Meals, water, art, and trauma support";
+  } else if (amount >= 23 && amount <= 30) {
+    return "A full circle of care";
+  } else {
+    return "A hot meal for a child"; // fallback
+  }
+};
+
+const DATA = [
+  {
+    text: "8,339 children received warm winter \nclothes in 2025",
+    icon: ICONS.WinterClothes,
+  },
+  {
+    text: "39,418 blankets distributed to families in Gaza in 2025",
+    icon: ICONS.Blanket,
+  },
+  {
+    text: "Summer camps supported across 9 refugee camps in Palestine",
+    icon: ICONS.SummerCamp,
+  },
+  {
+    text: "MECA's water units in Gaza deliver 1M+ gallons monthly",
+    icon: ICONS.WaterTap,
+  },
+  {
+    text: "20,000 meals reach families in Gaza every day",
+    icon: ICONS.MealBowl,
+  },
+];
+
 const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const { joinedPosition } = route.params;
   const dispatch = useAppDispatch();
@@ -94,6 +142,10 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showImpactLoader, setShowImpactLoader] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+   const [index, setIndex] = useState(0);
+
+   const translateY = useRef(new Animated.Value(0)).current;
+   const opacity = useRef(new Animated.Value(1)).current;
 
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
 
@@ -505,6 +557,51 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
     logEvent("Ob_Paywall_View");
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // animate out
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: -30,
+          duration: 400,
+          useNativeDriver: true,
+          easing: Easing.ease,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // change content
+        setIndex((prev) => (prev + 1) % DATA.length);
+
+        // reset position
+        translateY.setValue(30);
+        opacity.setValue(0);
+
+        // animate in
+        Animated.parallel([
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+            easing: Easing.ease,
+          }),
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const item = DATA[index];
+
   if (showImpactLoader) {
     return <ImpactLoader />;
   }
@@ -587,10 +684,13 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             <Image source={IMAGES.PeoplesDonating} style={styles.image} />
           </View>
           <View style={styles.donationText}>
-            <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={72}
-              color={COLORS.darkText}
+            <Text
+              style={{
+                fontFamily: FONTS.GabaritoSemiBold,
+                fontSize: responsiveFontSize(72),
+                color: COLORS.darkText,
+                lineHeight: responsiveFontSize(72),
+              }}
             >
               {selectedPlan.type === "custom"
                 ? `$${customAmount}`
@@ -598,18 +698,22 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
                     visiblePlans.find((p) => p.id === selectedPlan.id)
                       ?.amount || 1
                   }`}
-            </CustomText>
-            <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={42}
-              color={COLORS.appText}
+            </Text>
+
+            <Text
+              style={{
+                fontFamily: FONTS.GabaritoSemiBold,
+                fontSize: responsiveFontSize(42),
+                color: COLORS.appText,
+                lineHeight: responsiveFontSize(72),
+              }}
             >
               /mo
-            </CustomText>
+            </Text>
           </View>
           <View
             style={{
-              marginTop: verticalScale(12),
+              marginTop: verticalScale(16),
               width: wp(100) - horizontalScale(16 * 2),
             }}
           >
@@ -693,7 +797,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             {joinedPosition! % 2 === 0 ? (
               <>
                 <CustomText
-                  fontFamily="GabaritoRegular"
+                  fontFamily="GabaritoMedium"
                   fontSize={15}
                   style={{
                     color: COLORS.darkText,
@@ -702,14 +806,14 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
                     textAlign: "center",
                   }}
                 >
-                  A meal for a child, every month
+                  {getImpactText(selectedPlanAmount)}
                 </CustomText>
               </>
             ) : (
               <View
                 style={{
                   alignItems: "center",
-                  marginTop: verticalScale(10),
+                  marginTop: verticalScale(16),
                 }}
               >
                 <TouchableOpacity
@@ -754,11 +858,11 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             )}
           </>
 
-          <View
+          {/* <View
             style={{
               backgroundColor: COLORS.liteGreen,
               borderRadius: 50,
-              marginTop: verticalScale(8),
+              marginTop: verticalScale(24),
               flexDirection: "row",
               alignItems: "center",
               padding: horizontalScale(12),
@@ -777,13 +881,45 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             >
               {`8,339 children received warm winter \nclothes in 2025`}
             </CustomText>
-          </View>
+          </View> */}
+
+          <Animated.View
+            style={{
+              backgroundColor: COLORS.liteGreen,
+              borderRadius: 50,
+              marginTop: verticalScale(12),
+              flexDirection: "row",
+              alignItems: "center",
+              padding: horizontalScale(12),
+              gap: horizontalScale(8),
+              transform: [{ translateY }],
+              opacity,
+            }}
+          >
+            <CustomIcon
+              Icon={item.icon}
+              height={verticalScale(36)}
+              width={verticalScale(36)}
+            />
+
+            <CustomText
+              fontFamily="GabaritoMedium"
+              fontSize={15}
+              color={COLORS.darkGreen}
+              style={{
+                flexShrink: 1,
+                flex: 1,
+              }}
+            >
+              {item.text}
+            </CustomText>
+          </Animated.View>
         </View>
 
         <View style={{ alignItems: "center" }}>
           {!reservationSeconds ? (
             <PrimaryButton
-              title="Choose a new number"
+              title="Claim New Number"
               onPress={() => {
                 if (Platform.OS === "android") {
                   GoogleSignin.signOut().then(() => {
@@ -910,10 +1046,10 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(24),
   },
   donationText: {
-    marginTop: verticalScale(14),
-    alignItems: "center",
+    marginTop: verticalScale(24),
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "flex-end",
   },
   toggleWrapper: {
     flexDirection: "row",

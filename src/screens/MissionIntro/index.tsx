@@ -472,7 +472,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     onPress={() => {
                       openLegalSheet(
                         "Privacy Policy",
-                        "https://onepali.app/privacy-policy",
+                        // "https://onepali.app/privacy-policy",
+                        "https://onepali.app/meca-privacy-policy",
                       );
                     }}
                     style={{ textDecorationLine: "underline" }}

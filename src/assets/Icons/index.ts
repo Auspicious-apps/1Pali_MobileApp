@@ -97,6 +97,11 @@ import WinterClothes from "./WinterClothes.svg";
 import WhitePencil from "./WhitePencil.svg";
 import BackSpaceIcon from "./BackSpaceIcon.svg";
 import SliderBarHeart from "./SliderBarHeart.svg";
+import Blanket from "./Blanket.svg";
+import MealBowl from "./MealBowl.svg";
+import WaterTap from "./WaterTap.svg";
+import SummerCamp from "./SummerCamp.svg";
+
 
 const ICONS = {
   diceIcon,
@@ -198,6 +203,10 @@ const ICONS = {
   WhitePencil,
   BackSpaceIcon,
   SliderBarHeart,
+  Blanket,
+  MealBowl,
+  WaterTap,
+  SummerCamp,
 };
 
 export default ICONS;

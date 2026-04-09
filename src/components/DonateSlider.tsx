@@ -24,7 +24,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
   // 👉 Sync UI when parent value changes
   useEffect(() => {
     const maxX = INNER_WIDTH - POINTER_SIZE;
-    const percentage = (value - 1) / (1000 - 1);
+    const percentage = (value - 1) / (30 - 1);
     const newX = percentage * maxX;
 
     pan.setValue(newX);
@@ -45,11 +45,11 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
         if (newX > maxX) newX = maxX;
 
         pan.setValue(newX);
+        const percentage = Math.min(1, Math.max(0, newX / maxX));
+        const newValue = Math.round(1 + percentage * (30 - 1));
+        const clampedValue = Math.min(30, Math.max(1, newValue));
 
-        const percentage = newX / maxX;
-        const newValue = Math.round(1 + percentage * (1000 - 1));
-
-        onChange(newValue); // ✅ send to parent
+        onChange(clampedValue);
       },
     }),
   ).current;
@@ -153,7 +153,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                zIndex: 1000
+                zIndex: 1000,
               }}
             />
 
