@@ -1,5 +1,6 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import React, { useEffect, useState } from "react";
 import { Image, LogBox, StatusBar, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -10,14 +11,21 @@ import { CustomText } from "./src/components/CustomText";
 import CustomToast from "./src/components/CustomToast";
 import NetworkLogger from "./src/components/NetworkLogger";
 import { NetworkProvider } from "./src/Context/NetworkProvider";
+import { setStripeBootstrap } from "./src/redux/slices/StripeBootstrapSlice";
 import { store } from "./src/redux/store";
 import Routes from "./src/routes";
+import ENDPOINTS from "./src/service/ApiEndpoints";
+import { fetchData } from "./src/service/ApiService";
 import COLORS from "./src/utils/Colors";
 import { horizontalScale, verticalScale } from "./src/utils/Metrics";
-import { useEffect } from "react";
-import analytics from "@react-native-firebase/analytics";
 
 LogBox.ignoreAllLogs();
+
+type StripeConfigResponse = {
+  mode: "live" | "test";
+  publishableKey: string;
+  productId: string;
+};
 
 function App() {
   GoogleSignin.configure({
@@ -27,16 +35,71 @@ function App() {
       "72813689825-3uvkvar5timqdl5bce2gkenpgrfs2g60.apps.googleusercontent.com",
   });
 
+  const [stripePublishableKey, setStripePublishableKey] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const res = await fetchData<StripeConfigResponse>(
+          ENDPOINTS.StripeConfig,
+        );
+        const data = (res as any)?.data?.data;
+        const key = data?.publishableKey;
+        const productId = data?.productId;
+        const mode = data?.mode;
+
+        if (
+          isMounted &&
+          typeof key === "string" &&
+          key.length > 0 &&
+          typeof productId === "string" &&
+          productId.length > 0 &&
+          (mode === "live" || mode === "test")
+        ) {
+          setStripePublishableKey(key);
+          store.dispatch(
+            setStripeBootstrap({ mode, publishableKey: key, productId }),
+          );
+        } else {
+          throw new Error("Invalid stripe-config response");
+        }
+      } catch (e) {
+        // Fallback so app still works if network fails.
+        // Keep these values in sync with your backend live config.
+        if (!isMounted) return;
+        console.warn(
+          "Failed to fetch Stripe publishable key/product id, using fallback",
+          e,
+        );
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!stripePublishableKey) {
+    return;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NetworkProvider>
         <StripeProvider
-          publishableKey="pk_test_51SqHBdExhCC15nGQ18UmHov4F2tehEgOGbCE92V8NGizINZ26wFEz1wmsBR4feBelyBkuHGMc3GftNFAqSXwkTJw00oDSLVg4d"
+          publishableKey={stripePublishableKey}
           merchantIdentifier="merchant.org.onepali.stripe.subscription"
         >
           <Provider store={store}>
             <SafeAreaProvider>
-              <StatusBar barStyle={"dark-content"} backgroundColor={COLORS.white} />
+              <StatusBar
+                barStyle={"dark-content"}
+                backgroundColor={COLORS.white}
+              />
               <Routes />
               {__DEV__ && <NetworkLogger />}
               <Toast
@@ -87,6 +150,12 @@ function App() {
 export default App;
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.white,
+  },
   notificationContainer: {
     width: "90%",
     backgroundColor: COLORS.white, // Dark theme

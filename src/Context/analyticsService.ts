@@ -26,6 +26,6 @@ export const logEvent = async (
         console.log(`Logged event: ${eventName}`, params);
       });
   } catch (e) {
-    console.log("Analytics Event Error:", e);
+    // console.log("Analytics Event Error:", e);
   }
 };

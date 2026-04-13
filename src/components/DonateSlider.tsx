@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { View, Animated, PanResponder } from "react-native";
 import COLORS from "../utils/Colors";
 import { horizontalScale, verticalScale } from "../utils/Metrics";
@@ -20,6 +20,15 @@ interface Props {
 
 const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
   const pan = useRef(new Animated.Value(0)).current;
+  const startPanX = useRef(0);
+  const panValueRef = useRef(0);
+  const lastReportedValue = useRef(value);
+  const pointerOffset = useRef(
+    new Animated.Value(POINTER_SIZE / 2 - ICON_SIZE / 2),
+  ).current;
+  const progressOffset = useRef(
+    new Animated.Value(POINTER_SIZE + TRACK_PADDING),
+  ).current;
 
   // 👉 Sync UI when parent value changes
   useEffect(() => {
@@ -27,36 +36,60 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
     const percentage = (value - 1) / (30 - 1);
     const newX = percentage * maxX;
 
+    lastReportedValue.current = value;
     pan.setValue(newX);
   }, [value]);
+
+  useEffect(() => {
+    const listenerId = pan.addListener(({ value: panValue }) => {
+      panValueRef.current = panValue;
+      
+      // Report value changes only when they cross a threshold
+      const maxX = INNER_WIDTH - POINTER_SIZE;
+      const percentage = Math.min(1, Math.max(0, panValue / maxX));
+      const newValue = Math.round(1 + percentage * (30 - 1));
+      const clampedValue = Math.min(30, Math.max(1, newValue));
+
+      if (clampedValue !== lastReportedValue.current) {
+        lastReportedValue.current = clampedValue;
+        onChange(clampedValue);
+      }
+    });
+    return () => pan.removeListener(listenerId);
+  }, [pan, onChange]);
+
+  const minX = 0;
+  const maxX = INNER_WIDTH - POINTER_SIZE;
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        startPanX.current = panValueRef.current;
+      },
 
       onPanResponderMove: (_, gesture) => {
-        let newX = gesture.moveX - 40 - TRACK_PADDING;
+        let newX = startPanX.current + gesture.dx;
 
-        const minX = 0;
-        const maxX = INNER_WIDTH - POINTER_SIZE;
-
-        if (newX < minX) newX = minX;
-        if (newX > maxX) newX = maxX;
-
+        // Clamp values
+        newX = Math.max(minX, Math.min(maxX, newX));
         pan.setValue(newX);
-        const percentage = Math.min(1, Math.max(0, newX / maxX));
-        const newValue = Math.round(1 + percentage * (30 - 1));
-        const clampedValue = Math.min(30, Math.max(1, newValue));
+      },
 
-        onChange(clampedValue);
+      onPanResponderRelease: () => {
+        startPanX.current = panValueRef.current;
       },
     }),
   ).current;
 
-  const progressWidth = Animated.add(
-    pan,
-    new Animated.Value(POINTER_SIZE + TRACK_PADDING),
+  const progressWidth = useMemo(
+    () => Animated.add(pan, progressOffset),
+    [pan, progressOffset],
+  );
+  const pointerTranslateX = useMemo(
+    () => Animated.add(pan, pointerOffset),
+    [pan, pointerOffset],
   );
 
   return (
@@ -70,10 +103,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
             left: TRACK_PADDING,
             transform: [
               {
-                translateX: Animated.add(
-                  pan,
-                  new Animated.Value(POINTER_SIZE / 2 - ICON_SIZE / 2),
-                ),
+                translateX: pointerTranslateX,
               },
             ],
             top: "50%",

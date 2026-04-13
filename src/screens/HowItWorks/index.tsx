@@ -7,6 +7,9 @@ import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import { logEvent } from "../../Context/analyticsService";
+import {
+  requestNotificationPermissionDuringOnboarding,
+} from "../../Firebase/NotificationService";
 import { HowItWorksScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import {
@@ -38,6 +41,7 @@ const supportItems = [
 const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
   useEffect(() => {
     logEvent("Ob_How_It_Works");
+    void requestNotificationPermissionDuringOnboarding();
   }, []);
 
   return (

@@ -18,7 +18,6 @@ const styles = StyleSheet.create({
   header: {
     width: wp(90),
     flexDirection: "row",
-    marginTop: Platform.OS === "android" ? verticalScale(15) : verticalScale(0),
     alignItems: "center",
     justifyContent: "center",
   },

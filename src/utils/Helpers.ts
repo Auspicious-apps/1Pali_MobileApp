@@ -213,3 +213,18 @@ export function getRandomEvenOrOdd(min = 0, max = 100) {
 
   return num;
 }
+
+export function calculateBaseDonationExcludingFees(
+  totalAmountDollars: number,
+): number {
+  const percentageFee = 0.029;
+  const fixedFeeDollars = 0.3; // $0.30
+  const denominator = 1 - percentageFee; // 0.971
+
+  // Reverse formula: totalAmount = (base + 0.30) / 0.971
+  // Solving for base: base = (totalAmount * 0.971) - 0.30
+
+  const baseDonation = totalAmountDollars * denominator - fixedFeeDollars;
+
+  return Math.round(baseDonation * 100) / 100; // Round to 2 decimal places
+}

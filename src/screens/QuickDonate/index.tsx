@@ -132,6 +132,10 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const { user, claimedNumber, reservationToken } = useAppSelector(
     (state) => state.user,
   );
+  const stripeProductId = useAppSelector(
+    (state) => state.stripeBootstrap.productId,
+  );
+  const stripeMode = useAppSelector((state) => state.stripeBootstrap.mode);
 
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const [toggleWidth, setToggleWidth] = useState(0);
@@ -142,10 +146,10 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showImpactLoader, setShowImpactLoader] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-   const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(0);
 
-   const translateY = useRef(new Animated.Value(0)).current;
-   const opacity = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
 
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
 
@@ -204,6 +208,10 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const handleSetupIntent = async () => {
     try {
       setIsLoading(true);
+      if (!stripeProductId) {
+        Alert.alert("Error", "Stripe product not loaded. Please try again.");
+        return;
+      }
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
         return;
@@ -216,7 +224,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             ENDPOINTS.ConfirmSetupIntent,
             {
               amountInDollars: selectedPlan.amount,
-              productId: "prod_U37d188P2YNO0d",
+              productId: stripeProductId,
               includesProcessingFees: isChecked,
               reservationToken: reservationToken,
             },
@@ -247,7 +255,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
           ENDPOINTS.CreateSetupIntent,
           {
             amountInDollars: selectedPlan.amount,
-            productId: "prod_U37d188P2YNO0d",
+            productId: stripeProductId,
             includesProcessingFees: isChecked,
           },
         );
@@ -261,7 +269,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
           customerId: customerId,
 
           googlePay: {
-            testEnv: true,
+            testEnv: stripeMode === "test",
             merchantCountryCode: "US",
           },
 
@@ -282,8 +290,9 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
         if (paymentError) {
           setIsLoading(false);
           console.log(paymentError, "OPOPPOP");
-
-          Alert.alert("Payment failed", paymentError.message);
+          paymentError.code === "Canceled"
+            ? Alert.alert("Payment cancelled", "You cancelled the payment")
+            : Alert.alert("Payment failed", paymentError.message);
           return;
         }
         setShowImpactLoader(true);
@@ -299,7 +308,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             {
               // priceId: planId,
               amountInDollars: selectedPlan.amount,
-              productId: "prod_U37d188P2YNO0d",
+              productId: stripeProductId,
               includesProcessingFees: isChecked,
               reservationToken: reservationToken,
               setupIntentId,
@@ -338,6 +347,11 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const handlePlatformSetupIntent = async () => {
     try {
       setIsLoading(true);
+      if (!stripeProductId) {
+        Alert.alert("Error", "Stripe product not loaded. Please try again.");
+        setIsLoading(false);
+        return;
+      }
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
         setIsLoading(false);
@@ -351,7 +365,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             {
               paymentMethodId: user.defaultPaymentMethodId,
               amountInDollars: selectedPlan.amount,
-              productId: "prod_U37d188P2YNO0d",
+              productId: stripeProductId,
               includesProcessingFees: isChecked,
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
@@ -383,7 +397,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
           ENDPOINTS.CreateApplePaySetupIntent,
           {
             amountInDollars: selectedPlan.amount,
-            productId: "prod_U37d188P2YNO0d",
+            productId: stripeProductId,
             includesProcessingFees: isChecked,
           },
         );
@@ -416,7 +430,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               currencyCode: currency,
               label: "OnePali Supporter Membership",
               merchantCountryCode: "US",
-              testEnv: true,
+              testEnv: stripeMode === "test",
               merchantName: "OnePali",
               billingAddressConfig: {
                 format: PlatformPay.BillingAddressFormat.Full,
@@ -433,9 +447,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
           );
         }
 
-        setIsLoading(false);
-        setShowImpactLoader(true);
-
         const confirmSetupIntentresponse =
           await postData<ConsfirmSetupIntentApiResponse>(
             ENDPOINTS.ConfirmApplePaySetupIntent,
@@ -446,6 +457,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
           );
+        setShowImpactLoader(true);
 
         if (confirmSetupIntentresponse.data.success) {
           const isSubscriptionActive = await pollUserProfile(3);
@@ -466,9 +478,18 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
       }
     } catch (error: any) {
       console.log("SetupIntent error:", error);
-      Alert.alert("Error", error.message || "Something went wrong");
+      if (
+        Platform.OS === "android" &&
+        error.message ===
+          "Payment initialization failed: Google Pay has been canceled"
+      ) {
+        Alert.alert("Payment cancelled", "You cancelled the payment");
+      } else {
+        Alert.alert("Error", error.message || "Something went wrong");
+      }
     } finally {
       setIsLoading(false);
+      setShowImpactLoader(false);
     }
   };
 
@@ -486,7 +507,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
         ENDPOINTS.CreateExternalPaymentCheckoutLink,
         {
           amountInDollars: selectedPlan.amount,
-          productId: "prod_U37d188P2YNO0d",
+          productId: stripeProductId,
           includesProcessingFees: isChecked,
           successUrl:
             "https://onepali-backend.onrender.com/subscription/success",
@@ -554,7 +575,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    logEvent("Ob_Paywall_View");
+    // logEvent("Ob_Paywall_View");
   }, []);
 
   useEffect(() => {
@@ -684,13 +705,12 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             <Image source={IMAGES.PeoplesDonating} style={styles.image} />
           </View>
           <View style={styles.donationText}>
-            <Text
-              style={{
-                fontFamily: FONTS.GabaritoSemiBold,
-                fontSize: responsiveFontSize(72),
-                color: COLORS.darkText,
-                lineHeight: responsiveFontSize(72),
-              }}
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={responsiveFontSize(72)}
+              color={COLORS.darkText}
+              lineHeight={responsiveFontSize(72)}
+              style={styles.amountText}
             >
               {selectedPlan.type === "custom"
                 ? `$${customAmount}`
@@ -698,18 +718,16 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
                     visiblePlans.find((p) => p.id === selectedPlan.id)
                       ?.amount || 1
                   }`}
-            </Text>
-
-            <Text
-              style={{
-                fontFamily: FONTS.GabaritoSemiBold,
-                fontSize: responsiveFontSize(42),
-                color: COLORS.appText,
-                lineHeight: responsiveFontSize(72),
-              }}
+            </CustomText>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={responsiveFontSize(42)}
+              color={COLORS.appText}
+              lineHeight={responsiveFontSize(72)}
+              style={styles.perMonthText}
             >
               /mo
-            </Text>
+            </CustomText>
           </View>
           <View
             style={{
@@ -934,24 +952,20 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
                   navigation.goBack();
                 }
               }}
-              style={{ marginTop: verticalScale(20) }}
               hapticFeedback
               hapticType="impactLight"
             />
           ) : Platform.OS === "ios" ? (
             isPlatformPayAvailable ? (
               <View style={{ width: wp(90), alignItems: "center" }}>
-                <PlatformPayButton
-                  type={PlatformPay.ButtonType.Donate}
+                <PrimaryButton
+                  title="Join OnePali"
                   onPress={handlePlatformSetupIntent}
-                  appearance={PlatformPay.ButtonStyle.Black}
-                  borderRadius={10}
+                  isLoading={isLoading}
+                  style={{ marginTop: verticalScale(20) }}
+                  hapticFeedback
                   disabled={isLoading}
-                  style={{
-                    marginTop: verticalScale(20),
-                    height: verticalScale(50),
-                    width: wp(90),
-                  }}
+                  hapticType="impactLight"
                 />
               </View>
             ) : (
@@ -1043,13 +1057,19 @@ const styles = StyleSheet.create({
     height: hp(19.6),
     resizeMode: "cover",
     alignSelf: "center",
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(20),
   },
   donationText: {
-    marginTop: verticalScale(24),
+    marginTop: verticalScale(4),
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "flex-end",
+    alignItems: "baseline",
+  },
+  amountText: {
+    marginRight: horizontalScale(0),
+  },
+  perMonthText: {
+    marginBottom: verticalScale(4),
   },
   toggleWrapper: {
     flexDirection: "row",

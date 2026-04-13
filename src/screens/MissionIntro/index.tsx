@@ -42,7 +42,7 @@ import {
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import styles from "./styles";
 
-const initialTimer = 300;
+const initialTimer = 30;
 
 const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const { showNumber } = route.params || {};
@@ -100,7 +100,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
         nonce: rawNonce,
       });
-      const { identityToken, authorizationCode, user, nonce } = appleResponse;
+      const { identityToken, authorizationCode, nonce } = appleResponse;
 
       if (!identityToken || !authorizationCode) {
         Toast.show({
@@ -194,6 +194,51 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     }
   };
 
+  const handleGoogleError = (error: any) => {
+    if (!error) return;
+
+    // Silent cases (no UI)
+    if (error.message === "Sign-in cancelled by user") {
+      return;
+    }
+
+    // Known Google errors
+    if (error.code === statusCodes.IN_PROGRESS) {
+      Toast.show({
+        type: "info",
+        text1: "Please wait",
+        text2: "Sign-in is already in progress",
+      });
+      return;
+    }
+
+    if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      Toast.show({
+        type: "error",
+        text1: "Google Services Required",
+        text2: "Please update Google Play Services to continue",
+      });
+      return;
+    }
+
+    // API / custom errors
+    if (error.message) {
+      Toast.show({
+        type: "error",
+        text1: "Sign-In Failed",
+        text2: error.message,
+      });
+      return;
+    }
+
+    // Fallback
+    Toast.show({
+      type: "error",
+      text1: "Something went wrong",
+      text2: "Please try again later",
+    });
+  };
+
   const handleGoogleSignIn = async () => {
     if (!isChecked) {
       setShowCheckboxError(true);
@@ -210,7 +255,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         });
       }
 
-      const { data } = await GoogleSignin.signIn();
+      const { data, type } = await GoogleSignin.signIn();
 
       if (data?.idToken) {
         const signinResponse = await postData<GoogleSigninResponse>(
@@ -280,44 +325,28 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             });
           }
         } else {
-          const errorMessage = signinResponse.data.message || "Sign-in failed";
-          console.error("API Error:", errorMessage);
-          Toast.show({
-            type: "error",
-            text1: "Google Sign-In Failed",
-            text2: errorMessage,
-          });
+          throw {
+            type: "API_ERROR",
+            message: signinResponse.data.message || "Sign-in failed",
+          };
         }
       } else {
-        console.log("error", "signin data not found");
-        Toast.show({
-          type: "error",
-          text1: "Google Sign-In Failed",
-          text2: "No sign-in data received from Google",
-        });
+        console.log(data, type, "ZZZZ");
+        if (type === "cancelled") {
+          throw {
+            type: statusCodes.SIGN_IN_CANCELLED,
+            message: "Sign-in cancelled by user",
+          };
+        } else {
+          throw {
+            type: "TOKEN_ERROR",
+            message: "Unable to retrieve Google credentials. Please try again.",
+          };
+        }
       }
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
-
-      let errorMessage = "Something went wrong during sign-in";
-
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        errorMessage = "Sign-in was cancelled";
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        errorMessage = "Sign-in is already in progress";
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        errorMessage = "Google Play Services not available";
-      } else {
-        const message = error.message || "An unexpected error occurred";
-        errorMessage = message;
-        Alert.alert("Sign In Error", message);
-      }
-
-      Toast.show({
-        type: "error",
-        text1: "Google Sign-In Failed",
-        text2: errorMessage,
-      });
+      handleGoogleError(error);
     } finally {
       setIsSigningIn(false);
     }
@@ -450,35 +479,13 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
-                        "Terms of Service",
-                        "https://onepali.app/terms-condition",
-                      );
-                    }}
-                    style={{ textDecorationLine: "underline" }}
-                  >
-                    Terms of Service
-                  </CustomText>
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
-                    color={COLORS.appText}
-                  >
-                    ,{" "}
-                  </CustomText>
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
-                    color={COLORS.appText}
-                    onPress={() => {
-                      openLegalSheet(
-                        "Privacy Policy",
-                        // "https://onepali.app/privacy-policy",
+                        "MECA Privacy Policy",
                         "https://onepali.app/meca-privacy-policy",
                       );
                     }}
                     style={{ textDecorationLine: "underline" }}
                   >
-                    Privacy Policy{" "}
+                    Privacy Policy
                   </CustomText>
                   <CustomText
                     fontFamily="SourceSansRegular"
@@ -493,8 +500,30 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
-                        "Privacy Policy",
-                        "https://onepali.app/privacy-policy",
+                        "OnePali Terms of Use",
+                        // "https://onepali.app/privacy-policy",
+                        "https://onepali.app/terms-of-use",
+                      );
+                    }}
+                    style={{ textDecorationLine: "underline" }}
+                  >
+                    Terms of Use{" "}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.appText}
+                  >
+                    and{" "}
+                  </CustomText>
+                  <CustomText
+                    fontFamily="SourceSansRegular"
+                    fontSize={13}
+                    color={COLORS.appText}
+                    onPress={() => {
+                      openLegalSheet(
+                        "OnePali Privacy Policy",
+                        "https://onepali.app/onepali-privacy-policy",
                       );
                     }}
                     style={{ textDecorationLine: "underline" }}
@@ -577,12 +606,11 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           ) : (
             <View
               style={{
-                marginTop: verticalScale(12),
                 alignItems: "center",
               }}
             >
               <PrimaryButton
-                title="Choose a new number"
+                title="Claim New Number"
                 onPress={() => {
                   if (Platform.OS === "android") {
                     GoogleSignin.signOut().then(() => {

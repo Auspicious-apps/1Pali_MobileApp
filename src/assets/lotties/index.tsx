@@ -1,6 +1,6 @@
 const LOTTIES = {
   logoLoading: require("./laoding.json"),
-  SplashLottie: require("./fullScreenOnePaliLogo.json"),
+  SplashLottie: require("./NewLottie.json"),
 };
 
 export default LOTTIES;

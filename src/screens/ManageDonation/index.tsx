@@ -1,9 +1,7 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Animated,
-  Easing,
   Image,
   Platform,
   StyleSheet,
@@ -17,22 +15,21 @@ import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
-import CustomSwitch from "../../components/CustomSwitch";
 import { CustomText } from "../../components/CustomText";
+import CustomAmount, {
+  CustomAmountSheetRef,
+} from "../../components/Modal/CustomAmount";
 import PrimaryButton from "../../components/PrimaryButton";
-import {
-  setSelectedPlanData,
-  setSelectedPlanId,
-  setStripePlans,
-} from "../../redux/slices/StripePlans";
-import { fetchUserProfile } from "../../redux/slices/UserSlice";
+import { fetchMySubscription } from "../../redux/slices/SubscriptionSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
-import { GetAllStripeePlansResponse } from "../../service/ApiResponses/GetAllStripePLans";
-import { fetchData, postData } from "../../service/ApiService";
+import { postData } from "../../service/ApiService";
 import { ManageDonationScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { formatDate } from "../../utils/Helpers";
+import {
+  calculateProcessingFeeIncludedAmount,
+  formatDate,
+} from "../../utils/Helpers";
 import {
   horizontalScale,
   responsiveFontSize,
@@ -40,37 +37,99 @@ import {
   wp,
 } from "../../utils/Metrics";
 
+const donationPlans = [
+  {
+    id: "plan_1",
+    type: "amount",
+    amount: 1,
+  },
+  {
+    id: "plan_2",
+    type: "amount",
+    amount: 3,
+  },
+  {
+    id: "plan_3",
+    type: "amount",
+    amount: 5,
+  },
+  {
+    id: "custom",
+    type: "custom",
+  },
+];
+
+const presetDonationPlans = donationPlans.filter(
+  (plan) => plan.type === "amount",
+);
+
 const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state?.user);
-  const { stripePlans, selectedPlanId, selectedPlanData } = useAppSelector(
-    (state) => state.stripePlans,
+  const { subscriptionData, loading: loadingPlans } = useAppSelector(
+    (state) => state.subscription,
+  );
+  const stripeProductId = useAppSelector(
+    (state) => state.stripeBootstrap.productId,
   );
 
-  const isUserActive = user?.subscriptionStatus === "ACTIVE";
+  const [selectedPlan, setSelectedPlan] = useState(donationPlans[0]);
+  const [customAmount, setCustomAmount] = useState("1");
+  const amountSheetRef = useRef<CustomAmountSheetRef>(null);
+
+  const isUserActive = subscriptionData?.status === "ACTIVE";
 
   const [enabled, setEnabled] = useState(false);
-  const [loadingPlans, setLoadingPlans] = useState(false);
-  const [previousPlanId, setPreviousPlanId] = useState<string | null>(null);
-
-  const [feesAmount, setFeesAmount] = useState({
-    amount: "",
-    planId: "",
-  });
+  const [currentSubscriptionAmount, setCurrentSubscriptionAmount] = useState<
+    number | null
+  >(null);
+  const [currentOptedInFees, setCurrentOptedInFees] = useState(false);
 
   const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [toggleWidth, setToggleWidth] = useState(0);
-  const slideAnim = React.useRef(new Animated.Value(0)).current;
-  const visiblePlans = stripePlans.filter(
-    (plan) => plan.metadata.category === "base",
+
+  const selectedPlanAmountNumber =
+    selectedPlan.type === "custom"
+      ? Number(customAmount)
+      : selectedPlan.amount ?? 0;
+  const normalizedSelectedAmount = Number.isFinite(selectedPlanAmountNumber)
+    ? selectedPlanAmountNumber
+    : 0;
+
+  const processingFeeIncludedAmount = normalizedSelectedAmount
+    ? calculateProcessingFeeIncludedAmount(normalizedSelectedAmount)
+    : 0;
+  const processingFeeDifference = Math.max(
+    0,
+    processingFeeIncludedAmount - normalizedSelectedAmount,
   );
-  const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
+  const displayAmountLabel =
+    selectedPlan.type === "custom"
+      ? customAmount
+      : `${selectedPlan.amount ?? 0}`;
+
+  const processingFeeLabel =
+    processingFeeDifference && Number.isFinite(Number(processingFeeDifference))
+      ? Number(processingFeeDifference).toFixed(2)
+      : "0";
+
+  const planOptions = useMemo(() => {
+    return presetDonationPlans.map((plan) => ({
+      plan,
+    }));
+  }, []);
+
+  const handleProcessingFeeToggle = () => {
+    setEnabled((prev) => !prev);
+  };
+
+  const handlePresetPlanSelect = (plan: (typeof donationPlans)[number]) => {
+    setSelectedPlan(plan);
+    setCustomAmount(String(plan.amount));
+  };
 
   // Edge case: Determine if plan has changed
   const isPlanChanged =
-    (enabled && feesAmount.planId !== user?.stripePriceId) ||
-    (!enabled && selectedPlanId !== user?.stripePriceId);
+    normalizedSelectedAmount !== currentSubscriptionAmount ||
+    enabled !== currentOptedInFees;
 
   const hapticOptions = {
     enableVibrateFallback: true,
@@ -78,16 +137,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   };
 
   const handlePlanChange = async () => {
-    // Edge case: Validate plan selection before API call
-    if (enabled && !feesAmount.planId) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Processing fee plan is not available for this donation amount.",
-      });
-      return;
-    }
-
     // Edge case: Prevent update if no actual change
     if (!isPlanChanged) {
       Toast.show({
@@ -100,22 +149,25 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
     setIsUpdatingPlan(true);
 
-    const planId = enabled ? feesAmount.planId : selectedPlanId;
     try {
+      if (!stripeProductId) {
+        Toast.show({
+          type: "error",
+          text1: "Stripe not ready",
+          text2: "Please try again in a moment.",
+        });
+        return;
+      }
       const planChangeResponse = await postData(ENDPOINTS.UpdatePlan, {
-        newPriceId: planId,
+        amountInDollars: normalizedSelectedAmount,
+        productId: stripeProductId,
+        includesProcessingFees: enabled,
       });
 
       if (planChangeResponse?.data?.success) {
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Your donation plan has been updated.",
-        });
-        if (planId) {
-          setPreviousPlanId(planId);
-        }
-        dispatch(fetchUserProfile());
+     
+        // Refresh subscription data after updating
+        dispatch(fetchMySubscription());
       }
     } catch (error: any) {
       console.log("Error updating plan:", error);
@@ -142,83 +194,68 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
     }
   };
 
-  const getAllPlans = async () => {
-    try {
-      setLoadingPlans(true);
+  // Watch Redux subscription data and update local state
+  useEffect(() => {
+    if (subscriptionData) {
+      // Convert from cents to dollars
+      const baseDonationAmount = subscriptionData.baseDonationAmount;
+      const hasOptedIn = subscriptionData.hasOptedInForProcessingFees;
 
-      const response = await fetchData<GetAllStripeePlansResponse>(
-        ENDPOINTS.GetStripePlans,
+      // Set the current subscription amount and fees opt-in status
+      setCurrentSubscriptionAmount(baseDonationAmount);
+      setCurrentOptedInFees(hasOptedIn);
+      setEnabled(hasOptedIn);
+
+      // Find matching preset plan or set custom
+      const matchingPlan = presetDonationPlans.find(
+        (plan) => Number(plan.amount) === baseDonationAmount,
       );
 
-      if (response?.data?.data?.plans?.length) {
-        const activePlans = response?.data?.data?.plans;
-
-        // Use user's actual current plan as the source of truth
-        const currentPlanId = user?.stripePriceId || selectedPlanId;
-        const selectPlan = activePlans.find((p) => p.id === currentPlanId);
-
-        if (selectPlan) {
-          // Set Redux state with the actual current plan
-          dispatch(setSelectedPlanId(selectPlan.id));
-          dispatch(setSelectedPlanData(selectPlan));
-
-          // Determine if toggle should be enabled based on plan category
-          if (selectPlan.metadata.category === "generosity") {
-            setEnabled(true);
-            // Find the corresponding base plan with the same netAmount
-            const basePlan = activePlans.find(
-              (p) =>
-                p.metadata.category === "base" &&
-                p.metadata.netAmount === selectPlan.metadata.netAmount,
-            );
-            if (basePlan) {
-              setPreviousPlanId(basePlan.id);
-            }
-          } else if (selectPlan.metadata.category === "base") {
-            setEnabled(false);
-            setPreviousPlanId(null);
-          }
-        }
-
-        dispatch(setStripePlans(activePlans));
+      if (matchingPlan) {
+        setSelectedPlan(matchingPlan);
+        setCustomAmount(String(matchingPlan.amount));
+      } else {
+        // Amount doesn't match preset, set to custom
+        setSelectedPlan({
+          id: "custom",
+          type: "custom",
+          amount: baseDonationAmount,
+        });
+        setCustomAmount(baseDonationAmount.toString());
       }
-    } catch (error) {
-      console.log("Error fetching plans:", error);
-    } finally {
-      setLoadingPlans(false);
     }
-  };
+  }, [subscriptionData]);
+
+  // Fetch subscription data on component mount if not already cached
+  useEffect(() => {
+    // if (!subscriptionData) {
+    dispatch(fetchMySubscription());
+    // }
+  }, []);
 
   const handleResubscribe = async () => {
-    // Edge case: Validate plan selection before API call
-    if (enabled && !feesAmount.planId) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Processing fee plan is not available for this donation amount.",
-      });
-      return;
-    }
-
     setIsUpdatingPlan(true);
 
-    const planId = enabled ? feesAmount.planId : selectedPlanId;
-
     try {
+      if (!stripeProductId) {
+        Toast.show({
+          type: "error",
+          text1: "Stripe not ready",
+          text2: "Please try again in a moment.",
+        });
+        return;
+      }
       const planChangeResponse = await postData(ENDPOINTS.resubscribePlan, {
-        priceId: planId,
+        amountInDollars: normalizedSelectedAmount,
+        productId: stripeProductId,
+        includesProcessingFees: enabled,
       });
 
       if (planChangeResponse?.data?.success) {
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Your donation plan has been reactivated.",
-        });
-        if (planId) {
-          setPreviousPlanId(planId);
-        }
-        dispatch(fetchUserProfile());
+        setTimeout(() => {
+          dispatch(fetchMySubscription());
+          setIsUpdatingPlan(false);
+        }, 2000);
       }
     } catch (error: any) {
       console.log("Error updating plan:", error);
@@ -240,8 +277,8 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             "There was an error re-subscribing to your plan. Please try again.",
         );
       }
-    } finally {
       setIsUpdatingPlan(false);
+    } finally {
     }
   };
 
@@ -254,11 +291,13 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
   };
 
   const getButtonTitle = () => {
-    const isSamePlan = selectedPlanId === user?.stripePriceId;
-    const status = user?.subscriptionStatus;
+    const isSameAmount = normalizedSelectedAmount === currentSubscriptionAmount;
+    const isSameFees = enabled === currentOptedInFees;
+    const isNoChange = isSameAmount && isSameFees;
+    const status = subscriptionData?.status;
 
     if (status === "ACTIVE") {
-      return isSamePlan ? "Current Donation" : "Update Donation";
+      return isNoChange ? "Current Donation" : "Update Donation";
     }
 
     if (status === "CANCELLING") {
@@ -271,48 +310,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
     return "Update Donation";
   };
-
-  useEffect(() => {
-    getAllPlans();
-  }, [user?.stripePriceId]);
-
-  useEffect(() => {
-    if (selectedPlanData && stripePlans.length) {
-      // Find both base and generosity plans with the same netAmount
-      const matchingNetAmount = selectedPlanData.metadata.netAmount;
-
-      const planWithFees = stripePlans.find(
-        (p) =>
-          p.metadata.category === "generosity" &&
-          p.metadata.netAmount === matchingNetAmount,
-      );
-
-      const calculatedFee = planWithFees
-        ? (
-            planWithFees.amount - parseFloat(planWithFees.metadata.netAmount)
-          ).toFixed(2)
-        : "0";
-
-      setFeesAmount({ amount: calculatedFee, planId: planWithFees?.id || "" });
-    }
-  }, [selectedPlanData, stripePlans]);
-
-  useEffect(() => {
-    if (!selectedPlanData || ITEM_WIDTH <= 0) return;
-
-    const index = visiblePlans.findIndex(
-      (p) => p.metadata.netAmount === selectedPlanData?.metadata.netAmount,
-    );
-
-    if (index === -1) return;
-
-    Animated.timing(slideAnim, {
-      toValue: index * ITEM_WIDTH,
-      duration: 220,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [selectedPlanData, ITEM_WIDTH, visiblePlans]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -329,9 +326,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             width={verticalScale(26)}
           />
         </TouchableOpacity>
-
         <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
-
         <View style={{ width: 24 }} />
       </View>
 
@@ -362,304 +357,235 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
         </View>
       ) : (
         <>
-          <View
-            style={{
-              paddingVertical: 16,
-              width: wp(90),
-            }}
-          >
-            <View
-              style={styles.toggleWrapper}
-              onLayout={(e) => {
-                setToggleWidth(e.nativeEvent.layout.width - 8);
-              }}
+          <View style={styles.donationText}>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={responsiveFontSize(72)}
+              color={COLORS.darkText}
+              lineHeight={responsiveFontSize(72)}
+              style={styles.amountText}
             >
-              {ITEM_WIDTH > 0 && (
-                <Animated.View
-                  pointerEvents="none"
+              {`$${displayAmountLabel}`}
+            </CustomText>
+            <CustomText
+              fontFamily="GabaritoSemiBold"
+              fontSize={responsiveFontSize(42)}
+              color={COLORS.appText}
+              lineHeight={responsiveFontSize(72)}
+              style={styles.perMonthText}
+            >
+              /mo
+            </CustomText>
+          </View>
+          <View style={styles.toggleWrapper}>
+            {planOptions.map(({ plan }) => {
+              const isSelected = selectedPlan.id === plan.id;
+              return (
+                <TouchableOpacity
+                  key={plan.id}
                   style={[
-                    styles.slidingBg,
+                    styles.toggleItem,
                     {
-                      width: ITEM_WIDTH,
-                      transform: [{ translateX: slideAnim }],
+                      backgroundColor: isSelected
+                        ? COLORS.darkGreen
+                        : COLORS.greyish,
                     },
                   ]}
-                />
-              )}
-
-              {stripePlans
-                .filter((plan) => plan.metadata.category === "base")
-                .map((plan, index) => {
-                  const isSelected =
-                    selectedPlanData?.metadata.netAmount ===
-                    plan.metadata.netAmount;
-
-                  return (
-                    <TouchableOpacity
-                      key={plan.id}
-                      style={styles.toggleItem}
-                      activeOpacity={0.9}
-                      onPress={() => {
-                        HapticFeedback.trigger("impactLight", hapticOptions);
-                        setPreviousPlanId(null);
-                        dispatch(setSelectedPlanId(plan.id));
-                        dispatch(setSelectedPlanData(plan));
-                      }}
-                      disabled={isLoading}
-                    >
-                      <CustomText
-                        style={[
-                          styles.toggleText,
-                          isSelected && styles.toggleTextActive,
-                        ]}
-                      >
-                        ${plan.metadata.netAmount || plan.amount}/mo
-                      </CustomText>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View>
-            <CustomText
-              fontSize={13}
-              color={COLORS.appText}
-              fontFamily="SourceSansRegular"
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    HapticFeedback.trigger("impactLight", hapticOptions);
+                    handlePresetPlanSelect(plan);
+                  }}
+                >
+                  <CustomText
+                    fontSize={18}
+                    style={{
+                      color: isSelected ? COLORS.white : COLORS.darkText,
+                      fontFamily: FONTS.GabaritoSemiBold,
+                    }}
+                  >
+                    ${plan.amount}
+                  </CustomText>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity
+              style={[
+                styles.toggleItem,
+                {
+                  backgroundColor:
+                    selectedPlan.type === "custom"
+                      ? COLORS.darkGreen
+                      : COLORS.greyish,
+                },
+              ]}
+              activeOpacity={0.9}
+              onPress={() => {
+                HapticFeedback.trigger("impactLight", hapticOptions);
+                amountSheetRef.current?.open();
+              }}
             >
-              Includes an additional $
-              {selectedPlanData?.metadata?.processingFee || 0} for processing to
-              maximize impact
-            </CustomText>
+              <CustomIcon
+                Icon={
+                  selectedPlan.type === "custom"
+                    ? ICONS.WhitePencil
+                    : ICONS.PencilIcon
+                }
+                width={18}
+                height={18}
+              />
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.card}>
-            <View style={{ gap: verticalScale(8) }}>
-              <CustomText
-                fontFamily="GabaritoMedium"
-                fontSize={20}
-                color={COLORS.darkText}
-              >
-                With your donation
-              </CustomText>
-              {/* Benefits */}
-              <View style={styles.row}>
-                <CustomIcon
-                  Icon={ICONS.LikedIcon}
-                  height={verticalScale(16)}
-                  width={verticalScale(16)}
-                />
-                <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={15}
-                  style={{ color: COLORS.appText }}
-                >
-                  Direct aid to children & families via MECA
-                </CustomText>
-              </View>
-
-              <View style={styles.row}>
-                <CustomIcon
-                  Icon={ICONS.LikedIcon}
-                  height={verticalScale(16)}
-                  width={verticalScale(16)}
-                />
-                <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={15}
-                  style={{ color: COLORS.appText }}
-                >
-                  Weekly artwork from children in Palestine
-                </CustomText>
-              </View>
-
-              <View style={styles.row}>
-                <CustomIcon
-                  Icon={ICONS.LikedIcon}
-                  height={verticalScale(16)}
-                  width={verticalScale(16)}
-                />
-                <CustomText
-                  fontFamily="GabaritoRegular"
-                  fontSize={15}
-                  style={{ color: COLORS.appText }}
-                >
-                 Updates on where funds are directed.
-                </CustomText>
-              </View>
-            </View>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <CustomText
-                fontFamily="GabaritoRegular"
-                fontSize={18}
-                style={{ color: COLORS.darkText, flex: 1 }}
-              >
-                Support OnePali (optional)
-              </CustomText>
-
-              <CustomSwitch
-                value={enabled}
-                onValueChange={(value) => {
-                  // Edge case: Prevent toggle while updating plan
-                  if (isUpdatingPlan) {
-                    return;
-                  }
-
-                  // Edge case: Store base plan when enabling, switch to fee plan
-                  if (value) {
-                    // Prevent toggle if fees plan not available
-                    if (!feesAmount.planId || feesAmount.amount === "0") {
-                      Toast.show({
-                        type: "error",
-                        text1: "Not Available",
-                        text2:
-                          "Processing fees option is not available for this plan.",
-                      });
-                      return;
-                    }
-
-                    // Store current base plan as previousPlanId (in case user disables later)
-                    const currentBasePlan = stripePlans.find(
-                      (p) =>
-                        p.metadata.category === "base" &&
-                        p.metadata.netAmount ===
-                          selectedPlanData?.metadata.netAmount,
-                    );
-
-                    if (currentBasePlan) {
-                      setPreviousPlanId(currentBasePlan.id);
-                    }
-
-                    setEnabled(true);
-                    // Auto-select the fee plan
-                    if (feesAmount.planId) {
-                      dispatch(setSelectedPlanId(feesAmount.planId));
-                      // Find and update selectedPlanData to the fee plan
-                      const feePlan = stripePlans.find(
-                        (p) => p.id === feesAmount.planId,
-                      );
-                      if (feePlan) {
-                        dispatch(setSelectedPlanData(feePlan));
-                      }
-                    }
-                  } else {
-                    // Disable: switch back to base plan
-                    setEnabled(false);
-
-                    if (previousPlanId) {
-                      dispatch(setSelectedPlanId(previousPlanId));
-                      // Find and update selectedPlanData to the base plan
-                      const basePlan = stripePlans.find(
-                        (p) => p.id === previousPlanId,
-                      );
-                      if (basePlan) {
-                        dispatch(setSelectedPlanData(basePlan));
-                      }
-                      setPreviousPlanId(null);
-                    }
-                  }
-                }}
-                thumbColorOn="#FFFFFF"
-                thumbColorOff={COLORS.white}
-                trackColorOn={[COLORS.darkGreen, COLORS.darkGreen]}
-                trackColorOff={[COLORS.grey, COLORS.grey]}
-              />
-            </View>
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={15}
-              style={{ color: COLORS.appText, marginTop: verticalScale(8) }}
-            >
-              This mission runs on your generosity. $0.25 helps keep OnePali
-              running and growing.
-            </CustomText>
-            {/* <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={15}
-              style={{ color: COLORS.appText, marginTop: verticalScale(20) }}
-            >
-              {user?.cancelAtPeriodEnd
-                ? "Your subscription will end on " +
-                  new Date(user?.currentPeriodEnd).toLocaleDateString()
-                : "Your next billing date is " +
-                  new Date(user?.currentPeriodEnd!).toLocaleDateString()}
-            </CustomText> */}
-
-            {/* Save Button */}
-            <PrimaryButton
-              title={getButtonTitle()}
-              onPress={onButtonPress}
-              disabled={
-                isUserActive // Edge case: Disable if no plan change detected
-                  ? !isPlanChanged ||
-                    // Edge case: Disable if fees are enabled but plan not available
-                    (enabled && !feesAmount.planId) ||
-                    // Edge case: Disable while updating
-                    isUpdatingPlan
-                  : false
-              }
-              style={styles.saveButton}
-              isLoading={isUpdatingPlan}
-            />
-            {user?.subscriptionStatus === "ACTIVE" && (
+          {normalizedSelectedAmount > 0 && (
+            <View style={styles.processingRow}>
               <TouchableOpacity
-                onPress={() => {
-                  Alert.alert(
-                    "Cancel Monthly Donation",
-                    "Are you sure you want to cancel your monthly donation?",
-                    [
-                      {
-                        text: "Cancel",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Confirm",
-                        style: "destructive",
-                        onPress: async () => {
-                          try {
-                            const response = await postData(
-                              ENDPOINTS.cancelPlan,
-                              {},
-                            );
-
-                            if (response?.data?.success) {
-                              Toast.show({
-                                type: "success",
-                                text1: "Success",
-                                text2:
-                                  "Your monthly donation has been cancelled.",
-                              });
-                              dispatch(fetchUserProfile());
-                            }
-                          } catch (error) {
-                            console.log(
-                              "Error cancelling subscription:",
-                              error,
-                            );
-                            Toast.show({
-                              type: "error",
-                              text1: "Error",
-                              text2:
-                                "There was an error cancelling your donation. Please try again.",
-                            });
-                          }
-                        },
-                      },
-                    ],
-                  );
-                }}
+                activeOpacity={0.8}
+                style={styles.processingCheckbox}
+                onPress={handleProcessingFeeToggle}
               >
+                {enabled ? (
+                  <CustomIcon
+                    Icon={ICONS.CheckedIcon}
+                    height={verticalScale(24)}
+                    width={horizontalScale(24)}
+                  />
+                ) : (
+                  <CustomIcon
+                    Icon={ICONS.CheckboxInput}
+                    height={verticalScale(24)}
+                    width={horizontalScale(24)}
+                  />
+                )}
                 <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={16}
-                  color={COLORS.darkRed}
-                  style={{ textAlign: "center", marginTop: verticalScale(12) }}
+                  fontFamily="SourceSansRegular"
+                  fontSize={13}
+                  color={COLORS.appText}
+                  style={{ flexShrink: 1 }}
                 >
-                  Cancel Monthly Donation
+                  {`I'll cover the $${processingFeeLabel} processing fee to maximize my impact.`}
                 </CustomText>
               </TouchableOpacity>
-            )}
+            </View>
+          )}
+
+          <View style={styles.card}>
+            <CustomText
+              fontFamily="GabaritoMedium"
+              fontSize={20}
+              color={COLORS.darkText}
+            >
+              With your donation
+            </CustomText>
+            {/* Benefits */}
+            <View style={styles.row}>
+              <CustomIcon
+                Icon={ICONS.LikedIcon}
+                height={verticalScale(16)}
+                width={verticalScale(16)}
+              />
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                style={{ color: COLORS.appText }}
+              >
+                Direct aid to children & families via MECA
+              </CustomText>
+            </View>
+
+            <View style={styles.row}>
+              <CustomIcon
+                Icon={ICONS.LikedIcon}
+                height={verticalScale(16)}
+                width={verticalScale(16)}
+              />
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                style={{ color: COLORS.appText }}
+              >
+                Weekly artwork from children in Palestine
+              </CustomText>
+            </View>
+
+            <View style={styles.row}>
+              <CustomIcon
+                Icon={ICONS.LikedIcon}
+                height={verticalScale(16)}
+                width={verticalScale(16)}
+              />
+              <CustomText
+                fontFamily="GabaritoRegular"
+                fontSize={15}
+                style={{ color: COLORS.appText }}
+              >
+                Updates on where funds are directed.
+              </CustomText>
+            </View>
           </View>
-          <View
+
+          {/* Save Button */}
+          <PrimaryButton
+            title={getButtonTitle()}
+            onPress={onButtonPress}
+            disabled={
+              isUserActive // Edge case: Disable if no plan change detected
+                ? !isPlanChanged || isUpdatingPlan
+                : false
+            }
+            style={styles.saveButton}
+            isLoading={isUpdatingPlan}
+          />
+          {subscriptionData?.status === "ACTIVE" && (
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  "Cancel Monthly Donation",
+                  "Are you sure you want to cancel your monthly donation?",
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Confirm",
+                      style: "destructive",
+                      onPress: async () => {
+                        try {
+                          const response = await postData(
+                            ENDPOINTS.cancelPlan,
+                            {},
+                          );
+
+                          if (response?.data?.success) {
+                            dispatch(fetchMySubscription());
+                          }
+                        } catch (error) {
+                          console.log("Error cancelling subscription:", error);
+                          Toast.show({
+                            type: "error",
+                            text1: "Error",
+                            text2:
+                              "There was an error cancelling your donation. Please try again.",
+                          });
+                        }
+                      },
+                    },
+                  ],
+                );
+              }}
+            >
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={16}
+                color={COLORS.darkRed}
+                style={{ textAlign: "center", marginTop: verticalScale(12) }}
+              >
+                Cancel Monthly Donation
+              </CustomText>
+            </TouchableOpacity>
+          )}
+          {/* <View
             style={{
               marginTop: verticalScale(24),
               flexDirection: "row",
@@ -684,7 +610,20 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             >
               ${user?.currentSubscriptionPrice}/mo
             </CustomText>
-          </View>
+          </View> */}
+
+          <CustomAmount
+            ref={amountSheetRef}
+            onConfirm={(amount) => {
+              setCustomAmount(amount);
+              setSelectedPlan({
+                id: "custom",
+                type: "custom",
+                amount: parseFloat(amount),
+              });
+            }}
+            initialAmount={customAmount}
+          />
         </>
       )}
     </SafeAreaView>
@@ -712,6 +651,11 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
   },
 
+  header: {
+    alignItems: "center",
+    marginBottom: verticalScale(12),
+  },
+
   headingContainer: {
     alignItems: "center",
     marginTop: verticalScale(15),
@@ -723,23 +667,13 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "rgba(248, 248, 251, 1)",
-    borderRadius: 20,
-    padding: 16,
+    paddingVertical: verticalScale(30),
+    paddingHorizontal: horizontalScale(10),
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EF",
     marginTop: verticalScale(14),
     width: wp(90),
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 6,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: verticalScale(12),
+    gap: verticalScale(10),
   },
 
   divider: {
@@ -752,6 +686,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: horizontalScale(8),
+  },
+  processingRow: {
+    alignItems: "center",
+    marginTop: verticalScale(16),
+  },
+  processingCheckbox: {
+    flexDirection: "row",
+    gap: horizontalScale(6),
+    width: wp(100) - horizontalScale(14 * 2),
+    alignItems: "center",
+  },
+  processingRowDisabled: {
+    opacity: 0.5,
   },
 
   footer: {
@@ -766,49 +713,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: horizontalScale(4),
   },
-  // toggleWrapper: {
-  //   flexDirection: "row",
-  //   borderWidth: 1,
-  //   borderColor: COLORS.greyish,
-  //   alignSelf: "stretch",
-  //   borderRadius: 100,
-  //   marginBottom: verticalScale(12),
-  //   width: "100%",
-  //   backgroundColor: COLORS.white,
-  //   overflow: "hidden",
-  // },
+
+  donationText: {
+    marginTop: verticalScale(4),
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "baseline",
+  },
+
+  amountText: {
+    marginRight: horizontalScale(0),
+  },
+  perMonthText: {
+    marginBottom: verticalScale(4),
+  },
+
   toggleWrapper: {
     flexDirection: "row",
-    alignSelf: "stretch",
     borderRadius: 100,
-    marginBottom: verticalScale(12),
-    width: "100%",
-    backgroundColor: COLORS.white,
-    padding: verticalScale(4),
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 6,
+    gap: horizontalScale(8),
   },
-  // toggleItem: {
-  //   flex: 1,
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  //   paddingVertical: verticalScale(10),
-  //   backgroundColor: COLORS.white,
-  // },
+
   toggleItem: {
     flex: 1,
+    borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "transparent",
-    zIndex: 2,
     paddingVertical: verticalScale(12),
-    paddingHorizontal: horizontalScale(24),
   },
   toggleItemDivider: {
     borderLeftWidth: 1,
@@ -835,7 +767,6 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     width: "100%",
-    marginTop: verticalScale(12),
   },
   headerLogo: {
     flexDirection: "row",

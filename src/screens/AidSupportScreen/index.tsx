@@ -1,20 +1,15 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import {  FlatList, Image, StyleSheet, View } from "react-native";
+import { Animated, Easing, Image, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import IMAGES from "../../assets/Images";
+import { CustomText } from "../../components/CustomText";
 import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
 import WebViewBottomSheet from "../../components/WebViewBottomSheet";
-import { setRemainingSpots } from "../../redux/slices/remainingSpotsSlice";
-import { useAppDispatch } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { RemainingSpotsApiResponse } from "../../service/ApiResponses/RemainingSpots";
-import { fetchData } from "../../service/ApiService";
-import { AidSupportScreenProps } from "../../typings/routes";
-import { horizontalScale, hp, isTablet, verticalScale, wp } from "../../utils/Metrics";
 import { logEvent } from "../../Context/analyticsService";
+import { AidSupportScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { CustomText } from "../../components/CustomText";
+import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
 const fundCards = [
   {
@@ -38,53 +33,47 @@ const fundCards = [
   {
     id: "4",
     image: IMAGES.Carousel4,
-    width: wp(84.2),
+    width: wp(84.9),
     height: hp(26.2),
   },
 ];
-const carouselData = [...fundCards, fundCards[0]]; // Clone first item at end
 
 const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
-  const dispatch = useAppDispatch();
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
-  const intervalRef = useRef<any>(null);
 
-  // Auto-slide logic with seamless loop
+  const marqueeData = [...fundCards, ...fundCards]; // Repeat to ensure seamless scrolling
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  const GAP = horizontalScale(30);
+
+  const totalWidth =
+    fundCards.reduce((sum, item) => sum + item.width, 0) +
+    GAP * (fundCards.length - 1);
+
   useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prev) => {
-        let next = prev + 1;
-        flatListRef.current?.scrollToIndex({ index: next, animated: true });
-        // If next is the clone (last index), after animation jump to real first
-        if (next === carouselData.length - 1) {
-          setTimeout(() => {
-            flatListRef.current?.scrollToIndex({ index: 0, animated: false });
-            setCurrentIndex(0);
-          }, 500);
+    let isMounted = true;
+    const animate = () => {
+      Animated.timing(translateX, {
+        toValue: -(totalWidth + GAP),
+        duration: fundCards.length * 8000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished && isMounted) {
+          translateX.setValue(0);
+          animate();
         }
-        return next === carouselData.length - 1 ? 0 : next;
       });
-    }, 5000);
-    return () => intervalRef.current && clearInterval(intervalRef.current);
-  }, []);
+    };
 
-  const onMomentumScrollEnd = (e: any) => {
-    const offset = e.nativeEvent.contentOffset.x;
-    const width = e.nativeEvent.layoutMeasurement.width;
-    let index = Math.round(offset / width);
-    // If user swipes to the clone, jump to real first
-    if (index === carouselData.length - 1) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToIndex({ index: 0, animated: false });
-        setCurrentIndex(0);
-      }, 50);
-      index = 0;
-    }
-    setCurrentIndex(index);
-  };
+    setTimeout(() => {
+    animate();
+    }, 1000); // Start after a short delay
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -92,27 +81,33 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
         <FocusResetScrollView
           showsVerticalScrollIndicator={false}
           bounces={false}
+          style={styles.scrollView}
           contentContainerStyle={styles.contentContainer}
         >
           {/* LOGO */}
           <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
 
-          {/*  IMAGE CAROUSEL */}
-          <View style={{ marginTop: verticalScale(64) }}>
-            <FlatList
-              ref={flatListRef}
-              data={carouselData}
-              keyExtractor={(_, idx) => idx.toString()}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              style={{ width: wp(100) }}
-              renderItem={({ item }) => (
+          <View
+            style={{
+              overflow: "hidden",
+              width: wp(100),
+              marginVertical: verticalScale(40),
+            }}
+          >
+            <Animated.View
+              style={{
+                flexDirection: "row",
+                transform: [{ translateX }],
+              }}
+            >
+              {marqueeData.map((item, index) => (
                 <View
+                  key={index}
                   style={{
-                    width: wp(100),
+                    width: item.width,
                     alignItems: "center",
                     justifyContent: "center",
+                    marginRight: GAP,
                   }}
                 >
                   <Image
@@ -125,17 +120,8 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
                     }}
                   />
                 </View>
-              )}
-              onMomentumScrollEnd={onMomentumScrollEnd}
-              getItemLayout={(_, index) => ({
-                length: wp(100),
-                offset: index * wp(100),
-                index,
-              })}
-              initialScrollIndex={0}
-              snapToAlignment="start"
-              decelerationRate="fast"
-            />
+              ))}
+            </Animated.View>
           </View>
           <View
             style={{ marginTop: verticalScale(24), gap: verticalScale(12) }}
@@ -200,6 +186,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.appBackground,
   },
   safeArea: {
+    flex: 1,
     paddingTop: verticalScale(15),
     marginBottom: verticalScale(8),
   },
@@ -219,6 +206,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: verticalScale(50),
+    flexGrow: 1,
+    justifyContent: "flex-start",
+  },
+
+  scrollView: {
+    flex: 1,
   },
 
   bottomFadeWrapper: {
@@ -235,4 +228,3 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 });
-

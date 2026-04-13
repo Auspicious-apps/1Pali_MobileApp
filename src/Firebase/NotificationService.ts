@@ -103,6 +103,39 @@ export const requestNotificationPermissionAndUpdateFCM =
     }
   };
 
+export const requestNotificationPermissionDuringOnboarding =
+  async (): Promise<boolean> => {
+    try {
+      const permissionGranted = await requestUserPermission();
+      if (!permissionGranted) {
+        console.log("🔕 Notification permission denied.");
+        return false;
+      }
+
+      const fcmToken = await getFCMToken();
+      if (!fcmToken) {
+        console.warn("⚠️ Unable to retrieve FCM token during onboarding.");
+        return false;
+      }
+
+      await postData(ENDPOINTS.storeFcmTokenDuringOnBoarding, {
+        fcmToken,
+      });
+
+      console.log(
+        "📩 Onboarding FCM token stored via storeFcmTokenDuringOnBoarding.",
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "❌ Error while requesting notification permission during onboarding:",
+        error,
+      );
+      return false;
+    }
+  };
+
 // Listen for token refresh
 export const onTokenRefresh = (callback: (token: string) => void) => {
   return messaging().onTokenRefresh(callback);

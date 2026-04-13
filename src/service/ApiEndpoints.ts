@@ -9,10 +9,10 @@ const ENDPOINTS = {
   RandomNumberReservation: "api/v1/numbers/reserve",
   GetRandomNumber: "api/v1/numbers/random",
   GetStripePlans: "api/v1/subscription/plans",
+  StripeConfig: "api/v1/subscription/stripe-config",
   CreateSetupIntent: "api/v1/subscription/setup-intent",
   CreateApplePaySetupIntent: "api/v1/subscription/apple-pay/setup-intent",
-  CreateExternalPaymentCheckoutLink:
-    "api/v1/subscription/checkout-session",
+  CreateExternalPaymentCheckoutLink: "api/v1/subscription/checkout-session",
   ConfirmSetupIntent: "api/v1/subscription/confirm-setup-intent",
   ConfirmApplePaySetupIntent:
     "/api/v1/subscription/apple-pay/confirm-setup-intent",
@@ -33,9 +33,11 @@ const ENDPOINTS = {
   GetAllBadges: "api/v1/badges/all",
   ViewedBadges: "api/v1/badges/mark-viewed",
   UpdatePlan: "api/v1/subscription/update-plan",
-  cancelPlan: "api/v1/subscription/cancel",
   resubscribePlan: "api/v1/subscription/resubscribe",
+  cancelPlan: "api/v1/subscription/cancel",
   RemainingSpots: "api/v1/numbers/available-spots",
+  mySubscription: "api/v1/subscription/my-subscription",
+  storeFcmTokenDuringOnBoarding: "/api/v1/onboarding/fcm-token",
 };
 
 export default ENDPOINTS;

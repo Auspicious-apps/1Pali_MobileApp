@@ -15,6 +15,8 @@ import UpdatesReducer from "./slices/UpdatesSlice";
 import ReceiptsReducer from "./slices/ReceiptsSlice";
 import DetailsReducer from "./slices/DetailsSlice";
 import remainingSpotsReducer from "./slices/remainingSpotsSlice";
+import subscriptionReducer from "./slices/SubscriptionSlice";
+import stripeBootstrapReducer from "./slices/StripeBootstrapSlice";
 
 // Create listener middleware for timer countdown
 const timerListenerMiddleware = createListenerMiddleware();
@@ -86,6 +88,8 @@ export const store = configureStore({
     receipts: ReceiptsReducer,
     details: DetailsReducer,
     remainingSpots: remainingSpotsReducer,
+    subscription: subscriptionReducer,
+    stripeBootstrap: stripeBootstrapReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().prepend(timerListenerMiddleware.middleware),

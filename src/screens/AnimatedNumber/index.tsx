@@ -41,7 +41,6 @@ const AnimatedNumber = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const headerSlideAnim = useRef(new Animated.Value(-50)).current;
-  const [donationAmount, setDonationAmount] = useState(1);
 
   const reservationToken = useAppSelector(selectReservationToken);
   const previousReservationToken = useAppSelector(

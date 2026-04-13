@@ -63,6 +63,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const { user, claimedNumber, reservationToken } = useAppSelector(
     (state) => state.user,
   );
+  const stripeProductId = useAppSelector(
+    (state) => state.stripeBootstrap.productId,
+  );
+  const stripeMode = useAppSelector((state) => state.stripeBootstrap.mode);
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const { stripePlans } = useAppSelector((state) => state.stripePlans);
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
@@ -130,6 +134,10 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const handleSetupIntent = async () => {
     try {
       setIsLoading(true);
+      if (!stripeProductId) {
+        Alert.alert("Error", "Stripe product not loaded. Please try again.");
+        return;
+      }
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
         return;
@@ -174,7 +182,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           {
             // priceId: planId,
             amountInDollars: 1,
-            productId: "prod_U37d188P2YNO0d",
+            productId: stripeProductId,
           },
         );
 
@@ -187,7 +195,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           customerId: customerId,
 
           googlePay: {
-            testEnv: true,
+            testEnv: stripeMode === "test",
             merchantCountryCode: "US",
           },
 
@@ -261,6 +269,11 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
   const handlePlatformSetupIntent = async () => {
     try {
       setIsLoading(true);
+      if (!stripeProductId) {
+        Alert.alert("Error", "Stripe product not loaded. Please try again.");
+        setIsLoading(false);
+        return;
+      }
       if (!selectedPlan) {
         Alert.alert("Error", "Please select a plan");
         setIsLoading(false);
@@ -277,7 +290,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               // priceId: planId,
               amountInDollars: 10,
               includesProcessingFees: true,
-              productId: "prod_U37d188P2YNO0d",
+              productId: stripeProductId,
               reservationToken: reservationToken,
               provider: Platform.OS === "ios" ? "APPLE_PAY" : "GOOGLE_PAY",
             },
@@ -309,7 +322,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
           {
             // priceId: planId,
             amountInDollars: 10,
-            productId: "prod_U37d188P2YNO0d",
+            productId: stripeProductId,
             includesProcessingFees: true,
           },
         );
@@ -342,7 +355,7 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
               currencyCode: currency,
               label: "OnePali Supporter Membership",
               merchantCountryCode: "US",
-              testEnv: true,
+              testEnv: stripeMode === "test",
               merchantName: "OnePali",
               billingAddressConfig: {
                 format: PlatformPay.BillingAddressFormat.Full,
