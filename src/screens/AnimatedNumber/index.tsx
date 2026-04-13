@@ -351,5 +351,6 @@ const styles = StyleSheet.create({
   subtext: {
     color: COLORS.darkText,
     textAlign: "center",
+    lineHeight: verticalScale(22),
   },
 });

@@ -29,6 +29,9 @@ import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import GrowthStageCard from "../../components/GrowthStageCard";
+import CustomIcon from "../../components/CustomIcon";
+import ICONS from "../../assets/Icons";
 
 const badgeMetadata = [
   {
@@ -72,20 +75,33 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
   const pulseScale = useRef(new Animated.Value(0)).current;
   const pulseOpacity = useRef(new Animated.Value(0)).current;
+  const [active, setActive] = useState<"MILESTONE" | "GOAL">("MILESTONE");
+  const translateX = useRef(new Animated.Value(0)).current;
 
-  const openRateUs = () => {
-    if (InAppReview.isAvailable()) {
-      InAppReview.RequestInAppReview();
-    } else {
-      // fallback if native review not available
-      const storeUrl = Platform.select({
-        android: "https://play.google.com/store/apps/details?id=com.onepali",
-        ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
-      });
+  const handleModeChange = (mode: "MILESTONE" | "GOAL") => {
+    setActive(mode);
 
-      Linking.openURL(storeUrl!);
-    }
+    Animated.timing(translateX, {
+      toValue: mode === "MILESTONE" ? 0 : 1,
+      duration: 250,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
   };
+
+  // const openRateUs = () => {
+  //   if (InAppReview.isAvailable()) {
+  //     InAppReview.RequestInAppReview();
+  //   } else {
+  //     // fallback if native review not available
+  //     const storeUrl = Platform.select({
+  //       android: "https://play.google.com/store/apps/details?id=com.onepali",
+  //       ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
+  //     });
+
+  //     Linking.openURL(storeUrl!);
+  //   }
+  // };
 
   useEffect(() => {
     const loop = () => {
@@ -132,13 +148,13 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
     initializeFirebaseMessaging();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      openRateUs();
-    }, 15000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     openRateUs();
+  //   }, 15000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   return (
     <View style={styles.container}>
@@ -164,102 +180,85 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             </CustomText>
           )}
         </View>
-        <View style={styles.card}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setIsBadgesSheet(true)}
-          >
-            <BadgeIcon
-              badge={latestGrowthBadge?.badge?.name!}
-              style={{
-                width: horizontalScale(125),
-                height: verticalScale(125),
-                resizeMode: "contain",
-                alignSelf: "center",
-              }}
-            />
-          </TouchableOpacity>
-          {latestGrowthBadge && (
-            <View>
-              <CustomText
-                fontFamily="GabaritoMedium"
-                fontSize={20}
-                color={COLORS.darkText}
-                style={{ textAlign: "center" }}
+        <View style={{ alignItems: "center" }}>
+          <GrowthStageCard stage="seed" />
+        </View>
+        <View style={styles.outerCard}>
+          <View style={styles.card}>
+            <View style={styles.InnerContainer}>
+              {/* Next Milestone */}
+              <TouchableOpacity
+                onPress={() => handleModeChange("MILESTONE")}
+                style={[styles.tab, active === "MILESTONE" && styles.activeTab]}
               >
-                {latestGrowthBadge?.badge?.name}
+                <CustomText
+                  fontFamily="GabaritoSemiBold"
+                  fontSize={15}
+                  color={
+                    active === "MILESTONE" ? COLORS.darkText : COLORS.appText
+                  }
+                >
+                  Next Milestone
+                </CustomText>
+              </TouchableOpacity>
+
+              {/* 1M Goal */}
+              <TouchableOpacity
+                onPress={() => handleModeChange("GOAL")}
+                style={[styles.tab, active === "GOAL" && styles.activeTab]}
+              >
+                <CustomText
+                  fontFamily="GabaritoSemiBold"
+                  fontSize={15}
+                  color={active === "GOAL" ? COLORS.darkText : COLORS.appText}
+                >
+                  1M Goal
+                </CustomText>
+              </TouchableOpacity>
+            </View>
+            {/* Progress Bar */}
+            <ProgressBar activeMode={active} onToggle={handleModeChange} />
+          </View>
+          <View
+            style={{
+              marginTop: verticalScale(16),
+              flexDirection: "row",
+              justifyContent: "space-between",
+              paddingHorizontal: horizontalScale(24),
+              alignItems: "center",
+            }}
+          >
+            <View style={{ gap: verticalScale(2) }}>
+              <CustomText
+                fontFamily="GabaritoSemiBold"
+                fontSize={22}
+                color={COLORS.darkGreen}
+              >
+                ${user?.globalStats?.totalDonationsGenerated}
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
                 fontSize={15}
-                color={COLORS.appText}
-                style={{ textAlign: "center" }}
+                color={COLORS.lightGreyText}
               >
-                {
-                  badgeMetadata.find(
-                    (b) => b.name === latestGrowthBadge?.badge?.name,
-                  )?.description
-                }
+                Total raised for Palestine
               </CustomText>
             </View>
-          )}
-          {/* Progress Bar */}
-          <View
-            style={{
-              marginTop: verticalScale(16),
-            }}
-          >
-            <ProgressBar />
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("tabs", { screen: "updates" });
+              }}
+              style={{ padding: verticalScale(4) }}
+              activeOpacity={0.8}
+            >
+              <CustomIcon
+                Icon={ICONS.RightCircleArrow}
+                height={24}
+                width={24}
+              />
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.TextBackground}>
-          <View style={styles.dotContainer}>
-            {/* Scattered glow */}
-            <Animated.View
-              style={[
-                styles.scatterGlow,
-                {
-                  transform: [
-                    {
-                      scale: pulseScale.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 2.5],
-                      }),
-                    },
-                  ],
-                  opacity: pulseOpacity,
-                },
-              ]}
-            />
-
-            {/* Solid green dot */}
-            <View style={styles.dot} />
-          </View>
-
-          <CustomText
-            fontFamily="GabaritoMedium"
-            fontSize={16}
-            color={COLORS.DarkGreenText}
-          >
-            ${formatNumber(user?.globalStats?.totalDonationsGenerated!)} total
-            raised for Palestine
-          </CustomText>
-          <View />
-        </View>
-
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <CustomText
-            fontFamily="GabaritoRegular"
-            fontSize={16}
-            color={COLORS.greyText}
-            style={styles.collabText}
-          >
-            In collaboration with
-          </CustomText>
-          <View style={styles.dividerLine} />
-        </View>
-
         <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
         <MyBadgesModal
           isVisible={isBadgesSHeet}
@@ -283,7 +282,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     alignItems: "center",
-    paddingHorizontal: horizontalScale(20),
+    paddingHorizontal: horizontalScale(16),
     paddingTop: verticalScale(15),
   },
   logo: {
@@ -294,10 +293,10 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 1)",
-    borderRadius: 20,
-    padding: 16,
-    marginHorizontal: horizontalScale(10),
-    marginTop: verticalScale(24),
+    borderRadius: 24,
+    paddingHorizontal: horizontalScale(10),
+    paddingTop: verticalScale(12),
+    paddingBottom: verticalScale(20),
     width: wp(90),
     shadowColor: "#000",
     shadowOffset: {
@@ -329,7 +328,7 @@ const styles = StyleSheet.create({
     height: verticalScale(40),
     alignSelf: "center",
     resizeMode: "contain",
-    marginTop: verticalScale(12),
+    marginTop: verticalScale(40),
   },
   TextBackground: {
     width: wp(90),
@@ -374,5 +373,31 @@ const styles = StyleSheet.create({
 
     // Android glow
     elevation: 12,
+  },
+  InnerContainer: {
+    height: verticalScale(48),
+    borderRadius: 40,
+    flexDirection: "row",
+    padding: verticalScale(4),
+    overflow: "hidden",
+    backgroundColor: COLORS.commentBar,
+  },
+
+  tab: {
+    flex: 1,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+
+  activeTab: {
+    backgroundColor: COLORS.white,
+  },
+  outerCard: {
+    paddingBottom: verticalScale(16),
+    backgroundColor: COLORS.commentBar,
+    borderRadius: 24,
+    marginTop: verticalScale(8),
   },
 });

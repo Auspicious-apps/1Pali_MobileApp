@@ -101,6 +101,7 @@ import Blanket from "./Blanket.svg";
 import MealBowl from "./MealBowl.svg";
 import WaterTap from "./WaterTap.svg";
 import SummerCamp from "./SummerCamp.svg";
+import RightCircleArrow from "./RightCircleArrow.svg";
 
 
 const ICONS = {
@@ -207,6 +208,7 @@ const ICONS = {
   MealBowl,
   WaterTap,
   SummerCamp,
+  RightCircleArrow,
 };
 
 export default ICONS;

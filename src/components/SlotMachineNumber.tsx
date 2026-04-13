@@ -145,7 +145,7 @@ export function SlotMachineNumber({
         {/* {isRevealed
           ? "Every supporter has a unique number. \nThis one belongs to you."
           : "You are OnePali supporter"} */}
-        Supporter Number
+        OnePali Supporter
       </CustomText>
 
       <View style={styles.row}>

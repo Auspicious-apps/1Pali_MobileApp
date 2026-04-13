@@ -34,10 +34,23 @@ const COMMUNITY_BADGE_MAP: any = {
   1000000: "key",
 };
 
-const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
+type Props = {
+  hideFooter?: boolean;
+  isAccountScreen?: boolean;
+  activeMode?: "MILESTONE" | "GOAL";
+  onToggle?: (mode: "MILESTONE" | "GOAL") => void;
+};
+
+const ProgressBar: React.FC<Props> = ({
+  hideFooter = false,
+  isAccountScreen = false,
+  activeMode = "MILESTONE",
+  onToggle,
+}) => {
   const { user } = useAppSelector((state) => state.user);
 
-  const [showFinalGoal, setShowFinalGoal] = React.useState(false);
+  const showFinalGoal = activeMode === "GOAL";
+  // const [showFinalGoal, setShowFinalGoal] = React.useState(false);
   const nextMilestone = user?.nextCommunityMilestone;
   const [trackWidth, setTrackWidth] = React.useState(0);
   const growthBadge = user?.nextGrowthBadge;
@@ -87,7 +100,56 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
   }, [progressPercentage]);
 
   return (
-    <View style={{ gap: verticalScale(12) }}>
+    <View style={{}}>
+      {!hideFooter && (
+        <View style={{ marginVertical: verticalScale(16) }}>
+          <CustomText
+            fontFamily="GabaritoSemiBold"
+            fontSize={32}
+            color={COLORS.darkText}
+            style={{ textAlign: "center" }}
+          >
+            {currentValue.toLocaleString()}
+          </CustomText>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              color={COLORS.appText}
+            >
+              of{" "}
+            </CustomText>
+            {/* <Pressable
+            disabled={isAccountScreen}
+            onPress={() => {
+              if (isAccountScreen) return;
+              HapticFeedback.trigger("impactHeavy", hapticOptions);
+              setShowFinalGoal((prev) => !prev);
+            }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              borderRadius: 100,
+              gap: horizontalScale(4),
+            }}
+          > */}
+            <CustomText
+              fontFamily="GabaritoRegular"
+              fontSize={15}
+              color={COLORS.appText}
+            >
+              {milestoneLabel}
+            </CustomText>
+          </View>
+          {/* </Pressable> */}
+        </View>
+      )}
       <View style={styles.progressOuter}>
         <View style={styles.progressInsetShadow} pointerEvents="none" />
 
@@ -115,7 +177,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
             onPress={() => setIsBadgeModalVisible(true)}
             style={{
               position: "absolute",
-              right: -10,
+              right: -2,
               shadowColor: "#000000",
               shadowOffset: {
                 width: 0,
@@ -145,7 +207,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
           </TouchableOpacity>
         </View>
       </View>
-      {!hideFooter && (
+      {/* {!hideFooter && (
         <View
           style={{
             flexDirection: "row",
@@ -210,7 +272,7 @@ const ProgressBar = ({ hideFooter = false, isAccountScreen = false }) => {
             </Pressable>
           </View>
         </View>
-      )}
+      )} */}
       <BadgesDetail
         isVisible={isBadgeModalVisible}
         setIsVisible={setIsBadgeModalVisible}
