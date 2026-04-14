@@ -89,19 +89,19 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
     }).start();
   };
 
-  // const openRateUs = () => {
-  //   if (InAppReview.isAvailable()) {
-  //     InAppReview.RequestInAppReview();
-  //   } else {
-  //     // fallback if native review not available
-  //     const storeUrl = Platform.select({
-  //       android: "https://play.google.com/store/apps/details?id=com.onepali",
-  //       ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
-  //     });
+  const openRateUs = () => {
+    if (InAppReview.isAvailable()) {
+      InAppReview.RequestInAppReview();
+    } else {
+      // fallback if native review not available
+      const storeUrl = Platform.select({
+        android: "https://play.google.com/store/apps/details?id=com.onepali",
+        ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
+      });
 
-  //     Linking.openURL(storeUrl!);
-  //   }
-  // };
+      Linking.openURL(storeUrl!);
+    }
+  };
 
   useEffect(() => {
     const loop = () => {
@@ -148,13 +148,13 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
     initializeFirebaseMessaging();
   }, []);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     openRateUs();
-  //   }, 15000);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      openRateUs();
+    }, 15000);
 
-  //   return () => clearTimeout(timer);
-  // }, []);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -180,9 +180,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             </CustomText>
           )}
         </View>
-        <View style={{ alignItems: "center" }}>
-          <GrowthStageCard stage="seed" />
-        </View>
+        <GrowthStageCard stage="seed" />
         <View style={styles.outerCard}>
           <View style={styles.card}>
             <View style={styles.InnerContainer}>
@@ -298,14 +296,16 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(12),
     paddingBottom: verticalScale(20),
     width: wp(90),
+    // iOS shadow
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 4,
+
+    // Android shadow (bottom)
+    elevation: 6,
+
+    overflow: "visible", // IMPORTANT
   },
   dividerRow: {
     flexDirection: "row",

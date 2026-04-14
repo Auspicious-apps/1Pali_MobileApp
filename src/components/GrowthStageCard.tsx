@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { CustomText } from "./CustomText";
 import COLORS from "../utils/Colors";
@@ -130,9 +130,9 @@ export default GrowthStageCard;
 
 const styles = StyleSheet.create({
   card: {
-    width: wp(103),
+    width: "100%",
     height: verticalScale(70),
-    borderRadius: 16, 
+    borderRadius: 16,
     marginBottom: verticalScale(8),
     marginTop: verticalScale(12),
     alignSelf: "center",
@@ -141,16 +141,16 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: horizontalScale(24),
-    paddingRight: horizontalScale(40),
     borderRadius: 16,
+    width: wp(80),
   },
   textContainer: {
     flex: 1,
+    marginLeft: horizontalScale(24),
   },
   badgeContainer: {
     position: "absolute",
-    right: verticalScale(18),
+    right: Platform.OS === "ios" ? verticalScale(-2) : verticalScale(-2),
   },
   badge: {
     width: horizontalScale(90),
