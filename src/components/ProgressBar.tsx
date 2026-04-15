@@ -2,23 +2,20 @@ import React, { useState } from "react";
 import {
   Animated,
   Easing,
-  Pressable,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import HapticFeedback from "react-native-haptic-feedback";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import { useAppSelector } from "../redux/store";
+import { Badge } from "../service/ApiResponses/GetAllBadges";
 import COLORS from "../utils/Colors";
+import { formatNumber } from "../utils/Helpers";
 import { horizontalScale, verticalScale } from "../utils/Metrics";
 import BadgeIcon from "./BadgeIcon";
 import CircularOverlay from "./CircularOverlay";
 import { CustomText } from "./CustomText";
-import CustomIcon from "./CustomIcon";
-import ICONS from "../assets/Icons";
 import BadgesDetail from "./Modal/BadgesDetail";
-import { Badge } from "../service/ApiResponses/GetAllBadges";
-import { formatNumber } from "../utils/Helpers";
 
 const STRIPE_WIDTH = horizontalScale(14.8);
 const STRIPE_GAP = horizontalScale(12);
@@ -174,7 +171,10 @@ const ProgressBar: React.FC<Props> = ({
           </Animated.View>
 
           <TouchableOpacity
-            onPress={() => setIsBadgeModalVisible(true)}
+            onPress={() => {
+              ReactNativeHapticFeedback.trigger("impactLight", hapticOptions);
+              setIsBadgeModalVisible(true);
+            }}
             style={{
               position: "absolute",
               right: -2,

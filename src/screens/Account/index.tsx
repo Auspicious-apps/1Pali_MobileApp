@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import ShareLib from "react-native-share";
 import { resetOnboardingTrackingState } from "../../Context/klaviyoClientService";
+import { resetRateUsTracking } from "../../service/RateUsService";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import BadgeIcon from "../../components/BadgeIcon";
@@ -149,6 +150,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
 
                 // Reset Klaviyo onboarding tracking state for next login
                 await resetOnboardingTrackingState();
+
+                // Reset rate us tracking for next login
+                await resetRateUsTracking();
 
                 // Sign out from Google
                 try {

@@ -10,11 +10,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import InAppReview from "react-native-in-app-review";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
-import BadgeIcon from "../../components/BadgeIcon";
+import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
+import GrowthStageCard from "../../components/GrowthStageCard";
 import CollectBadges from "../../components/Modal/CollectBadges";
 import MyBadgesModal from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
@@ -25,13 +28,16 @@ import {
   selectLatestGrowthBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
+import {
+  getRateUsDebugInfo,
+  markRateUsModalDismissed,
+  markRateUsModalShown,
+  shouldShowRateUsModal,
+} from "../../service/RateUsService";
 import { HomeScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { formatNumber, getSupportingDuration } from "../../utils/Helpers";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import GrowthStageCard from "../../components/GrowthStageCard";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
 
 const badgeMetadata = [
   {
@@ -65,6 +71,11 @@ const badgeMetadata = [
   },
 ];
 
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
+
 const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const isFocused = useIsFocused();
@@ -89,17 +100,45 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
     }).start();
   };
 
-  const openRateUs = () => {
-    if (InAppReview.isAvailable()) {
-      InAppReview.RequestInAppReview();
-    } else {
-      // fallback if native review not available
-      const storeUrl = Platform.select({
-        android: "https://play.google.com/store/apps/details?id=com.onepali",
-        ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
-      });
+  const openRateUs = async () => {
+    try {
+      // Check all eligibility criteria including subscription duration
+      const show = await shouldShowRateUsModal(user?.subscribedAt);
+      if (!show) {
+        console.log("[RateUs] Modal not eligible to show at this time");
+        return;
+      }
 
-      Linking.openURL(storeUrl!);
+      // Mark as shown to track excessive prompting
+      void markRateUsModalShown();
+
+      if (InAppReview.isAvailable()) {
+        InAppReview.RequestInAppReview()
+          .then(() => {
+            // User completed the review (or closed it)
+            // Mark as dismissed - user saw the modal
+            void markRateUsModalDismissed();
+          })
+          .catch((error) => {
+            console.warn("[RateUs] InApp review error:", error);
+            // Still mark as dismissed even if there's an error
+            void markRateUsModalDismissed();
+          });
+      } else {
+        // fallback if native review not available
+        const storeUrl = Platform.select({
+          android: "https://play.google.com/store/apps/details?id=com.onepali",
+          ios: "https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916",
+        });
+
+        if (storeUrl) {
+          Linking.openURL(storeUrl);
+        }
+        // Mark as dismissed for fallback too
+        void markRateUsModalDismissed();
+      }
+    } catch (error) {
+      console.warn("[RateUs] Error in openRateUs:", error);
     }
   };
 
@@ -149,15 +188,24 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     initializeFirebaseMessaging();
+    console.log(getRateUsDebugInfo());
   }, []);
 
+  // Trigger rate us prompt based on meaningful app usage
+  // Best practice: Show after user has experienced the app meaningfully
+  // Examples: earned a badge, reached a milestone, app open for extended time
   useEffect(() => {
+    // Only trigger if user focused on home screen
+    if (!isFocused) return;
+
+    // Try to show rate us after extended app use (60+ seconds on home screen)
+    // But will only show if all eligibility checks pass
     const timer = setTimeout(() => {
-      openRateUs();
-    }, 15000);
+      void openRateUs();
+    }, 20000); // 20 seconds - more respectful of user's time
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isFocused, user?.subscribedAt]);
 
   return (
     <View style={styles.container}>
@@ -189,7 +237,13 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             <View style={styles.InnerContainer}>
               {/* Next Milestone */}
               <TouchableOpacity
-                onPress={() => handleModeChange("MILESTONE")}
+                onPress={() => {
+                  ReactNativeHapticFeedback.trigger(
+                    "impactLight",
+                    hapticOptions,
+                  );
+                  handleModeChange("MILESTONE");
+                }}
                 style={[styles.tab, active === "MILESTONE" && styles.activeTab]}
               >
                 <CustomText
@@ -205,7 +259,13 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
 
               {/* 1M Goal */}
               <TouchableOpacity
-                onPress={() => handleModeChange("GOAL")}
+                onPress={() => {
+                  ReactNativeHapticFeedback.trigger(
+                    "impactLight",
+                    hapticOptions,
+                  );
+                  handleModeChange("GOAL");
+                }}
                 style={[styles.tab, active === "GOAL" && styles.activeTab]}
               >
                 <CustomText
