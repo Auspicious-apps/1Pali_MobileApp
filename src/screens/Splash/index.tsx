@@ -8,11 +8,16 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
+import { logEvent } from "../../Context/analyticsService";
+import { requestNotificationPermissionDuringOnboarding } from "../../Firebase/NotificationService";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 import {
   setBadges,
@@ -23,6 +28,7 @@ import { useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
 import { fetchData } from "../../service/ApiService";
+import { ensureTrackingConsent } from "../../service/TrackingConsentService";
 import { SplashScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
@@ -34,17 +40,16 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import { logEvent } from "../../Context/analyticsService";
 
 const { height, width } = Dimensions.get("window");
 const Splash: FC<SplashScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const dispatch = useDispatch();
   const user = useAppSelector((state) => state.user.user);
   const checkAuthenticationStatus = async () => {
     try {
-      // await AsyncStorage.clear();
-
       // Check if all required tokens exist
       const accessToken = await getLocalStorageData(STORAGE_KEYS.accessToken);
       const refreshToken = await getLocalStorageData(STORAGE_KEYS.refreshToken);
@@ -116,12 +121,31 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     checkAuthenticationStatus();
-    logEvent("Ob_Welcome_View");
+    void requestNotificationPermissionDuringOnboarding();
+
+    void (async () => {
+      await ensureTrackingConsent();
+      logEvent("Ob_Welcome_View");
+    })();
   }, []);
 
   return (
     <ImageBackground source={IMAGES.SplashBackground} style={styles.container}>
-      <SafeAreaView style={styles.innerContainer}>
+      <SafeAreaView
+        style={[
+          styles.innerContainer,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(30),
+            }),
+          },
+        ]}
+      >
         <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
         <View style={styles.titleContainer}>
           <CustomText
@@ -138,20 +162,29 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
             color={COLORS.appBackground}
             style={styles.subtitleText}
           >
-            Join a million supporters giving $1/mo  to fund relief in Palestine.
+            Join a million supporters giving $1/mo {"\n"} to fund relief in
+            Palestine.
           </CustomText>
         </View>
         <View style={styles.globalImageContainer}>
           <Image
             source={IMAGES.NewSplashImage}
-            resizeMode="cover"
+            resizeMode={Platform.OS === "android" ? "contain" : "cover"}
             style={styles.globalImage}
           />
         </View>
 
-        <Image source={IMAGES.GetStartedBottomImage} style={styles.mecaImage} />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Image
+            source={IMAGES.GetStartedBottomImage}
+            style={styles.mecaImage}
+          />
 
-        <View style={{ flex: 1, justifyContent: "flex-end" }}>
           {!isCheckingAuth && (
             <PrimaryButton
               title={isCheckingAuth ? "Checking..." : "Get Started"}
@@ -193,8 +226,6 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    marginTop: verticalScale(15),
-    marginBottom: verticalScale(12),
   },
   contentContainer: {
     flex: 1,
@@ -219,12 +250,10 @@ const styles = StyleSheet.create({
   subtitleText: {
     textAlign: "center",
   },
-  globalImageContainer: {
-    marginTop: Platform.OS === "ios" ? verticalScale(40) : verticalScale(40),
-  },
+  globalImageContainer: {},
   globalImage: {
-    width: "100%",
-    height: Platform.OS === "ios" ? hp(32.2) : hp(32.2),
+    width: wp(100),
+    height: hp(42.5),
   },
   dividerRow: {
     flexDirection: "row",
@@ -243,14 +272,13 @@ const styles = StyleSheet.create({
   },
   mecaImage: {
     width: wp(80),
-    height: verticalScale(40),
+    height: hp(5),
     alignSelf: "center",
     resizeMode: "contain",
-    marginTop: isIphoneSE ? verticalScale(24) : verticalScale(16),
   },
 
   button: {
-    marginTop: verticalScale(32),
+    marginTop: verticalScale(30),
     marginBottom: verticalScale(12),
   },
   loadingContainer: {

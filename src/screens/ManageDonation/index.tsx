@@ -362,7 +362,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               fontFamily="GabaritoSemiBold"
               fontSize={responsiveFontSize(72)}
               color={COLORS.darkText}
-              lineHeight={responsiveFontSize(72)}
               style={styles.amountText}
             >
               {`$${displayAmountLabel}`}
@@ -371,7 +370,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               fontFamily="GabaritoSemiBold"
               fontSize={responsiveFontSize(42)}
               color={COLORS.appText}
-              lineHeight={responsiveFontSize(72)}
               style={styles.perMonthText}
             >
               /mo
@@ -437,7 +435,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {normalizedSelectedAmount > 0 && (
+          {/* {normalizedSelectedAmount > 0 && (
             <View style={styles.processingRow}>
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -467,7 +465,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 </CustomText>
               </TouchableOpacity>
             </View>
-          )}
+          )} */}
 
           <View style={styles.card}>
             <CustomText
@@ -671,7 +669,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalScale(10),
     borderTopWidth: 1,
     borderTopColor: "#E5E7EF",
-    marginTop: verticalScale(14),
+    marginTop: verticalScale(20),
     width: wp(90),
     gap: verticalScale(10),
   },
@@ -715,7 +713,7 @@ const styles = StyleSheet.create({
   },
 
   donationText: {
-    marginTop: verticalScale(4),
+    marginTop: verticalScale(12),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "baseline",
@@ -732,6 +730,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 100,
     gap: horizontalScale(8),
+    marginTop: verticalScale(16),
   },
 
   toggleItem: {

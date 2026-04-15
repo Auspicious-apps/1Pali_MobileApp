@@ -1,9 +1,20 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Animated, Easing, Image, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Animated,
+  Easing,
+  Image,
+  ImageSourcePropType,
+  PanResponder,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
-import FocusResetScrollView from "../../components/FocusResetScrollView";
 import PrimaryButton from "../../components/PrimaryButton";
 import WebViewBottomSheet from "../../components/WebViewBottomSheet";
 import { logEvent } from "../../Context/analyticsService";
@@ -11,159 +22,239 @@ import { AidSupportScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 
-const fundCards = [
-  {
-    id: "1",
-    image: IMAGES.Carousel1,
-    width: wp(78.8),
-    height: hp(30),
-  },
-  {
-    id: "2",
-    image: IMAGES.Carousel2,
-    width: wp(82),
-    height: hp(24.5),
-  },
-  {
-    id: "3",
-    image: IMAGES.Carousel3,
-    width: wp(76),
-    height: hp(28),
-  },
-  {
-    id: "4",
-    image: IMAGES.Carousel4,
-    width: wp(84.9),
-    height: hp(26.2),
-  },
+type FundCard = {
+  id: string;
+  image: ImageSourcePropType;
+  width: number;
+  height: number;
+};
+
+const CARD_CONFIG: Omit<FundCard, "height">[] = [
+  { id: "1", image: IMAGES.Carousel1, width: wp(78.8) },
+  { id: "2", image: IMAGES.Carousel2, width: wp(82) },
+  { id: "3", image: IMAGES.Carousel3, width: wp(76) },
+  { id: "4", image: IMAGES.Carousel4, width: wp(84.9) },
+  { id: "5", image: IMAGES.Carousel5, width: wp(75.3) },
+  { id: "6", image: IMAGES.Carousel6, width: wp(82.4) },
+  { id: "7", image: IMAGES.Carousel7, width: wp(79.2) },
+  { id: "8", image: IMAGES.Carousel8, width: wp(82) },
 ];
+
+const defaultCardHeight = hp(26);
+
+const getScaledHeight = (image: ImageSourcePropType, targetWidth: number) => {
+  const { width: assetWidth, height: assetHeight } =
+    Image.resolveAssetSource(image);
+  if (!assetWidth || !assetHeight) {
+    return defaultCardHeight;
+  }
+  return Math.max(
+    defaultCardHeight,
+    Math.round((targetWidth / assetWidth) * assetHeight),
+  );
+};
+
+const fundCards: FundCard[] = CARD_CONFIG.map((card) => ({
+  ...card,
+  height: getScaledHeight(card.image, card.width),
+}));
+
+const clampValue = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
-
+  const insets = useSafeAreaInsets();
   const marqueeData = [...fundCards, ...fundCards]; // Repeat to ensure seamless scrolling
 
   const translateX = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const GAP = horizontalScale(30);
-
   const totalWidth =
     fundCards.reduce((sum, item) => sum + item.width, 0) +
     GAP * (fundCards.length - 1);
+  const animationDuration = fundCards.length * 8000;
+  const maxOffset = -(totalWidth + GAP);
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const currentOffsetRef = useRef(0);
+  const isDraggingRef = useRef(false);
+
+  const startAnimation = (fromValue = 0) => {
+    animationRef.current?.stop();
+    currentOffsetRef.current = fromValue;
+    const remainingDistance = Math.abs(maxOffset - fromValue);
+    if (remainingDistance <= 0) {
+      translateX.setValue(0);
+      currentOffsetRef.current = 0;
+      startAnimation(0);
+      return;
+    }
+
+    const duration =
+      (animationDuration * remainingDistance) / Math.abs(maxOffset);
+
+    animationRef.current = Animated.timing(translateX, {
+      toValue: maxOffset,
+      duration,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    });
+
+    animationRef.current.start(({ finished }) => {
+      if (finished && !isDraggingRef.current) {
+        translateX.setValue(0);
+        currentOffsetRef.current = 0;
+        startAnimation(0);
+      }
+    });
+  };
 
   useEffect(() => {
-    let isMounted = true;
-    const animate = () => {
-      Animated.timing(translateX, {
-        toValue: -(totalWidth + GAP),
-        duration: fundCards.length * 8000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished && isMounted) {
-          translateX.setValue(0);
-          animate();
-        }
-      });
-    };
-
-    setTimeout(() => {
-    animate();
-    }, 1000); // Start after a short delay
-
+    const timeout = setTimeout(() => startAnimation(0), 1000);
     return () => {
-      isMounted = false;
+      clearTimeout(timeout);
+      animationRef.current?.stop();
     };
-  }, []);
+  }, [totalWidth]);
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        isDraggingRef.current = true;
+        animationRef.current?.stop();
+        translateX.stopAnimation((value) => {
+          currentOffsetRef.current = value;
+        });
+      },
+      onPanResponderMove: (_, gestureState) => {
+        const proposed = currentOffsetRef.current + gestureState.dx;
+        translateX.setValue(clampValue(proposed, maxOffset, 0));
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        const released = clampValue(
+          currentOffsetRef.current + gestureState.dx,
+          maxOffset,
+          0,
+        );
+        translateX.setValue(released);
+        currentOffsetRef.current = released;
+        isDraggingRef.current = false;
+        startAnimation(released);
+      },
+    }),
+  ).current;
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["bottom", "top"]}>
-        <FocusResetScrollView
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          style={styles.scrollView}
-          contentContainerStyle={styles.contentContainer}
-        >
-          {/* LOGO */}
-          <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(30),
+            }),
+          },
+        ]}
+        edges={["bottom", "top"]}
+      >
+        {/* LOGO */}
+        <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
 
-          <View
+        <View
+          style={{
+            overflow: "hidden",
+            width: wp(100),
+            marginTop: verticalScale(40),
+            marginBottom: verticalScale(25),
+          }}
+        >
+          <Animated.View
+            {...panResponder.panHandlers}
             style={{
-              overflow: "hidden",
-              width: wp(100),
-              marginVertical: verticalScale(40),
+              flexDirection: "row",
+              transform: [{ translateX }],
+              opacity: fadeAnim,
             }}
           >
-            <Animated.View
-              style={{
-                flexDirection: "row",
-                transform: [{ translateX }],
-              }}
-            >
-              {marqueeData.map((item, index) => (
-                <View
-                  key={index}
+            {marqueeData.map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  width: item.width,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: GAP,
+                }}
+              >
+                <Image
+                  source={item.image}
                   style={{
                     width: item.width,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginRight: GAP,
+                    height: item.height,
+                    borderRadius: 20,
+                    resizeMode: "cover",
                   }}
-                >
-                  <Image
-                    source={item.image}
-                    style={{
-                      width: item.width,
-                      height: item.height,
-                      borderRadius: 20,
-                      resizeMode: "cover",
-                    }}
-                  />
-                </View>
-              ))}
-            </Animated.View>
-          </View>
-          <View
-            style={{ marginTop: verticalScale(24), gap: verticalScale(12) }}
+                />
+              </View>
+            ))}
+          </Animated.View>
+        </View>
+        <View style={{  gap: verticalScale(12) }}>
+          <CustomText
+            fontFamily="GabaritoSemiBold"
+            fontSize={42}
+            color={COLORS.darkText}
+            style={{ textAlign: "center" }}
           >
+            {`Together, we’ll\nfund`}{" "}
             <CustomText
               fontFamily="GabaritoSemiBold"
               fontSize={42}
-              color={COLORS.darkText}
-              style={{ lineHeight: verticalScale(40), textAlign: "center" }}
+              color={COLORS.darkGreen}
             >
-              {`Together, we’ll\nfund`}{" "}
-              <CustomText
-                fontFamily="GabaritoSemiBold"
-                fontSize={42}
-                color={COLORS.darkGreen}
-              >
-                lasting aid
-              </CustomText>
+              lasting aid
             </CustomText>
-            <CustomText
-              fontFamily="GabaritoRegular"
-              fontSize={18}
-              color={COLORS.greyText}
-              style={{ textAlign: "center" }}
-            >
-              Over 80% of Gaza's population relies on humanitarian aid. Half
-              them are children.
-            </CustomText>
-          </View>
-        </FocusResetScrollView>
+          </CustomText>
+          <CustomText
+            fontFamily="GabaritoRegular"
+            fontSize={18}
+            color={COLORS.greyText}
+            style={{ textAlign: "center" }}
+          >
+            Over 80% of Gaza's population relies on humanitarian aid. Half them
+            are children.
+          </CustomText>
+        </View>
 
         {/*  BUTTON */}
-        <PrimaryButton
-          title="Continue"
-          onPress={() => {
-            logEvent("Ob_How_It_Works");
-            navigation.navigate("howItWorks");
-          }}
-          style={styles.primaryButton}
-          hapticFeedback
-          hapticType="impactLight"
-        />
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          <PrimaryButton
+            title="Continue"
+            onPress={() => {
+              logEvent("Ob_How_It_Works");
+              navigation.navigate("howItWorks");
+            }}
+            style={styles.primaryButton}
+            hapticFeedback
+            hapticType="impactLight"
+          />
+        </View>
 
         {/*  WEBVIEW */}
         <WebViewBottomSheet
@@ -187,8 +278,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: verticalScale(15),
-    marginBottom: verticalScale(8),
   },
   appIcon: {
     width: horizontalScale(54),
@@ -198,7 +287,6 @@ const styles = StyleSheet.create({
   },
 
   fundsListContent: {
-    // No margin or gap needed for full-width carousel
     alignItems: "center",
   },
   primaryButton: {

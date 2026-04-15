@@ -97,11 +97,10 @@ const CustomAmount = forwardRef<CustomAmountSheetRef, CustomAmountSheetProps>(
     return (
       <RBSheet
         ref={rbSheetRef}
-        height={600}
         openDuration={250}
         draggable={true}
         customStyles={{
-          container: styles.container,
+          container: [styles.container, {}],
           draggableIcon: styles.draggableIcon,
         }}
       >
@@ -206,10 +205,9 @@ const CustomAmount = forwardRef<CustomAmountSheetRef, CustomAmountSheetProps>(
 export default CustomAmount;
 
 const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-  },
+  content: {},
   container: {
+    flexGrow: 1,
     borderTopLeftRadius: horizontalScale(20),
     borderTopRightRadius: horizontalScale(20),
   },
@@ -241,10 +239,10 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(24),
   },
   keypad: {
-    flex: 1,
     backgroundColor: "#D8DADE",
-    paddingTop: verticalScale(5),
+    paddingVertical: verticalScale(5),
     marginTop: verticalScale(20),
+    marginBottom: verticalScale(100),
   },
   keypadRow: {
     flexDirection: "row",

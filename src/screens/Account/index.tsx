@@ -48,6 +48,8 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.user);
 
+  console.log(user, "IUEYYE");
+
   const growthBadges = useAppSelector(selectGrowthBadges);
   const impactBadges = useAppSelector(selectImpactBadges);
   const identityBadges = useAppSelector(selectIdentityBadges);
@@ -369,7 +371,11 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                       fontSize={18}
                       color={COLORS.darkText}
                     >
-                      {`$${user?.totalDonationsExcludingFees}`}
+                      {`$${
+                        user?.hasIncludeProcessingFees
+                          ? user?.totalDonationsExcludingFees
+                          : user?.totalDonations
+                      }`}
                     </CustomText>
                     <CustomText
                       fontFamily="GabaritoRegular"

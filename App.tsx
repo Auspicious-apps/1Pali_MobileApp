@@ -1,5 +1,6 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { Klaviyo } from "klaviyo-react-native-sdk";
 import React, { useEffect, useState } from "react";
 import { Image, LogBox, StatusBar, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -10,6 +11,10 @@ import IMAGES from "./src/assets/Images";
 import { CustomText } from "./src/components/CustomText";
 import CustomToast from "./src/components/CustomToast";
 import NetworkLogger from "./src/components/NetworkLogger";
+import {
+  cleanupKlaviyoClientTracking,
+  initKlaviyoClientTracking,
+} from "./src/Context/klaviyoClientService";
 import { NetworkProvider } from "./src/Context/NetworkProvider";
 import { setStripeBootstrap } from "./src/redux/slices/StripeBootstrapSlice";
 import { store } from "./src/redux/store";
@@ -26,6 +31,8 @@ type StripeConfigResponse = {
   publishableKey: string;
   productId: string;
 };
+
+Klaviyo.initialize("PBf6sH");
 
 function App() {
   GoogleSignin.configure({
@@ -81,6 +88,11 @@ function App() {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    initKlaviyoClientTracking();
+    return () => cleanupKlaviyoClientTracking();
   }, []);
 
   if (!stripePublishableKey) {

@@ -364,7 +364,22 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["bottom", "top"]}
+      >
         <View style={styles.header}>
           {navigation.canGoBack() && (
             <TouchableOpacity
@@ -419,34 +434,31 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             ))}
         </View>
 
-        <Image
-          source={IMAGES.MissionImage}
-          resizeMode="cover"
-          style={{
-            width: wp(65),
-            height: hp(37),
-            alignSelf: "center",
-            marginTop: verticalScale(20),
-          }}
-        />
-
         <View
           style={{
             flex: 1,
-            justifyContent: "flex-end",
-            marginBottom:
-              verticalScale(24) +
-              Platform.select({ android: insets.bottom, ios: 0 })!,
+            justifyContent: "space-between",
             paddingHorizontal: horizontalScale(20),
+            paddingTop: verticalScale(20),
           }}
         >
+          <Image
+            source={IMAGES.MissionImage}
+            resizeMode="contain"
+            style={{
+              width: wp(72),
+              height: hp(42),
+              alignSelf: "center",
+            }}
+          />
           {reservationSeconds && reservationSeconds > 0 ? (
-            <>
+            <View style={{ alignItems: "center", gap: verticalScale(12) }}>
               <TouchableOpacity
                 style={{
                   flexDirection: "row",
                   gap: horizontalScale(12),
                   alignSelf: "flex-start",
+                  width: "100%",
                 }}
                 activeOpacity={0.8}
                 onPress={() => {
@@ -471,6 +483,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   fontFamily="SourceSansRegular"
                   fontSize={13}
                   color={COLORS.appText}
+                  style={{
+                    flexShrink: 1,
+                  }}
                 >
                   I agree to MECA’s{" "}
                   <CustomText
@@ -602,7 +617,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   })}
                 />
               </View>
-            </>
+            </View>
           ) : (
             <View
               style={{

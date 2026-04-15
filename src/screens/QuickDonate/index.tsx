@@ -16,23 +16,23 @@ import {
   Linking,
   Platform,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import HapticFeedback from "react-native-haptic-feedback";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
+import DonationSlider from "../../components/DonateSlider";
 import ImpactLoader from "../../components/ImpactLoader";
-import CustomAmount, {
-  CustomAmountSheetRef,
-} from "../../components/Modal/CustomAmount";
+import CustomAmounModal from "../../components/Modal/CustomAmounModal";
 import PrimaryButton from "../../components/PrimaryButton";
-import { logEvent } from "../../Context/analyticsService";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 import {
   clearReservationTimer,
@@ -62,7 +62,6 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
-import DonationSlider from "../../components/DonateSlider";
 
 const visiblePlans = [
   {
@@ -127,6 +126,8 @@ const DATA = [
 
 const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   const { joinedPosition } = route.params;
+  const insets = useSafeAreaInsets();
+
   const dispatch = useAppDispatch();
 
   const { user, claimedNumber, reservationToken } = useAppSelector(
@@ -137,19 +138,20 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   );
   const stripeMode = useAppSelector((state) => state.stripeBootstrap.mode);
 
+  const [showCustomAmountModal, setShowCustomAmountModal] = useState(false);
+
   const reservationSeconds = useAppSelector(selectReservationSeconds);
   const [toggleWidth, setToggleWidth] = useState(0);
   const [selectedPlan, setSelectedPlan] = useState(visiblePlans[0]);
   const [customAmount, setCustomAmount] = useState("1");
   const ITEM_WIDTH = toggleWidth > 0 ? toggleWidth / visiblePlans.length : 0;
-  const amountSheetRef = useRef<CustomAmountSheetRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showImpactLoader, setShowImpactLoader] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [index, setIndex] = useState(0);
 
   const translateY = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
 
   const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
 
@@ -579,47 +581,103 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      // animate out
+    const animateStatCard = () => {
+      const fadeOutDuration = 400;
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: -30,
-          duration: 400,
+          duration: fadeOutDuration,
           useNativeDriver: true,
-          easing: Easing.ease,
+          easing: Easing.inOut(Easing.ease),
         }),
         Animated.timing(opacity, {
           toValue: 0,
-          duration: 400,
+          duration: fadeOutDuration,
           useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
         }),
       ]).start(() => {
-        // change content
         setIndex((prev) => (prev + 1) % DATA.length);
 
-        // reset position
         translateY.setValue(30);
         opacity.setValue(0);
 
-        // animate in
         Animated.parallel([
           Animated.timing(translateY, {
             toValue: 0,
-            duration: 400,
+            duration: 600,
             useNativeDriver: true,
-            easing: Easing.ease,
+            easing: Easing.out(Easing.ease),
           }),
-          Animated.timing(opacity, {
-            toValue: 1,
-            duration: 400,
-            useNativeDriver: true,
-          }),
+          Animated.sequence([
+            Animated.delay(75),
+            Animated.timing(opacity, {
+              toValue: 1,
+              duration: 550,
+              useNativeDriver: true,
+              easing: Easing.out(Easing.ease),
+            }),
+          ]),
         ]).start();
       });
-    }, 4000);
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    // initial fade-in
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
+    }).start();
+
+    const interval = setInterval(animateStatCard, 4000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [opacity, translateY]);
+
+  // Handle payment success from deep link
+  const handlePaymentSuccessDeepLink = async () => {
+    try {
+      setShowImpactLoader(true);
+
+      // Poll user profile to check if subscription is active
+      const isSubscriptionActive = await pollUserProfile(3);
+
+      if (isSubscriptionActive) {
+        // Only navigate once the backend confirms the sub is active
+        navigation.replace("MainStack", {
+          screen: "tabs",
+          params: { screen: "home" },
+        });
+      } else {
+        setShowImpactLoader(false);
+        Alert.alert(
+          "Subscription Pending",
+          "Your payment was successful, but your subscription is still activating. Please check your profile in a moment.",
+        );
+      }
+    } catch (error) {
+      console.error("Payment success handling error:", error);
+      setShowImpactLoader(false);
+      Alert.alert(
+        "Error",
+        "Failed to verify subscription. Please contact support.",
+      );
+    }
+  };
+
+  // Handle deep link for payment success
+  useEffect(() => {
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      console.log("[DeepLink][QuickDonate]", url);
+      if (url === "https://onepali-backend.onrender.com/subscription/success") {
+        handlePaymentSuccessDeepLink();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [navigation]);
 
   const item = DATA[index];
 
@@ -629,7 +687,22 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["top", "bottom"]}
+      >
         <View style={{ flex: 1, paddingHorizontal: horizontalScale(16) }}>
           <View style={styles.header}>
             {!reservationSeconds && (
@@ -709,7 +782,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               fontFamily="GabaritoSemiBold"
               fontSize={responsiveFontSize(72)}
               color={COLORS.darkText}
-              lineHeight={responsiveFontSize(72)}
               style={styles.amountText}
             >
               {selectedPlan.type === "custom"
@@ -723,7 +795,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               fontFamily="GabaritoSemiBold"
               fontSize={responsiveFontSize(42)}
               color={COLORS.appText}
-              lineHeight={responsiveFontSize(72)}
               style={styles.perMonthText}
             >
               /mo
@@ -731,7 +802,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
           </View>
           <View
             style={{
-              marginTop: verticalScale(16),
               width: wp(100) - horizontalScale(16 * 2),
             }}
           >
@@ -751,6 +821,7 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               <View style={styles.toggleWrapper}>
                 {visiblePlans.map((plan, idx) => {
                   const isSelected = selectedPlan.id === plan.id;
+                  const isDisable = !reservationSeconds || isLoading;
                   return (
                     <TouchableOpacity
                       key={plan.id}
@@ -760,13 +831,15 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
                           backgroundColor: isSelected
                             ? COLORS.darkGreen
                             : COLORS.greyish,
+                          opacity: isDisable ? 0.5 : 1,
                         },
                       ]}
+                      disabled={isDisable}
                       activeOpacity={0.9}
                       onPress={() => {
                         HapticFeedback.trigger("impactLight", hapticOptions);
                         if (plan.type === "custom") {
-                          amountSheetRef.current?.open();
+                          setShowCustomAmountModal(true);
                           return;
                         }
                         setSelectedPlan(plan);
@@ -797,8 +870,9 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               </View>
             )}
             {/* Custom Amount Modal */}
-            <CustomAmount
-              ref={amountSheetRef}
+            <CustomAmounModal
+              isVisible={showCustomAmountModal}
+              setIsVisible={setShowCustomAmountModal}
               onConfirm={(amount) => {
                 setCustomAmount(amount);
                 setSelectedPlan({
@@ -811,107 +885,76 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             />
           </View>
 
-          <>
-            {joinedPosition! % 2 === 0 ? (
-              <>
-                <CustomText
-                  fontFamily="GabaritoMedium"
-                  fontSize={15}
-                  style={{
-                    color: COLORS.darkText,
-                    marginTop: verticalScale(16),
-                    marginBottom: verticalScale(16),
-                    textAlign: "center",
-                  }}
-                >
-                  {getImpactText(selectedPlanAmount)}
-                </CustomText>
-              </>
-            ) : (
-              <View
-                style={{
-                  alignItems: "center",
-                  marginTop: verticalScale(16),
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    gap: horizontalScale(6),
-                    width: wp(100) - horizontalScale(14 * 2),
-                    alignItems: "center",
-                  }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setIsChecked((prev) => !prev);
-                  }}
-                >
-                  {isChecked ? (
-                    <CustomIcon
-                      Icon={ICONS.CheckedIcon}
-                      height={verticalScale(24)}
-                      width={horizontalScale(24)}
-                    />
-                  ) : (
-                    <CustomIcon
-                      Icon={ICONS.CheckboxInput}
-                      height={verticalScale(24)}
-                      width={horizontalScale(24)}
-                    />
-                  )}
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
-                    color={COLORS.appText}
-                    style={{ flexShrink: 1 }}
-                  >
-                    I’ll cover the $
-                    {(
-                      processingFeeIncludedAmount - Number(selectedPlanAmount)
-                    ).toFixed(2)}{" "}
-                    processing fee to maximize my impact.
-                  </CustomText>
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
-
-          {/* <View
-            style={{
-              backgroundColor: COLORS.liteGreen,
-              borderRadius: 50,
-              marginTop: verticalScale(24),
-              flexDirection: "row",
-              alignItems: "center",
-              padding: horizontalScale(12),
-              gap: horizontalScale(8),
-            }}
-          >
-            <CustomIcon
-              Icon={ICONS.WinterClothes}
-              height={verticalScale(36)}
-              width={verticalScale(36)}
-            />
+          {joinedPosition! % 2 === 0 && (
             <CustomText
               fontFamily="GabaritoMedium"
               fontSize={15}
-              color={COLORS.darkGreen}
+              style={{
+                color: COLORS.darkText,
+                marginTop: verticalScale(16),
+                marginBottom: verticalScale(16),
+                textAlign: "center",
+              }}
             >
-              {`8,339 children received warm winter \nclothes in 2025`}
+              {getImpactText(selectedPlanAmount)}
             </CustomText>
-          </View> */}
+            // <View
+            //   style={{
+            //     alignItems: "center",
+            //     marginTop: verticalScale(16),
+            //   }}
+            // >
+            //   <TouchableOpacity
+            //     style={{
+            //       flexDirection: "row",
+            //       gap: horizontalScale(6),
+            //       width: wp(100) - horizontalScale(14 * 2),
+            //       alignItems: "center",
+            //     }}
+            //     activeOpacity={0.8}
+            //     onPress={() => {
+            //       setIsChecked((prev) => !prev);
+            //     }}
+            //   >
+            //     {isChecked ? (
+            //       <CustomIcon
+            //         Icon={ICONS.CheckedIcon}
+            //         height={verticalScale(24)}
+            //         width={horizontalScale(24)}
+            //       />
+            //     ) : (
+            //       <CustomIcon
+            //         Icon={ICONS.CheckboxInput}
+            //         height={verticalScale(24)}
+            //         width={horizontalScale(24)}
+            //       />
+            //     )}
+            //     <CustomText
+            //       fontFamily="SourceSansRegular"
+            //       fontSize={13}
+            //       color={COLORS.appText}
+            //       style={{ flexShrink: 1 }}
+            //     >
+            //       I’ll cover the $
+            //       {(
+            //         processingFeeIncludedAmount - Number(selectedPlanAmount)
+            //       ).toFixed(2)}{" "}
+            //       processing fee to maximize my impact.
+            //     </CustomText>
+            //   </TouchableOpacity>
+            // </View>
+          )}
 
-          <Animated.View
+          <View
             style={{
               backgroundColor: COLORS.liteGreen,
               borderRadius: 50,
-              marginTop: verticalScale(12),
+              marginVertical: verticalScale(16),
               flexDirection: "row",
               alignItems: "center",
               padding: horizontalScale(12),
               gap: horizontalScale(8),
-              transform: [{ translateY }],
-              opacity,
+              overflow: "hidden",
             }}
           >
             <CustomIcon
@@ -920,18 +963,23 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               width={verticalScale(36)}
             />
 
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={15}
-              color={COLORS.darkGreen}
+            <Animated.View
               style={{
+                transform: [{ translateY }],
+                opacity,
                 flexShrink: 1,
                 flex: 1,
               }}
             >
-              {item.text}
-            </CustomText>
-          </Animated.View>
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={15}
+                color={COLORS.darkGreen}
+              >
+                {item.text}
+              </CustomText>
+            </Animated.View>
+          </View>
         </View>
 
         <View style={{ alignItems: "center" }}>
@@ -959,18 +1007,19 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
             isPlatformPayAvailable ? (
               <View style={{ width: wp(90), alignItems: "center" }}>
                 <PrimaryButton
-                  title="Join OnePali"
+                  title="Donate with Apple Pay"
                   onPress={handlePlatformSetupIntent}
                   isLoading={isLoading}
                   style={{ marginTop: verticalScale(20) }}
                   hapticFeedback
                   disabled={isLoading}
                   hapticType="impactLight"
+                  leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 16 }}
                 />
               </View>
             ) : (
               <PrimaryButton
-                title="Join OnePali"
+                title="Join Onepali"
                 onPress={handleExternalPayment}
                 isLoading={isLoading}
                 style={{ marginTop: verticalScale(20) }}
@@ -1053,14 +1102,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: wp(85.2),
-    height: hp(19.6),
-    resizeMode: "cover",
+    width: wp(90),
+    height: hp(24),
+    resizeMode: "contain",
     alignSelf: "center",
     marginTop: verticalScale(20),
   },
   donationText: {
-    marginTop: verticalScale(4),
+    marginTop: verticalScale(15),
+    marginBottom: verticalScale(20),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "baseline",

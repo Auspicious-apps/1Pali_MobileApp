@@ -29,10 +29,22 @@ import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
 import PrimaryButton from "../PrimaryButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import {
+  BottomStackParams,
+  MainStackParams,
+  RootStackParams,
+} from "../../typings/routes";
 
 const CollectBadges = () => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<
+        BottomStackParams & MainStackParams & RootStackParams,
+        "home"
+      >
+    >();
   const scrollX = useRef(new Animated.Value(0))?.current;
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,7 +75,7 @@ const CollectBadges = () => {
 
       dispatch(closeCollectBadgesModal());
       dispatch(markAllBadgesViewed());
-      // Get the category of the first badge (or fallback to GROWTH)
+
       const badgeCategory = unViewedBadges[0]?.badge?.category || "GROWTH";
       navigation.navigate("badges", { badgeCategory });
 
@@ -84,7 +96,22 @@ const CollectBadges = () => {
   const renderItem = ({ item }: { item: any }) => (
     <ImageBackground
       source={getBgImage(item?.badge?.category)}
-      style={styles.cardContainer}
+      style={[
+        styles.cardContainer,
+        {
+          height: Platform.select({
+            android: insets.bottom > 0 ? hp(73) : hp(70),
+            ios:
+              unViewedBadges.length > 1
+                ? insets.bottom > 0
+                  ? hp(67)
+                  : hp(70)
+                : insets.bottom > 0
+                ? hp(63)
+                : hp(67),
+          }),
+        },
+      ]}
     >
       <View style={styles.header}>
         <CustomText
@@ -340,7 +367,7 @@ const CollectBadges = () => {
             style={{
               opacity: isLoading ? 0.6 : 1,
               bottom:
-                verticalScale(30) +
+                verticalScale(20) +
                 Platform.select({ android: insets.bottom, ios: 0 })!,
               alignSelf: "center",
               position: "absolute",
@@ -372,7 +399,6 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: wp(100), // Essential for carousel
-    height: hp(70),
     paddingTop: verticalScale(20),
   },
   closeBtn: {},
@@ -415,7 +441,7 @@ const styles = StyleSheet.create({
   devider: {
     width: verticalScale(100),
     borderBottomWidth: 1,
-    borderColor: "#FFFFFF50",
+    borderColor: "#ffffff30",
     marginVertical: verticalScale(20),
     alignSelf: "center",
   },

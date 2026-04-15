@@ -96,7 +96,10 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
               styles.modalContainer,
               {
                 transform: [{ translateY }],
-                paddingBottom: insets.bottom + verticalScale(30),
+                paddingBottom: Platform.select({
+                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  android: insets.bottom + verticalScale(24),
+                }),
               },
             ]}
             onStartShouldSetResponder={() => true}

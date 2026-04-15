@@ -5,7 +5,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import React, { FC, useState } from "react";
 import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import FONTS from "../../assets/fonts";
 import ICONS from "../../assets/Icons";
@@ -33,6 +33,7 @@ import styles from "./styles";
 const SignIn: FC<SignInProps> = ({ navigation, route }) => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const dispatch = useAppDispatch();
 
@@ -275,7 +276,22 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["bottom", "top"]}
+      >
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
             {navigation.canGoBack() && (
@@ -317,7 +333,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               color={COLORS.appText}
               style={{ textAlign: "center" }}
             >
-              Sign In to continue
+              Sign in to continue
             </CustomText>
           </View>
 

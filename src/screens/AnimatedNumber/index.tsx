@@ -1,13 +1,17 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
@@ -37,6 +41,8 @@ import { logEvent } from "../../Context/analyticsService";
 
 const AnimatedNumber = () => {
   const navigation: any = useNavigation();
+  const insets = useSafeAreaInsets();
+
   const dispatch = useAppDispatch();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -48,7 +54,7 @@ const AnimatedNumber = () => {
   );
   const claimedNumber = useAppSelector(selectClaimedNumber);
   const [number, setNumber] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [animationDone, setAnimationDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -56,7 +62,7 @@ const AnimatedNumber = () => {
   const isExpired = !reservationSeconds || reservationSeconds <= 0;
 
   // Fetch random number
-  const fetchRandomNumber = async () => {
+  const fetchRandomNumber = useCallback(async () => {
     setLoading(true);
     setAnimationDone(false);
     // Reset animation values so fade/slide will replay
@@ -80,7 +86,7 @@ const AnimatedNumber = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, fadeAnim, headerSlideAnim, slideAnim]);
 
   useEffect(() => {
     if (animationDone) {
@@ -167,132 +173,161 @@ const AnimatedNumber = () => {
   };
 
   useEffect(() => {
-    fetchRandomNumber();
     logEvent("Ob_Number_Claimed");
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      const shouldRefresh =
+        number == null ||
+        reservationSeconds == null ||
+        reservationSeconds <= 0;
+
+      if (shouldRefresh && !loading) {
+        fetchRandomNumber();
+      }
+    }, [number, reservationSeconds, loading, fetchRandomNumber]),
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      {animationDone && (
-        <Animated.View
-          style={[
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: headerSlideAnim }], // Use the header specific anim
-              zIndex: 10, // Ensure it stays on top
-            },
-          ]}
-        >
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.8}
-            >
-              <CustomIcon
-                Icon={ICONS.BackArrowBg}
-                height={verticalScale(32)}
-                width={verticalScale(32)}
-              />
-            </TouchableOpacity>
+    <View style={styles.container}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["top", "bottom"]}
+      >
+        {/* Header */}
+        {animationDone && (
+          <Animated.View
+            style={[
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: headerSlideAnim }], // Use the header specific anim
+                zIndex: 10, // Ensure it stays on top
+              },
+            ]}
+          >
+            <View style={styles.header}>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.8}
+              >
+                <CustomIcon
+                  Icon={ICONS.BackArrowBg}
+                  height={verticalScale(32)}
+                  width={verticalScale(32)}
+                />
+              </TouchableOpacity>
 
-            <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
 
-            <TouchableOpacity
-              onPress={() => setIsModalVisible(true)}
-              activeOpacity={0.8}
-            >
-              <CustomIcon
-                Icon={ICONS.QuestionMark}
-                height={verticalScale(32)}
-                width={verticalScale(32)}
-              />
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      )}
-
-      {/* Center Slot Animation */}
-      <View style={styles.centerContainer}>
-        {number !== null && (
-          <SlotMachineNumber
-            key={number}
-            number={number}
-            onRevealComplete={() => setAnimationDone(true)}
-          />
+              <TouchableOpacity
+                onPress={() => setIsModalVisible(true)}
+                activeOpacity={0.8}
+              >
+                <CustomIcon
+                  Icon={ICONS.QuestionMark}
+                  height={verticalScale(32)}
+                  width={verticalScale(32)}
+                />
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
         )}
 
-        <Animated.View
-          style={[
-            styles.bottomContainer,
-            {
-              opacity: fadeAnim, // Apply fade
-              transform: [{ translateY: slideAnim }], // Apply slide
-            },
-          ]}
-        >
-          {animationDone && (
-            <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={20}
-              style={styles.subtext}
-            >
-              Your identity among {"\n"} one million supporters
-            </CustomText>
-          )}
-        </Animated.View>
-      </View>
-
-      {/* Bottom Buttons */}
-      {animationDone && (
-        <Animated.View
-          style={[
-            styles.bottomContainer,
-            {
-              opacity: fadeAnim, // Apply fade
-              transform: [{ translateY: slideAnim }], // Apply slide
-            },
-          ]}
-        >
-          {isExpired && !loading ? (
-            <PrimaryButton
-              title="Claim New Number"
-              onPress={fetchRandomNumber}
-              isLoading={loading}
-              hapticFeedback
-              hapticType="impactLight"
-            />
-          ) : (
-            <PrimaryButton
-              title={number ? `Claim #${number}` : "Claim Number"}
-              onPress={handleReserveNumber}
-              isLoading={isLoading || loading}
-              hapticFeedback
-              hapticType="impactLight"
-              disabled={isExpired || loading}
+        {/* Center Slot Animation */}
+        <View style={styles.centerContainer}>
+          {number !== null && (
+            <SlotMachineNumber
+              key={number}
+              number={number}
+              onRevealComplete={() => setAnimationDone(true)}
             />
           )}
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate("claimSpot")}
-            style={styles.chooseContainer}
+          <Animated.View
+            style={[
+              styles.bottomContainer,
+              {
+                opacity: fadeAnim, // Apply fade
+                transform: [{ translateY: slideAnim }], // Apply slide
+              },
+            ]}
           >
-            <CustomText
-              fontFamily="MontserratSemiBold"
-              fontSize={16}
-              style={styles.chooseText}
-            >
-              Choose my own number
-            </CustomText>
-          </TouchableOpacity>
-        </Animated.View>
-      )}
+            {animationDone && (
+              <CustomText
+                fontFamily="GabaritoSemiBold"
+                fontSize={20}
+                style={styles.subtext}
+              >
+                Your identity among {"\n"} one million supporters
+              </CustomText>
+            )}
+          </Animated.View>
+        </View>
 
-      <NumnerDetailModal
-        isVisible={isModalVisible}
-        setIsVisible={setIsModalVisible}
-      />
-    </SafeAreaView>
+        {/* Bottom Buttons */}
+        {animationDone && (
+          <Animated.View
+            style={[
+              styles.bottomContainer,
+              {
+                opacity: fadeAnim, // Apply fade
+                transform: [{ translateY: slideAnim }], // Apply slide
+              },
+            ]}
+          >
+            {isExpired && !loading ? (
+              <PrimaryButton
+                title="Claim New Number"
+                onPress={fetchRandomNumber}
+                isLoading={loading}
+                hapticFeedback
+                hapticType="impactLight"
+              />
+            ) : (
+              <PrimaryButton
+                title={number ? `Claim #${number}` : "Claim Number"}
+                onPress={handleReserveNumber}
+                isLoading={isLoading || loading}
+                hapticFeedback
+                hapticType="impactLight"
+                disabled={isExpired || loading}
+              />
+            )}
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("claimSpot")}
+              style={styles.chooseContainer}
+            >
+              <CustomText
+                fontFamily="MontserratSemiBold"
+                fontSize={16}
+                style={styles.chooseText}
+              >
+                Choose my own number
+              </CustomText>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+
+        <NumnerDetailModal
+          isVisible={isModalVisible}
+          setIsVisible={setIsModalVisible}
+        />
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -303,13 +338,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.appBackground,
   },
-
+  safeArea: {
+    flex: 1,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: wp(100) - horizontalScale(32),
     alignSelf: "center",
-    marginTop: verticalScale(15),
   },
 
   logoContainer: {

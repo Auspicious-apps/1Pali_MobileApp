@@ -67,6 +67,8 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         setTimeout(() => resolve(), 4500),
       );
 
+      // await AsyncStorage.clear();
+
       if (accessToken) {
         const initialUrl = await Linking.getInitialURL();
         const launchedFromDeepLink = !!initialUrl;

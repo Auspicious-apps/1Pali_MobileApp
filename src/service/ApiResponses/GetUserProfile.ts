@@ -27,6 +27,7 @@ export type GetUserProfileApiResponse = {
   nextCommunityMilestone: NextCommunityMilestone;
   fcmToken: string;
   currentSubscriptionPrice: number;
+  hasIncludeProcessingFees: boolean;
 };
 
 export interface GlobalStats {

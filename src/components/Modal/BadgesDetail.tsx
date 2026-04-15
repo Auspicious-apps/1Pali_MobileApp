@@ -110,7 +110,10 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               styles.modalContainer,
               {
                 transform: [{ translateY }],
-                paddingBottom: insets.bottom + verticalScale(30),
+                paddingBottom: Platform.select({
+                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  android: insets.bottom + verticalScale(24),
+                }),
               },
             ]}
             onStartShouldSetResponder={() => true}
@@ -241,7 +244,8 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: COLORS.white,
     width: "100%",
-    borderRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingTop: verticalScale(10),
     paddingHorizontal: horizontalScale(16),
     ...Platform.select({

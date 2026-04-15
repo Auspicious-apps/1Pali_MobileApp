@@ -22,7 +22,7 @@ import { initializeFirebaseMessaging } from "../../Firebase/NotificationService"
 import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
-  selectLatestGrowthBadges
+  selectLatestGrowthBadges,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { HomeScreenProps } from "../../typings/routes";
@@ -130,6 +130,9 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
   const navigateToBadge = () => {
     navigation.navigate("MainStack", {
       screen: "badges",
+      params: {
+        badgeCategory: "GROWTH",
+      },
     });
   };
 
@@ -180,7 +183,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
             </CustomText>
           )}
         </View>
-        <GrowthStageCard stage="seed" />
+        <GrowthStageCard />
         <View style={styles.outerCard}>
           <View style={styles.card}>
             <View style={styles.InnerContainer}>
@@ -232,7 +235,7 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
                 fontSize={22}
                 color={COLORS.darkGreen}
               >
-                ${user?.globalStats?.totalDonationsGenerated}
+                ${formatNumber(user?.globalStats?.totalDonationsGenerated!)}
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"

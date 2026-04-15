@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: verticalScale(80),
   },
   digitContainer: {
     alignItems: "center",
@@ -213,13 +212,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.GabaritoSemiBold,
     fontSize: responsiveFontSize(72),
     fontVariant: ["tabular-nums"],
-    textAlign: "center",
-  },
-  subtext: {
-    fontFamily: FONTS.GabaritoSemiBold,
-    fontSize: responsiveFontSize(22),
-    color: COLORS.darkText,
-    marginTop: verticalScale(8),
     textAlign: "center",
   },
 });

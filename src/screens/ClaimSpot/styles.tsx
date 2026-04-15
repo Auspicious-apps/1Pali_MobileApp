@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
   hashText: {
     fontSize: 32,
     color: COLORS.grey,
+    lineHeight: 40
   },
   textInput: {
     fontFamily: FONTS.MontserratSemiBold,

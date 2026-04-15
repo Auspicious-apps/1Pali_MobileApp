@@ -21,6 +21,7 @@ import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
 import PrimaryButton from "../PrimaryButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export interface MyBadgeItem {
   id: string | number;
@@ -57,6 +58,8 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
       setIsVisible(false);
     });
   };
+  const insets = useSafeAreaInsets();
+
   const translateY = useRef(new Animated.Value(500)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
@@ -115,6 +118,10 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
               styles.modalContainer,
               {
                 transform: [{ translateY }],
+                paddingBottom: Platform.select({
+                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  android: insets.bottom + verticalScale(24),
+                }),
               },
             ]}
             onStartShouldSetResponder={() => true}
@@ -205,7 +212,8 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: COLORS.white,
     width: "100%",
-    borderRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingTop: verticalScale(16),
     paddingHorizontal: horizontalScale(16),
     paddingBottom: verticalScale(24),

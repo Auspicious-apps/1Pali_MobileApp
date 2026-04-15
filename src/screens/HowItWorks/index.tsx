@@ -1,19 +1,27 @@
 import React, { FC, useEffect } from "react";
-import { Dimensions, Image, Platform, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Dimensions,
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import { logEvent } from "../../Context/analyticsService";
-import {
-  requestNotificationPermissionDuringOnboarding,
-} from "../../Firebase/NotificationService";
 import { HowItWorksScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import {
   horizontalScale,
+  isAndroid,
   isTablet,
   verticalScale,
   wp,
@@ -39,27 +47,73 @@ const supportItems = [
 ];
 
 const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   useEffect(() => {
     logEvent("Ob_How_It_Works");
-    void requestNotificationPermissionDuringOnboarding();
   }, []);
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            marginTop: Platform.select({
+              ios: verticalScale(15),
+              android: insets.top ? insets.top : verticalScale(30),
+            }),
+            marginBottom: Platform.select({
+              ios: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? 0 : verticalScale(15),
+            }),
+          },
+        ]}
+        edges={["bottom", "top"]}
+      >
         <View style={{ flex: 1, justifyContent: "space-between" }}>
           <View style={styles.contentContainer}>
             {/* LOGO */}
             <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.8}
+              style={{
+                backgroundColor: "#E5E7EF",
+                borderRadius: 100,
+                position: "absolute",
+                top: 0,
+                left: horizontalScale(20),
+                height: horizontalScale(32),
+                width: horizontalScale(32),
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <CustomIcon
+                Icon={ICONS.BackArrowBg}
+                height={horizontalScale(32)}
+                width={horizontalScale(32)}
+              />
+            </TouchableOpacity>
             {/* HEADER */}
             <View style={styles.header}>
               <CustomText
                 fontFamily="GabaritoSemiBold"
-                fontSize={Platform.OS === "android" ? 42 : 42}
+                fontSize={42}
                 color={COLORS.darkText}
-                style={styles.headerTitle}
+                style={[
+                  styles.headerTitle,
+                  {
+                    lineHeight: isAndroid
+                      ? verticalScale(46)
+                      : isIphoneSE
+                      ? verticalScale(52)
+                      : verticalScale(46),
+                  },
+                ]}
               >
-                Here’s where {"\n"} your $1 goes
+                What your $1 {"\n"} supports
               </CustomText>
               <CustomText
                 fontFamily="GabaritoRegular"
@@ -76,7 +130,8 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
               <View
                 style={{
                   backgroundColor: "#F2F3F790",
-                  padding: horizontalScale(12),
+                  paddingHorizontal: horizontalScale(12),
+                  paddingVertical: verticalScale(20),
                   borderRadius: 20,
                   marginVertical: verticalScale(4),
                 }}
@@ -116,8 +171,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                         textAlign: "center",
                       }}
                     >
-                      Serving children & families in Palestine {"\n"} for nearly
-                      40 years
+                      On the ground in Palestine since 1988
                     </CustomText>
                   </View>
                 </View>
@@ -162,43 +216,34 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                   </View>
                 ))}
               </View>
-              <View
-                style={{
-                  width: "100%",
-                  alignItems: "center",
-                  overflow: "hidden",
-                  borderRadius: 50,
-                  alignSelf: "center",
-                }}
-              >
-                <Image
-                  source={IMAGES.progressImage}
-                  resizeMode="cover"
-                  style={{ width: "100%", height: verticalScale(12) }}
-                />
-              </View>
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={13}
-                style={{
-                  color: COLORS.appText,
-                  textAlign: "center",
-                  marginTop: verticalScale(8),
-                  lineHeight: verticalScale(16),
-                }}
-              >
-                After processing fees, 90% goes to MECA,{"\n"} 10% keeps the
-                OnePali platform growing
-              </CustomText>
             </View>
+            <CustomText
+              fontFamily="SourceSansRegular"
+              fontSize={13}
+              style={{
+                color: COLORS.appText,
+                textAlign: "center",
+                lineHeight: verticalScale(16),
+                width: wp(63),
+                marginVertical: verticalScale(15),
+              }}
+            >
+              After processing fees, 90% goes to MECA, 10% keeps the OnePali
+              platform growing
+            </CustomText>
             {/*  BUTTON */}
-
+          </View>
+          <View
+            style={{
+              justifyContent: "flex-end",
+              paddingHorizontal: horizontalScale(16),
+            }}
+          >
             <PrimaryButton
               title="Join OnePali"
               onPress={() => {
                 navigation.navigate("animatedNumber");
               }}
-              style={styles.primaryButton}
               hapticFeedback
               hapticType="impactLight"
             />
@@ -221,8 +266,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: verticalScale(15),
-    marginBottom: verticalScale(8),
   },
   appIcon: {
     width: horizontalScale(54),
@@ -231,25 +274,22 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   header: {
-    marginTop: verticalScale(30),
-    gap: verticalScale(8),
     paddingHorizontal: horizontalScale(20),
   },
   headerTitle: {
     textAlign: "center",
-    lineHeight: isTablet
-      ? verticalScale(45)
-      : isIphoneSE
-      ? verticalScale(46)
-      : verticalScale(40),
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
+    // lineHeight: isTablet
+    //   ? verticalScale(45)
+    //   : isIphoneSE
+    //   ? verticalScale(46)
+    //   : verticalScale(40),
   },
   contentContainer: {
     alignItems: "center",
   },
-  primaryButton: {
-    marginTop: verticalScale(24),
-    paddingHorizontal: horizontalScale(16),
-  },
+  primaryButton: {},
   sectionDescription: {
     lineHeight: verticalScale(18),
     textAlign: "center",
@@ -258,14 +298,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 24,
     paddingVertical: verticalScale(4),
-    shadowColor: "#000",
+    shadowColor: "#757A97",
     shadowOffset: {
       width: 0,
       height: 0,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.4,
     shadowRadius: 2,
-    elevation: 6,
+    elevation: 2,
     marginTop: verticalScale(24),
     paddingHorizontal: horizontalScale(8),
     paddingBottom: verticalScale(16),

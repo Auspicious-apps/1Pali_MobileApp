@@ -43,7 +43,7 @@ const tabs: Tab[] = [
     route: "art",
   },
   {
-    name: "Account",
+    name: "Profile",
     icon: ICONS.accountIcon,
     activIcon: ICONS.AccountActive,
     route: "account",

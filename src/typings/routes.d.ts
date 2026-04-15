@@ -17,7 +17,7 @@ export type OnBoardingStackParams = {
   claimSpot: undefined;
   missionIntro?: { showNumber?: boolean };
   joinOnePali: undefined;
-  quickDonate: {joinedPosition?: number};
+  quickDonate: { joinedPosition?: number };
   signIn: undefined;
 };
 
@@ -31,27 +31,7 @@ export type MainStackParams = {
   privacyPolicy: undefined;
   receipts: undefined;
   manageDonation: undefined;
-  badges: undefined;
-  faq: undefined;
-};
-
-export type UpdateStackParams = {
-  updates: undefined;
-  updateDetail: { blogId: string };
-};
-
-export type ArtStackParams = {
-  art: undefined;
-  artDetail: { ArtId: string };
-};
-
-export type AccountStackParams = {
-  account: undefined;
-  termsConditions: undefined;
-  privacyPolicy: undefined;
-  receipts: undefined;
-  manageDonation: undefined;
-  badges: undefined;
+  badges: { badgeCategory?: string };
   faq: undefined;
 };
 

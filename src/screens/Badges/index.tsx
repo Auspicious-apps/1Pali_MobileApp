@@ -31,40 +31,37 @@ import COLORS from "../../utils/Colors";
 import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
 
 type TabType = "Growth" | "Community" | "Impact";
-const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
-  // Select tab based on navigation param
-  useEffect(() => {
-    if (navigation && navigation.getState) {
-      const routeState = navigation.getState();
-      const params = routeState?.routes?.[routeState.index]?.params as { badgeCategory?: string } | undefined;
-      const badgeCategory = params?.badgeCategory;
-      if (badgeCategory) {
-        const categoryMap: Record<string, TabType> = {
-          GROWTH: "Growth",
-          COMMUNITY: "Community",
-          IMPACT: "Impact",
-        };
-        const tab = categoryMap[badgeCategory.toUpperCase()];
-        if (tab) {
-          setActiveTab(tab);
-          const index = TABS.indexOf(tab);
-          moveUnderline(index);
-          flatListRef.current?.scrollToIndex({ index, animated: true });
-        }
-      }
-    }
-  }, [navigation]);
-  const dispatch = useAppDispatch();
 
-  const [activeTab, setActiveTab] = useState<TabType>("Growth");
+const TAB_CATEGORY_MAP: Record<TabType, string> = {
+  Growth: "GROWTH",
+  Community: "COMMUNITY",
+  Impact: "IMPACT",
+};
+
+const TABS: TabType[] = ["Growth", "Community", "Impact"];
+
+const getTabFromCategory = (category?: string): TabType => {
+  if (!category) return "Growth";
+  const upper = category.toUpperCase();
+  const mappedTab = (Object.keys(TAB_CATEGORY_MAP) as TabType[]).find(
+    (tab) => TAB_CATEGORY_MAP[tab] === upper,
+  );
+  return mappedTab ?? "Growth";
+};
+
+const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
+  const { badgeCategory } = route.params || {};
+
+  const dispatch = useAppDispatch();
+  const { badges } = useAppSelector((state) => state.badges);
+  const userBadges = useAppSelector((state) => state.user.badges?.badges ?? []);
+
+  const initialTab = getTabFromCategory(badgeCategory);
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [isBadgeModalVisible, setIsBadgeModalVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [isTabScrollEnabled, setIsTabScrollEnabled] = useState(true);
-
-  const { badges } = useAppSelector((state) => state.badges);
-  const userBadges = useAppSelector((state) => state.user.badges?.badges ?? []);
   const flatListRef = useRef<FlatList>(null);
-  const TABS: TabType[] = ["Growth", "Community", "Impact"];
   const lastIndexRef = useRef(0);
   const underlineX = useRef(new Animated.Value(0)).current;
 
@@ -106,11 +103,26 @@ const Badges: FC<BadgesScreenProps> = ({ navigation }) => {
   };
   const [loading, setLoading] = useState(false);
 
-  const TAB_CATEGORY_MAP = {
-    Growth: "GROWTH",
-    Community: "COMMUNITY",
-    Impact: "IMPACT",
-  };
+  useEffect(() => {
+    if (badges.length === 0) return;
+    const tab = getTabFromCategory(badgeCategory);
+    const index = TABS.indexOf(tab);
+    if (index === -1) return;
+    setActiveTab(tab);
+    moveUnderline(index);
+
+    const scrollToTab = () => {
+      flatListRef.current?.scrollToIndex({ index, animated: true });
+    };
+
+    if (flatListRef.current) {
+      scrollToTab();
+      return;
+    }
+
+    const timeout = setTimeout(scrollToTab, 150);
+    return () => clearTimeout(timeout);
+  }, [badgeCategory, badges.length]);
 
   const fetchAllBadges = async () => {
     try {

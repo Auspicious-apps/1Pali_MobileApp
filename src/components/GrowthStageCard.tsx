@@ -55,23 +55,17 @@ const GROWTH_STAGES_MAP = {
   },
 };
 
-type Props = {
-  stage: keyof typeof GROWTH_STAGES_MAP;
-};
-
 type NavigationProp = NativeStackNavigationProp<RootStackParams>;
 
-const GrowthStageCard: React.FC<Props> = ({ stage }) => {
+const GrowthStageCard = () => {
   const navigation = useNavigation<NavigationProp>();
   const latestGrowthBadge = useAppSelector(selectLatestGrowthBadges);
   const [isBadgesSHeet, setIsBadgesSheet] = useState(false);
 
   const badgeName =
     latestGrowthBadge?.badge?.name?.toLowerCase() as keyof typeof GROWTH_STAGES_MAP;
-  // const badgeName: keyof typeof GROWTH_STAGES_MAP = "sapling"; 
 
-  const data =
-    (badgeName && GROWTH_STAGES_MAP[badgeName]) || GROWTH_STAGES_MAP[stage];
+  const data = badgeName && GROWTH_STAGES_MAP[badgeName];
 
   if (!data) return null;
 
@@ -119,7 +113,7 @@ const GrowthStageCard: React.FC<Props> = ({ stage }) => {
         isVisible={isBadgesSHeet}
         setIsVisible={setIsBadgesSheet}
         navigateToBadge={() => {
-          navigation.navigate("MainStack", { screen: "badges" });
+          navigation.navigate("MainStack", { screen: "badges", params: {} });
         }}
       />
     </View>

@@ -35,6 +35,10 @@ const IMAGES = {
   Carousel2: require("./Carousel2.png"),
   Carousel3: require("./Carousel3.png"),
   Carousel4: require("./Carousel4.png"),
+  Carousel5: require("./Carousel5.png"),
+  Carousel6: require("./Carousel6.png"),
+  Carousel7: require("./Carousel7.png"),
+  Carousel8: require("./Carousel8.png"),
   MECA: require("./MECA.png"),
   PeoplesDonating: require("./PeoplesDonating.png"),
 };

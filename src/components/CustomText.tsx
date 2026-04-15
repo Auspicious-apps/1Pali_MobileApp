@@ -1,8 +1,8 @@
-import { Text, type TextProps } from 'react-native';
-import FONTS, { FontFamilyType } from '../assets/fonts';
-import { responsiveFontSize } from '../utils/Metrics';
-import { useTranslation } from 'react-i18next';
-import COLORS from '../utils/Colors';
+import { useTranslation } from "react-i18next";
+import { Text, type TextProps } from "react-native";
+import FONTS, { FontFamilyType } from "../assets/fonts";
+import COLORS from "../utils/Colors";
+import { responsiveFontSize } from "../utils/Metrics";
 
 export type CustomTextProps = TextProps & {
   values?: Record<string, any>; // interpolation values
@@ -17,7 +17,7 @@ export type CustomTextProps = TextProps & {
 export function CustomText({
   style,
   values,
-  fontFamily = 'regular',
+  fontFamily = "regular",
   fontSize = 16,
   color = COLORS.white,
   lineHeight,
@@ -30,11 +30,11 @@ export function CustomText({
 
   // Process children safely
   let processedChildren = children;
-  if (typeof children === 'string' && isTranslate) {
+  if (typeof children === "string" && isTranslate) {
     try {
       processedChildren = t(children, values);
     } catch (error) {
-      console.warn('Translation error for:', children, error);
+      console.warn("Translation error for:", children, error);
       processedChildren = children;
     }
   }
@@ -50,7 +50,7 @@ export function CustomText({
           color,
           fontFamily: FONTS[fontFamily],
           fontSize: resolvedFontSize,
-          // lineHeight: lineHeight ?? resolvedFontSize * 1.3,
+          lineHeight: lineHeight ?? Math.round(resolvedFontSize * 1.2),
           opacity: rest.disabled ? 0.7 : 1,
         },
         style,

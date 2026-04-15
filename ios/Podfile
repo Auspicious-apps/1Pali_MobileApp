@@ -1,12 +1,16 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+# React Native 0.83+ uses require_relative for Pod helper scripts
+require_relative "../node_modules/react-native/scripts/react_native_pods"
+require_relative "../node_modules/react-native-permissions/scripts/setup"
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
+
+setup_permissions([
+  'Camera',
+  'PhotoLibrary',
+  'PhotoLibraryAddOnly',
+  'AppTrackingTransparency'
+])
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
