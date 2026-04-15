@@ -17,6 +17,7 @@ import IMAGES from "../../assets/Images";
 import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import { logEvent } from "../../Context/analyticsService";
+import { initializeOnboardingTracking } from "../../Context/klaviyoClientService";
 import { requestNotificationPermissionDuringOnboarding } from "../../Firebase/NotificationService";
 import { setSelectedPlanId } from "../../redux/slices/StripePlans";
 import {
@@ -109,6 +110,9 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   };
 
   const handleGetStarted = () => {
+    // Initialize Klaviyo onboarding tracking
+    void initializeOnboardingTracking();
+    
     if (!user?.assignedNumber) {
       navigation.replace("OnBoardingStack", { screen: "onboarding" });
       return;

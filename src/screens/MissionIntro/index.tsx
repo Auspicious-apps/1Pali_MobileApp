@@ -18,6 +18,7 @@ import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import WebViewBottomSheet from "../../components/WebViewBottomSheet";
 import { logEvent } from "../../Context/analyticsService";
+import { trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
 import {
   selectReservationSeconds,
   selectReservationStatus,
@@ -75,6 +76,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         }),
       );
     }
+    
+    // Track paywall/sign-in step
+    trackOnboardingStepCompleted(4, "Paywall", 4);
   }, []);
 
   const handleAppleSignIn = async () => {

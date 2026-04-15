@@ -27,10 +27,9 @@ import {
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { ReceiptsScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
-import { API_BASE_URL } from "@env";
-import { getLocalStorageData } from "../../utils/Helpers";
 import STORAGE_KEYS from "../../utils/Constants";
+import { getLocalStorageData } from "../../utils/Helpers";
+import { horizontalScale, verticalScale } from "../../utils/Metrics";
 
 const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();

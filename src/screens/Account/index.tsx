@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ShareLib from "react-native-share";
+import { resetOnboardingTrackingState } from "../../Context/klaviyoClientService";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import BadgeIcon from "../../components/BadgeIcon";
@@ -77,7 +78,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
       icon: ICONS.BadgesIcon,
       label: "Badges",
       arrow: true,
-      onPress: () => navigation.navigate("badges"),
+      onPress: () => navigation.navigate("badges", {}),
     },
     {
       id: "donations",
@@ -145,6 +146,9 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 deleteLocalStorageData(STORAGE_KEYS.accessToken);
                 deleteLocalStorageData(STORAGE_KEYS.refreshToken);
                 deleteLocalStorageData(STORAGE_KEYS.expiresIn);
+
+                // Reset Klaviyo onboarding tracking state for next login
+                await resetOnboardingTrackingState();
 
                 // Sign out from Google
                 try {
@@ -259,7 +263,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 }}
                 activeOpacity={0.8}
                 onPress={() => {
-                  navigation.navigate("badges");
+                  navigation.navigate("badges", {});
                 }}
               >
                 <View
@@ -331,7 +335,7 @@ const Account: FC<AccountScreenProps> = ({ navigation, route }) => {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => {
-                    navigation.navigate("badges");
+                    navigation.navigate("badges", {});
                   }}
                 >
                   <CustomIcon

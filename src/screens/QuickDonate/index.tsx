@@ -160,10 +160,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
       ? parseFloat(customAmount) || 0
       : visiblePlans.find((p) => p.id === selectedPlan.id)?.amount || 0;
 
-  const processingFeeIncludedAmount = calculateProcessingFeeIncludedAmount(
-    Number(selectedPlanAmount),
-  );
-
   const hapticOptions = {
     enableVibrateFallback: true,
     ignoreAndroidSystemSettings: false,
@@ -957,11 +953,18 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               overflow: "hidden",
             }}
           >
-            <CustomIcon
-              Icon={item.icon}
-              height={verticalScale(36)}
-              width={verticalScale(36)}
-            />
+            <Animated.View
+              style={{
+                transform: [{ translateY }],
+                opacity,
+              }}
+            >
+              <CustomIcon
+                Icon={item.icon}
+                height={verticalScale(36)}
+                width={verticalScale(36)}
+              />
+            </Animated.View>
 
             <Animated.View
               style={{

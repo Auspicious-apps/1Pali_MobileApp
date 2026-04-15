@@ -167,7 +167,7 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
               {
                 transform: [{ translateY }],
                 paddingBottom: Platform.select({
-                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(0),
                   android: insets.bottom + verticalScale(24),
                 }),
               },
@@ -225,7 +225,7 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
                 {
                   paddingBottom: Platform.select({
                     ios:
-                      insets.bottom > 0 ? verticalScale(10) : verticalScale(0),
+                      insets.bottom > 0 ? verticalScale(10) : verticalScale(10),
                     android: insets.bottom ? insets.bottom : verticalScale(25),
                   }),
                 },
@@ -306,23 +306,10 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: COLORS.white,
     width: "100%",
-    borderRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingTop: verticalScale(16),
     maxHeight: "80%",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: {
-          width: 0,
-          height: -2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
   },
   header: {
     alignItems: "center",

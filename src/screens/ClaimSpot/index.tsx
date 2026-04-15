@@ -39,6 +39,7 @@ import COLORS from "../../utils/Colors";
 import { isTablet, verticalScale } from "../../utils/Metrics";
 import styles from "./styles";
 import { logEvent } from "../../Context/analyticsService";
+import { trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
 
 const { height } = Dimensions.get("window");
 
@@ -313,6 +314,7 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     logEvent("Ob_Number_Claimed");
+    trackOnboardingStepCompleted(3, "Badge Exploration", 3);
   }, []);
 
   return (

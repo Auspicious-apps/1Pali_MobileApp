@@ -16,9 +16,6 @@ import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import CustomIcon from "../../components/CustomIcon";
 import { CustomText } from "../../components/CustomText";
-import CustomAmount, {
-  CustomAmountSheetRef,
-} from "../../components/Modal/CustomAmount";
 import PrimaryButton from "../../components/PrimaryButton";
 import { fetchMySubscription } from "../../redux/slices/SubscriptionSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
@@ -36,6 +33,7 @@ import {
   verticalScale,
   wp,
 } from "../../utils/Metrics";
+import CustomAmounModal from "../../components/Modal/CustomAmounModal";
 
 const donationPlans = [
   {
@@ -74,7 +72,8 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
   const [selectedPlan, setSelectedPlan] = useState(donationPlans[0]);
   const [customAmount, setCustomAmount] = useState("1");
-  const amountSheetRef = useRef<CustomAmountSheetRef>(null);
+
+  const [showCustomAmountModal, setShowCustomAmountModal] = useState(false);
 
   const isUserActive = subscriptionData?.status === "ACTIVE";
 
@@ -165,7 +164,6 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
       });
 
       if (planChangeResponse?.data?.success) {
-     
         // Refresh subscription data after updating
         dispatch(fetchMySubscription());
       }
@@ -420,7 +418,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               activeOpacity={0.9}
               onPress={() => {
                 HapticFeedback.trigger("impactLight", hapticOptions);
-                amountSheetRef.current?.open();
+                setShowCustomAmountModal(true);
               }}
             >
               <CustomIcon
@@ -610,8 +608,9 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             </CustomText>
           </View> */}
 
-          <CustomAmount
-            ref={amountSheetRef}
+          <CustomAmounModal
+            isVisible={showCustomAmountModal}
+            setIsVisible={setShowCustomAmountModal}
             onConfirm={(amount) => {
               setCustomAmount(amount);
               setSelectedPlan({

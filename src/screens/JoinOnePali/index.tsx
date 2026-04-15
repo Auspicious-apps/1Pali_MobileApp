@@ -52,6 +52,7 @@ import {
 import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
 import { fetchData, postData } from "../../service/ApiService";
 import { JoinOnePaliProps } from "../../typings/routes";
+import { completeOnboarding, trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { deleteLocalStorageData } from "../../utils/Helpers";
@@ -93,6 +94,11 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
     enableVibrateFallback: true,
     ignoreAndroidSystemSettings: false,
   };
+
+  useEffect(() => {
+    // Track conversion step on mount
+    trackOnboardingStepCompleted(5, "Conversion", 5);
+  }, []);
 
   const pollUserProfile = async (retries = 3): Promise<boolean> => {
     try {
@@ -519,6 +525,8 @@ const JoinOnePali: FC<JoinOnePaliProps> = ({ navigation, route }) => {
       // Poll user profile to check if subscription is active
       const isSubscriptionActive = await pollUserProfile(3);
       if (isSubscriptionActive) {
+        // Complete onboarding in Klaviyo
+        void completeOnboarding();
         // Only navigate once the backend confirms the sub is active
         navigation.replace("MainStack", {
           screen: "tabs",

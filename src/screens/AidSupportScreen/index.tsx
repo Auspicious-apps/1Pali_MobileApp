@@ -18,6 +18,7 @@ import { CustomText } from "../../components/CustomText";
 import PrimaryButton from "../../components/PrimaryButton";
 import WebViewBottomSheet from "../../components/WebViewBottomSheet";
 import { logEvent } from "../../Context/analyticsService";
+import { trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
 import { AidSupportScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
@@ -65,7 +66,16 @@ const clampValue = (value: number, min: number, max: number) =>
 const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
   const insets = useSafeAreaInsets();
+  const [stepTracked, setStepTracked] = useState(false);
   const marqueeData = [...fundCards, ...fundCards]; // Repeat to ensure seamless scrolling
+  
+  useEffect(() => {
+    // Track impact stats viewing on mount
+    if (!stepTracked) {
+      trackOnboardingStepCompleted(2, "Impact Stats", 2);
+      setStepTracked(true);
+    }
+  }, [stepTracked]);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;

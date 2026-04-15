@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import React, { FC, useEffect, useState, useRef } from 'react';
 import { Animated } from 'react-native';
 import { CustomText } from '../../components/CustomText';
+import { trackOnboardingStepCompleted } from '../../Context/klaviyoClientService';
 import COLORS from '../../utils/Colors';
 import styles from './styles';
 import { OnboardingProps } from '../../typings/routes';
@@ -21,6 +22,7 @@ const HOLD_DURATION = 400;
 const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleLetters, setVisibleLetters] = useState(0);
+  const [stepTracked, setStepTracked] = useState(false);
   const letters = texts[currentIndex].split('');
 
   const hapticOptions = {
@@ -36,6 +38,12 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
   const opacityAnims = opacityAnimsRef.current;
 
   useEffect(() => {
+    // Track onboarding intro step on first render
+    if (!stepTracked) {
+      trackOnboardingStepCompleted(1, "Onboarding Intro", 1);
+      setStepTracked(true);
+    }
+    
     // Reset for new text
     setVisibleLetters(0);
     opacityAnims.forEach(anim => anim.setValue(0));
@@ -67,7 +75,7 @@ const Onboarding: FC<OnboardingProps> = ({ navigation }) => {
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex]);
+  }, [currentIndex, stepTracked]);
 
   return (
     <View style={styles.container}>
