@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, Platform, StyleSheet, View } from "react-native";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import FONTS from "../assets/fonts";
 import COLORS from "../utils/Colors";
@@ -141,7 +141,18 @@ export function SlotMachineNumber({
 
   return (
     <View style={styles.container}>
-      <CustomText style={[styles.label, { textAlign: "center" }]}>
+      <CustomText
+        style={[
+          styles.label,
+          {
+            textAlign: "center",
+            marginBottom: Platform.select({
+              ios: verticalScale(20),
+              android: verticalScale(0),
+            }),
+          },
+        ]}
+      >
         {/* {isRevealed
           ? "Every supporter has a unique number. \nThis one belongs to you."
           : "You are OnePali supporter"} */}
@@ -149,7 +160,17 @@ export function SlotMachineNumber({
       </CustomText>
 
       <View style={styles.row}>
-        <Animated.Text style={[styles.hash, { color: hashColor }]}>
+        <Animated.Text
+          style={[
+            styles.hash,
+            {
+              color: hashColor,
+              ...(Platform.OS === "ios" && {
+                lineHeight: responsiveFontSize(72),
+              }),
+            },
+          ]}
+        >
           #
         </Animated.Text>
 
@@ -170,7 +191,17 @@ export function SlotMachineNumber({
                 },
               ]}
             >
-              <Animated.Text style={[styles.number, { color }]}>
+              <Animated.Text
+                style={[
+                  styles.number,
+                  {
+                    color,
+                    ...(Platform.OS === "ios" && {
+                      lineHeight: responsiveFontSize(72),
+                    }),
+                  },
+                ]}
+              >
                 {digit}
               </Animated.Text>
             </View>
@@ -185,7 +216,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    minHeight: verticalScale(140),
   },
   label: {
     fontFamily: FONTS.GabaritoRegular,
@@ -212,6 +242,5 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.GabaritoSemiBold,
     fontSize: responsiveFontSize(72),
     fontVariant: ["tabular-nums"],
-    textAlign: "center",
   },
 });

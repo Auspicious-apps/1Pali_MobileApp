@@ -25,6 +25,7 @@ interface UserState {
   timerIntervalId: any | null;
   reservationExpiresAt: string | null;
   previousReservationToken: string | null;
+  shouldRefreshNumber: boolean;
 }
 
 const initialState: UserState = {
@@ -37,6 +38,7 @@ const initialState: UserState = {
   timerIntervalId: null,
   reservationExpiresAt: null,
   previousReservationToken: null,
+  shouldRefreshNumber: false,
 };
 
 export const fetchUserProfile = createAsyncThunk<
@@ -139,6 +141,10 @@ const userSlice = createSlice({
       }
     },
 
+    setShouldRefreshNumber: (state, action: PayloadAction<boolean>) => {
+      state.shouldRefreshNumber = action.payload;
+    },
+
     markAllBadgesViewed: (state) => {
       const now = new Date().toISOString();
 
@@ -219,6 +225,7 @@ export const {
   recalculateReservationTimer,
   decrementReservationTimer,
   clearReservationTimer,
+  setShouldRefreshNumber,
   markAllBadgesViewed,
   addNewArtBadge,
   updatePlan,
@@ -332,3 +339,6 @@ export const selectPreviousReservationToken = (state: RootState) =>
 
 export const selectClaimedNumber = (state: RootState) =>
   state.user.claimedNumber;
+
+export const selectShouldRefreshNumber = (state: RootState) =>
+  state.user.shouldRefreshNumber;

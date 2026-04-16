@@ -113,7 +113,7 @@ function App() {
                 backgroundColor={COLORS.white}
               />
               <Routes />
-              {/* {__DEV__ && <NetworkLogger />} */}
+              {__DEV__ && <NetworkLogger />}
               <Toast
                 config={{
                   customToast: (props) => (

@@ -66,7 +66,7 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       const minimumSplashDurationPromise = new Promise<void>((resolve) =>
         setTimeout(() => resolve(), 4500),
       );
-
+      // await GoogleSignin.signOut()
       // await AsyncStorage.clear();
 
       if (accessToken) {

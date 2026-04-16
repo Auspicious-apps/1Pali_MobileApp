@@ -33,7 +33,7 @@ import { ensureTrackingConsent } from "../../service/TrackingConsentService";
 import { SplashScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { calculateBaseDonationExcludingFees, getLocalStorageData } from "../../utils/Helpers";
+import { getLocalStorageData } from "../../utils/Helpers";
 import {
   horizontalScale,
   hp,
@@ -112,7 +112,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
   const handleGetStarted = () => {
     // Initialize Klaviyo onboarding tracking
     void initializeOnboardingTracking();
-    
+
     if (!user?.assignedNumber) {
       navigation.replace("OnBoardingStack", { screen: "onboarding" });
       return;
@@ -132,9 +132,6 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       logEvent("Ob_Welcome_View");
     })();
   }, []);
-
-  console.log(calculateBaseDonationExcludingFees(5));
-  
 
   return (
     <ImageBackground source={IMAGES.SplashBackground} style={styles.container}>

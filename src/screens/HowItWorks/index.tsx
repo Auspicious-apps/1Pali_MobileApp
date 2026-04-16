@@ -21,8 +21,8 @@ import { HowItWorksScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import {
   horizontalScale,
-  isAndroid,
   isTablet,
+  responsiveFontSize,
   verticalScale,
   wp,
 } from "../../utils/Metrics";
@@ -105,11 +105,10 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                 style={[
                   styles.headerTitle,
                   {
-                    lineHeight: isAndroid
-                      ? verticalScale(46)
-                      : isIphoneSE
-                      ? verticalScale(52)
-                      : verticalScale(46),
+                    lineHeight:
+                      Platform.OS === "ios"
+                        ? responsiveFontSize(42)
+                        : responsiveFontSize(46),
                   },
                 ]}
               >

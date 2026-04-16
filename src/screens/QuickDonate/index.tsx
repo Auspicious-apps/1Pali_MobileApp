@@ -796,11 +796,70 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               /mo
             </CustomText>
           </View>
+
           <View
             style={{
               width: wp(100) - horizontalScale(16 * 2),
             }}
           >
+            {joinedPosition! % 2 === 0 && (
+              <CustomText
+                fontFamily="GabaritoMedium"
+                fontSize={15}
+                style={{
+                  color: COLORS.darkText,
+                  marginBottom: verticalScale(16),
+                  textAlign: "center",
+                }}
+              >
+                {getImpactText(selectedPlanAmount)}
+              </CustomText>
+              // <View
+              //   style={{
+              //     alignItems: "center",
+              //     marginTop: verticalScale(16),
+              //   }}
+              // >
+              //   <TouchableOpacity
+              //     style={{
+              //       flexDirection: "row",
+              //       gap: horizontalScale(6),
+              //       width: wp(100) - horizontalScale(14 * 2),
+              //       alignItems: "center",
+              //     }}
+              //     activeOpacity={0.8}
+              //     onPress={() => {
+              //       setIsChecked((prev) => !prev);
+              //     }}
+              //   >
+              //     {isChecked ? (
+              //       <CustomIcon
+              //         Icon={ICONS.CheckedIcon}
+              //         height={verticalScale(24)}
+              //         width={horizontalScale(24)}
+              //       />
+              //     ) : (
+              //       <CustomIcon
+              //         Icon={ICONS.CheckboxInput}
+              //         height={verticalScale(24)}
+              //         width={horizontalScale(24)}
+              //       />
+              //     )}
+              //     <CustomText
+              //       fontFamily="SourceSansRegular"
+              //       fontSize={13}
+              //       color={COLORS.appText}
+              //       style={{ flexShrink: 1 }}
+              //     >
+              //       I’ll cover the $
+              //       {(
+              //         processingFeeIncludedAmount - Number(selectedPlanAmount)
+              //       ).toFixed(2)}{" "}
+              //       processing fee to maximize my impact.
+              //     </CustomText>
+              //   </TouchableOpacity>
+              // </View>
+            )}
             {joinedPosition! % 2 === 0 ? (
               <DonationSlider
                 value={selectedPlanAmount}
@@ -880,66 +939,6 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               initialAmount={customAmount}
             />
           </View>
-
-          {joinedPosition! % 2 === 0 && (
-            <CustomText
-              fontFamily="GabaritoMedium"
-              fontSize={15}
-              style={{
-                color: COLORS.darkText,
-                marginTop: verticalScale(16),
-                marginBottom: verticalScale(16),
-                textAlign: "center",
-              }}
-            >
-              {getImpactText(selectedPlanAmount)}
-            </CustomText>
-            // <View
-            //   style={{
-            //     alignItems: "center",
-            //     marginTop: verticalScale(16),
-            //   }}
-            // >
-            //   <TouchableOpacity
-            //     style={{
-            //       flexDirection: "row",
-            //       gap: horizontalScale(6),
-            //       width: wp(100) - horizontalScale(14 * 2),
-            //       alignItems: "center",
-            //     }}
-            //     activeOpacity={0.8}
-            //     onPress={() => {
-            //       setIsChecked((prev) => !prev);
-            //     }}
-            //   >
-            //     {isChecked ? (
-            //       <CustomIcon
-            //         Icon={ICONS.CheckedIcon}
-            //         height={verticalScale(24)}
-            //         width={horizontalScale(24)}
-            //       />
-            //     ) : (
-            //       <CustomIcon
-            //         Icon={ICONS.CheckboxInput}
-            //         height={verticalScale(24)}
-            //         width={horizontalScale(24)}
-            //       />
-            //     )}
-            //     <CustomText
-            //       fontFamily="SourceSansRegular"
-            //       fontSize={13}
-            //       color={COLORS.appText}
-            //       style={{ flexShrink: 1 }}
-            //     >
-            //       I’ll cover the $
-            //       {(
-            //         processingFeeIncludedAmount - Number(selectedPlanAmount)
-            //       ).toFixed(2)}{" "}
-            //       processing fee to maximize my impact.
-            //     </CustomText>
-            //   </TouchableOpacity>
-            // </View>
-          )}
 
           <View
             style={{
@@ -1109,10 +1108,10 @@ const styles = StyleSheet.create({
     height: hp(24),
     resizeMode: "contain",
     alignSelf: "center",
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(10),
   },
   donationText: {
-    marginTop: verticalScale(15),
+    marginTop: verticalScale(10),
     marginBottom: verticalScale(20),
     flexDirection: "row",
     justifyContent: "center",
@@ -1122,7 +1121,6 @@ const styles = StyleSheet.create({
     marginRight: horizontalScale(0),
   },
   perMonthText: {
-    marginBottom: verticalScale(4),
   },
   toggleWrapper: {
     flexDirection: "row",

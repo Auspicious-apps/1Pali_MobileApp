@@ -38,8 +38,8 @@ type FundCard = {
 
 const CARD_CONFIG: Omit<FundCard, "height">[] = [
   { id: "1", image: IMAGES.Carousel1, width: wp(78.8) },
-  { id: "2", image: IMAGES.Carousel2, width: wp(82) },
-  { id: "3", image: IMAGES.Carousel3, width: wp(76) },
+  { id: "2", image: IMAGES.Carousel2, width: wp(83) },
+  { id: "3", image: IMAGES.Carousel3, width: wp(82) },
   { id: "4", image: IMAGES.Carousel4, width: wp(84.9) },
   { id: "5", image: IMAGES.Carousel5, width: wp(75.3) },
   { id: "6", image: IMAGES.Carousel6, width: wp(82.4) },
@@ -236,7 +236,12 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             fontFamily="GabaritoSemiBold"
             fontSize={42}
             color={COLORS.darkText}
-            style={{ textAlign: "center", lineHeight: responsiveFontSize(42) }}
+            style={{
+              textAlign: "center",
+              ...(Platform.OS === "ios" && {
+                lineHeight: responsiveFontSize(44),
+              }),
+            }}
           >
             {`Together, we’ll\nfund`}{" "}
             <CustomText
@@ -253,8 +258,8 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             color={COLORS.greyText}
             style={{ textAlign: "center" }}
           >
-            Over 80% of Gaza's population relies on humanitarian aid. Half
-            are children.
+            Over 80% of Gaza's population relies on humanitarian aid. Half are
+            children.
           </CustomText>
         </View>
 

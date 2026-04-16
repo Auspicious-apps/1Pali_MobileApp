@@ -22,6 +22,7 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { SlotMachineNumber } from "../../components/SlotMachineNumber";
 import {
   clearReservationToken,
+  decrementReservationTimer,
   selectClaimedNumber,
   selectPreviousReservationToken,
   selectReservationSeconds,
@@ -29,6 +30,8 @@ import {
   setClaimedNumber,
   setReservationToken,
   startReservationTimer,
+  setShouldRefreshNumber,
+  selectShouldRefreshNumber,
 } from "../../redux/slices/UserSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
@@ -53,13 +56,13 @@ const AnimatedNumber = () => {
     selectPreviousReservationToken,
   );
   const claimedNumber = useAppSelector(selectClaimedNumber);
+  const shouldRefreshNumber = useAppSelector(selectShouldRefreshNumber);
   const [number, setNumber] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [animationDone, setAnimationDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const reservationSeconds = useAppSelector(selectReservationSeconds);
-  const isExpired = !reservationSeconds || reservationSeconds <= 0;
 
   // Fetch random number
   const fetchRandomNumber = useCallback(async () => {
@@ -74,19 +77,17 @@ const AnimatedNumber = () => {
         ENDPOINTS.GetRandomNumber,
       );
       const generatedNumber = response?.data?.data?.number;
-      const expiresInMs = response?.data?.data?.expiresInMs;
       if (generatedNumber) {
         setNumber(Number(generatedNumber));
-        // Reset timer if API provides expiresInMs, else fallback to 60s
-        const seconds = expiresInMs ? Math.ceil(expiresInMs / 1000) : 60;
-        dispatch(startReservationTimer({ seconds, expiresAt: null as any }));
+        // Just set the number, don't start timer yet
+        // Timer will start only when user actually claims the number
       }
     } catch (error) {
       console.error("GetRandomNumber API Error:", error);
     } finally {
       setLoading(false);
     }
-  }, [dispatch, fadeAnim, headerSlideAnim, slideAnim]);
+  }, [fadeAnim, headerSlideAnim, slideAnim]);
 
   useEffect(() => {
     if (animationDone) {
@@ -176,15 +177,38 @@ const AnimatedNumber = () => {
     logEvent("Ob_Number_Claimed");
   }, []);
 
+  // Timer effect to decrement reservation seconds
+  useEffect(() => {
+    if (reservationSeconds === null || reservationSeconds <= 0) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      dispatch(decrementReservationTimer());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [reservationSeconds, dispatch]);
+
+  // Set shouldRefreshNumber flag when reservation expires
+  useEffect(() => {
+    if (reservationSeconds === 0) {
+      dispatch(setShouldRefreshNumber(true));
+    }
+  }, [reservationSeconds, dispatch]);
+
   useFocusEffect(
     useCallback(() => {
-      const shouldRefresh =
-        number == null || reservationSeconds == null || reservationSeconds <= 0;
-
-      if (shouldRefresh && !loading) {
+      // If should refresh (number expired), fetch a new one and reset flag
+      if (shouldRefreshNumber && !loading) {
+        fetchRandomNumber();
+        dispatch(setShouldRefreshNumber(false));
+      }
+      // Initial load: fetch if no number
+      else if (number === null && !loading) {
         fetchRandomNumber();
       }
-    }, [number, reservationSeconds, loading]),
+    }, [number, loading, shouldRefreshNumber, dispatch]),
   );
 
   return (
@@ -218,7 +242,9 @@ const AnimatedNumber = () => {
           >
             <View style={styles.header}>
               <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                onPress={() => {
+                  dispatch(setShouldRefreshNumber(false)); 
+                  navigation.goBack()}}
                 activeOpacity={0.8}
               >
                 <CustomIcon
@@ -286,24 +312,14 @@ const AnimatedNumber = () => {
               },
             ]}
           >
-            {isExpired && !loading ? (
-              <PrimaryButton
-                title="Claim New Number"
-                onPress={fetchRandomNumber}
-                isLoading={loading}
-                hapticFeedback
-                hapticType="impactLight"
-              />
-            ) : (
-              <PrimaryButton
-                title={number ? `Claim #${number}` : "Claim Number"}
-                onPress={handleReserveNumber}
-                isLoading={isLoading || loading}
-                hapticFeedback
-                hapticType="impactLight"
-                disabled={isExpired || loading}
-              />
-            )}
+            <PrimaryButton
+              title={number ? `Claim #${number}` : "Claim Number"}
+              onPress={handleReserveNumber}
+              isLoading={isLoading || loading}
+              hapticFeedback
+              hapticType="impactLight"
+              disabled={loading}
+            />
 
             <TouchableOpacity
               onPress={() => navigation.navigate("claimSpot")}
