@@ -21,7 +21,13 @@ import { logEvent } from "../../Context/analyticsService";
 import { trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
 import { AidSupportScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+import {
+  horizontalScale,
+  hp,
+  responsiveFontSize,
+  verticalScale,
+  wp,
+} from "../../utils/Metrics";
 
 type FundCard = {
   id: string;
@@ -68,7 +74,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [stepTracked, setStepTracked] = useState(false);
   const marqueeData = [...fundCards, ...fundCards]; // Repeat to ensure seamless scrolling
-  
+
   useEffect(() => {
     // Track impact stats viewing on mount
     if (!stepTracked) {
@@ -225,12 +231,12 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             ))}
           </Animated.View>
         </View>
-        <View style={{  gap: verticalScale(12) }}>
+        <View style={{ gap: verticalScale(12) }}>
           <CustomText
             fontFamily="GabaritoSemiBold"
             fontSize={42}
             color={COLORS.darkText}
-            style={{ textAlign: "center" }}
+            style={{ textAlign: "center", lineHeight: responsiveFontSize(42) }}
           >
             {`Together, we’ll\nfund`}{" "}
             <CustomText
@@ -247,7 +253,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             color={COLORS.greyText}
             style={{ textAlign: "center" }}
           >
-            Over 80% of Gaza's population relies on humanitarian aid. Half them
+            Over 80% of Gaza's population relies on humanitarian aid. Half
             are children.
           </CustomText>
         </View>

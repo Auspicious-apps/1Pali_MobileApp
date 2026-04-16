@@ -179,14 +179,12 @@ const AnimatedNumber = () => {
   useFocusEffect(
     useCallback(() => {
       const shouldRefresh =
-        number == null ||
-        reservationSeconds == null ||
-        reservationSeconds <= 0;
+        number == null || reservationSeconds == null || reservationSeconds <= 0;
 
       if (shouldRefresh && !loading) {
         fetchRandomNumber();
       }
-    }, [number, reservationSeconds, loading, fetchRandomNumber]),
+    }, [number, reservationSeconds, loading]),
   );
 
   return (

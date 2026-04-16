@@ -33,7 +33,7 @@ import { ensureTrackingConsent } from "../../service/TrackingConsentService";
 import { SplashScreenProps } from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
-import { getLocalStorageData } from "../../utils/Helpers";
+import { calculateBaseDonationExcludingFees, getLocalStorageData } from "../../utils/Helpers";
 import {
   horizontalScale,
   hp,
@@ -132,6 +132,9 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
       logEvent("Ob_Welcome_View");
     })();
   }, []);
+
+  console.log(calculateBaseDonationExcludingFees(5));
+  
 
   return (
     <ImageBackground source={IMAGES.SplashBackground} style={styles.container}>
