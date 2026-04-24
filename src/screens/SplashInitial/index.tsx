@@ -1,6 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import LottieView from "lottie-react-native";
-import React, { FC, useEffect, useRef, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LottieView from 'lottie-react-native';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -9,29 +9,34 @@ import {
   Linking,
   StyleSheet,
   View,
-} from "react-native";
-import IMAGES from "../../assets/Images";
-import LOTTIES from "../../assets/lotties";
-import { CustomText } from "../../components/CustomText";
-import { syncFCMTokenWithBackend } from "../../Firebase/NotificationService";
-import { setSelectedPlanId } from "../../redux/slices/StripePlans";
+} from 'react-native';
+import IMAGES from '../../assets/Images';
+import LOTTIES from '../../assets/lotties';
+import { CustomText } from '../../components/CustomText';
+import { syncFCMTokenWithBackend } from '../../Firebase/NotificationService';
+import { setSelectedPlanId } from '../../redux/slices/StripePlans';
 import {
   setBadges,
   setClaimedNumber,
   setUserData,
-} from "../../redux/slices/UserSlice";
-import { useAppDispatch } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { GetUserProfileApiResponse } from "../../service/ApiResponses/GetUserProfile";
-import { fetchData } from "../../service/ApiService";
-import { SplashInitialScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import STORAGE_KEYS from "../../utils/Constants";
+} from '../../redux/slices/UserSlice';
+import { useAppDispatch } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
+import { GetUserProfileApiResponse } from '../../service/ApiResponses/GetUserProfile';
+import { fetchData } from '../../service/ApiService';
+import { SplashInitialScreenProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
+import STORAGE_KEYS from '../../utils/Constants';
 import {
   deleteLocalStorageData,
   getLocalStorageData,
-} from "../../utils/Helpers";
-import { hp, verticalScale, wp } from "../../utils/Metrics";
+} from '../../utils/Helpers';
+import {
+  isPaymentRedirectDeepLink,
+  resolveDeepLinkTarget,
+} from '../../utils/deepLinks';
+import { hp, verticalScale, wp } from '../../utils/Metrics';
+import { Klaviyo } from 'klaviyo-react-native-sdk';
 
 const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
   const animationProgress = useRef(new Animated.Value(0));
@@ -55,6 +60,27 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
   const DEEP_LINK_PROFILE_POLL_ATTEMPTS = 3;
   const DEEP_LINK_PROFILE_POLL_DELAY_MS = 3000;
 
+  const navigateToResolvedDeepLink = (url: string): boolean => {
+    const deepLinkTarget = resolveDeepLinkTarget(url);
+
+    if (!deepLinkTarget) {
+      return false;
+    }
+
+    if (deepLinkTarget.type === 'tab') {
+      navigation.replace('MainStack', {
+        screen: 'tabs',
+        params: { screen: deepLinkTarget.screen },
+      });
+      return true;
+    }
+
+    navigation.replace('MainStack', {
+      screen: deepLinkTarget.screen as any,
+    });
+    return true;
+  };
+
   useEffect(() => {
     checkAuthenticationStatus();
   }, []);
@@ -68,30 +94,44 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       );
       // await GoogleSignin.signOut()
       // await AsyncStorage.clear();
-
+      Klaviyo.resetProfile();
       if (accessToken) {
         const initialUrl = await Linking.getInitialURL();
         const launchedFromDeepLink = !!initialUrl;
 
         if (launchedFromDeepLink) {
-          setIsDeepLinkFlow(true);
-          console.log("[SplashInitial] App opened from deep link:", initialUrl);
-          await pollVerifyUserProfileFromDeepLink();
+          console.log('[SplashInitial] App opened from deep link:', initialUrl);
+
+          if (initialUrl && isPaymentRedirectDeepLink(initialUrl)) {
+            console.log(initialUrl, 'IS PAYMENT URL');
+            
+            setIsDeepLinkFlow(true);
+            await pollVerifyUserProfileFromDeepLink();
+            return;
+          }
+
+          await verifyUserProfile(
+            minimumSplashDurationPromise,
+            initialUrl ?? undefined,
+          );
           return;
         }
 
         await verifyUserProfile(minimumSplashDurationPromise);
       } else {
         await minimumSplashDurationPromise;
-        navigation.replace("OnBoardingStack", { screen: "splash" });
+        navigation.replace('OnBoardingStack', { screen: 'splash' });
       }
     } catch (error) {
-      console.error("Error checking authentication:", error);
-      navigation.replace("OnBoardingStack", { screen: "splash" });
+      console.error('Error checking authentication:', error);
+      navigation.replace('OnBoardingStack', { screen: 'splash' });
     }
   };
 
-  const verifyUserProfile = async (minDisplayPromise?: Promise<void>) => {
+  const verifyUserProfile = async (
+    minDisplayPromise?: Promise<void>,
+    deepLinkUrl?: string,
+  ) => {
     try {
       const response = await fetchData<GetUserProfileApiResponse>(
         ENDPOINTS.GetUserProfile,
@@ -105,7 +145,7 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
           dispatch(setBadges(response.data.data.badges));
           // Sync FCM token with backend on splash after successful login
           syncFCMTokenWithBackend(response.data.data.fcmToken).catch((err) =>
-            console.log("FCM sync error (non-critical):", err),
+            console.log('FCM sync error (non-critical):', err),
           );
           dispatch(setClaimedNumber(response.data.data.assignedNumber));
           dispatch(setSelectedPlanId(response.data.data.stripePriceId));
@@ -114,9 +154,13 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
             await minDisplayPromise;
           }
 
-          navigation.replace("MainStack", {
-            screen: "tabs",
-            params: { screen: "home" },
+          if (deepLinkUrl && navigateToResolvedDeepLink(deepLinkUrl)) {
+            return;
+          }
+
+          navigation.replace('MainStack', {
+            screen: 'tabs',
+            params: { screen: 'home' },
           });
           return;
         } else {
@@ -128,23 +172,23 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
             await minDisplayPromise;
           }
 
-          navigation.replace("OnBoardingStack", { screen: "splash" });
+          navigation.replace('OnBoardingStack', { screen: 'splash' });
         }
       }
     } catch (error: any) {
-      console.error("Error verifying user profile Initial:", error);
+      console.error('Error verifying user profile Initial:', error);
 
       // Check if it's a session expired error that requires login
       if (error.requiresLogin) {
-        console.log("Session expired, redirecting to login Initial");
+        console.log('Session expired, redirecting to login Initial');
         await AsyncStorage.clear();
 
         if (minDisplayPromise) {
           await minDisplayPromise;
         }
 
-        navigation.replace("OnBoardingStack", {
-          screen: "splash",
+        navigation.replace('OnBoardingStack', {
+          screen: 'splash',
         });
       } else {
         // If profile verification fails, clear tokens and show get started
@@ -168,14 +212,14 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
         syncFCMTokenWithBackend(response.data.data.fcmToken).catch((err) =>
-          console.log("FCM sync error (non-critical):", err),
+          console.log('FCM sync error (non-critical):', err),
         );
         dispatch(setClaimedNumber(response.data.data.assignedNumber));
         dispatch(setSelectedPlanId(response.data.data.stripePriceId));
 
-        navigation.replace("MainStack", {
-          screen: "tabs",
-          params: { screen: "home" },
+        navigation.replace('MainStack', {
+          screen: 'tabs',
+          params: { screen: 'home' },
         });
 
         return true;
@@ -184,14 +228,14 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       return false;
     } catch (error: any) {
       if (error?.requiresLogin) {
-        console.log("Session expired, redirecting to login Initial");
+        console.log('Session expired, redirecting to login Initial');
         await AsyncStorage.clear();
-        navigation.replace("OnBoardingStack", { screen: "splash" });
+        navigation.replace('OnBoardingStack', { screen: 'splash' });
         return true;
       }
 
       console.error(
-        "Error verifying user profile during deep link poll:",
+        'Error verifying user profile during deep link poll:',
         error,
       );
       return false;
@@ -217,7 +261,7 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       }
     }
 
-    navigation.replace("OnBoardingStack", { screen: "splash" });
+    navigation.replace('OnBoardingStack', { screen: 'splash' });
   };
 
   return (
@@ -226,22 +270,25 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         <>
           <Image
             source={IMAGES.OnePaliLogo}
-            resizeMode="contain"
+            resizeMode='contain'
             style={styles.logo}
           />
-          <View style={{ alignItems: "center", marginTop: verticalScale(32) }}>
+          <View style={{ alignItems: 'center', marginTop: verticalScale(32) }}>
             <CustomText
-              fontFamily="GabaritoSemiBold"
+              fontFamily='GabaritoSemiBold'
               fontSize={32}
               color={COLORS.darkText}
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               {`Thank you for \n supporting Palestine`}
             </CustomText>
             <View
               style={{ marginTop: verticalScale(32), gap: verticalScale(12) }}
             >
-              <ActivityIndicator color={COLORS.appText} size={"small"} />
+              <ActivityIndicator
+                color={COLORS.appText}
+                size={'small'}
+              />
             </View>
           </View>
         </>
@@ -266,14 +313,14 @@ export default SplashInitial;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.appBackground,
   },
   image: {
-    width: "100%",
+    width: '100%',
     height: verticalScale(132),
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
   logo: {
     width: verticalScale(64),

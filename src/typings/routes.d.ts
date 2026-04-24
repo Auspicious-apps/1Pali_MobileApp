@@ -27,6 +27,7 @@ export type MainStackParams = {
   artDetail: { ArtId: string };
 
   // Account Screen
+  mecaPrivacyPolicy: undefined;
   termsConditions: undefined;
   privacyPolicy: undefined;
   receipts: undefined;
@@ -132,6 +133,10 @@ export type BadgesScreenProps = NativeStackScreenProps<
 export type TermsConditionsScreenProps = NativeStackScreenProps<
   MainStackParams,
   "termsConditions"
+>;
+export type MecaPrivacyPolicyScreenProps = NativeStackScreenProps<
+  MainStackParams,
+  "mecaPrivacyPolicy"
 >;
 export type PrivacyPolicyScreenProps = NativeStackScreenProps<
   MainStackParams,

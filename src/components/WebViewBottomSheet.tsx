@@ -48,7 +48,7 @@ const WebViewBottomSheet: FC<WebViewBottomSheetProps> = ({
       <View style={styles.sheetContainer}>
         <View style={styles.header}>
           <CustomText fontFamily="GabaritoSemiBold" fontSize={16} color={COLORS.darkText}>
-            {title || "Legal"}
+            {/* {title || "Legal"} */}
           </CustomText>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <CustomText fontFamily="GabaritoSemiBold" fontSize={14} color={COLORS.greyText}>
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   header: {
     height: verticalScale(52),
     paddingHorizontal: horizontalScale(16),
-    borderBottomWidth: 1,
+    // borderBottomWidth: 1,
     borderColor: COLORS.borderColor,
     alignItems: "center",
     justifyContent: "space-between",

@@ -3,5 +3,7 @@ export interface CreateApplePaySetupIntentApiResponse {
   paymentIntentId: string;
   amount: number;
   currency: string;
-  priceId: string
+  priceId: string;
+  timerExtended?: boolean;
+  newExpirationTime?: string;
 }

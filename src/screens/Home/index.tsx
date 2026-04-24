@@ -22,6 +22,7 @@ import CollectBadges from "../../components/Modal/CollectBadges";
 import MyBadgesModal from "../../components/Modal/MyBadgesModal";
 import ProgressBar from "../../components/ProgressBar";
 import { initializeFirebaseMessaging } from "../../Firebase/NotificationService";
+import { syncKlaviyoProfileOnHomeReady } from "../../Context/klaviyoClientService";
 import { openCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
 import {
   getUnViewedBadges,
@@ -190,6 +191,12 @@ const Home: FC<HomeScreenProps> = ({ navigation, route }) => {
     initializeFirebaseMessaging();
     console.log(getRateUsDebugInfo());
   }, []);
+
+  useEffect(() => {
+    if (!isFocused || !user?.email) return;
+
+    void syncKlaviyoProfileOnHomeReady(user.email, user.id);
+  }, [isFocused, user?.email, user?.id]);
 
   // Trigger rate us prompt based on meaningful app usage
   // Best practice: Show after user has experienced the app meaningfully

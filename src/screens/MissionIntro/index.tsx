@@ -1,24 +1,24 @@
-import appleAuth from "@invertase/react-native-apple-authentication";
+import appleAuth from '@invertase/react-native-apple-authentication';
 import {
   GoogleSignin,
   statusCodes,
-} from "@react-native-google-signin/google-signin";
-import React, { FC, useEffect, useState } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+} from '@react-native-google-signin/google-signin';
+import React, { FC, useEffect, useState } from 'react';
+import { Alert, Image, Platform, TouchableOpacity, View } from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import FONTS from "../../assets/fonts";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import PrimaryButton from "../../components/PrimaryButton";
-import WebViewBottomSheet from "../../components/WebViewBottomSheet";
-import { logEvent } from "../../Context/analyticsService";
-import { trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
+} from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import FONTS from '../../assets/fonts';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import PrimaryButton from '../../components/PrimaryButton';
+import WebViewBottomSheet from '../../components/WebViewBottomSheet';
+import { logEvent } from '../../Context/analyticsService';
+import { trackOnboardingStepCompleted } from '../../Context/klaviyoClientService';
 import {
   selectReservationSeconds,
   selectReservationStatus,
@@ -26,22 +26,22 @@ import {
   setClaimedNumber,
   setUserData,
   startReservationTimer,
-} from "../../redux/slices/UserSlice";
-import { store, useAppDispatch, useAppSelector } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
-import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
-import { postData } from "../../service/ApiService";
-import { MissionIntroProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import STORAGE_KEYS from "../../utils/Constants";
+} from '../../redux/slices/UserSlice';
+import { store, useAppDispatch, useAppSelector } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
+import { AppleSigninResponse } from '../../service/ApiResponses/AppleSignin';
+import { GoogleSigninResponse } from '../../service/ApiResponses/GoogleSignin';
+import { postData } from '../../service/ApiService';
+import { MissionIntroProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
+import STORAGE_KEYS from '../../utils/Constants';
 import {
   deleteLocalStorageData,
   getRandomEvenOrOdd,
   storeLocalStorageData,
-} from "../../utils/Helpers";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
-import styles from "./styles";
+} from '../../utils/Helpers';
+import { horizontalScale, hp, verticalScale, wp } from '../../utils/Metrics';
+import styles from './styles';
 
 const initialTimer = 30;
 
@@ -55,9 +55,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
-  const [legalWebUrl, setLegalWebUrl] = useState("https://onepali.app");
-  const [legalWebTitle, setLegalWebTitle] = useState("Legal");
-  const isReservationExpired = reservationStatus === "EXPIRED";
+  const [legalWebUrl, setLegalWebUrl] = useState('https://onepali.app');
+  const [legalWebTitle, setLegalWebTitle] = useState('Legal');
+  const isReservationExpired = reservationStatus === 'EXPIRED';
   const [showCheckboxError, setShowCheckboxError] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -76,9 +76,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         }),
       );
     }
-    
+
     // Track paywall/sign-in step
-    trackOnboardingStepCompleted(4, "Paywall", 4);
+    trackOnboardingStepCompleted(4, 'Paywall', 4);
   }, []);
 
   const handleAppleSignIn = async () => {
@@ -88,16 +88,16 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     }
     try {
       setIsLoading(true);
-      if (Platform.OS !== "ios") {
+      if (Platform.OS !== 'ios') {
         return;
       }
 
       if (!appleAuth.isSupported) {
-        Alert.alert("Not Supported", "Apple Sign-In not supported");
+        Alert.alert('Not Supported', 'Apple Sign-In not supported');
         return;
       }
 
-      const rawNonce = "Wfghrwrthhfjhreghfjyerwghliueghterui";
+      const rawNonce = 'Wfghrwrthhfjhreghfjyerwghliueghterui';
 
       const appleResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
@@ -108,9 +108,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
       if (!identityToken || !authorizationCode) {
         Toast.show({
-          type: "error",
-          text1: "Apple Sign-In Failed",
-          text2: "No sign-in data received from Apple",
+          type: 'error',
+          text1: 'Apple Sign-In Failed',
+          text2: 'No sign-in data received from Apple',
         });
         return;
       }
@@ -131,7 +131,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         const currentReservationSeconds = currentState.user.reservationSeconds;
         const currentReservationStatus = currentState.user.reservationStatus;
         const isCurrentReservationExpired =
-          currentReservationStatus === "EXPIRED";
+          currentReservationStatus === 'EXPIRED';
 
         // Check if reservation has expired during sign-in process
         if (
@@ -139,10 +139,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           (currentReservationSeconds && currentReservationSeconds <= 0)
         ) {
           Toast.show({
-            type: "error",
-            text1: "Reservation Expired",
+            type: 'error',
+            text1: 'Reservation Expired',
             text2:
-              "Your reservation has expired. Please go back and reserve a number again.",
+              'Your reservation has expired. Please go back and reserve a number again.',
           });
           setIsLoading(false);
           return;
@@ -158,7 +158,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           tokens.refreshToken,
         );
         await storeLocalStorageData(STORAGE_KEYS?.expiresIn, tokens?.expiresIn);
-        await storeLocalStorageData("userData", user);
+        await storeLocalStorageData('userData', user);
 
         // Navigate based on user state
         if (user.hasSubscription && user.hasSubscription) {
@@ -170,28 +170,40 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             setClaimedNumber(signInResponse.data?.data?.user?.assignedNumber),
           );
 
-          navigation.replace("MainStack", {
-            screen: "tabs",
+          navigation.replace('MainStack', {
+            screen: 'tabs',
             params: {
-              screen: "home",
+              screen: 'home',
             },
           });
           return;
         }
+        dispatch(setUserData(signInResponse.data?.data?.user?.user as any));
 
-        navigation.navigate("OnBoardingStack", {
-          screen: "quickDonate",
+        navigation.navigate('OnBoardingStack', {
+          screen: 'quickDonate',
           params: {
             joinedPosition: user.joinedPosition || getRandomEvenOrOdd(),
           },
         });
       }
     } catch (error: any) {
-      console.log("error", error);
+      console.log('error', error);
 
       if (error?.code === appleAuth.Error.CANCELED) {
-        console.log("User cancelled Apple Sign-In");
+        console.log('User cancelled Apple Sign-In');
         return;
+      } else if (
+        error.status === 410 &&
+        error.message ===
+          'Your account has been deleted. Please contact support at meca@mecaforpeace.org to restore it.'
+      ) {
+        Alert.alert('Note', error.message, [
+          {
+            text: 'Ok',
+            style: 'default',
+          },
+        ]);
       }
     } finally {
       setIsLoading(false);
@@ -202,25 +214,39 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     if (!error) return;
 
     // Silent cases (no UI)
-    if (error.message === "Sign-in cancelled by user") {
+    if (error.message === 'Sign-in cancelled by user') {
       return;
     }
 
     // Known Google errors
     if (error.code === statusCodes.IN_PROGRESS) {
       Toast.show({
-        type: "info",
-        text1: "Please wait",
-        text2: "Sign-in is already in progress",
+        type: 'info',
+        text1: 'Please wait',
+        text2: 'Sign-in is already in progress',
       });
+      return;
+    }
+
+    if (
+      error.status === 410 &&
+      error.message ===
+        'Your account has been deleted. Please contact support at meca@mecaforpeace.org to restore it.'
+    ) {
+      Alert.alert('Note', error.message, [
+        {
+          text: 'Ok',
+          style: 'default',
+        },
+      ]);
       return;
     }
 
     if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
       Toast.show({
-        type: "error",
-        text1: "Google Services Required",
-        text2: "Please update Google Play Services to continue",
+        type: 'error',
+        text1: 'Google Services Required',
+        text2: 'Please update Google Play Services to continue',
       });
       return;
     }
@@ -228,8 +254,8 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     // API / custom errors
     if (error.message) {
       Toast.show({
-        type: "error",
-        text1: "Sign-In Failed",
+        type: 'error',
+        text1: 'Sign-In Failed',
         text2: error.message,
       });
       return;
@@ -237,9 +263,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
 
     // Fallback
     Toast.show({
-      type: "error",
-      text1: "Something went wrong",
-      text2: "Please try again later",
+      type: 'error',
+      text1: 'Something went wrong',
+      text2: 'Please try again later',
     });
   };
 
@@ -253,7 +279,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
     setIsSigningIn(true);
     try {
       // Check for Play Services only on Android
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         await GoogleSignin.hasPlayServices({
           showPlayServicesUpdateDialog: true,
         });
@@ -275,7 +301,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             currentState.user.reservationSeconds;
           const currentReservationStatus = currentState.user.reservationStatus;
           const isCurrentReservationExpired =
-            currentReservationStatus === "EXPIRED";
+            currentReservationStatus === 'EXPIRED';
 
           // Check if reservation has expired during sign-in process
           if (
@@ -283,10 +309,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             (currentReservationSeconds && currentReservationSeconds <= 0)
           ) {
             Toast.show({
-              type: "error",
-              text1: "Reservation Expired",
+              type: 'error',
+              text1: 'Reservation Expired',
               text2:
-                "Your reservation has expired. Please go back and reserve a number again.",
+                'Your reservation has expired. Please go back and reserve a number again.',
             });
             setIsSigningIn(false);
             return;
@@ -305,13 +331,14 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             STORAGE_KEYS?.expiresIn,
             tokens?.expiresIn,
           );
-          await storeLocalStorageData("userData", user);
+          await storeLocalStorageData('userData', user);
 
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
-            navigation.navigate("quickDonate", {
+            navigation.navigate('quickDonate', {
               joinedPosition: user.joinedPosition || getRandomEvenOrOdd(),
             });
+            dispatch(setUserData(signinResponse.data.data.user.user as any));
           } else {
             dispatch(setUserData(signinResponse.data.data.user.user as any));
             dispatch(
@@ -321,35 +348,35 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
 
-            navigation.replace("MainStack", {
-              screen: "tabs",
+            navigation.replace('MainStack', {
+              screen: 'tabs',
               params: {
-                screen: "home",
+                screen: 'home',
               },
             });
           }
         } else {
           throw {
-            type: "API_ERROR",
-            message: signinResponse.data.message || "Sign-in failed",
+            type: 'API_ERROR',
+            message: signinResponse.data.message || 'Sign-in failed',
           };
         }
       } else {
-        console.log(data, type, "ZZZZ");
-        if (type === "cancelled") {
+        console.log(data, type, 'ZZZZ');
+        if (type === 'cancelled') {
           throw {
             type: statusCodes.SIGN_IN_CANCELLED,
-            message: "Sign-in cancelled by user",
+            message: 'Sign-in cancelled by user',
           };
         } else {
           throw {
-            type: "TOKEN_ERROR",
-            message: "Unable to retrieve Google credentials. Please try again.",
+            type: 'TOKEN_ERROR',
+            message: 'Unable to retrieve Google credentials. Please try again.',
           };
         }
       }
     } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
+      console.error('Google Sign-In Error:', error);
       handleGoogleError(error);
     } finally {
       setIsSigningIn(false);
@@ -363,7 +390,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    logEvent("Ob_Sign_In");
+    logEvent('Ob_Sign_In');
   }, []);
 
   return (
@@ -378,11 +405,11 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
             }),
             marginBottom: Platform.select({
               ios: insets.bottom ? 0 : verticalScale(15),
-              android: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? verticalScale(10): verticalScale(15),
             }),
           },
         ]}
-        edges={["bottom", "top"]}
+        edges={['bottom', 'top']}
       >
         <View style={styles.header}>
           {navigation.canGoBack() && (
@@ -390,29 +417,32 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               onPress={() => navigation.goBack()}
               activeOpacity={0.8}
               style={{
-                backgroundColor: "#E5E7EF",
+                backgroundColor: '#E5E7EF',
                 borderRadius: 100,
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: 0,
                 height: 32,
                 width: 32,
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <CustomIcon Icon={ICONS.BackArrowWithBg} />
             </TouchableOpacity>
           )}
-          <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+          <Image
+            source={IMAGES.OnePaliLogo}
+            style={styles.logo}
+          />
         </View>
 
         <View style={styles.headingContainer}>
           <CustomText
-            fontFamily="GabaritoSemiBold"
+            fontFamily='GabaritoSemiBold'
             fontSize={42}
             color={COLORS.darkText}
-            style={{ textAlign: "center" }}
+            style={{ textAlign: 'center' }}
           >
             Join OnePali
           </CustomText>
@@ -420,17 +450,17 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
           {showNumber &&
             (reservationSeconds && reservationSeconds > 0 ? (
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={18}
                 color={COLORS.appText}
-                style={{ textAlign: "center", marginTop: 8 }}
+                style={{ textAlign: 'center', marginTop: 8 }}
               >
                 {`#${claimedNumber} reserved for ${reservationSeconds}s`}
               </CustomText>
             ) : (
               <CustomText
                 color={COLORS.redColor}
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={16}
               >
                 {`#${claimedNumber} Expired`}
@@ -441,28 +471,28 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         <View
           style={{
             flex: 1,
-            justifyContent: "space-between",
+            justifyContent: 'space-between',
             paddingHorizontal: horizontalScale(20),
             paddingTop: verticalScale(20),
           }}
         >
           <Image
             source={IMAGES.MissionImage}
-            resizeMode="contain"
+            resizeMode='contain'
             style={{
               width: wp(72),
               height: hp(42),
-              alignSelf: "center",
+              alignSelf: 'center',
             }}
           />
           {reservationSeconds && reservationSeconds > 0 ? (
-            <View style={{ alignItems: "center", gap: verticalScale(12) }}>
+            <View style={{ alignItems: 'center', gap: verticalScale(12) }}>
               <TouchableOpacity
                 style={{
-                  flexDirection: "row",
+                  flexDirection: 'row',
                   gap: horizontalScale(12),
-                  alignSelf: "flex-start",
-                  width: "100%",
+                  alignSelf: 'flex-start',
+                  width: '100%',
                 }}
                 activeOpacity={0.8}
                 onPress={() => {
@@ -484,68 +514,68 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   />
                 )}
                 <CustomText
-                  fontFamily="SourceSansRegular"
+                  fontFamily='SourceSansRegular'
                   fontSize={13}
                   color={COLORS.appText}
                   style={{
                     flexShrink: 1,
                   }}
                 >
-                  I agree to MECA’s{" "}
+                  I agree to MECA’s{' '}
                   <CustomText
-                    fontFamily="SourceSansRegular"
+                    fontFamily='SourceSansRegular'
                     fontSize={13}
                     color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
-                        "MECA Privacy Policy",
-                        "https://onepali.app/meca-privacy-policy",
+                        'MECA Privacy Policy',
+                        'https://onepali.app/meca-privacy-policy',
                       );
                     }}
-                    style={{ textDecorationLine: "underline" }}
+                    style={{ textDecorationLine: 'underline' }}
+                  >
+                    Terms of Service
+                  </CustomText>
+                  <CustomText
+                    fontFamily='SourceSansRegular'
+                    fontSize={13}
+                    color={COLORS.appText}
+                  >
+                    ,{' '}
+                  </CustomText>
+                  <CustomText
+                    fontFamily='SourceSansRegular'
+                    fontSize={13}
+                    color={COLORS.appText}
+                    onPress={() => {
+                      openLegalSheet(
+                        'OnePali Terms of Use',
+                        // "https://onepali.app/privacy-policy",
+                        'https://onepali.app/terms-of-use',
+                      );
+                    }}
+                    style={{ textDecorationLine: 'underline' }}
                   >
                     Privacy Policy
                   </CustomText>
                   <CustomText
-                    fontFamily="SourceSansRegular"
+                    fontFamily='SourceSansRegular'
                     fontSize={13}
                     color={COLORS.appText}
                   >
-                    , and OnePali's{" "}
+                    , and OnePali's{' '}
                   </CustomText>
                   <CustomText
-                    fontFamily="SourceSansRegular"
+                    fontFamily='SourceSansRegular'
                     fontSize={13}
                     color={COLORS.appText}
                     onPress={() => {
                       openLegalSheet(
-                        "OnePali Terms of Use",
-                        // "https://onepali.app/privacy-policy",
-                        "https://onepali.app/terms-of-use",
+                        'OnePali Privacy Policy',
+                        'https://onepali.app/onepali-privacy-policy',
                       );
                     }}
-                    style={{ textDecorationLine: "underline" }}
-                  >
-                    Terms of Use{" "}
-                  </CustomText>
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
-                    color={COLORS.appText}
-                  >
-                    and{" "}
-                  </CustomText>
-                  <CustomText
-                    fontFamily="SourceSansRegular"
-                    fontSize={13}
-                    color={COLORS.appText}
-                    onPress={() => {
-                      openLegalSheet(
-                        "OnePali Privacy Policy",
-                        "https://onepali.app/onepali-privacy-policy",
-                      );
-                    }}
-                    style={{ textDecorationLine: "underline" }}
+                    style={{ textDecorationLine: 'underline' }}
                   >
                     Privacy Policy.
                   </CustomText>
@@ -553,7 +583,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               </TouchableOpacity>
               {showCheckboxError && (
                 <CustomText
-                  fontFamily="SourceSansRegular"
+                  fontFamily='SourceSansRegular'
                   fontSize={10}
                   color={COLORS.redColor}
                   style={{ marginTop: 4 }}
@@ -563,47 +593,27 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               )}
               <View
                 style={{
-                  alignItems: "center",
+                  alignItems: 'center',
                   marginTop: verticalScale(12),
                   gap: verticalScale(8),
                 }}
               >
-                {Platform.OS === "ios" && (
-                  <>
-                    <PrimaryButton
-                      title="Continue with Apple"
-                      leftIcon={{
-                        Icon: ICONS.AppleLogo,
-                        width: 16,
-                        height: 22,
-                      }}
-                      onPress={handleAppleSignIn}
-                      isLoading={isLoading}
-                      disabled={isLoading || isReservationExpired}
-                      hapticFeedback
-                      hapticType="impactLight"
-                      textStyle={{
-                        fontFamily: FONTS.GabaritoSemiBold,
-                      }}
-                    />
-                  </>
-                )}
                 <PrimaryButton
-                  title="Continue with Google"
+                  title='Continue with Google'
                   leftIcon={{ Icon: ICONS.GoogleIcon, width: 16, height: 16 }}
                   onPress={handleGoogleSignIn}
                   isLoading={isSigningIn}
                   disabled={isSigningIn || isReservationExpired}
                   hapticFeedback
-                  hapticType="impactLight"
+                  hapticType='impactLight'
                   style={Platform.select({
                     ios: {
-                      backgroundColor: "transparent",
+                      backgroundColor: 'transparent',
                       borderWidth: 1,
-                      borderColor: "#C8CBD7",
+                      borderColor: '#C8CBD7',
                     },
                     android: {
-                      backgroundColor: "#1D222B",
+                      backgroundColor: '#1D222B',
                     },
                   })}
                   textColor={Platform.select({
@@ -620,18 +630,38 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     default: COLORS.white,
                   })}
                 />
+                {Platform.OS === 'ios' && (
+                  <>
+                    <PrimaryButton
+                      title='Continue with Apple'
+                      leftIcon={{
+                        Icon: ICONS.AppleLogo,
+                        width: 16,
+                        height: 22,
+                      }}
+                      onPress={handleAppleSignIn}
+                      isLoading={isLoading}
+                      disabled={isLoading || isReservationExpired}
+                      hapticFeedback
+                      hapticType='impactLight'
+                      textStyle={{
+                        fontFamily: FONTS.GabaritoSemiBold,
+                      }}
+                    />
+                  </>
+                )}
               </View>
             </View>
           ) : (
             <View
               style={{
-                alignItems: "center",
+                alignItems: 'center',
               }}
             >
               <PrimaryButton
-                title="Claim New Number"
+                title='Claim New Number'
                 onPress={() => {
-                  if (Platform.OS === "android") {
+                  if (Platform.OS === 'android') {
                     GoogleSignin.signOut().then(() => {
                       navigation.goBack();
                       deleteLocalStorageData(STORAGE_KEYS.accessToken);
@@ -644,7 +674,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 }}
                 disabled={isSigningIn}
                 hapticFeedback
-                hapticType="impactLight"
+                hapticType='impactLight'
               />
             </View>
           )}

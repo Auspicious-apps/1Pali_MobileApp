@@ -30,6 +30,7 @@ import COLORS from "../../utils/Colors";
 import STORAGE_KEYS from "../../utils/Constants";
 import { getLocalStorageData } from "../../utils/Helpers";
 import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import DeviceInfo from "react-native-device-info";
 
 const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -138,6 +139,7 @@ const ReceiptsScreen: FC<ReceiptsScreenProps> = ({ navigation }) => {
         // `https://hydrometric-untimeous-ayaan.ngrok-free.dev/api/v1/receipts/download/${receiptId}/`,
         {
           Authorization: `Bearer ${token}`,
+          "X-App-Version": DeviceInfo.getVersion()
           // Remove Content-Type for GET requests
         },
       );

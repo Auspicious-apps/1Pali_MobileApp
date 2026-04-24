@@ -65,7 +65,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
             }),
             marginBottom: Platform.select({
               ios: insets.bottom ? 0 : verticalScale(15),
-              android: insets.bottom ? 0 : verticalScale(15),
+              android: insets.bottom ? verticalScale(10) : verticalScale(15),
             }),
           },
         ]}

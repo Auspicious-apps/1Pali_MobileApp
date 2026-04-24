@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -12,56 +12,56 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import ReactNativeBlobUtil from "react-native-blob-util";
-import { hasNotch } from "react-native-device-info";
-import FastImage from "react-native-fast-image";
-import RNFS from "react-native-fs";
-import ImageViewer from "react-native-image-zoom-viewer";
-import LinearGradient from "react-native-linear-gradient";
-import Modal from "react-native-modal";
+} from 'react-native';
+import ReactNativeBlobUtil from 'react-native-blob-util';
+import { hasNotch } from 'react-native-device-info';
+import FastImage from 'react-native-fast-image';
+import RNFS from 'react-native-fs';
+import ImageViewer from 'react-native-image-zoom-viewer';
+import LinearGradient from 'react-native-linear-gradient';
+import Modal from 'react-native-modal';
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import ShareLib from "react-native-share";
-import Toast from "react-native-toast-message";
-import Video from "react-native-video";
-import ViewShot, { captureRef } from "react-native-view-shot";
-import FONTS from "../../assets/fonts";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import FocusResetScrollView from "../../components/FocusResetScrollView";
-import { ShareType } from "../../components/Modal/ShareArtModal";
-import PrimaryButton from "../../components/PrimaryButton";
-import Pulse from "../../components/PulseLoading";
+} from 'react-native-safe-area-context';
+import ShareLib from 'react-native-share';
+import Toast from 'react-native-toast-message';
+import Video from 'react-native-video';
+import ViewShot, { captureRef } from 'react-native-view-shot';
+import FONTS from '../../assets/fonts';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import FocusResetScrollView from '../../components/FocusResetScrollView';
+import { ShareType } from '../../components/Modal/ShareArtModal';
+import PrimaryButton from '../../components/PrimaryButton';
+import Pulse from '../../components/PulseLoading';
 import {
   fetchArtDetails,
   updateArtDetail,
-} from "../../redux/slices/DetailsSlice";
-import { addNewArtBadge } from "../../redux/slices/UserSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { ArtCommentsResponse } from "../../service/ApiResponses/ArtComments";
-import { FetchArtCommentsResponse } from "../../service/ApiResponses/FetchArtComments";
+} from '../../redux/slices/DetailsSlice';
+import { addNewArtBadge } from '../../redux/slices/UserSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
+import { ArtCommentsResponse } from '../../service/ApiResponses/ArtComments';
+import { FetchArtCommentsResponse } from '../../service/ApiResponses/FetchArtComments';
 import {
   Comment,
   GetArtByIdResponse,
-} from "../../service/ApiResponses/GetArtById";
-import { LikeUnlikeArtResponse } from "../../service/ApiResponses/LikeUnlikeArt";
-import { ShareArtResponse } from "../../service/ApiResponses/ShareArtResponse";
-import { fetchData, postData } from "../../service/ApiService";
-import { ArtDetailScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
+} from '../../service/ApiResponses/GetArtById';
+import { LikeUnlikeArtResponse } from '../../service/ApiResponses/LikeUnlikeArt';
+import { ShareArtResponse } from '../../service/ApiResponses/ShareArtResponse';
+import { fetchData, postData } from '../../service/ApiService';
+import { ArtDetailScreenProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
 import {
   horizontalScale,
   hp,
   isAndroid,
   verticalScale,
   wp,
-} from "../../utils/Metrics";
+} from '../../utils/Metrics';
 const { NativeShare } = NativeModules;
 
 const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
@@ -75,7 +75,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const { ArtId } = route.params;
   const [artDetail, setArtDetail] = useState<GetArtByIdResponse>();
   const [loading, setLoading] = useState(false);
-  const [commentText, setCommentText] = useState("");
+  const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef<TextInput>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   // Track pending comments for optimistic UI
@@ -116,11 +116,11 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const [isSharingSheetOpen, setIsSharingSheetOpen] = useState(false);
 
   const formatDateMMDDYYYY = (date?: string) => {
-    if (!date) return "";
+    if (!date) return '';
 
     const d = new Date(date);
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
     const yyyy = d.getFullYear();
 
     return `${mm}.${dd}.${yyyy}`;
@@ -130,19 +130,19 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   const ArtDetailPulse = () => (
     <SafeAreaView style={styles.container}>
       <View style={{ padding: horizontalScale(20), gap: 16 }}>
-        <Pulse style={{ width: "100%", height: hp(49), borderRadius: 20 }} />
+        <Pulse style={{ width: '100%', height: hp(49), borderRadius: 20 }} />
 
-        <View style={{ flexDirection: "row", gap: 16 }}>
+        <View style={{ flexDirection: 'row', gap: 16 }}>
           <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
           <Pulse style={{ width: 60, height: 20, borderRadius: 6 }} />
         </View>
 
-        <Pulse style={{ width: "70%", height: 28, borderRadius: 8 }} />
+        <Pulse style={{ width: '70%', height: 28, borderRadius: 8 }} />
 
         {[1, 2, 3].map((_, i) => (
           <Pulse
             key={i}
-            style={{ width: "100%", height: 14, borderRadius: 6 }}
+            style={{ width: '100%', height: 14, borderRadius: 6 }}
           />
         ))}
       </View>
@@ -151,10 +151,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
   const CommentPulse = () => (
     <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
-      <Pulse style={{ width: "30%", height: 14, borderRadius: 6 }} />
+      <Pulse style={{ width: '30%', height: 14, borderRadius: 6 }} />
       <Pulse
         style={{
-          width: "100%",
+          width: '100%',
           height: 14,
           borderRadius: 6,
           marginTop: 6,
@@ -169,12 +169,12 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       setCapturingCard(true);
 
       const uri = await captureRef(cardRef, {
-        format: "png",
+        format: 'png',
         quality: 1,
       });
 
       // 1. Define your custom file name
-      const customFileName = artDetail?.title || "Art";
+      const customFileName = artDetail?.title || 'Art';
       const fileNameWithExt = `${customFileName}.png`;
 
       // 2. Prepare the new path in the Cache directory
@@ -188,36 +188,36 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       await RNFS.copyFile(uri, newPath);
 
       const shareFilePath =
-        Platform.OS === "android" ? `file://${newPath}` : newPath;
+        Platform.OS === 'android' ? `file://${newPath}` : newPath;
 
       setCapturingCard(false);
 
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         try {
           const result = await NativeShare.shareWithCallback(
             shareFilePath, // Send the raw path
             customFileName,
-            `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+            `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916 \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
           );
 
           if (result) {
-            if (result === "com.instagram.android") {
-              shareToApp("INSTAGRAM");
-            } else if (result.includes("whatsapp")) {
-              shareToApp("WHATSAPP");
-            } else if (result.includes("facebook")) {
-              shareToApp("FACEBOOK");
-            } else if (result.includes("messaging")) {
-              shareToApp("MESSAGE");
+            if (result === 'com.instagram.android') {
+              shareToApp('INSTAGRAM');
+            } else if (result.includes('whatsapp')) {
+              shareToApp('WHATSAPP');
+            } else if (result.includes('facebook')) {
+              shareToApp('FACEBOOK');
+            } else if (result.includes('messaging')) {
+              shareToApp('MESSAGE');
             } else {
-              shareToApp("APP_SHARE_SHEET");
+              shareToApp('APP_SHARE_SHEET');
             }
           }
         } catch (e: any) {
-          if (e.code === "USER_CANCELLED") {
+          if (e.code === 'USER_CANCELLED') {
             console.log("User didn't share anything.");
           } else {
-            console.error("Native Error:", e.message);
+            console.error('Native Error:', e.message);
           }
         }
       } else {
@@ -226,43 +226,43 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             url: shareFilePath,
             filename: customFileName,
             title: customFileName,
-            type: "image/png",
+            type: 'image/png',
             message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
           });
 
-          console.log(result, "opopo");
+          console.log(result, 'opopo');
           if (result.success) {
             if (
-              result.message === "com.apple.UIKit.activity.SaveToCameraRoll" ||
-              result.message === "com.apple.DocumentManagerUICore.SaveToFiles"
+              result.message === 'com.apple.UIKit.activity.SaveToCameraRoll' ||
+              result.message === 'com.apple.DocumentManagerUICore.SaveToFiles'
             ) {
-              console.log("User only saved the image — skipping share API");
+              console.log('User only saved the image — skipping share API');
               return;
             }
-            if (result.message.includes("instagram")) {
-              shareToApp("INSTAGRAM");
-            } else if (result.message.includes("whatsapp")) {
-              shareToApp("WHATSAPP");
-            } else if (result.message.includes("facebook")) {
-              shareToApp("FACEBOOK");
-            } else if (result.message.includes("messaging")) {
-              shareToApp("MESSAGE");
+            if (result.message.includes('instagram')) {
+              shareToApp('INSTAGRAM');
+            } else if (result.message.includes('whatsapp')) {
+              shareToApp('WHATSAPP');
+            } else if (result.message.includes('facebook')) {
+              shareToApp('FACEBOOK');
+            } else if (result.message.includes('messaging')) {
+              shareToApp('MESSAGE');
             } else {
-              shareToApp("APP_SHARE_SHEET");
+              shareToApp('APP_SHARE_SHEET');
             }
           }
         } catch (error: any) {
-          const errorMsg = error?.message || "";
-          console.log(errorMsg, "XXXXX");
+          const errorMsg = error?.message || '';
+          console.log(errorMsg, 'XXXXX');
         }
       }
     } catch (error: any) {
-      console.log("Card share error:", error);
+      console.log('Card share error:', error);
     } finally {
       setCapturingCard(false);
-       setTimeout(() => {
-         setIsSharingSheetOpen(false);
-       }, 300); 
+      setTimeout(() => {
+        setIsSharingSheetOpen(false);
+      }, 300);
     }
   };
 
@@ -287,7 +287,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         }
       }
     } catch (err) {
-      console.log("Share Count failed:", err);
+      console.log('Share Count failed:', err);
     } finally {
       setSharing(false);
     }
@@ -301,8 +301,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       const { fs, config } = ReactNativeBlobUtil;
 
       // Determine file extension from URL
-      const urlPath = url.split("?")[0];
-      const extension = urlPath.includes(".png") ? "png" : "jpg";
+      const urlPath = url.split('?')[0];
+      const extension = urlPath.includes('.png') ? 'png' : 'jpg';
 
       const fileName = `Art_${artId}.${extension}`;
 
@@ -310,7 +310,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       // For iOS, use Documents directory
       const tempPath = `${fs.dirs.CacheDir}/${fileName}`;
       const finalPath =
-        Platform.OS === "android"
+        Platform.OS === 'android'
           ? `${fs.dirs.DownloadDir}/${fileName}`
           : `${fs.dirs.DocumentDir}/${fileName}`;
 
@@ -326,26 +326,26 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             useDownloadManager: true,
             notification: true,
             title: fileName,
-            description: "Downloading Art...",
+            description: 'Downloading Art...',
             mime: `image/${extension}`,
             path: finalPath, // ReactNativeBlobUtil attempts to save directly here
           },
         },
       });
 
-      const res = await config(options as any).fetch("GET", url);
+      const res = await config(options as any).fetch('GET', url);
       const filePath = res.path();
 
-      if (Platform.OS === "ios") {
+      if (Platform.OS === 'ios') {
         // For iOS, show the file in Files app or preview
         ReactNativeBlobUtil.ios.previewDocument(filePath);
       } else {
         await fs.scanFile([{ path: filePath, mime: `image/${extension}` }]);
 
         Toast.show({
-          type: "success",
-          text1: "Download Complete",
-          text2: "Art saved to Downloads folder",
+          type: 'success',
+          text1: 'Download Complete',
+          text2: 'Art saved to Downloads folder',
         });
 
         // Optional: Open the file immediately
@@ -359,11 +359,11 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         return;
       }
     } catch (error) {
-      console.error("Download failed:", error);
+      console.error('Download failed:', error);
       Toast.show({
-        type: "error",
-        text1: "Download Failed",
-        text2: "Unable to download image. Please try again.",
+        type: 'error',
+        text1: 'Download Failed',
+        text2: 'Unable to download image. Please try again.',
       });
     } finally {
       setIsDownloadingArt(false);
@@ -371,10 +371,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
   };
 
   const timeAgo = (date?: string) => {
-    if (!date) return "";
+    if (!date) return '';
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
+    if (mins < 1) return 'just now';
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
@@ -402,7 +402,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         setHasNext(data.commentsPagination?.hasNext);
       }
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
     } finally {
       setLoading(false);
     }
@@ -424,7 +424,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         setPage(pageNumber);
       }
     } catch (error) {
-      console.log("Fetch comments error", error);
+      console.log('Fetch comments error', error);
     } finally {
       setCommentsLoading(false);
     }
@@ -437,7 +437,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     const tempId = `temp-${Date.now()}`;
     const optimisticComment: Comment = {
       id: tempId,
-      userId: user?.id || "",
+      userId: user?.id || '',
       artId: ArtId,
       parentCommentId: null,
       content: commentText.trim(),
@@ -445,9 +445,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       user: {
-        id: user?.id || "",
+        id: user?.id || '',
         name: user?.name,
-        email: user?.email || "",
+        email: user?.email || '',
         profilePicture: user?.profilePicture || null,
         assignedNumber: user?.assignedNumber || 0,
       },
@@ -455,7 +455,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
     setComments((prev) => [optimisticComment, ...prev]);
     setPendingComments((prev) => ({ ...prev, [tempId]: true }));
-    setCommentText("");
+    setCommentText('');
     setInputKey((k) => k + 1); // force TextInput remount
     commentInputRef.current?.blur();
 
@@ -471,7 +471,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         // Map comments to include userId and artId
         const newComments = newCommentsRaw.map((c: any) => ({
           ...c,
-          userId: c.user?.id || user?.id || "",
+          userId: c.user?.id || user?.id || '',
           artId: ArtId,
         }));
         setArtDetail((prev): any => {
@@ -495,9 +495,9 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       // Remove the optimistic comment on failure
       setComments((prev) => prev.filter((c) => c.id !== tempId));
       Toast.show({
-        type: "error",
-        text1: "Failed to send comment",
-        text2: "Please try again.",
+        type: 'error',
+        text1: 'Failed to send comment',
+        text2: 'Please try again.',
       });
     } finally {
       setPendingComments((prev) => {
@@ -565,7 +565,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
       }
     } catch (error) {
       // optional rollback — or refetch count
-      console.log("Like sync error", error);
+      console.log('Like sync error', error);
     } finally {
       likeRequestInProgress.current = false;
 
@@ -631,32 +631,32 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
     const isPending = pendingComments[item.id];
     return (
       <View style={[styles.commentItem, isPending && { opacity: 0.5 }]}>
-        <View style={{ width: "100%", gap: verticalScale(2) }}>
+        <View style={{ width: '100%', gap: verticalScale(2) }}>
           <CustomText
-            fontFamily="GabaritoMedium"
+            fontFamily='GabaritoMedium'
             fontSize={15}
             color={COLORS.darkText}
           >
             #
             {item?.user?.assignedNumber
               ? item?.user?.assignedNumber
-              : "onepali supporter"}
+              : 'onepali supporter'}
           </CustomText>
           <CustomText
-            fontFamily="SourceSansRegular"
+            fontFamily='SourceSansRegular'
             fontSize={14}
             color={COLORS.darkText}
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
           >
             {item?.content}
           </CustomText>
           <View style={styles.commentMetaRow}>
             <CustomText
-              fontFamily="SourceSansRegular"
+              fontFamily='SourceSansRegular'
               fontSize={12}
               color={COLORS.appText}
             >
-              {isPending ? "Sending..." : timeAgo(item?.createdAt)}
+              {isPending ? 'Sending...' : timeAgo(item?.createdAt)}
             </CustomText>
           </View>
         </View>
@@ -670,18 +670,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     // iOS: Smooth animations
-    if (Platform.OS === "ios") {
-      Keyboard.addListener("keyboardWillShow", () =>
+    if (Platform.OS === 'ios') {
+      Keyboard.addListener('keyboardWillShow', () =>
         setisKeyboardVisible(true),
       );
-      Keyboard.addListener("keyboardWillHide", () =>
+      Keyboard.addListener('keyboardWillHide', () =>
         setisKeyboardVisible(false),
       );
     }
     // Android: Immediate response
     else {
-      Keyboard.addListener("keyboardDidShow", () => setisKeyboardVisible(true));
-      Keyboard.addListener("keyboardDidHide", () =>
+      Keyboard.addListener('keyboardDidShow', () => setisKeyboardVisible(true));
+      Keyboard.addListener('keyboardDidHide', () =>
         setisKeyboardVisible(false),
       );
     }
@@ -736,16 +736,16 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             }),
           },
         ]}
-        edges={["top"]}
+        edges={['top']}
       >
         <KeyboardAvoidingView
           style={styles.keyboardView}
           behavior={
-            Platform.OS === "ios"
-              ? "height"
+            Platform.OS === 'ios'
+              ? 'height'
               : Number(Platform.Version) > 33
-              ? "height"
-              : "padding"
+              ? 'height'
+              : 'padding'
           }
           keyboardVerticalOffset={
             isKeyboardVisible
@@ -761,7 +761,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             style={[
               styles.header,
               {
-                paddingTop: Platform.OS === "android" ? verticalScale(10) : 0,
+                paddingTop: Platform.OS === 'android' ? verticalScale(10) : 0,
               },
             ]}
           >
@@ -778,7 +778,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
             <View style={styles.center}>
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={18}
                 color={COLORS.darkText}
               >
@@ -796,14 +796,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 }, 150);
               }}
             >
-              <CustomIcon Icon={ICONS.fullScreen} width={24} height={24} />
+              <CustomIcon
+                Icon={ICONS.fullScreen}
+                width={24}
+                height={24}
+              />
             </TouchableOpacity>
           </View>
           <FocusResetScrollView
             ref={scrollRef}
             bounces={false}
             showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="never"
+            keyboardShouldPersistTaps='never'
             scrollEventThrottle={16}
             contentContainerStyle={{
               paddingTop: verticalScale(20),
@@ -820,12 +824,12 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 }}
               >
                 <View style={styles.imageWrapper}>
-                  {artDetail?.mediaType === "IMAGE" && (
+                  {artDetail?.mediaType === 'IMAGE' && (
                     <>
                       <View style={styles.weekCard}>
                         <FastImage
                           source={{ uri: artDetail.mediaUrl }}
-                          resizeMode="cover"
+                          resizeMode='cover'
                           style={styles.updateImage}
                           onLoadStart={() => {
                             if (!mediaLoadedRef.current) {
@@ -839,8 +843,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                             try {
                               const url = artDetail.mediaUrl;
                               const fileName = url
-                                .substring(url.lastIndexOf("/") + 1)
-                                .split("?")[0];
+                                .substring(url.lastIndexOf('/') + 1)
+                                .split('?')[0];
                               const localPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
                               // Only copy if not already cached
                               const exists = await RNFS.exists(localPath);
@@ -861,18 +865,18 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   )}
 
                   {/* VIDEO */}
-                  {artDetail?.mediaType === "VIDEO" && (
+                  {artDetail?.mediaType === 'VIDEO' && (
                     <View style={styles.mediaWrapper}>
                       {/* {imageLoading && <MediaPulse />} */}
 
                       <Video
                         source={{ uri: artDetail.mediaUrl }}
                         poster={artDetail.thumbnailUrl}
-                        posterResizeMode="cover"
-                        resizeMode="cover"
+                        posterResizeMode='cover'
+                        resizeMode='cover'
                         controls
                         repeat
-                        style={{ width: "100%", height: "100%" }}
+                        style={{ width: '100%', height: '100%' }}
                         onLoadStart={() => {
                           if (!mediaLoadedRef.current) {
                             setImageLoading(true);
@@ -882,7 +886,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                           mediaLoadedRef.current = true;
                           setImageLoading(false);
                         }}
-                        onError={(e) => console.log("Video error", e)}
+                        onError={(e) => console.log('Video error', e)}
                       />
                     </View>
                   )}
@@ -903,31 +907,31 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                         width: horizontalScale(99),
                         height: verticalScale(87),
                       }}
-                      resizeMode="contain"
+                      resizeMode='contain'
                     />
                   </Animated.View>
                 </View>
               </TouchableOpacity>
               <View
                 style={{
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                  alignItems: "center",
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
+                  alignItems: 'center',
                   paddingTop: verticalScale(12),
                   paddingHorizontal: horizontalScale(20),
                 }}
               >
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     gap: horizontalScale(12),
                   }}
                 >
                   <View
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
+                      flexDirection: 'row',
+                      alignItems: 'center',
                       gap: horizontalScale(2),
                     }}
                   >
@@ -942,7 +946,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                       />
                     </TouchableOpacity>
                     <CustomText
-                      fontFamily="GabaritoMedium"
+                      fontFamily='GabaritoMedium'
                       fontSize={16}
                       color={COLORS.appText}
                     >
@@ -951,8 +955,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   </View>
                   <View
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
+                      flexDirection: 'row',
+                      alignItems: 'center',
                       gap: horizontalScale(2),
                     }}
                   >
@@ -968,7 +972,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     </TouchableOpacity>
 
                     <CustomText
-                      fontFamily="GabaritoMedium"
+                      fontFamily='GabaritoMedium'
                       fontSize={16}
                       color={COLORS.appText}
                     >
@@ -985,9 +989,13 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   style={styles.ShareButton}
                   disabled={sharing}
                 >
-                  <CustomIcon Icon={ICONS.ShareArt} height={20} width={20} />
+                  <CustomIcon
+                    Icon={ICONS.ShareArt}
+                    height={20}
+                    width={20}
+                  />
                   <CustomText
-                    fontFamily="GabaritoMedium"
+                    fontFamily='GabaritoMedium'
                     fontSize={16}
                     color={COLORS.greyish}
                   >
@@ -1002,14 +1010,14 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 }}
               >
                 <CustomText
-                  fontFamily="GabaritoSemiBold"
+                  fontFamily='GabaritoSemiBold'
                   fontSize={24}
                   color={COLORS.darkText}
                 >
                   {artDetail?.title}
                 </CustomText>
                 <CustomText
-                  fontFamily="GabaritoRegular"
+                  fontFamily='GabaritoRegular'
                   fontSize={14}
                   color={COLORS.appText}
                 >
@@ -1029,7 +1037,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                 }}
               >
                 <CustomText
-                  fontFamily="SourceSansRegular"
+                  fontFamily='SourceSansRegular'
                   fontSize={16}
                   color={COLORS.darkText}
                 >
@@ -1058,10 +1066,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                       </>
                     ) : (
                       <CustomText
-                        fontFamily="SourceSansMedium"
+                        fontFamily='SourceSansMedium'
                         fontSize={16}
                         color={COLORS.appText}
-                        style={{ textAlign: "center", marginVertical: 12 }}
+                        style={{ textAlign: 'center', marginVertical: 12 }}
                       >
                         No comments yet
                       </CustomText>
@@ -1078,10 +1086,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                       <ActivityIndicator color={COLORS.darkText} />
                     ) : (
                       <CustomText
-                        fontFamily="SourceSansRegular"
+                        fontFamily='SourceSansRegular'
                         fontSize={16}
                         color={COLORS.darkGreen}
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: 'center' }}
                       >
                         Load more comments
                       </CustomText>
@@ -1094,7 +1102,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
           {/* ===== Bottom Fade Overlay ===== */}
           <View
-            pointerEvents="none"
+            pointerEvents='none'
             style={[
               styles.bottomFadeWrapper,
               {
@@ -1104,10 +1112,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           >
             <LinearGradient
               colors={[
-                "rgba(255,255,255,0)",
-                "rgba(255,255,255,0.4)",
-                "rgba(255,255,255,0.85)",
-                "rgba(255,255,255,1)",
+                'rgba(255,255,255,0)',
+                'rgba(255,255,255,0.4)',
+                'rgba(255,255,255,0.85)',
+                'rgba(255,255,255,1)',
               ]}
               locations={[0, 0.35, 0.75, 1]}
               style={styles.bottomFade}
@@ -1128,10 +1136,10 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     ref={commentInputRef}
                     value={commentText}
                     onChangeText={setCommentText}
-                    placeholder="Add a comment..."
+                    placeholder='Add a comment...'
                     placeholderTextColor={COLORS.appText}
                     multiline
-                    textAlignVertical="top"
+                    textAlignVertical='top'
                     style={styles.commentInput}
                   />
                   {commentText.trim().length > 0 && (
@@ -1142,7 +1150,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     >
                       {sendingComment ? (
                         <ActivityIndicator
-                          size="small"
+                          size='small'
                           color={COLORS.darkText}
                         />
                       ) : (
@@ -1162,7 +1170,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           {/* Hidden Share Card  */}
           <View
             style={{
-              position: "absolute",
+              position: 'absolute',
               left: -9999,
               top: -9999,
             }}
@@ -1170,22 +1178,22 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             <ViewShot
               ref={cardRef}
               options={{
-                format: "png",
+                format: 'png',
                 quality: 1,
               }}
             >
               <View
                 style={{
                   backgroundColor: COLORS.white,
-                  overflow: "hidden",
+                  overflow: 'hidden',
                 }}
               >
-                {artDetail?.mediaType === "VIDEO" ? (
+                {artDetail?.mediaType === 'VIDEO' ? (
                   <View style={styles.mediaWrapper}>
                     <Video
                       source={{ uri: artDetail?.mediaUrl }}
-                      posterResizeMode="cover"
-                      resizeMode="cover"
+                      posterResizeMode='cover'
+                      resizeMode='cover'
                       repeat
                       style={styles.cardImage}
                     />
@@ -1201,15 +1209,15 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   >
                     <View
                       style={{
-                        flexDirection: "row",
-                        alignItems: "center",
+                        flexDirection: 'row',
+                        alignItems: 'center',
                         gap: horizontalScale(5),
-                        alignSelf: "center",
+                        alignSelf: 'center',
                       }}
                     >
                       <Image
                         source={IMAGES.LogoOnepali}
-                        resizeMode="contain"
+                        resizeMode='contain'
                         style={{
                           width: horizontalScale(73),
                           height: horizontalScale(15),
@@ -1218,7 +1226,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     </View>
                     <FastImage
                       source={{ uri: artDetail?.mediaUrl }}
-                      resizeMode="cover"
+                      resizeMode='cover'
                       style={[styles.cardImage, { borderRadius: 12 }]}
                     />
                   </View>
@@ -1232,21 +1240,21 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                   }}
                 >
                   <CustomText
-                    fontFamily="GabaritoRegular"
+                    fontFamily='GabaritoRegular'
                     fontSize={10}
                     color={COLORS.darkText}
-                    style={{ textAlign: "center" }}
+                    style={{ textAlign: 'center' }}
                   >
                     Supporter #{user?.assignedNumber} on OnePali. Join the
                     million.
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
+                    fontFamily='GabaritoRegular'
                     fontSize={10}
                     color={COLORS.greyText}
-                    style={{ textAlign: "center" }}
+                    style={{ textAlign: 'center' }}
                   >
-                    ‘{artDetail?.title}’ by {artDetail?.artistName} (age{" "}
+                    ‘{artDetail?.title}’ by {artDetail?.artistName} (age{' '}
                     {artDetail?.artistAge})
                   </CustomText>
                 </View>
@@ -1258,7 +1266,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
       {uiIndex === 1 && (
         <Animated.View
-          pointerEvents={uiIndex === 1 ? "auto" : "none"}
+          pointerEvents={uiIndex === 1 ? 'auto' : 'none'}
           style={[
             styles.fullscreenContainer,
             {
@@ -1276,11 +1284,11 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         >
           {/* ===== BLURRY BACKGROUND IMAGE ===== */}
           {!!(cachedImagePath || artDetail?.mediaUrl) &&
-            artDetail?.mediaType !== "VIDEO" && (
+            artDetail?.mediaType !== 'VIDEO' && (
               <Image
                 source={{ uri: cachedImagePath || artDetail?.mediaUrl }}
                 blurRadius={15}
-                resizeMode="cover"
+                resizeMode='cover'
                 style={StyleSheet.absoluteFill}
               />
             )}
@@ -1294,24 +1302,28 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             style={styles.closeBtn}
             activeOpacity={0.8}
           >
-            <CustomIcon Icon={ICONS.WhiteCloseIcon} width={32} height={32} />
+            <CustomIcon
+              Icon={ICONS.WhiteCloseIcon}
+              width={32}
+              height={32}
+            />
           </TouchableOpacity>
 
           {/* ===== MAIN MEDIA ===== */}
-          {artDetail?.mediaType === "VIDEO" ? (
+          {artDetail?.mediaType === 'VIDEO' ? (
             <Video
               source={{ uri: artDetail?.mediaUrl }}
-              resizeMode="contain"
+              resizeMode='contain'
               controls
               repeat
-              style={{ width: "100%", height: "100%" }}
+              style={{ width: '100%', height: '100%' }}
             />
           ) : (
             <ImageViewer
               imageUrls={[
-                { url: cachedImagePath || artDetail?.mediaUrl || "" },
+                { url: cachedImagePath || artDetail?.mediaUrl || '' },
               ]}
-              backgroundColor="transparent"
+              backgroundColor='transparent'
               enableSwipeDown
               onSwipeDown={() => setUiIndex(0)}
               renderIndicator={() => <></>}
@@ -1321,7 +1333,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
 
           {/* ===== SHARE BUTTON ===== */}
           <PrimaryButton
-            title={"Share"}
+            title={'Share'}
             leftIcon={{
               Icon: ICONS.DarkUpload,
               height: 20,
@@ -1329,8 +1341,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             }}
             onPress={handleShareToMore}
             style={{
-              position: "absolute",
-              alignSelf: "center",
+              position: 'absolute',
+              alignSelf: 'center',
               backgroundColor: COLORS.appBackground,
               bottom: isAndroid
                 ? insets.bottom > 20
@@ -1347,30 +1359,30 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
         isVisible={isMediaFullscreen}
         style={{ margin: 0 }}
         backdropOpacity={1}
-        backdropColor="transparent"
-        animationIn="zoomIn"
-        animationOut="zoomOut"
+        backdropColor='transparent'
+        animationIn='zoomIn'
+        animationOut='zoomOut'
         useNativeDriver
         onBackButtonPress={() => setIsMediaFullscreen(false)}
         onBackdropPress={() => setIsMediaFullscreen(false)}
-        swipeDirection="down"
+        swipeDirection='down'
         onSwipeComplete={() => setIsMediaFullscreen(false)}
       >
         <View
           style={{
             flex: 1,
-            backgroundColor: "transparent",
+            backgroundColor: 'transparent',
             paddingTop: insets.top,
-            position: "relative",
+            position: 'relative',
           }}
         >
           {/* ✅ BLUR BACKGROUND IMAGE */}
           {!!(cachedImagePath || artDetail?.mediaUrl) &&
-            artDetail?.mediaType !== "VIDEO" && (
+            artDetail?.mediaType !== 'VIDEO' && (
               <Image
                 source={{ uri: cachedImagePath || artDetail?.mediaUrl }}
                 blurRadius={20}
-                resizeMode="cover"
+                resizeMode='cover'
                 style={StyleSheet.absoluteFill}
               />
             )}
@@ -1379,25 +1391,25 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           <View
             style={{
               ...StyleSheet.absoluteFillObject,
-              backgroundColor: "rgba(0,0,0,0.35)",
+              backgroundColor: 'rgba(0,0,0,0.35)',
             }}
           />
 
           {/* ✅ MAIN MEDIA */}
-          {artDetail?.mediaType === "VIDEO" ? (
+          {artDetail?.mediaType === 'VIDEO' ? (
             <Video
               source={{ uri: artDetail?.mediaUrl }}
-              resizeMode="contain"
+              resizeMode='contain'
               controls
               repeat
-              style={{ width: "100%", height: "100%" }}
+              style={{ width: '100%', height: '100%' }}
             />
           ) : (
             <ImageViewer
               imageUrls={[
-                { url: cachedImagePath || artDetail?.mediaUrl || "" },
+                { url: cachedImagePath || artDetail?.mediaUrl || '' },
               ]}
-              backgroundColor="transparent"
+              backgroundColor='transparent'
               enableSwipeDown
               onSwipeDown={() => setIsMediaFullscreen(false)}
               renderIndicator={() => <></>}
@@ -1409,13 +1421,17 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           <TouchableOpacity
             onPress={() => setIsMediaFullscreen(false)}
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: insets.top,
               left: 20,
               zIndex: 10,
             }}
           >
-            <CustomIcon Icon={ICONS.backArrow} width={28} height={28} />
+            <CustomIcon
+              Icon={ICONS.backArrow}
+              width={28}
+              height={28}
+            />
           </TouchableOpacity>
         </View>
       </Modal>
@@ -1428,23 +1444,23 @@ export default ArtDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   safeArea: {
     flex: 1,
   },
 
   side: {
-    alignItems: "flex-start",
+    alignItems: 'flex-start',
   },
   center: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
     paddingBottom: verticalScale(12),
     borderBottomWidth: 1,
     borderBottomColor: COLORS.greyish,
@@ -1456,15 +1472,15 @@ const styles = StyleSheet.create({
   },
   updateImage: {
     height: hp(44.7),
-    width: "100%",
+    width: '100%',
     borderRadius: 24,
   },
   scrollContent: {
     paddingBottom: verticalScale(20),
   },
   commentInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     // borderBottomWidth: 1,
     // borderBottomColor: COLORS.greyish,
     paddingVertical: verticalScale(8),
@@ -1480,9 +1496,9 @@ const styles = StyleSheet.create({
     paddingRight: horizontalScale(8),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.commentBar,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   commentInput: {
     fontFamily: FONTS.GabaritoRegular,
@@ -1497,49 +1513,49 @@ const styles = StyleSheet.create({
   },
   commentItem: {
     paddingBottom: verticalScale(16),
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: horizontalScale(12),
   },
   commentMetaRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: horizontalScale(4),
   },
   imageWrapper: {
-    position: "relative",
+    position: 'relative',
     paddingHorizontal: horizontalScale(16),
   },
 
   likeOverlay: {
-    position: "absolute",
-    top: "40%",
-    left: "40%",
-    justifyContent: "center",
-    alignItems: "center",
+    position: 'absolute',
+    top: '40%',
+    left: '40%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loaderContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.white,
   },
   imageLoader: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.greyish,
     zIndex: 10,
     borderRadius: 20,
   },
   mediaWrapper: {
-    width: "100%",
+    width: '100%',
     height: hp(49),
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: COLORS.greyish,
   },
   ShareButton: {
@@ -1547,15 +1563,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalScale(16),
     paddingVertical: horizontalScale(8),
     borderRadius: 30,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: horizontalScale(8),
   },
 
   fullscreenContainer: {
     flex: 1,
     backgroundColor: COLORS.white,
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
@@ -1564,26 +1580,26 @@ const styles = StyleSheet.create({
 
   blurOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    backgroundColor: 'rgba(0,0,0,0.35)',
   },
 
   closeBtn: {
-    position: "absolute",
+    position: 'absolute',
     top: verticalScale(50),
     right: horizontalScale(12),
     zIndex: 10,
   },
 
   shareBtn: {
-    position: "absolute",
-    alignSelf: "center",
+    position: 'absolute',
+    alignSelf: 'center',
     backgroundColor: COLORS.appBackground,
   },
 
   fsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -1592,12 +1608,12 @@ const styles = StyleSheet.create({
 
   fsImageWrapper: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   fsBlurBackground: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
@@ -1605,30 +1621,30 @@ const styles = StyleSheet.create({
   },
 
   fsBlurImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 
   fsCenteredImageContainer: {
     flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   fsImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 
   fsFloatingActions: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 20,
     left: 0,
     right: 0,
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: horizontalScale(16),
     gap: verticalScale(8),
   },
@@ -1638,19 +1654,19 @@ const styles = StyleSheet.create({
   mediaShimmerContainer: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 100,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
 
   mediaShimmer: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
     borderRadius: 20,
   },
   fullscreenOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: COLORS.white,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 9999,
   },
 
@@ -1664,17 +1680,17 @@ const styles = StyleSheet.create({
   },
 
   cardImage: {
-    width: "100%",
+    width: '100%',
     height: hp(35),
     borderRadius: 12,
   },
   bottomContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    justifyContent: "flex-end",
-    backgroundColor: "white",
+    justifyContent: 'flex-end',
+    backgroundColor: 'white',
     zIndex: 10,
   },
 
@@ -1686,14 +1702,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 30,
     padding: verticalScale(6),
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.18,
     shadowRadius: 3,
     elevation: 5,
   },
   bottomFadeWrapper: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     bottom: verticalScale(50),
@@ -1702,7 +1718,7 @@ const styles = StyleSheet.create({
   },
 
   bottomFade: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
 });

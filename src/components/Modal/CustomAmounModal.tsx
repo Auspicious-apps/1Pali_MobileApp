@@ -1,4 +1,4 @@
-import { BlurView } from "@react-native-community/blur";
+import { BlurView } from '@react-native-community/blur';
 import React, {
   Dispatch,
   FC,
@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from "react";
+} from 'react';
 import {
   Animated,
   Easing,
@@ -16,34 +16,34 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ICONS from "../../assets/Icons";
-import COLORS from "../../utils/Colors";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ICONS from '../../assets/Icons';
+import COLORS from '../../utils/Colors';
 import {
   deviceWidth,
   horizontalScale,
   verticalScale,
-} from "../../utils/Metrics";
-import CustomIcon from "../CustomIcon";
-import { CustomText } from "../CustomText";
-import PrimaryButton from "../PrimaryButton";
+} from '../../utils/Metrics';
+import CustomIcon from '../CustomIcon';
+import { CustomText } from '../CustomText';
+import PrimaryButton from '../PrimaryButton';
 
 const keypadButtons = [
   [
-    { value: "1", letters: "" },
-    { value: "2", letters: "ABC" },
-    { value: "3", letters: "DEF" },
+    { value: '1', letters: '' },
+    { value: '2', letters: 'ABC' },
+    { value: '3', letters: 'DEF' },
   ],
   [
-    { value: "4", letters: "GHI" },
-    { value: "5", letters: "JKL" },
-    { value: "6", letters: "MNO" },
+    { value: '4', letters: 'GHI' },
+    { value: '5', letters: 'JKL' },
+    { value: '6', letters: 'MNO' },
   ],
   [
-    { value: "7", letters: "PQRS" },
-    { value: "8", letters: "TUV" },
-    { value: "9", letters: "WXYZ" },
+    { value: '7', letters: 'PQRS' },
+    { value: '8', letters: 'TUV' },
+    { value: '9', letters: 'WXYZ' },
   ],
 ];
 
@@ -81,25 +81,30 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
   const translateY = useRef(new Animated.Value(500)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
-  const [amount, setAmount] = useState(initialAmount ?? "0");
+  const [amount, setAmount] = useState(initialAmount ?? '0');
 
   useEffect(() => {
-    setAmount(initialAmount ?? "0");
+    setAmount(initialAmount ?? '0');
   }, [initialAmount]);
 
-  const handleNumberPress = (num: string) => {
-    setAmount((prev) => {
-      if (!prev || prev === "0") {
-        return num;
-      }
-      return prev + num;
-    });
-  };
+const handleNumberPress = (num: string) => {
+  setAmount((prev) => {
+    // Remove leading zero case
+    const newValue = !prev || prev === '0' ? num : prev + num;
+
+    // ✅ Limit to 6 digits
+    if (newValue.length > 6) {
+      return prev;
+    }
+
+    return newValue;
+  });
+};
 
   const handleDelete = () => {
     setAmount((prev) => {
       if (!prev || prev.length <= 1) {
-        return "0";
+        return '0';
       }
       return prev.slice(0, -1);
     });
@@ -138,7 +143,7 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType='fade'
       statusBarTranslucent
       onRequestClose={closeModal}
     >
@@ -147,18 +152,21 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
         onPress={closeModal}
         style={styles.modalBackdrop}
       >
-        {Platform.OS === "ios" ? (
+        {Platform.OS === 'ios' ? (
           <BlurView
             style={[StyleSheet.absoluteFill]}
-            blurType="dark"
+            blurType='dark'
             blurAmount={2}
-            pointerEvents="none"
+            pointerEvents='none'
           />
         ) : (
           <View style={styles.androidBackdrop} />
         )}
 
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={closeModal}
+        />
 
         <View style={styles.overlay}>
           <Animated.View
@@ -166,10 +174,6 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
               styles.modalContainer,
               {
                 transform: [{ translateY }],
-                paddingBottom: Platform.select({
-                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(0),
-                  android: insets.bottom + verticalScale(24),
-                }),
               },
             ]}
             onStartShouldSetResponder={() => true}
@@ -178,21 +182,28 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoSemiBold"
+                fontFamily='GabaritoSemiBold'
                 fontSize={18}
                 color={COLORS.darkText}
               >
                 Custom Amount
               </CustomText>
 
-              <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
-                <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
+              <TouchableOpacity
+                onPress={closeModal}
+                style={styles.closeIcon}
+              >
+                <CustomIcon
+                  Icon={ICONS.CloseIcon}
+                  height={30}
+                  width={30}
+                />
               </TouchableOpacity>
             </View>
 
             {/* Subtitle */}
             <CustomText
-              fontFamily="GabaritoRegular"
+              fontFamily='GabaritoRegular'
               fontSize={15}
               color={COLORS.appText}
               style={styles.subtitle}
@@ -205,15 +216,15 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
               <CustomText
                 color={COLORS.darkText}
                 fontSize={28}
-                fontFamily="GabaritoSemiBold"
+                fontFamily='GabaritoSemiBold'
               >
-                $ {amount || "0"}
+                $ {amount || '0'}
               </CustomText>
             </View>
 
             {/* Confirm Button */}
             <PrimaryButton
-              title="Confirm amount"
+              title='Confirm amount'
               onPress={handleConfirm}
               disabled={parseFloat(amount) < 1}
               style={{ marginBottom: 0 }}
@@ -224,15 +235,17 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
                 styles.keypad,
                 {
                   paddingBottom: Platform.select({
-                    ios:
-                      insets.bottom > 0 ? verticalScale(10) : verticalScale(10),
+                    ios: verticalScale(15),
                     android: insets.bottom ? insets.bottom : verticalScale(25),
                   }),
                 },
               ]}
             >
               {keypadButtons.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.keypadRow}>
+                <View
+                  key={rowIndex}
+                  style={styles.keypadRow}
+                >
                   {row.map((button) => (
                     <TouchableOpacity
                       key={button.value}
@@ -241,7 +254,7 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
                     >
                       <CustomText
                         fontSize={24}
-                        fontFamily="GabaritoRegular"
+                        fontFamily='GabaritoRegular'
                         color={COLORS.darkText}
                       >
                         {button.value}
@@ -257,12 +270,12 @@ const CustomAmounModal: FC<CustomAmounModalProps> = ({
                 {/* 0 Button */}
                 <TouchableOpacity
                   style={styles.keyButton}
-                  onPress={() => handleNumberPress("0")}
+                  onPress={() => handleNumberPress('0')}
                 >
                   <CustomText
                     fontSize={24}
                     color={COLORS.darkText}
-                    fontFamily="GabaritoRegular"
+                    fontFamily='GabaritoRegular'
                   >
                     0
                   </CustomText>
@@ -296,29 +309,29 @@ const styles = StyleSheet.create({
   },
   androidBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   overlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   modalContainer: {
     backgroundColor: COLORS.white,
-    width: "100%",
+    width: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: verticalScale(16),
-    maxHeight: "80%",
+    maxHeight: '80%',
   },
   header: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: horizontalScale(16),
-    position: "relative",
+    position: 'relative',
   },
   closeIcon: {
-    position: "absolute",
+    position: 'absolute',
     right: horizontalScale(14),
   },
   subtitle: {
@@ -327,18 +340,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalScale(20),
   },
   amountContainer: {
-    backgroundColor: "#F8F8F8",
+    backgroundColor: '#F8F8F8',
     borderRadius: 12,
     marginBottom: verticalScale(24),
   },
   keypad: {
-    backgroundColor: "#D8DADE",
+    backgroundColor: '#D8DADE',
     paddingVertical: verticalScale(5),
     marginTop: verticalScale(20),
   },
   keypadRow: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     marginBottom: verticalScale(8),
   },
   keyButton: {
@@ -346,21 +359,21 @@ const styles = StyleSheet.create({
     height: verticalScale(50),
     backgroundColor: COLORS.white,
     borderRadius: horizontalScale(8),
-    justifyContent: "center",
-    alignItems: "center",
-    boxShadow: "0px 1px 2px 0px #898A8D",
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0px 1px 2px 0px #898A8D',
   },
   transparentKeyButton: {
     width: deviceWidth / 3 - horizontalScale(10),
     height: verticalScale(50),
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     borderRadius: horizontalScale(8),
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   amountDisplay: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: verticalScale(30),
     marginHorizontal: horizontalScale(20),
     gap: horizontalScale(10),

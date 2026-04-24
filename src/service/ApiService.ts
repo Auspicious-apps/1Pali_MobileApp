@@ -1,14 +1,15 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { Alert, Linking } from "react-native";
-import STORAGE_KEYS from "../utils/Constants";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { Alert } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
+import STORAGE_KEYS from '../utils/Constants';
 import {
   getLocalStorageData,
   navigationRef,
   storeLocalStorageData,
-} from "../utils/Helpers";
-import ENDPOINTS from "./ApiEndpoints";
-import { RefreshTokenResponse } from "./ApiResponses/RefreshToken";
+} from '../utils/Helpers';
+import ENDPOINTS from './ApiEndpoints';
+import { RefreshTokenResponse } from './ApiResponses/RefreshToken';
 
 type ApiResponse<T> = {
   data: T;
@@ -19,8 +20,8 @@ type ApiResponse<T> = {
 
 // Create the Axios instance
 const api = axios.create({
-  baseURL: "https://onepali-backend.onrender.com/",
-  // baseURL: "https://hydrometric-untimeous-ayaan.ngrok-free.dev/",
+  baseURL: 'https://onepali-backend.onrender.com/',
+  // baseURL: 'https://hydrometric-untimeous-ayaan.ngrok-free.dev/',
   // timeout: 10000,
 });
 
@@ -29,7 +30,7 @@ const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = await getLocalStorageData(STORAGE_KEYS.refreshToken);
 
   if (!refreshToken) {
-    throw new Error("No refresh token available");
+    throw new Error('No refresh token available');
   }
 
   const response = await axios.post<ApiResponse<RefreshTokenResponse>>(
@@ -50,9 +51,13 @@ const refreshAccessToken = async (): Promise<string> => {
 api.interceptors.request.use(
   async (config) => {
     const token = await getLocalStorageData(STORAGE_KEYS.accessToken);
-
+    const APP_VERSION = DeviceInfo.getVersion();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (APP_VERSION) {
+      // config.headers['X-App-Version'] = '1.5';
+      config.headers['X-App-Version'] = APP_VERSION;
     }
 
     return config;
@@ -66,11 +71,11 @@ api.interceptors.response.use(
   async (error) => {
     // 1. Check if the error is due to request cancellation (Axios specific check)
     if (axios.isCancel(error)) {
-      console.log("Request was aborted by AbortController");
+      console.log('Request was aborted by AbortController');
       // Return a unique, silent rejection for the component to handle
       return Promise.reject({
         success: false,
-        message: "Request Aborted", // Unique message
+        message: 'Request Aborted', // Unique message
         isCancelled: true, // Unique flag for client-side check
       });
     }
@@ -87,23 +92,23 @@ api.interceptors.response.use(
           await AsyncStorage.clear();
           return Promise.reject({
             success: false,
-            message: "Session expired. Please login again.",
+            message: 'Session expired. Please login again.',
             requiresLogin: true,
           });
         }
       }
       if (
         error.response.status === 403 &&
-        error.response.data.message.includes("Your account is blocked.")
+        error.response.data.message.includes('Your account is blocked.')
       ) {
         await AsyncStorage.clear();
         Alert.alert(
-          "Account Blocked",
-          "Please contact support for more information.",
+          'Account Blocked',
+          'Please contact support for more information.',
           [
             {
-              text: "OK",
-              style: "cancel",
+              text: 'OK',
+              style: 'cancel',
             },
           ],
           { cancelable: false },
@@ -112,12 +117,12 @@ api.interceptors.response.use(
         if (
           navigationRef.current
             ?.getRootState()
-            ?.routeNames.includes("MainStack") &&
-          navigationRef.current?.getCurrentRoute()?.name !== "signIn"
+            ?.routeNames.includes('MainStack') &&
+          navigationRef.current?.getCurrentRoute()?.name !== 'signIn'
         ) {
           navigationRef.reset({
             index: 0,
-            routes: [{ name: "OnBoardingStack", params: { screen: "signIn" } }],
+            routes: [{ name: 'OnBoardingStack', params: { screen: 'signIn' } }],
           });
         }
         // navigationRef.reset({
@@ -132,17 +137,17 @@ api.interceptors.response.use(
       }
 
       // Extract API error response
-      console.error("API Error:", error.response);
+      console.error('API Error:', error.response);
       return Promise.reject({
         ...error.response.data,
         status: error.response.status,
       }); // Reject with only response data
     } else {
       // Handle network or unexpected errors (excluding cancellation now)
-      console.error("Network/Unexpected Error:", error.message);
+      console.error('Network/Unexpected Error:', error.message);
       return Promise.reject({
         success: false,
-        message: "Something went wrong",
+        message: 'Something went wrong',
       });
     }
   },
@@ -171,7 +176,7 @@ export const postFormData = <T>(
 ) =>
   api.post<ApiResponse<T>>(endpoint, data, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
       ...customHeaders,
     },
     signal,
@@ -198,7 +203,7 @@ export const putFormData = <T>(
 ) =>
   api.put<ApiResponse<T>>(endpoint, data, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
     signal,
   });

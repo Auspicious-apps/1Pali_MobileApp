@@ -315,7 +315,9 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
       <View style={styles.headerLogo}>
         <TouchableOpacity
           onPress={() => {
-            navigation.goBack();
+            navigation.canGoBack()
+              ? navigation.goBack()
+              : navigation.replace('tabs', { screen: 'home' });
           }}
         >
           <CustomIcon
@@ -324,13 +326,16 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             width={verticalScale(26)}
           />
         </TouchableOpacity>
-        <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+        <Image
+          source={IMAGES.OnePaliLogo}
+          style={styles.logo}
+        />
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.headingContainer}>
         <CustomText
-          fontFamily="GabaritoSemiBold"
+          fontFamily='GabaritoSemiBold'
           fontSize={36}
           color={COLORS.darkText}
         >
@@ -338,7 +343,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
         </CustomText>
 
         <CustomText
-          fontFamily="GabaritoRegular"
+          fontFamily='GabaritoRegular'
           fontSize={18}
           color={COLORS.appText}
           style={styles.subHeading}
@@ -348,24 +353,29 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
       </View>
       {loadingPlans ? (
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
-          <ActivityIndicator color={COLORS.darkText} size={"large"} />
+          <ActivityIndicator
+            color={COLORS.darkText}
+            size={'large'}
+          />
           <CustomText>Loading Plans</CustomText>
         </View>
       ) : (
         <>
           <View style={styles.donationText}>
             <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={responsiveFontSize(72)}
+              fontFamily='GabaritoSemiBold'
+              fontSize={responsiveFontSize(
+                Number(displayAmountLabel) > 9999 ? 68 : Number(displayAmountLabel) > 99999 ? 60 : 72,
+              )}
               color={COLORS.darkText}
               style={styles.amountText}
             >
               {`$${displayAmountLabel}`}
             </CustomText>
             <CustomText
-              fontFamily="GabaritoSemiBold"
+              fontFamily='GabaritoSemiBold'
               fontSize={responsiveFontSize(42)}
               color={COLORS.appText}
               style={styles.perMonthText}
@@ -389,7 +399,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                   ]}
                   activeOpacity={0.9}
                   onPress={() => {
-                    HapticFeedback.trigger("impactLight", hapticOptions);
+                    HapticFeedback.trigger('impactLight', hapticOptions);
                     handlePresetPlanSelect(plan);
                   }}
                 >
@@ -410,20 +420,20 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 styles.toggleItem,
                 {
                   backgroundColor:
-                    selectedPlan.type === "custom"
+                    selectedPlan.type === 'custom'
                       ? COLORS.darkGreen
                       : COLORS.greyish,
                 },
               ]}
               activeOpacity={0.9}
               onPress={() => {
-                HapticFeedback.trigger("impactLight", hapticOptions);
+                HapticFeedback.trigger('impactLight', hapticOptions);
                 setShowCustomAmountModal(true);
               }}
             >
               <CustomIcon
                 Icon={
-                  selectedPlan.type === "custom"
+                  selectedPlan.type === 'custom'
                     ? ICONS.WhitePencil
                     : ICONS.PencilIcon
                 }
@@ -467,7 +477,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
 
           <View style={styles.card}>
             <CustomText
-              fontFamily="GabaritoMedium"
+              fontFamily='GabaritoMedium'
               fontSize={20}
               color={COLORS.darkText}
             >
@@ -481,7 +491,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 width={verticalScale(16)}
               />
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
@@ -496,7 +506,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 width={verticalScale(16)}
               />
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
@@ -511,7 +521,7 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                 width={verticalScale(16)}
               />
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={15}
                 style={{ color: COLORS.appText }}
               >
@@ -532,20 +542,20 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             style={styles.saveButton}
             isLoading={isUpdatingPlan}
           />
-          {subscriptionData?.status === "ACTIVE" && (
+          {subscriptionData?.status === 'ACTIVE' && (
             <TouchableOpacity
               onPress={() => {
                 Alert.alert(
-                  "Cancel Monthly Donation",
-                  "Are you sure you want to cancel your monthly donation?",
+                  'Cancel Monthly Donation',
+                  'Are you sure you want to cancel your monthly donation?',
                   [
                     {
-                      text: "Cancel",
-                      style: "cancel",
+                      text: 'Cancel',
+                      style: 'cancel',
                     },
                     {
-                      text: "Confirm",
-                      style: "destructive",
+                      text: 'Confirm',
+                      style: 'destructive',
                       onPress: async () => {
                         try {
                           const response = await postData(
@@ -557,12 +567,12 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
                             dispatch(fetchMySubscription());
                           }
                         } catch (error) {
-                          console.log("Error cancelling subscription:", error);
+                          console.log('Error cancelling subscription:', error);
                           Toast.show({
-                            type: "error",
-                            text1: "Error",
+                            type: 'error',
+                            text1: 'Error',
                             text2:
-                              "There was an error cancelling your donation. Please try again.",
+                              'There was an error cancelling your donation. Please try again.',
                           });
                         }
                       },
@@ -572,10 +582,10 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
               }}
             >
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily='GabaritoMedium'
                 fontSize={16}
                 color={COLORS.darkRed}
-                style={{ textAlign: "center", marginTop: verticalScale(12) }}
+                style={{ textAlign: 'center', marginTop: verticalScale(12) }}
               >
                 Cancel Monthly Donation
               </CustomText>
@@ -614,8 +624,8 @@ const ManageDonation: FC<ManageDonationScreenProps> = ({ navigation }) => {
             onConfirm={(amount) => {
               setCustomAmount(amount);
               setSelectedPlan({
-                id: "custom",
-                type: "custom",
+                id: 'custom',
+                type: 'custom',
                 amount: parseFloat(amount),
               });
             }}

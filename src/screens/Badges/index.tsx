@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -9,44 +9,44 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import BadgeIcon from "../../components/BadgeIcon";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import FocusResetScrollView from "../../components/FocusResetScrollView";
-import BadgesDetail from "../../components/Modal/BadgesDetail";
-import { setBadgeData } from "../../redux/slices/BadgesSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import BadgeIcon from '../../components/BadgeIcon';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import FocusResetScrollView from '../../components/FocusResetScrollView';
+import BadgesDetail from '../../components/Modal/BadgesDetail';
+import { setBadgeData } from '../../redux/slices/BadgesSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
 import {
   Badge,
   GetAllBadgesResponse,
-} from "../../service/ApiResponses/GetAllBadges";
-import { fetchData } from "../../service/ApiService";
-import { BadgesScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
+} from '../../service/ApiResponses/GetAllBadges';
+import { fetchData } from '../../service/ApiService';
+import { BadgesScreenProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
+import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
 
-type TabType = "Growth" | "Community" | "Impact";
+type TabType = 'Growth' | 'Community' | 'Impact';
 
 const TAB_CATEGORY_MAP: Record<TabType, string> = {
-  Growth: "GROWTH",
-  Community: "COMMUNITY",
-  Impact: "IMPACT",
+  Growth: 'GROWTH',
+  Community: 'COMMUNITY',
+  Impact: 'IMPACT',
 };
 
-const TABS: TabType[] = ["Growth", "Community", "Impact"];
+const TABS: TabType[] = ['Growth', 'Community', 'Impact'];
 
 const getTabFromCategory = (category?: string): TabType => {
-  if (!category) return "Growth";
+  if (!category) return 'Growth';
   const upper = category.toUpperCase();
   const mappedTab = (Object.keys(TAB_CATEGORY_MAP) as TabType[]).find(
     (tab) => TAB_CATEGORY_MAP[tab] === upper,
   );
-  return mappedTab ?? "Growth";
+  return mappedTab ?? 'Growth';
 };
 
 const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
@@ -87,7 +87,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
   };
 
   const latestIdentityBadge = badges.filter(
-    (b) => b.category === "IDENTITY",
+    (b) => b.category === 'IDENTITY',
   )?.[0];
 
   const handleScroll = (e: any) => {
@@ -130,7 +130,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
       const res = await fetchData<GetAllBadgesResponse>(ENDPOINTS.GetAllBadges);
       dispatch(setBadgeData(res?.data?.data?.badges));
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
     } finally {
       setLoading(false);
     }
@@ -145,27 +145,37 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={COLORS.darkText} />
+        <ActivityIndicator
+          size='large'
+          color={COLORS.darkText}
+        />
       </View>
     );
   }
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <SafeAreaView
+        style={styles.safeArea}
+        edges={['top', 'bottom']}
+      >
         <FocusResetScrollView
-          keyboardShouldPersistTaps="always"
+          keyboardShouldPersistTaps='always'
           horizontal={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           contentContainerStyle={{
-            alignItems: "center",
+            alignItems: 'center',
           }}
         >
           <View style={styles.header}>
             <View style={styles.side}>
               <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                onPress={() =>
+                  navigation.canGoBack()
+                    ? navigation.goBack()
+                    : navigation.replace('tabs', { screen: 'home' })
+                }
                 style={{ padding: horizontalScale(8), marginLeft: 10 }}
                 activeOpacity={0.8}
               >
@@ -178,7 +188,10 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
             </View>
 
             <View style={styles.center}>
-              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+              <Image
+                source={IMAGES.OnePaliLogo}
+                style={styles.logo}
+              />
             </View>
 
             <View style={styles.side} />
@@ -186,18 +199,18 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
 
           <View style={{ marginTop: verticalScale(30) }}>
             <CustomText
-              fontFamily="GabaritoSemiBold"
+              fontFamily='GabaritoSemiBold'
               fontSize={42}
               color={COLORS.darkText}
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               Badges
             </CustomText>
             <CustomText
-              fontFamily="GabaritoRegular"
+              fontFamily='GabaritoRegular'
               fontSize={18}
               color={COLORS.appText}
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               {/* Earn badges for your commitment and impact */}
               Your commitment and milestones
@@ -223,18 +236,18 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
             </TouchableOpacity>
             <View style={{ gap: verticalScale(8) }}>
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily='GabaritoMedium'
                 fontSize={20}
                 color={COLORS.darkText}
-                style={{ textAlign: "center" }}
+                style={{ textAlign: 'center' }}
               >
                 {latestIdentityBadge?.name}
               </CustomText>
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={15}
                 color={COLORS.appText}
-                style={{ textAlign: "center" }}
+                style={{ textAlign: 'center' }}
               >
                 {latestIdentityBadge?.milestone}
               </CustomText>
@@ -262,7 +275,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
                   style={styles.tabButton}
                 >
                   <CustomText
-                    fontFamily="GabaritoMedium"
+                    fontFamily='GabaritoMedium'
                     fontSize={16}
                     color={isActive ? COLORS.darkText : COLORS.grey}
                   >
@@ -291,9 +304,9 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
             data={TABS}
             horizontal
             pagingEnabled
-            decelerationRate="fast"
+            decelerationRate='fast'
             snapToInterval={wp(100)}
-            snapToAlignment="center"
+            snapToAlignment='center'
             showsHorizontalScrollIndicator={false}
             scrollEnabled={isTabScrollEnabled}
             keyExtractor={(item) => item}
@@ -317,7 +330,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
               const rowCount = Math.ceil(tabBadges.length / 3);
 
               return (
-                <View style={{ width: wp(100), alignItems: "center" }}>
+                <View style={{ width: wp(100), alignItems: 'center' }}>
                   <FlatList
                     bounces={false}
                     data={tabBadges}
@@ -330,7 +343,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
                       width: wp(90),
                     }}
                     columnWrapperStyle={{
-                      justifyContent: "flex-start",
+                      justifyContent: 'flex-start',
                       marginBottom: verticalScale(20),
                       gap: horizontalScale(20),
                     }}
@@ -343,7 +356,7 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
                           onPressOut={() => setIsTabScrollEnabled(true)}
                           style={{
                             width: wp(26),
-                            alignItems: "center",
+                            alignItems: 'center',
                             gap: verticalScale(8),
                           }}
                           activeOpacity={0.8}
@@ -354,11 +367,11 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
                         >
                           <View
                             style={{
-                              alignItems: "center",
-                              justifyContent: "center",
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               borderRadius: 100,
-                              overflow: "hidden",
-                              position: "relative",
+                              overflow: 'hidden',
+                              position: 'relative',
                             }}
                           >
                             <BadgeIcon
@@ -367,21 +380,21 @@ const Badges: FC<BadgesScreenProps> = ({ navigation, route }) => {
                               style={{
                                 width: verticalScale(94),
                                 height: verticalScale(94),
-                                resizeMode: "contain",
+                                resizeMode: 'contain',
                               }}
                             />
                           </View>
 
-                          <View style={{ alignItems: "center" }}>
+                          <View style={{ alignItems: 'center' }}>
                             <CustomText
-                              fontFamily="GabaritoRegular"
+                              fontFamily='GabaritoRegular'
                               fontSize={15}
                               color={
                                 !isUnlocked
                                   ? COLORS.lightPurple
                                   : COLORS.darkText
                               }
-                              style={{ textAlign: "center" }}
+                              style={{ textAlign: 'center' }}
                             >
                               {badge?.title}
                             </CustomText>
@@ -413,28 +426,28 @@ export default Badges;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   safeArea: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
   logo: {
     width: horizontalScale(54),
     height: verticalScale(54),
-    resizeMode: "contain",
-    alignSelf: "center",
-    marginTop: Platform.OS === "ios" ? verticalScale(0) : verticalScale(10),
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginTop: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(10),
   },
   card: {
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: 'rgba(255, 255, 255, 1)',
     borderRadius: 20,
     padding: horizontalScale(12),
     marginHorizontal: horizontalScale(10),
     marginTop: verticalScale(24),
     width: wp(90),
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 0,
@@ -442,35 +455,35 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 2,
     elevation: 3,
-    alignItems: "center",
+    alignItems: 'center',
     gap: verticalScale(8),
   },
   header: {
-    width: "100%",
-    flexDirection: "row",
+    width: '100%',
+    flexDirection: 'row',
     marginTop: verticalScale(10),
   },
   side: {
     width: horizontalScale(40),
-    alignItems: "flex-start",
+    alignItems: 'flex-start',
   },
   center: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
   loaderContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.white,
   },
   tabContainer: {
-    flexDirection: "row",
-    width: "85%",
+    flexDirection: 'row',
+    width: '85%',
     marginTop: verticalScale(28),
   },
   tabButton: {
-    alignItems: "center",
+    alignItems: 'center',
     flex: 1,
   },
   activeUnderline: {
@@ -480,8 +493,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   underlineWrapper: {
-    width: "85%",
-    alignItems: "flex-start",
+    width: '85%',
+    alignItems: 'flex-start',
     borderBottomWidth: 1,
     borderColor: COLORS.appBackground,
   },

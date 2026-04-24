@@ -169,12 +169,12 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             paddingTop: insets.top,
           },
         ]}
-        edges={["bottom"]}
+        edges={['bottom']}
       >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: 0,
             top: insets.top + 5,
             zIndex: 10,
@@ -191,20 +191,23 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
         {/* SCROLL CONTENT */}
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentInsetAdjustmentBehavior="never"
+          contentInsetAdjustmentBehavior='never'
           automaticallyAdjustContentInsets={false}
         >
           {/* HEADER */}
 
           <View style={styles.header}>
-            <Image source={IMAGES.LogoText} style={styles.logo} />
+            <Image
+              source={IMAGES.LogoText}
+              style={styles.logo}
+            />
           </View>
 
           <CustomText
-            fontFamily="GabaritoSemiBold"
+            fontFamily='GabaritoSemiBold'
             fontSize={32}
             color={COLORS.darkText}
-            style={{ textAlign: "center", marginVertical: verticalScale(24) }}
+            style={{ textAlign: 'center', marginVertical: verticalScale(24) }}
           >
             Privacy Policy
           </CustomText>
@@ -328,13 +331,13 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
           <SubTittle>
             Identifiers and Personal Information Categories.
           </SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following identifiers from users of our non-App
             Services: First and last names, email addresses, phone numbers,
             addresses including state, province, ZIP codes, city and address
             numbers, and IP addresses.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             Information collected from you in this manner is collected for
             purposes of operating and providing our Services. It is also used to
             allow us to provide you with products or services your request from
@@ -348,14 +351,14 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             provide any expected Services.
           </Section>
           <SubTittle>Internet or Similar Network Activity</SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following personal information categories from
             the internet or similar network activity from users of our non-App
             services: Analytics related to your use of our website such as
             traffic data, location data, logs and other communication data, and
             what resources you access and use on the Services.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             This information is collected to assist in using our Services. It is
             also used with our analytics platforms to help improve the Service,
             store information about your preferences, speed up your searches,
@@ -364,40 +367,40 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             for fraud prevention.
           </Section>
           <SubTittle>Communications Directly to OnePali</SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following personal information categories when
             users of our non-App Services communicate directly with us:
             responses to surveys you choose to interact with and records and
             copies of your correspondence if you contact us.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             This information is collected to provide any Services you may
             request, for analytics purposes, to improve your interaction with
             the website and for internal marketing purposes. This information is
             also used to respond to your inquiries and for fraud prevention.
           </Section>
           <SubTittle>Commercial Information</SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following personal information categories
             related to commercial information from users of our non-App
             Services: information regarding purchase histories and purchase
             tendencies regarding our non-App Services.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             This information is collected for analytics purposes, to improve
             your interaction with the website and for internal marketing
             purposes. This information is also used to respond to your inquiries
             and for fraud prevention.
           </Section>
           <SubTittle>Equipment Information</SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following personal information categories
             related to equipment information from users of our non-App Services:
             the type of mobile device you use, the IP address of your device,
             your mobile operating system, the type of mobile Internet browser
             you use, unique device identifiers and other diagnostic data..
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             This information is collected for analytics purposes, to improve
             your interaction with the website and for internal marketing
             purposes. This information is also used to respond to your inquiries
@@ -448,30 +451,30 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             <CustomText
               style={{
                 color: COLORS.textGrey,
-                textDecorationLine: "underline",
+                textDecorationLine: 'underline',
                 fontFamily: FONTS.SourceSansRegular,
                 fontSize: responsiveFontSize(15),
               }}
-              onPress={() => Linking.openURL("https://stripe.com/privacy")}
+              onPress={() => Linking.openURL('https://stripe.com/privacy')}
             >
-              {" "}
-              https://stripe.com/privacy{" "}
+              {' '}
+              https://stripe.com/privacy{' '}
             </CustomText>
-            ,{" "}
+            ,{' '}
             <CustomText
               style={{
                 color: COLORS.textGrey,
-                textDecorationLine: "underline",
+                textDecorationLine: 'underline',
                 fontFamily: FONTS.SourceSansRegular,
                 fontSize: responsiveFontSize(15),
               }}
               onPress={() =>
                 Linking.openURL(
-                  "https://www.apple.com/legal/privacy/data/en/apple-pay/",
+                  'https://www.apple.com/legal/privacy/data/en/apple-pay/',
                 )
               }
             >
-              {" "}
+              {' '}
               https://www.apple.com/legal/privacy/data/en/apple-pay/
             </CustomText>
             .
@@ -494,12 +497,12 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
           <SubTittle>
             Identifiers and Personal Information Categories.
           </SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following identifiers from users of our
             Platforms: First and last names, Google account or Apple ID, email
             addresses, and IP addresses.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             Information collected from you on our Platforms ares collected for
             purposes of operating those Services. It is also used to allow us to
             provide Services, respond to inquiries, to communicate with you (for
@@ -507,27 +510,27 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             internal marketing purposes, and for fraud prevention.
           </Section>
           <SubTittle>Internet or Similar Network Activity</SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following personal information categories from
             the internet or similar network activity from users of our
             Platforms: Analytics related to your use of our App including usage
             data and marketing attribution.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             This information is collected to assist in using our Services. It is
             also used with our analytics platforms to help improve the Service
             and for internal marketing purposes. This information is also used
             to respond to inquiries and for fraud prevention.
           </Section>
           <SubTittle>Equipment Information</SubTittle>
-          <Section title="What We Collect">
+          <Section title='What We Collect'>
             OnePali collects the following personal information categories
             related to equipment information from users of our Platforms: the
             type of mobile device you use, the IP address of your device, your
             mobile operating system, the type of mobile Internet browser you
             use, unique device identifiers and other diagnostic data.
           </Section>
-          <Section title="What We Do With It">
+          <Section title='What We Do With It'>
             This information is collected for analytics purposes, to improve
             your interaction with the app and for internal marketing purposes.
             This information is also used to respond to your inquiries and for
@@ -620,10 +623,7 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             political, your identity in association with your donation may be
             considered sensitive information under some privacy laws.
           </Text>
-          <Title>
-            4. If You Live Outside of the United StatesIf You Live Outside of
-            the United States
-          </Title>
+          <Title>4. If You Live Outside of the United States</Title>
           <Text>
             OnePali's Services are hosted in the United States and are governed
             by United States law. If you are using the Services from outside the
@@ -779,30 +779,30 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             General Data Protection Regulation (GDPR) and its UK counterpart
             (UK-GDPR):
           </Text>
-          <BulletText title="The right to access.">
+          <BulletText title='The right to access.'>
             You have the right to request copies of your Personal Information.
             We may charge you a small fee for this service, although we will
             avoid that if we can.
           </BulletText>
-          <BulletText title="The right to rectification.">
+          <BulletText title='The right to rectification.'>
             You have the right to request that OnePali correct any information
             you believe is inaccurate, and/or to complete information you
             believe is incomplete.
           </BulletText>
-          <BulletText title="The right to erasure.">
+          <BulletText title='The right to erasure.'>
             You have the right to request that OnePali erase your Personal
             Information, unless certain conditions or exemptions apply.
           </BulletText>
-          <BulletText title="The right to restrict processing.">
+          <BulletText title='The right to restrict processing.'>
             You have the right to request that OnePali restrict the processing
             of your Personal Information, unless certain conditions or
             exemptions apply.
           </BulletText>
-          <BulletText title="The right to object to processing.">
+          <BulletText title='The right to object to processing.'>
             You have the right to object to OnePali's processing of your
             Personal Information, unless certain conditions or exemptions apply.
           </BulletText>
-          <BulletText title="The right to data portability.">
+          <BulletText title='The right to data portability.'>
             You have the right to request that OnePali transfer the data that we
             have collected to another organization, or directly to you, unless
             certain conditions or exemptions apply.
@@ -840,15 +840,15 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
           <Title>11. Contact Us</Title>
           <Paragraph>
             To ask questions or comment about this privacy policy and our
-            privacy practices, contact us at{" "}
+            privacy practices, contact us at{' '}
             <CustomText
               style={{
                 color: COLORS.textGrey,
-                textDecorationLine: "underline",
+                textDecorationLine: 'underline',
                 fontFamily: FONTS.SourceSansRegular,
                 fontSize: responsiveFontSize(15),
               }}
-              onPress={() => Linking.openURL("support@onepali.app")}
+              onPress={() => Linking.openURL('support@onepali.app')}
             >
               support@onepali.app
             </CustomText>

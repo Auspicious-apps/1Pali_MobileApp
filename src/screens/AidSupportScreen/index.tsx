@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -8,26 +8,26 @@ import {
   Platform,
   StyleSheet,
   View,
-} from "react-native";
+} from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import IMAGES from "../../assets/Images";
-import { CustomText } from "../../components/CustomText";
-import PrimaryButton from "../../components/PrimaryButton";
-import WebViewBottomSheet from "../../components/WebViewBottomSheet";
-import { logEvent } from "../../Context/analyticsService";
-import { trackOnboardingStepCompleted } from "../../Context/klaviyoClientService";
-import { AidSupportScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
+} from 'react-native-safe-area-context';
+import IMAGES from '../../assets/Images';
+import { CustomText } from '../../components/CustomText';
+import PrimaryButton from '../../components/PrimaryButton';
+import WebViewBottomSheet from '../../components/WebViewBottomSheet';
+import { logEvent } from '../../Context/analyticsService';
+import { trackOnboardingStepCompleted } from '../../Context/klaviyoClientService';
+import { AidSupportScreenProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
 import {
   horizontalScale,
   hp,
   responsiveFontSize,
   verticalScale,
   wp,
-} from "../../utils/Metrics";
+} from '../../utils/Metrics';
 
 type FundCard = {
   id: string;
@@ -36,15 +36,15 @@ type FundCard = {
   height: number;
 };
 
-const CARD_CONFIG: Omit<FundCard, "height">[] = [
-  { id: "1", image: IMAGES.Carousel1, width: wp(78.8) },
-  { id: "2", image: IMAGES.Carousel2, width: wp(83) },
-  { id: "3", image: IMAGES.Carousel3, width: wp(82) },
-  { id: "4", image: IMAGES.Carousel4, width: wp(84.9) },
-  { id: "5", image: IMAGES.Carousel5, width: wp(75.3) },
-  { id: "6", image: IMAGES.Carousel6, width: wp(82.4) },
-  { id: "7", image: IMAGES.Carousel7, width: wp(79.2) },
-  { id: "8", image: IMAGES.Carousel8, width: wp(82) },
+const CARD_CONFIG: Omit<FundCard, 'height'>[] = [
+  { id: '1', image: IMAGES.Carousel1, width: wp(78.8) },
+  { id: '2', image: IMAGES.Carousel2, width: wp(84) },
+  { id: '3', image: IMAGES.Carousel3, width: wp(82) },
+  { id: '4', image: IMAGES.Carousel4, width: wp(84.9) },
+  { id: '5', image: IMAGES.Carousel5, width: wp(78) },
+  { id: '6', image: IMAGES.Carousel6, width: wp(82.4) },
+  { id: '7', image: IMAGES.Carousel7, width: wp(79.2) },
+  { id: '8', image: IMAGES.Carousel8, width: wp(82) },
 ];
 
 const defaultCardHeight = hp(26);
@@ -78,7 +78,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
   useEffect(() => {
     // Track impact stats viewing on mount
     if (!stepTracked) {
-      trackOnboardingStepCompleted(2, "Impact Stats", 2);
+      trackOnboardingStepCompleted(2, 'Impact Stats', 2);
       setStepTracked(true);
     }
   }, [stepTracked]);
@@ -183,18 +183,21 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             }),
             marginBottom: Platform.select({
               ios: insets.bottom ? 0 : verticalScale(15),
-              android: insets.bottom ? 0 : verticalScale(30),
+              android: insets.bottom ? verticalScale(10) : verticalScale(30),
             }),
           },
         ]}
-        edges={["bottom", "top"]}
+        edges={['bottom', 'top']}
       >
         {/* LOGO */}
-        <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+        <Image
+          source={IMAGES.OnePaliLogo}
+          style={styles.appIcon}
+        />
 
         <View
           style={{
-            overflow: "hidden",
+            overflow: 'hidden',
             width: wp(100),
             marginTop: verticalScale(40),
             marginBottom: verticalScale(25),
@@ -203,7 +206,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
           <Animated.View
             {...panResponder.panHandlers}
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               transform: [{ translateX }],
               opacity: fadeAnim,
             }}
@@ -213,8 +216,8 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
                 key={index}
                 style={{
                   width: item.width,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   marginRight: GAP,
                 }}
               >
@@ -224,7 +227,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
                     width: item.width,
                     height: item.height,
                     borderRadius: 20,
-                    resizeMode: "cover",
+                    resizeMode: 'cover',
                   }}
                 />
               </View>
@@ -233,19 +236,19 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
         </View>
         <View style={{ gap: verticalScale(12) }}>
           <CustomText
-            fontFamily="GabaritoSemiBold"
+            fontFamily='GabaritoSemiBold'
             fontSize={42}
             color={COLORS.darkText}
             style={{
-              textAlign: "center",
-              ...(Platform.OS === "ios" && {
+              textAlign: 'center',
+              ...(Platform.OS === 'ios' && {
                 lineHeight: responsiveFontSize(44),
               }),
             }}
           >
-            {`Together, we’ll\nfund`}{" "}
+            {`Together, we’ll\nfund`}{' '}
             <CustomText
-              fontFamily="GabaritoSemiBold"
+              fontFamily='GabaritoSemiBold'
               fontSize={42}
               color={COLORS.darkGreen}
             >
@@ -253,10 +256,10 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             </CustomText>
           </CustomText>
           <CustomText
-            fontFamily="GabaritoRegular"
+            fontFamily='GabaritoRegular'
             fontSize={18}
             color={COLORS.greyText}
-            style={{ textAlign: "center" }}
+            style={{ textAlign: 'center' }}
           >
             Over 80% of Gaza's population relies on humanitarian aid. Half are
             children.
@@ -264,24 +267,24 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
         </View>
 
         {/*  BUTTON */}
-        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <PrimaryButton
-            title="Continue"
+            title='Continue'
             onPress={() => {
-              logEvent("Ob_How_It_Works");
-              navigation.navigate("howItWorks");
+              logEvent('Ob_How_It_Works');
+              navigation.navigate('howItWorks');
             }}
             style={styles.primaryButton}
             hapticFeedback
-            hapticType="impactLight"
+            hapticType='impactLight'
           />
         </View>
 
         {/*  WEBVIEW */}
         <WebViewBottomSheet
           isVisible={isWebViewVisible}
-          title="FAQs"
-          url="https://onepali.app/"
+          title='FAQs'
+          url='https://onepali.app/'
           onClose={() => setIsWebViewVisible(false)}
         />
       </SafeAreaView>
@@ -294,7 +297,7 @@ export default AidSupportScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     backgroundColor: COLORS.appBackground,
   },
   safeArea: {
@@ -303,12 +306,12 @@ const styles = StyleSheet.create({
   appIcon: {
     width: horizontalScale(54),
     height: verticalScale(54),
-    alignSelf: "center",
-    resizeMode: "contain",
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
 
   fundsListContent: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   primaryButton: {
     zIndex: 10,
@@ -316,7 +319,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: verticalScale(50),
     flexGrow: 1,
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
   },
 
   scrollView: {
@@ -324,7 +327,7 @@ const styles = StyleSheet.create({
   },
 
   bottomFadeWrapper: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     bottom: verticalScale(50),
@@ -333,7 +336,7 @@ const styles = StyleSheet.create({
   },
 
   bottomFade: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
 });

@@ -1,4 +1,5 @@
 PODS:
+  - AnyCodable-FlightSchool (0.6.7)
   - AppAuth (2.0.0):
     - AppAuth/Core (= 2.0.0)
     - AppAuth/ExternalUserAgent (= 2.0.0)
@@ -131,6 +132,20 @@ PODS:
   - hermes-engine (0.14.0):
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
+  - klaviyo-react-native-sdk (2.3.1):
+    - KlaviyoForms (= 5.2.2)
+    - KlaviyoLocation (= 5.2.2)
+    - KlaviyoSwift (= 5.2.2)
+    - React-Core
+  - KlaviyoCore (5.2.2):
+    - AnyCodable-FlightSchool
+  - KlaviyoForms (5.2.2):
+    - KlaviyoSwift (~> 5.2.2)
+  - KlaviyoLocation (5.2.2):
+    - KlaviyoSwift (~> 5.2.2)
+  - KlaviyoSwift (5.2.2):
+    - AnyCodable-FlightSchool
+    - KlaviyoCore (~> 5.2.2)
   - libwebp (1.5.0):
     - libwebp/demux (= 1.5.0)
     - libwebp/mux (= 1.5.0)
@@ -3813,6 +3828,7 @@ DEPENDENCIES:
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - klaviyo-react-native-sdk (from `../node_modules/klaviyo-react-native-sdk`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - NitroIap (from `../node_modules/react-native-iap`)
   - NitroModules (from `../node_modules/react-native-nitro-modules`)
@@ -3921,6 +3937,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AnyCodable-FlightSchool
     - AppAuth
     - AppCheckCore
     - Firebase
@@ -3939,6 +3956,10 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - KlaviyoCore
+    - KlaviyoForms
+    - KlaviyoLocation
+    - KlaviyoSwift
     - libwebp
     - lottie-ios
     - nanopb
@@ -3975,6 +3996,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-v0.14.0
+  klaviyo-react-native-sdk:
+    :path: "../node_modules/klaviyo-react-native-sdk"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   NitroIap:
@@ -4183,6 +4206,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  AnyCodable-FlightSchool: 261cbe76757802b17d471b9059b21e6fa5edf57b
   AppAuth: 1c1a8afa7e12f2ec3a294d9882dfa5ab7d3cb063
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
@@ -4209,6 +4233,11 @@ SPEC CHECKSUMS:
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 06318d3042c8a75c84c2d1b790515b4b1b7de63f
+  klaviyo-react-native-sdk: 9205f74cdb3b63bbd79271c60bf75715d78ed958
+  KlaviyoCore: 0104cec11bbc1c5838f9a232ea420d15a43bbdfb
+  KlaviyoForms: 4be515497a79df4876b950eb1de5742dc42754e0
+  KlaviyoLocation: edb041d083080aacdf052bc2f6a3b708ec76a721
+  KlaviyoSwift: 596bf5471ec37eed2773ffc603b3026895b93bb8
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
   lottie-react-native: e542fe4b6e8eddcf893d5a8cef9f8b5c6d2f7331
@@ -4310,7 +4339,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 4db26426b6098e3d87bd26d8c9a9afa3b6674123
   RNGoogleSignin: c1de96d92d6dd4335fa8e0f0ed4312a9d34e4ecb
   RNKeychain: 76d042fc1dfba47f3945920bc82e0bce9ad1ff55
-  RNPermissions: c28bce4dc987ffce444ac818451f5fbbd05c96fc
+  RNPermissions: 40be9603a8907af761c9b11678724c35d8eb0703
   RNReactNativeHapticFeedback: 5f1542065f0b24c9252bd8cf3e83bc9c548182e4
   RNReanimated: 75aa661ad84759b4b08d46b99564e4e03f7e4c00
   RNScreens: e902eba58a27d3ad399a495d578e8aba3ea0f490
@@ -4330,6 +4359,6 @@ SPEC CHECKSUMS:
   StripeUICore: 30f8352fd7a5cf1541b7777a57b3ad1133bf6763
   Yoga: 33b53536a0500d039f2cd78caf1d5d68712d3af7
 
-PODFILE CHECKSUM: 74d2361438a3028a87f7251315e5f82bbd40ab18
+PODFILE CHECKSUM: 6c2c75b2c9ca05d1e0ad6d591af8ee0aa27b45dc
 
 COCOAPODS: 1.15.2

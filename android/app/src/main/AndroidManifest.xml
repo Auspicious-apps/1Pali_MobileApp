@@ -16,6 +16,9 @@
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="remove" />
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
+ <uses-permission 
+    android:name="com.google.android.gms.permission.AD_ID" 
+    tools:node="replace" />
 
   <application
     android:name=".MainApplication"
@@ -37,6 +40,71 @@
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+
+      <!-- Deep links -->
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+          android:scheme="https"
+          android:host="onepali-backend.onrender.com"
+          android:pathPrefix="/subscription/success" />
+        <data
+          android:scheme="https"
+          android:host="onepali-backend.onrender.com"
+          android:pathPrefix="/subscription/cancelled" />
+      </intent-filter>
+
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/home" />
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/donate" />
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/badges" />
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/gallery" />
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/payment" />
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/resubscribe" />
+        <data
+          android:scheme="https"
+          android:host="links.onepali.app"
+          android:pathPrefix="/updates" />
+      </intent-filter>
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="onepali" />
+      </intent-filter>
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="onepalideeplink" />
       </intent-filter>
     </activity>
     <receiver

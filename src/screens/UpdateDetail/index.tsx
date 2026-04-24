@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -13,40 +13,41 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-} from "react-native";
-import FastImage from "react-native-fast-image";
-import RNFS from "react-native-fs";
-import LinearGradient from "react-native-linear-gradient";
+} from 'react-native';
+import FastImage from 'react-native-fast-image';
+import RNFS from 'react-native-fs';
+import LinearGradient from 'react-native-linear-gradient';
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import ShareLib from "react-native-share";
-import uuid from "react-native-uuid";
-import FONTS from "../../assets/fonts";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import FocusResetScrollView from "../../components/FocusResetScrollView";
-import Pulse from "../../components/PulseLoading";
+} from 'react-native-safe-area-context';
+import ShareLib from 'react-native-share';
+import uuid from 'react-native-uuid';
+import FONTS from '../../assets/fonts';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import FocusResetScrollView from '../../components/FocusResetScrollView';
+import Pulse from '../../components/PulseLoading';
 import {
   fetchBlogDetails,
   updateBlogDetail,
-} from "../../redux/slices/DetailsSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { AddCommentToBlogResponse } from "../../service/ApiResponses/AddCommentToBlog";
-import { FetchBlogCommentsResponse } from "../../service/ApiResponses/FetchBlogComments";
+} from '../../redux/slices/DetailsSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
+import { AddCommentToBlogResponse } from '../../service/ApiResponses/AddCommentToBlog';
+import { FetchBlogCommentsResponse } from '../../service/ApiResponses/FetchBlogComments';
 import {
   Comment,
   GetBlogByIdResponse,
-} from "../../service/ApiResponses/GetBlogById";
-import { LikeUnlikeBlogResponse } from "../../service/ApiResponses/LikeUnlikeResponse";
-import { fetchData, postData } from "../../service/ApiService";
-import { UpdateDetailScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
+} from '../../service/ApiResponses/GetBlogById';
+import { LikeUnlikeBlogResponse } from '../../service/ApiResponses/LikeUnlikeResponse';
+import { fetchData, postData } from '../../service/ApiService';
+import { UpdateDetailScreenProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
+import { horizontalScale, hp, verticalScale, wp } from '../../utils/Metrics';
+import { hasNotch } from 'react-native-device-info';
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [inputKey, setInputKey] = useState(0);
@@ -58,7 +59,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
-  const [commentText, setCommentText] = useState("");
+  const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef<TextInput>(null);
   const [sharing, setSharing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -67,10 +68,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [page, setPage] = useState(1);
   const [comments, setComments] = useState<Comment[]>([]);
   const [pendingComments, setPendingComments] = useState<
-    {
-      id: string;
-      content: string;
-    }[]
+    (Comment & { pending: true })[]
   >([]);
   const { user } = useAppSelector((state) => state.user);
   const [sendingComment, setSendingComment] = useState(false);
@@ -80,6 +78,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const likeScale = useRef(new Animated.Value(0)).current;
   const likeRequestInProgress = useRef(false);
   const [isKeyboardVisible, setisKeyboardVisible] = useState(false);
+  const [isTopImageOut, setIsTopImageOut] = useState(false);
   const scrollRef = useRef<any>(null);
   const commentsSectionRef = useRef<View>(null);
   const blockHeartAnim = useRef(false);
@@ -88,25 +87,27 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const heartAnimLock = useRef(false);
   const flatListRef = useRef(null);
   const CARD_WIDTH = wp(85);
+  const HERO_IMAGE_HEIGHT = hp(54.4);
+  const imageVisibilityRef = useRef(false);
 
   const UpdateDetailSkeleton = () => (
     <SafeAreaView style={styles.container}>
       <View style={{ padding: horizontalScale(20), gap: 16 }}>
         <Pulse
           style={{
-            width: "100%",
+            width: '100%',
             height: hp(42.9),
             borderRadius: 12,
           }}
         />
 
-        <Pulse style={{ width: "60%", height: 16, borderRadius: 6 }} />
-        <Pulse style={{ width: "80%", height: 28, borderRadius: 8 }} />
+        <Pulse style={{ width: '60%', height: 16, borderRadius: 6 }} />
+        <Pulse style={{ width: '80%', height: 28, borderRadius: 8 }} />
 
         {[1, 2, 3].map((i) => (
           <Pulse
             key={i}
-            style={{ width: "100%", height: 14, borderRadius: 6 }}
+            style={{ width: '100%', height: 14, borderRadius: 6 }}
           />
         ))}
       </View>
@@ -120,10 +121,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   );
 
   const timeAgo = (date?: string) => {
-    if (!date) return "";
+    if (!date) return '';
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
+    if (mins < 1) return 'just now';
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
@@ -155,7 +156,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         setHasNext(data?.commentsPagination?.hasNext || false);
       }
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +177,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         setPage(pageNumber);
       }
     } catch (error) {
-      console.log("Fetch comments error", error);
+      console.log('Fetch comments error', error);
     } finally {
       setCommentsLoading(false);
     }
@@ -239,7 +240,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         }
         return updated;
       });
-      console.log("Like/Unlike error", error);
+      console.log('Like/Unlike error', error);
     } finally {
       likeRequestInProgress.current = false;
       blockHeartAnim.current = false;
@@ -289,9 +290,26 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const handleSendComment = async () => {
     if (!commentText.trim()) return;
     const tempId = uuid.v4();
-    const newPending = { id: tempId, content: commentText.trim() };
-    setPendingComments((prev) => [newPending, ...prev]);
-    setCommentText("");
+    const optimisticComment: Comment & { pending: true } = {
+      id: String(tempId),
+      userId: user?.id || '',
+      blogId: blogId,
+      parentCommentId: null,
+      content: commentText.trim(),
+      isDeleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: {
+        id: user?.id || '',
+        name: user?.name,
+        email: user?.email || '',
+        profilePicture: user?.profilePicture || null,
+        assignedNumber: user?.assignedNumber || 0,
+      },
+      pending: true,
+    };
+    setPendingComments((prev) => [optimisticComment, ...prev]);
+    setCommentText('');
     setInputKey((k) => k + 1); // force TextInput remount
     commentInputRef.current?.blur();
     // Optimistically update comment count
@@ -301,7 +319,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     try {
       const response = await postData<AddCommentToBlogResponse>(
         `${ENDPOINTS.AddCommentToBlog}/${blogId}/comments`,
-        { content: newPending.content },
+        { content: optimisticComment.content },
       );
       if (response?.data?.data?.comments?.length) {
         const newCommentsRaw = response?.data?.data?.comments;
@@ -330,10 +348,10 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         setPage(1); // Reset to first page after new comment
       }
       // Remove pending comment on success
-      setPendingComments((prev) => prev.filter((c) => c.id !== tempId));
+      setPendingComments((prev) => prev.filter((c) => c.id !== String(tempId)));
     } catch (error) {
       // Remove pending comment on failure
-      setPendingComments((prev) => prev.filter((c) => c.id !== tempId));
+      setPendingComments((prev) => prev.filter((c) => c.id !== String(tempId)));
       // Rollback optimistic comment count
       setBlogDetail((prev) =>
         prev
@@ -343,7 +361,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             }
           : prev,
       );
-      console.log("Add comment error", error);
+      console.log('Add comment error', error);
     }
   };
 
@@ -394,7 +412,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
       }).promise;
 
       if (downloadResult.statusCode !== 200) {
-        throw new Error("Download failed");
+        throw new Error('Download failed');
       }
 
       // 3. Share directly to app
@@ -429,18 +447,18 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     // iOS: Smooth animations
-    if (Platform.OS === "ios") {
-      Keyboard.addListener("keyboardWillShow", () =>
+    if (Platform.OS === 'ios') {
+      Keyboard.addListener('keyboardWillShow', () =>
         setisKeyboardVisible(true),
       );
-      Keyboard.addListener("keyboardWillHide", () =>
+      Keyboard.addListener('keyboardWillHide', () =>
         setisKeyboardVisible(false),
       );
     }
     // Android: Immediate response
     else {
-      Keyboard.addListener("keyboardDidShow", () => setisKeyboardVisible(true));
-      Keyboard.addListener("keyboardDidHide", () =>
+      Keyboard.addListener('keyboardDidShow', () => setisKeyboardVisible(true));
+      Keyboard.addListener('keyboardDidHide', () =>
         setisKeyboardVisible(false),
       );
     }
@@ -452,24 +470,24 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   const renderCommentItem = ({ item }: { item: any }) => {
     // If it's a pending comment, show with low opacity
-    const isPending = !item.user || !item.user.assignedNumber;
+    const isPending = Boolean(item.pending);
     return (
       <Animated.View
         style={[styles.commentItem, isPending && { opacity: 0.5 }]}
       >
-        <View style={{ width: "100%", gap: verticalScale(2) }}>
+        <View style={{ width: '100%', gap: verticalScale(2) }}>
           <CustomText
-            fontFamily="GabaritoMedium"
+            fontFamily='GabaritoMedium'
             fontSize={15}
             color={COLORS.darkText}
           >
             #
             {item?.user?.assignedNumber
               ? item?.user?.assignedNumber
-              : "onepali supporter"}
+              : 'onepali supporter'}
           </CustomText>
           <CustomText
-            fontFamily="SourceSansRegular"
+            fontFamily='SourceSansRegular'
             fontSize={14}
             color={COLORS.darkText}
           >
@@ -477,15 +495,11 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
           </CustomText>
           <View style={styles.commentMetaRow}>
             <CustomText
-              fontFamily="SourceSansRegular"
+              fontFamily='SourceSansRegular'
               fontSize={12}
               color={COLORS.appText}
             >
-              {item.createdAt
-                ? timeAgo(item.createdAt)
-                : isPending
-                ? "Sending..."
-                : ""}
+              {isPending ? 'Sending...' : timeAgo(item.createdAt)}
             </CustomText>
           </View>
         </View>
@@ -493,414 +507,450 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
     );
   };
 
+  const handleMainScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = event.nativeEvent.contentOffset.y;
+    const shouldAddTopSafeArea = y >= HERO_IMAGE_HEIGHT  +20;
+
+    if (imageVisibilityRef.current !== shouldAddTopSafeArea) {
+      imageVisibilityRef.current = shouldAddTopSafeArea;
+      setIsTopImageOut(shouldAddTopSafeArea);
+    }
+  };
+
   return (
     <View
       style={[
         styles.container,
-        {
-          paddingBottom: Platform.select({
-            android: insets.bottom,
-            ios: verticalScale(15),
-          }),
-        },
+        // {
+        //   paddingBottom: Platform.select({
+        //     android: insets.bottom,
+        //     ios: verticalScale(15),
+        //   }),
+        // },
       ]}
     >
-      <TouchableOpacity
-        activeOpacity={0.8}
-        style={{
-          position: "absolute",
-          top:
-            Platform.OS === "android"
-              ? verticalScale(20) + insets.top
-              : verticalScale(60),
-          left: horizontalScale(20),
-          zIndex: 10,
-          borderRadius: 100,
-          height: verticalScale(32),
-          width: verticalScale(32),
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: 0.7,
-        }}
-        onPress={() => navigation.goBack()}
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            paddingBottom: Platform.select({
+              android: insets.bottom,
+              ios: verticalScale(15),
+            }),
+          
+          },
+        ]}
+        edges={[]}
       >
-        <CustomIcon Icon={ICONS.WhiteBack} height={32} width={32} />
-      </TouchableOpacity>
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={
-          Platform.OS === "ios"
-            ? "height"
-            : Number(Platform.Version) > 33
-            ? "height"
-            : "padding"
-        }
-        keyboardVerticalOffset={
-          isKeyboardVisible
-            ? 0
-            : Platform.select({
-                android: Number(Platform.Version) > 33 ? verticalScale(-30) : 0,
-                ios: 0,
-              })
-        }
-      >
-        <FocusResetScrollView
-          ref={scrollRef}
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="never"
-          scrollEventThrottle={16}
-          contentContainerStyle={{
-            paddingBottom: verticalScale(100),
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={{
+            position: 'absolute',
+            top:
+              Platform.OS === 'android'
+                ? verticalScale(20) + insets.top
+                : verticalScale(60),
+            left: horizontalScale(20),
+            zIndex: 10,
+            borderRadius: 100,
+            height: verticalScale(32),
+            width: verticalScale(32),
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.7,
           }}
+          onPress={() => navigation.goBack()}
         >
-          {/* IMAGE */}
-          <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
-            <View>
-              {imageLoading && <MediaSkeleton />}
-              <FastImage
-                source={{ uri: blogDetail?.coverPhotoUrl }}
-                style={styles.updateImage}
-                onLoadStart={() => setImageLoading(true)}
-                onLoadEnd={() => setImageLoading(false)}
-              />
-              {/* Like animation overlay */}
-              <Animated.View
-                style={[
-                  styles.likeOverlay,
-                  {
-                    transform: [{ scale: likeScale }],
-                    opacity: likeScale,
-                  },
-                ]}
-              >
+          <CustomIcon
+            Icon={ICONS.WhiteBack}
+            height={32}
+            width={32}
+          />
+        </TouchableOpacity>
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={
+            Platform.OS === 'ios'
+              ? 'height'
+              : Number(Platform.Version) > 33
+              ? 'height'
+              : 'padding'
+          }
+          keyboardVerticalOffset={
+            isKeyboardVisible
+              ? 0
+              : Platform.select({
+                  android:
+                    Number(Platform.Version) > 33 ? verticalScale(-30) : 0,
+                  ios: 0,
+                })
+          }
+        >
+          <FocusResetScrollView
+            ref={scrollRef}
+            bounces={false}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps='never'
+            onScroll={handleMainScroll}
+            scrollEventThrottle={16}
+            contentContainerStyle={{
+              paddingBottom: verticalScale(100),
+            }}
+          >
+            {/* IMAGE */}
+            <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+              <View>
+                {imageLoading && <MediaSkeleton />}
                 <FastImage
-                  source={IMAGES.ImageLike}
-                  style={{
-                    width: horizontalScale(99),
-                    height: verticalScale(87),
-                  }}
-                  resizeMode="contain"
+                  source={{ uri: blogDetail?.coverPhotoUrl }}
+                  style={styles.updateImage}
+                  onLoadStart={() => setImageLoading(true)}
+                  onLoadEnd={() => setImageLoading(false)}
                 />
-              </Animated.View>
-
-              {/* Bottom overlay stats  */}
-              <View style={styles.bottomOverlay}>
-                <TouchableOpacity
-                  style={styles.statPill}
-                  onPress={handleLikeUnlike}
-                  activeOpacity={0.7}
+                {/* Like animation overlay */}
+                <Animated.View
+                  style={[
+                    styles.likeOverlay,
+                    {
+                      transform: [{ scale: likeScale }],
+                      opacity: likeScale,
+                    },
+                  ]}
                 >
-                  <CustomIcon
-                    Icon={isLiked ? ICONS.LikedIcon : ICONS.OnimageLike}
-                    height={20}
-                    width={20}
+                  <FastImage
+                    source={IMAGES.ImageLike}
+                    style={{
+                      width: horizontalScale(99),
+                      height: verticalScale(87),
+                    }}
+                    resizeMode='contain'
                   />
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appBackground}
-                    style={{ marginLeft: 6 }}
-                  >
-                    {blogDetail?.likesCount ?? 24}
-                  </CustomText>
-                </TouchableOpacity>
+                </Animated.View>
 
-                <TouchableOpacity
-                  style={styles.statPill}
-                  onPress={handleCommentIconPress}
-                  activeOpacity={0.7}
-                >
-                  <CustomIcon Icon={ICONS.OnimageChat} height={20} width={20} />
-                  <CustomText
-                    fontFamily="GabaritoMedium"
-                    fontSize={16}
-                    color={COLORS.appBackground}
-                    style={{ marginLeft: 6 }}
+                {/* Bottom overlay stats  */}
+                <View style={styles.bottomOverlay}>
+                  <TouchableOpacity
+                    style={styles.statPill}
+                    onPress={handleLikeUnlike}
+                    activeOpacity={0.7}
                   >
-                    {blogDetail?.commentsCount ?? 6}
-                  </CustomText>
-                </TouchableOpacity>
+                    <CustomIcon
+                      Icon={isLiked ? ICONS.LikedIcon : ICONS.OnimageLike}
+                      height={20}
+                      width={20}
+                    />
+                    <CustomText
+                      fontFamily='GabaritoMedium'
+                      fontSize={16}
+                      color={COLORS.appBackground}
+                      style={{ marginLeft: 6 }}
+                    >
+                      {blogDetail?.likesCount ?? 24}
+                    </CustomText>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.statPill}
+                    onPress={handleCommentIconPress}
+                    activeOpacity={0.7}
+                  >
+                    <CustomIcon
+                      Icon={ICONS.OnimageChat}
+                      height={20}
+                      width={20}
+                    />
+                    <CustomText
+                      fontFamily='GabaritoMedium'
+                      fontSize={16}
+                      color={COLORS.appBackground}
+                      style={{ marginLeft: 6 }}
+                    >
+                      {blogDetail?.commentsCount ?? 6}
+                    </CustomText>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
 
-          {/* HEADER */}
-          <View
-            style={{
-              marginTop: verticalScale(27),
-              paddingHorizontal: horizontalScale(20),
-              gap: verticalScale(8),
-            }}
-          >
-            <CustomText
-              fontFamily="SourceSansRegular"
-              fontSize={14}
-              color={COLORS.appText}
+            {/* HEADER */}
+            <View
+              style={{
+                marginTop: verticalScale(27),
+                paddingHorizontal: horizontalScale(20),
+                gap: verticalScale(8),
+              }}
             >
-              {blogDetail?.publishMonthYear}
-            </CustomText>
-
-            <CustomText
-              fontFamily="GabaritoSemiBold"
-              fontSize={32}
-              color={COLORS.darkText}
-            >
-              {blogDetail?.title}
-            </CustomText>
-          </View>
-
-          {/* CONTENT */}
-          <View
-            style={{
-              marginTop: verticalScale(16),
-              gap: verticalScale(12),
-            }}
-          >
-            <View style={{ paddingHorizontal: horizontalScale(20) }}>
               <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={16}
+                fontFamily='SourceSansRegular'
+                fontSize={14}
+                color={COLORS.appText}
+              >
+                {blogDetail?.publishMonthYear}
+              </CustomText>
+
+              <CustomText
+                fontFamily='GabaritoSemiBold'
+                fontSize={32}
                 color={COLORS.darkText}
               >
-                {blogDetail?.content}
+                {blogDetail?.title}
               </CustomText>
             </View>
 
-            <View style={{ width: "100%", alignItems: "center" }}>
-              <FlatList
-                ref={flatListRef}
-                data={blogDetail?.photos || []}
-                keyExtractor={(item, index) => item + index}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.fundsListContent}
-                snapToInterval={CARD_WIDTH + horizontalScale(12)}
-                snapToAlignment="start"
-                decelerationRate="fast"
-                disableIntervalMomentum
-                scrollEventThrottle={16}
-                onScroll={(event) => {
-                  const index = Math.round(
-                    event.nativeEvent.contentOffset.x /
-                      (CARD_WIDTH + horizontalScale(12)),
-                  );
-
-                  if (index !== activeIndex) {
-                    setActiveIndex(index);
-                  }
-                }}
-                renderItem={({ item, index }) => (
-                  <View style={{ width: CARD_WIDTH, alignItems: "center" }}>
-                    <FastImage
-                      source={{ uri: item }}
-                      style={[styles.image, { width: CARD_WIDTH }]}
-                    />
-                  </View>
-                )}
-                onMomentumScrollEnd={(
-                  event: NativeSyntheticEvent<NativeScrollEvent>,
-                ) => {
-                  const index = Math.round(
-                    event.nativeEvent.contentOffset.x /
-                      (CARD_WIDTH + horizontalScale(12)),
-                  );
-                  setActiveIndex(index);
-                }}
-              />
-
-              {/* DOTS */}
-              <View style={styles.dots}>
-                {blogDetail?.photos?.map((_, i) => (
-                  <View
-                    key={i}
-                    style={[styles.dot, activeIndex === i && styles.activeDot]}
-                  />
-                ))}
+            {/* CONTENT */}
+            <View
+              style={{
+                marginTop: verticalScale(16),
+                gap: verticalScale(12),
+              }}
+            >
+              <View style={{ paddingHorizontal: horizontalScale(20) }}>
+                <CustomText
+                  fontFamily='SourceSansRegular'
+                  fontSize={16}
+                  color={COLORS.darkText}
+                >
+                  {blogDetail?.content}
+                </CustomText>
               </View>
-            </View>
 
-            <View style={{ paddingHorizontal: horizontalScale(20) }}>
-              {/* ACTIONS */}
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderBottomWidth: 1,
-                  borderBottomColor: COLORS.greyish,
-                  paddingVertical: verticalScale(12),
-                  justifyContent: "space-between",
-                }}
-              >
+              <View style={{ width: '100%', alignItems: 'center' }}>
+                <FlatList
+                  ref={flatListRef}
+                  data={blogDetail?.photos || []}
+                  keyExtractor={(item, index) => item + index}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.fundsListContent}
+                  snapToInterval={CARD_WIDTH + horizontalScale(12)}
+                  snapToAlignment='start'
+                  decelerationRate='fast'
+                  disableIntervalMomentum
+                  scrollEventThrottle={16}
+                  onScroll={(event) => {
+                    const index = Math.round(
+                      event.nativeEvent.contentOffset.x /
+                        (CARD_WIDTH + horizontalScale(12)),
+                    );
+
+                    if (index !== activeIndex) {
+                      setActiveIndex(index);
+                    }
+                  }}
+                  renderItem={({ item, index }) => (
+                    <View style={{ width: CARD_WIDTH, alignItems: 'center' }}>
+                      <FastImage
+                        source={{ uri: item }}
+                        style={[styles.image, { width: CARD_WIDTH }]}
+                      />
+                    </View>
+                  )}
+                  onMomentumScrollEnd={(
+                    event: NativeSyntheticEvent<NativeScrollEvent>,
+                  ) => {
+                    const index = Math.round(
+                      event.nativeEvent.contentOffset.x /
+                        (CARD_WIDTH + horizontalScale(12)),
+                    );
+                    setActiveIndex(index);
+                  }}
+                />
+
+                {/* DOTS */}
+                <View style={styles.dots}>
+                  {blogDetail?.photos?.map((_, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.dot,
+                        activeIndex === i && styles.activeDot,
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              <View style={{ paddingHorizontal: horizontalScale(20) }}>
+                {/* ACTIONS */}
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: horizontalScale(12),
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: COLORS.greyish,
+                    paddingVertical: verticalScale(12),
+                    justifyContent: 'space-between',
                   }}
                 >
                   <View
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: horizontalScale(4),
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: horizontalScale(12),
                     }}
                   >
-                    <TouchableOpacity onPress={handleLikeUnlike}>
-                      <CustomIcon
-                        Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                        height={24}
-                        width={24}
-                      />
-                    </TouchableOpacity>
-
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.appText}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: horizontalScale(4),
+                      }}
                     >
-                      {blogDetail?.likesCount}
-                    </CustomText>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: horizontalScale(4),
-                    }}
-                  >
-                    <TouchableOpacity onPress={handleCommentIconPress}>
-                      <CustomIcon
-                        Icon={ICONS.chatIcon}
-                        height={24}
-                        width={24}
-                      />
-                    </TouchableOpacity>
+                      <TouchableOpacity onPress={handleLikeUnlike}>
+                        <CustomIcon
+                          Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
+                          height={24}
+                          width={24}
+                        />
+                      </TouchableOpacity>
 
-                    <CustomText
-                      fontFamily="GabaritoMedium"
-                      fontSize={16}
-                      color={COLORS.appText}
-                    >
-                      {blogDetail?.commentsCount}
-                    </CustomText>
-                  </View>
-                </View>
-              </View>
-
-              <View ref={commentsSectionRef}>
-                {/* COMMENTS */}
-                <FlatList
-                  data={[
-                    ...pendingComments.map((c) => ({ ...c, pending: true })),
-                    ...comments,
-                  ]}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderCommentItem}
-                  scrollEnabled={false}
-                  contentContainerStyle={styles.commentsList}
-                  ListEmptyComponent={
-                    !commentsLoading ? (
                       <CustomText
-                        fontFamily="SourceSansMedium"
+                        fontFamily='GabaritoMedium'
                         fontSize={16}
                         color={COLORS.appText}
-                        style={{ textAlign: "center", marginVertical: 12 }}
                       >
-                        No comments yet
+                        {blogDetail?.likesCount}
                       </CustomText>
-                    ) : null
-                  }
-                />
-              </View>
-              {hasNext && (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => fetchBlogComments(page + 1)}
-                  disabled={commentsLoading}
-                >
-                  {commentsLoading ? (
-                    <ActivityIndicator color={COLORS.darkText} />
-                  ) : (
-                    <CustomText
-                      fontFamily="SourceSansRegular"
-                      fontSize={16}
-                      color={COLORS.darkGreen}
-                      style={{ textAlign: "center" }}
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: horizontalScale(4),
+                      }}
                     >
-                      Load more comments
-                    </CustomText>
-                  )}
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </FocusResetScrollView>
-        <View
-          pointerEvents="none"
-          style={[
-            styles.bottomFadeWrapper,
-            {
-              bottom: user?.canComment ? verticalScale(50) : verticalScale(0),
-            },
-          ]}
-        >
-          <LinearGradient
-            colors={[
-              "rgba(255,255,255,0)",
-              "rgba(255, 255, 255, 0.1)",
-              "rgba(255,255,255,0.6)",
-              "rgba(255,255,255,1)",
-            ]}
-            locations={[0, 0.35, 0.75, 1]}
-            style={styles.bottomFade}
-          />
-        </View>
-        {user?.canComment && (
-          <View
-            style={styles.bottomContainer}
-            onLayout={(e) => {
-              const h = e.nativeEvent.layout.height;
-            }}
-          >
-            <View style={styles.commentInputRow}>
-              <CustomIcon
-                Icon={ICONS.changedUser}
-                height={verticalScale(40)}
-                width={horizontalScale(40)}
-              />
-              <View style={styles.commentInputWrapper}>
-                <TextInput
-                  key={inputKey}
-                  ref={commentInputRef}
-                  value={commentText}
-                  onChangeText={setCommentText}
-                  placeholder="Add a comment..."
-                  placeholderTextColor={COLORS.appText}
-                  multiline
-                  textAlignVertical="top"
-                  style={styles.commentInput}
-                />
+                      <TouchableOpacity onPress={handleCommentIconPress}>
+                        <CustomIcon
+                          Icon={ICONS.chatIcon}
+                          height={24}
+                          width={24}
+                        />
+                      </TouchableOpacity>
 
-                {commentText.trim().length > 0 && (
+                      <CustomText
+                        fontFamily='GabaritoMedium'
+                        fontSize={16}
+                        color={COLORS.appText}
+                      >
+                        {blogDetail?.commentsCount}
+                      </CustomText>
+                    </View>
+                  </View>
+                </View>
+
+                <View ref={commentsSectionRef}>
+                  {/* COMMENTS */}
+                  <FlatList
+                    data={[
+                      ...pendingComments,
+                      ...comments,
+                    ]}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderCommentItem}
+                    scrollEnabled={false}
+                    contentContainerStyle={styles.commentsList}
+                    ListEmptyComponent={
+                      !commentsLoading ? (
+                        <CustomText
+                          fontFamily='SourceSansMedium'
+                          fontSize={16}
+                          color={COLORS.appText}
+                          style={{ textAlign: 'center', marginVertical: 12 }}
+                        >
+                          No comments yet
+                        </CustomText>
+                      ) : null
+                    }
+                  />
+                </View>
+                {hasNext && (
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    onPress={handleSendComment}
-                    disabled={sendingComment}
+                    onPress={() => fetchBlogComments(page + 1)}
+                    disabled={commentsLoading}
                   >
-                    <CustomIcon
-                      Icon={ICONS.DarkSendIcon}
-                      height={24}
-                      width={24}
-                    />
+                    {commentsLoading ? (
+                      <ActivityIndicator color={COLORS.darkText} />
+                    ) : (
+                      <CustomText
+                        fontFamily='SourceSansRegular'
+                        fontSize={16}
+                        color={COLORS.darkGreen}
+                        style={{ textAlign: 'center' }}
+                      >
+                        Load more comments
+                      </CustomText>
+                    )}
                   </TouchableOpacity>
                 )}
               </View>
             </View>
+          </FocusResetScrollView>
+          <View
+            pointerEvents='none'
+            style={[
+              styles.bottomFadeWrapper,
+              {
+                bottom: user?.canComment ? verticalScale(50) : verticalScale(0),
+              },
+            ]}
+          >
+            <LinearGradient
+              colors={[
+                'rgba(255,255,255,0)',
+                'rgba(255, 255, 255, 0.1)',
+                'rgba(255,255,255,0.6)',
+                'rgba(255,255,255,1)',
+              ]}
+              locations={[0, 0.35, 0.75, 1]}
+              style={styles.bottomFade}
+            />
           </View>
-        )}
-      </KeyboardAvoidingView>
-      {/* </SafeAreaView> */}
+          {user?.canComment && (
+            <View
+              style={styles.bottomContainer}
+              onLayout={(e) => {
+                const h = e.nativeEvent.layout.height;
+              }}
+            >
+              <View style={styles.commentInputRow}>
+                <CustomIcon
+                  Icon={ICONS.changedUser}
+                  height={verticalScale(40)}
+                  width={horizontalScale(40)}
+                />
+                <View style={styles.commentInputWrapper}>
+                  <TextInput
+                    key={inputKey}
+                    ref={commentInputRef}
+                    value={commentText}
+                    onChangeText={setCommentText}
+                    placeholder='Add a comment...'
+                    placeholderTextColor={COLORS.appText}
+                    multiline
+                    textAlignVertical='top'
+                    style={styles.commentInput}
+                  />
+
+                  {commentText.trim().length > 0 && (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={handleSendComment}
+                      disabled={sendingComment}
+                    >
+                      <CustomIcon
+                        Icon={ICONS.DarkSendIcon}
+                        height={24}
+                        width={24}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -921,13 +971,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   updateImage: {
-    width: "100%",
+    width: '100%',
     height: hp(54.4),
   },
   scrollContent: {},
   commentInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     // borderBottomWidth: 1,
     // borderBottomColor: COLORS.greyish,
     paddingVertical: verticalScale(8),
@@ -943,9 +993,9 @@ const styles = StyleSheet.create({
     paddingRight: horizontalScale(8),
     paddingVertical: verticalScale(8),
     backgroundColor: COLORS.commentBar,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   commentInput: {
     fontFamily: FONTS.GabaritoRegular,
@@ -960,42 +1010,42 @@ const styles = StyleSheet.create({
   },
   commentItem: {
     paddingVertical: verticalScale(12),
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: horizontalScale(12),
   },
   commentMetaRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: horizontalScale(4),
   },
   loaderContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.white,
   },
   card: {
     width: wp(86),
     height: hp(44),
     borderRadius: 20,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   slideTextCont: {
     gap: verticalScale(10),
-    alignItems: "center",
+    alignItems: 'center',
   },
   image: {
     height: hp(44),
     borderRadius: 20,
   },
   dots: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: verticalScale(10),
   },
   dotContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: verticalScale(12),
   },
   dot: {
@@ -1012,63 +1062,63 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   sliderLoader: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.greyish,
     zIndex: 1,
     borderRadius: 20,
   },
   likeOverlay: {
-    position: "absolute",
-    top: "30%",
-    left: "40%",
-    justifyContent: "center",
-    alignItems: "center",
+    position: 'absolute',
+    top: '30%',
+    left: '40%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   ShareButton: {
     backgroundColor: COLORS.darkText,
     paddingHorizontal: horizontalScale(12),
     paddingVertical: horizontalScale(8),
     borderRadius: 30,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: horizontalScale(3),
   },
   mediaShimmerContainer: {
     ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
+    overflow: 'hidden',
     zIndex: 5,
   },
   mediaShimmer: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   bottomOverlay: {
-    position: "absolute",
+    position: 'absolute',
     bottom: verticalScale(9),
     right: horizontalScale(11),
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: horizontalScale(6),
   },
 
   statPill: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: horizontalScale(12),
     paddingVertical: verticalScale(6),
     borderRadius: 30,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: 'rgba(0,0,0,0.45)',
   },
   bottomContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     backgroundColor: COLORS.white,
     zIndex: 10,
   },
@@ -1077,7 +1127,7 @@ const styles = StyleSheet.create({
     height: verticalScale(40),
   },
   bottomFadeWrapper: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     bottom: verticalScale(50),
@@ -1086,8 +1136,8 @@ const styles = StyleSheet.create({
   },
 
   bottomFade: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   fundsListContent: {
     gap: horizontalScale(12),

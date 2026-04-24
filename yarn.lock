@@ -3830,6 +3830,7 @@ __metadata:
     i18next: ^25.7.3
     jest: ^29.6.3
     js-sha256: ^0.11.1
+    klaviyo-react-native-sdk: ^2.3.1
     lottie-react-native: ^7.3.6
     prettier: 2.8.8
     react: 19.2.0
@@ -7719,6 +7720,16 @@ __metadata:
   dependencies:
     json-buffer: 3.0.1
   checksum: 74a24395b1c34bd44ad5cb2b49140d087553e170625240b86755a6604cd65aa16efdbdeae5cdb17ba1284a0fbb25ad06263755dbc71b8d8b06f74232ce3cdd72
+  languageName: node
+  linkType: hard
+
+"klaviyo-react-native-sdk@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "klaviyo-react-native-sdk@npm:2.3.1"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 4f90e37f4f62c3e9f37d620cf248467afd97ac8321f5c6539dcc82e4f8a1335fb9afccafce8226dcdcaccb071e932bbd0803ede346d5d4286047788afcca4404
   languageName: node
   linkType: hard
 

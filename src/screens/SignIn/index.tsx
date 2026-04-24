@@ -1,34 +1,37 @@
-import appleAuth from "@invertase/react-native-apple-authentication";
+import appleAuth from '@invertase/react-native-apple-authentication';
 import {
   GoogleSignin,
   statusCodes,
-} from "@react-native-google-signin/google-signin";
-import React, { FC, useState } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import FONTS from "../../assets/fonts";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import PrimaryButton from "../../components/PrimaryButton";
+} from '@react-native-google-signin/google-signin';
+import React, { FC, useState } from 'react';
+import { Alert, Image, Platform, TouchableOpacity, View } from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import FONTS from '../../assets/fonts';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import PrimaryButton from '../../components/PrimaryButton';
 import {
   setBadges,
   setClaimedNumber,
   setUserData,
-} from "../../redux/slices/UserSlice";
-import { useAppDispatch } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { AppleSigninResponse } from "../../service/ApiResponses/AppleSignin";
-import { GoogleSigninResponse } from "../../service/ApiResponses/GoogleSignin";
-import { postData } from "../../service/ApiService";
-import { SignInProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
-import STORAGE_KEYS from "../../utils/Constants";
-import { storeLocalStorageData } from "../../utils/Helpers";
-import { hp, verticalScale, wp } from "../../utils/Metrics";
-import styles from "./styles";
+} from '../../redux/slices/UserSlice';
+import { useAppDispatch } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
+import { AppleSigninResponse } from '../../service/ApiResponses/AppleSignin';
+import { GoogleSigninResponse } from '../../service/ApiResponses/GoogleSignin';
+import { postData } from '../../service/ApiService';
+import { SignInProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
+import STORAGE_KEYS from '../../utils/Constants';
+import { storeLocalStorageData } from '../../utils/Helpers';
+import { hp, verticalScale, wp } from '../../utils/Metrics';
+import styles from './styles';
 
 const SignIn: FC<SignInProps> = ({ navigation, route }) => {
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -40,16 +43,16 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
   const handleAppleSignIn = async () => {
     try {
       setIsLoading(true);
-      if (Platform.OS !== "ios") {
+      if (Platform.OS !== 'ios') {
         return;
       }
 
       if (!appleAuth.isSupported) {
-        Alert.alert("Not Supported", "Apple Sign-In not supported");
+        Alert.alert('Not Supported', 'Apple Sign-In not supported');
         return;
       }
 
-      const rawNonce = "Wfghrwrthhfjhreghfjyerwghliueghterui";
+      const rawNonce = 'Wfghrwrthhfjhreghfjyerwghliueghterui';
 
       const appleResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
@@ -60,9 +63,9 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
       if (!identityToken || !authorizationCode) {
         Toast.show({
-          type: "error",
-          text1: "Apple Sign-In Failed",
-          text2: "No sign-in data received from Apple",
+          type: 'error',
+          text1: 'Apple Sign-In Failed',
+          text2: 'No sign-in data received from Apple',
         });
         return;
       }
@@ -89,7 +92,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
           tokens.refreshToken,
         );
         await storeLocalStorageData(STORAGE_KEYS?.expiresIn, tokens?.expiresIn);
-        await storeLocalStorageData("userData", user);
+        await storeLocalStorageData('userData', user);
 
         // Navigate based on user state
         if (user.hasSubscription && user.assignedNumber) {
@@ -101,10 +104,10 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             setClaimedNumber(signInResponse.data?.data?.user?.assignedNumber),
           );
 
-          navigation.replace("MainStack", {
-            screen: "tabs",
+          navigation.replace('MainStack', {
+            screen: 'tabs',
             params: {
-              screen: "home",
+              screen: 'home',
             },
           });
           return;
@@ -112,46 +115,57 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
         if (!user.assignedNumber) {
           Toast.show({
-            type: "error",
-            text1: "Oops! No Number assigned",
+            type: 'error',
+            text1: 'Oops! No Number assigned',
             text2:
-              "User does not have an assigned number. Please select a number to continue.",
+              'User does not have an assigned number. Please select a number to continue.',
           });
-          navigation.replace("claimSpot");
+          navigation.replace('animatedNumber');
           return;
         } else {
           if (navigation.canGoBack()) {
             navigation.goBack();
           } else {
-            navigation.navigate("splash");
+            navigation.navigate('splash');
           }
           Toast.show({
-            type: "error",
-            text1: "Oops! No user found.",
-            text2: "User does not exist. Sign up required.",
+            type: 'error',
+            text1: 'Oops! No user found.',
+            text2: 'User does not exist. Sign up required.',
           });
         }
       }
     } catch (error: any) {
-      console.log("error", error);
+      console.log('error', error);
 
       if (error?.code === appleAuth.Error.CANCELED) {
-        console.log("User cancelled Apple Sign-In");
+        console.log('User cancelled Apple Sign-In');
         return;
       } else if (
         error.message &&
-        error.message === "User does not exist. Sign up required."
+        error.message === 'User does not exist. Sign up required.'
       ) {
         if (navigation.canGoBack()) {
           navigation.goBack();
         } else {
-          navigation.replace("splash");
+          navigation.replace('splash');
         }
         Toast.show({
-          type: "error",
-          text1: "Oops! No user found.",
-          text2: "User does not exist. Sign up required.",
+          type: 'error',
+          text1: 'Oops! No user found.',
+          text2: 'User does not exist. Sign up required.',
         });
+      } else if (
+        error.status === 410 &&
+        error.message ===
+          'Your account has been deleted. Please contact support at meca@mecaforpeace.org to restore it.'
+      ) {
+        Alert.alert('Note', error.message, [
+          {
+            text: 'Ok',
+            style: 'default',
+          },
+        ]);
       }
     } finally {
       setIsLoading(false);
@@ -164,7 +178,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
     setIsSigningIn(true);
     try {
       // Check for Play Services only on Android
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         await GoogleSignin.hasPlayServices({
           showPlayServicesUpdateDialog: true,
         });
@@ -193,16 +207,16 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             STORAGE_KEYS?.expiresIn,
             tokens?.expiresIn,
           );
-          await storeLocalStorageData("userData", user);
+          await storeLocalStorageData('userData', user);
 
           // Navigate based on user state
           if (isNewUser || !user.assignedNumber) {
-            navigation.navigate("claimSpot");
+            navigation.navigate('animatedNumber');
             Toast.show({
-              type: "error",
-              text1: "Oops! No Number assigned",
+              type: 'error',
+              text1: 'Oops! No Number assigned',
               text2:
-                "User does not have an assigned number. Please select a number to continue.",
+                'User does not have an assigned number. Please select a number to continue.',
             });
             return;
           } else {
@@ -213,60 +227,71 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             dispatch(
               setClaimedNumber(signinResponse.data.data.user.assignedNumber),
             );
-            navigation.replace("MainStack", {
-              screen: "tabs",
+            navigation.replace('MainStack', {
+              screen: 'tabs',
               params: {
-                screen: "home",
+                screen: 'home',
               },
             });
           }
         } else {
-          const errorMessage = signinResponse.data.message || "Sign-in failed";
-          console.error("API Error:", errorMessage);
+          const errorMessage = signinResponse.data.message || 'Sign-in failed';
+          console.error('API Error:', errorMessage);
           Toast.show({
-            type: "error",
-            text1: "Google Sign-In Failed",
+            type: 'error',
+            text1: 'Google Sign-In Failed',
             text2: errorMessage,
           });
         }
       } else {
-        console.log("error", "signin data not found");
+        console.log('error', 'signin data not found');
         Toast.show({
-          type: "error",
-          text1: "Google Sign-In Failed",
-          text2: "No sign-in data received from Google",
+          type: 'error',
+          text1: 'Google Sign-In Failed',
+          text2: 'No sign-in data received from Google',
         });
       }
     } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
+      console.error('Google Sign-In Error:', error);
 
-      let errorMessage = "Something went wrong during sign-in";
+      let errorMessage = 'Something went wrong during sign-in';
 
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        errorMessage = "Sign-in was cancelled";
+        errorMessage = 'Sign-in was cancelled';
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        errorMessage = "Sign-in is already in progress";
+        errorMessage = 'Sign-in is already in progress';
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        errorMessage = "Google Play Services not available";
+        errorMessage = 'Google Play Services not available';
       } else if (
         error.message &&
-        error.message === "User does not exist. Sign up required."
+        error.message === 'User does not exist. Sign up required.'
       ) {
-        errorMessage = "User does not exist. Sign up required.";
+        errorMessage = 'User does not exist. Sign up required.';
         if (navigation.canGoBack()) {
           navigation.goBack();
         } else {
-          navigation.navigate("splash");
+          navigation.navigate('splash');
         }
         GoogleSignin.signOut(); // Clear any partial sign-in state
+      } else if (
+        error.status === 410 &&
+        error.message ===
+          'Your account has been deleted. Please contact support at meca@mecaforpeace.org to restore it.'
+      ) {
+        Alert.alert('Note', error.message, [
+          {
+            text: 'Ok',
+            style: 'default',
+          },
+        ]);
       } else {
-        const message = error.message || "An unexpected error occurred";
+        const message = error.message || 'An unexpected error occurred';
         errorMessage = message;
       }
 
       Toast.show({
-        type: "error",
-        text1: "Google Sign-In Failed",
+        type: 'error',
+        text1: 'Google Sign-In Failed',
         text2: errorMessage,
       });
     } finally {
@@ -290,7 +315,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             }),
           },
         ]}
-        edges={["bottom", "top"]}
+        edges={['bottom', 'top']}
       >
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
@@ -299,39 +324,42 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
                 onPress={() => navigation.goBack()}
                 activeOpacity={0.8}
                 style={{
-                  backgroundColor: "#E5E7EF",
+                  backgroundColor: '#E5E7EF',
                   borderRadius: 100,
-                  position: "absolute",
+                  position: 'absolute',
                   top: 0,
                   left: 0,
                   height: 32,
                   width: 32,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <CustomIcon Icon={ICONS.BackArrowWithBg} />
               </TouchableOpacity>
             )}
-            <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+            <Image
+              source={IMAGES.OnePaliLogo}
+              style={styles.logo}
+            />
           </View>
 
           <View style={styles.headingContainer}>
             <CustomText
-              fontFamily="GabaritoSemiBold"
+              fontFamily='GabaritoSemiBold'
               fontSize={42}
               color={COLORS.darkText}
               style={{
-                textAlign: "center",
+                textAlign: 'center',
               }}
             >
               Welcome Back
             </CustomText>
             <CustomText
-              fontFamily="GabaritoRegular"
+              fontFamily='GabaritoRegular'
               fontSize={18}
               color={COLORS.appText}
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               Sign in to continue
             </CustomText>
@@ -339,21 +367,21 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
 
           <Image
             source={IMAGES.MissionImage}
-            resizeMode="contain"
+            resizeMode='contain'
             style={{
               width: wp(75),
               height: hp(48),
-              alignSelf: "center",
+              alignSelf: 'center',
               marginTop: verticalScale(24),
             }}
           />
         </View>
         <View
           style={{
-            alignItems: "center",
+            alignItems: 'center',
             gap: verticalScale(8),
             marginBottom:
-              Platform.OS === "android" ? verticalScale(20) : verticalScale(0),
+              Platform.OS === 'android' ? verticalScale(20) : verticalScale(0),
           }}
         >
           <PrimaryButton
@@ -364,12 +392,12 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             disabled={isSigningIn}
             style={Platform.select({
               ios: {
-                backgroundColor: "transparent",
+                backgroundColor: 'transparent',
                 borderWidth: 1,
-                borderColor: "#C8CBD7",
+                borderColor: '#C8CBD7',
               },
               android: {
-                backgroundColor: "#1D222B",
+                backgroundColor: '#1D222B',
               },
             })}
             textColor={Platform.select({
@@ -386,7 +414,7 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               default: COLORS.white,
             })}
           />
-          {Platform.OS === "ios" && (
+          {Platform.OS === 'ios' && (
             <>
               <PrimaryButton
                 title={`Continue with Apple`}
@@ -400,56 +428,6 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               />
             </>
           )}
-
-          {/* <CustomText
-            fontFamily="SourceSansRegular"
-            fontSize={13}
-            color={COLORS.grayColor}
-            style={{
-              textAlign: "center",
-              width: wp(60),
-              alignItems: "center",
-            }}
-          >
-            By joining OnePali, you accept our{" "}
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL("https://onepali.app/terms-condition");
-              }}
-            >
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={13}
-                color={COLORS.grayColor}
-                style={{ textDecorationLine: "underline" }}
-              >
-                Terms of Use
-              </CustomText>
-            </TouchableOpacity>{" "}
-            <TouchableOpacity activeOpacity={1}>
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={13}
-                color={COLORS.grayColor}
-              >
-                and{" "}
-              </CustomText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL("https://onepali.app/privacy-policy");
-              }}
-            >
-              <CustomText
-                fontFamily="SourceSansRegular"
-                fontSize={13}
-                color={COLORS.grayColor}
-                style={{ textDecorationLine: "underline" }}
-              >
-                Privacy Policy
-              </CustomText>
-            </TouchableOpacity>
-          </CustomText> */}
         </View>
       </SafeAreaView>
     </View>

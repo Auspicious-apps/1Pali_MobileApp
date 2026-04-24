@@ -2,6 +2,7 @@ import { AppState, AppStateStatus, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DeviceInfo from "react-native-device-info";
 import { EventProperties, Klaviyo } from "klaviyo-react-native-sdk";
+import { getFCMToken } from "../Firebase/NotificationService";
 
 const INSTALL_KEY = "@klaviyo_app_installed";
 const SESSION_COUNT_KEY = "@klaviyo_session_count";
@@ -26,6 +27,9 @@ let onboardingInactivityTimer: any | null = null;
 let isInitialized = false;
 let currentAppState: AppStateStatus = AppState.currentState;
 let appStateSubscription: { remove: () => void } | null = null;
+let lastSyncedEmail: string | null = null;
+let lastSyncedExternalId: string | null = null;
+let lastSyncedPushToken: string | null = null;
 
 const safeSetItem = async (key: string, value: string) => {
   try {
@@ -154,6 +158,49 @@ export const cleanupKlaviyoClientTracking = () => {
   if (onboardingInactivityTimer) {
     clearTimeout(onboardingInactivityTimer);
     onboardingInactivityTimer = null;
+  }
+};
+
+export const syncKlaviyoProfileOnHomeReady = async (
+  email?: string | null,
+  externalId?: string | null,
+) => {
+  try {
+    const sanitizedEmail = email?.trim();
+    const sanitizedExternalId = externalId?.trim();
+
+    if (sanitizedEmail && sanitizedEmail !== lastSyncedEmail) {
+      Klaviyo.setEmail(sanitizedEmail);
+      lastSyncedEmail = sanitizedEmail;
+      console.log("[Klaviyo] Email synced:", sanitizedEmail);
+    }
+
+    if (sanitizedExternalId && sanitizedExternalId !== lastSyncedExternalId) {
+      Klaviyo.setExternalId(sanitizedExternalId);
+      lastSyncedExternalId = sanitizedExternalId;
+      console.log("[Klaviyo] External ID synced:", sanitizedExternalId);
+    }
+
+    const fcmToken = await getFCMToken();
+    if (fcmToken && fcmToken !== lastSyncedPushToken) {
+      Klaviyo.setPushToken(fcmToken);
+      lastSyncedPushToken = fcmToken;
+      console.log("[Klaviyo] Push token synced");
+    }
+  } catch (error) {
+    console.warn("[Klaviyo] Failed to sync profile on home ready:", error);
+  }
+};
+
+export const resetKlaviyoProfile = () => {
+  try {
+    Klaviyo.resetProfile();
+  } catch (error) {
+    console.warn("[Klaviyo] Failed to reset profile:", error);
+  } finally {
+    lastSyncedEmail = null;
+    lastSyncedExternalId = null;
+    lastSyncedPushToken = null;
   }
 };
 
