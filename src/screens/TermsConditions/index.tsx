@@ -199,7 +199,7 @@ const TermsConditions: FC<TermsConditionsScreenProps> = ({ navigation }) => {
             color={COLORS.darkText}
             style={{ textAlign: "center", marginVertical: verticalScale(24) }}
           >
-            OnePali Terms of Use
+            Terms of Use
           </CustomText>
           <Text>
             Thank you for choosing to use the OnePali App! We value and

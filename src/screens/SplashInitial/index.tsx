@@ -94,17 +94,14 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
       );
       // await GoogleSignin.signOut()
       // await AsyncStorage.clear();
-      Klaviyo.resetProfile();
+      // Klaviyo.resetProfile();
       if (accessToken) {
         const initialUrl = await Linking.getInitialURL();
         const launchedFromDeepLink = !!initialUrl;
 
         if (launchedFromDeepLink) {
-          console.log('[SplashInitial] App opened from deep link:', initialUrl);
 
           if (initialUrl && isPaymentRedirectDeepLink(initialUrl)) {
-            console.log(initialUrl, 'IS PAYMENT URL');
-            
             setIsDeepLinkFlow(true);
             await pollVerifyUserProfileFromDeepLink();
             return;
@@ -141,6 +138,13 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
           response.data.data.hasSubscription &&
           response.data.data.assignedNumber
         ) {
+          // Call Klaviyo setEmail() and setExternalId() on every app launch
+          if (response.data.data.email) {
+            Klaviyo.setEmail(response.data.data.email);
+            Klaviyo.setExternalId(response.data.data.id);
+            console.log('[Klaviyo] User identified on app launch:', response.data.data.email);
+          }
+          
           dispatch(setUserData(response.data.data));
           dispatch(setBadges(response.data.data.badges));
           // Sync FCM token with backend on splash after successful login
@@ -209,6 +213,13 @@ const SplashInitial: FC<SplashInitialScreenProps> = ({ navigation }) => {
         response.data.data.assignedNumber &&
         response.data.data.badges.badges.length >= 2
       ) {
+        // Call Klaviyo setEmail() and setExternalId() on every app launch
+        if (response.data.data.email) {
+          Klaviyo.setEmail(response.data.data.email);
+          Klaviyo.setExternalId(response.data.data.id);
+          console.log('[Klaviyo] User identified on app launch (deep link flow):', response.data.data.email);
+        }
+        
         dispatch(setUserData(response.data.data));
         dispatch(setBadges(response.data.data.badges));
         syncFCMTokenWithBackend(response.data.data.fcmToken).catch((err) =>

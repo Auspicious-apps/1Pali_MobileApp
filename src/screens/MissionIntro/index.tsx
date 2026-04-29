@@ -529,12 +529,12 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                     onPress={() => {
                       openLegalSheet(
                         'MECA Privacy Policy',
-                        'https://onepali.app/meca-privacy-policy',
+                        'https://onepali.app/terms-of-use',
                       );
                     }}
                     style={{ textDecorationLine: 'underline' }}
                   >
-                    Terms of Service
+                    Terms of Use
                   </CustomText>
                   <CustomText
                     fontFamily='SourceSansRegular'
@@ -551,7 +551,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                       openLegalSheet(
                         'OnePali Terms of Use',
                         // "https://onepali.app/privacy-policy",
-                        'https://onepali.app/terms-of-use',
+                        'https://onepali.app/meca-privacy-policy',
                       );
                     }}
                     style={{ textDecorationLine: 'underline' }}

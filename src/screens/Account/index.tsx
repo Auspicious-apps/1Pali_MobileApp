@@ -165,27 +165,27 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
       },
     },
     {
+      id: 'privacy',
+      icon: ICONS.PrivacyIcon,
+      label: 'Terms of Use',
+      arrow: true,
+      onPress: () => {
+        navigation.navigate('termsConditions');
+      },
+    },
+    {
       id: 'meca',
       icon: ICONS.PrivacyIcon,
-      label: "MECA's Privacy policy",
+      label: 'MECA Privacy Policy',
       arrow: true,
       onPress: () => navigation.navigate('mecaPrivacyPolicy'),
     },
     {
-      id: 'privacy',
-      icon: ICONS.PrivacyIcon,
-      label: "Onepali's Privacy policy",
-      arrow: true,
-      onPress: () => {
-        navigation.navigate('privacyPolicy');
-      },
-    },
-    {
       id: 'terms',
       icon: ICONS.TermIcon,
-      label: "Onepali's Terms of Use",
+      label: "Onepali Privacy Policy",
       arrow: true,
-      onPress: () => navigation.navigate('termsConditions'),
+      onPress: () => navigation.navigate('privacyPolicy'),
     },
     {
       id: 'signout',
