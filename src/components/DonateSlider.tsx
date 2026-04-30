@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useMemo } from "react";
-import { View, Animated, PanResponder } from "react-native";
-import COLORS from "../utils/Colors";
-import { horizontalScale, verticalScale } from "../utils/Metrics";
-import CustomIcon from "./CustomIcon";
-import ICONS from "../assets/Icons";
-import LinearGradient from "react-native-linear-gradient";
+import React, { useRef, useEffect, useMemo } from 'react';
+import { View, Animated, PanResponder } from 'react-native';
+import COLORS from '../utils/Colors';
+import { horizontalScale, verticalScale } from '../utils/Metrics';
+import CustomIcon from './CustomIcon';
+import ICONS from '../assets/Icons';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TRACK_WIDTH = horizontalScale(320);
 const POINTER_SIZE = horizontalScale(12);
@@ -43,7 +43,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
   useEffect(() => {
     const listenerId = pan.addListener(({ value: panValue }) => {
       panValueRef.current = panValue;
-      
+
       // Report value changes only when they cross a threshold
       const maxX = INNER_WIDTH - POINTER_SIZE;
       const percentage = Math.min(1, Math.max(0, panValue / maxX));
@@ -93,20 +93,20 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
   );
 
   return (
-    <View style={{ alignItems: "center" }}>
+    <View style={{ alignItems: 'center' }}>
       <View style={{ width: TRACK_WIDTH }}>
         {/* ICON */}
         <Animated.View
           {...panResponder.panHandlers}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: TRACK_PADDING,
             transform: [
               {
                 translateX: pointerTranslateX,
               },
             ],
-            top: "50%",
+            top: '50%',
             marginTop: -ICON_SIZE / 2,
             zIndex: 2,
           }}
@@ -116,11 +116,15 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
               height: ICON_SIZE,
               width: ICON_SIZE,
               borderRadius: ICON_SIZE,
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
-            <CustomIcon Icon={ICONS.SliderBarHeart} height={36} width={36} />
+            <CustomIcon
+              Icon={ICONS.SliderBarHeart}
+              height={verticalScale(36)}
+              width={verticalScale(36)}
+            />
           </View>
         </Animated.View>
 
@@ -130,7 +134,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
             width: TRACK_WIDTH,
             height: verticalScale(20),
             borderRadius: 50,
-            overflow: "hidden",
+            overflow: 'hidden',
             backgroundColor: COLORS.appBackground,
           }}
           {...panResponder.panHandlers}
@@ -138,7 +142,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
           {/* GRADIENT PROGRESS */}
           <Animated.View
             style={{
-              position: "absolute",
+              position: 'absolute',
               left: 0,
               width: progressWidth,
               top: 0,
@@ -146,7 +150,7 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
             }}
           >
             <LinearGradient
-              colors={["#1B7A4B", "#1B7A4B", "#2ECC71"]}
+              colors={['#1B7A4B', '#1B7A4B', '#2ECC71']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ flex: 1 }}
@@ -155,30 +159,30 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
 
           {/* INNER SHADOW LAYER */}
           <View
-            pointerEvents="none"
+            pointerEvents='none'
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
               borderRadius: 50,
-              overflow: "hidden",
+              overflow: 'hidden',
             }}
           >
             {/* TOP + BOTTOM */}
             <LinearGradient
               colors={[
-                "rgba(0,0,0,0.08)",
-                "transparent",
-                "transparent",
-                "rgba(0,0,0,0.08)",
+                'rgba(0,0,0,0.08)',
+                'transparent',
+                'transparent',
+                'rgba(0,0,0,0.08)',
               ]}
               locations={[0, 0.2, 0.8, 1]}
               start={{ x: 0, y: 0 }}
               end={{ x: 0, y: 1 }}
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
@@ -189,12 +193,12 @@ const DonationSlider: React.FC<Props> = ({ value, onChange }) => {
 
             {/* RIGHT SIDE ONLY */}
             <LinearGradient
-              colors={["transparent", "transparent", "rgba(0,0,0,0.12)"]}
+              colors={['transparent', 'transparent', 'rgba(0,0,0,0.12)']}
               locations={[0, 0.85, 1]}
               start={{ x: 0.83, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
