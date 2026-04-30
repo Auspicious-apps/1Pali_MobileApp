@@ -1,10 +1,10 @@
-import { View, StyleSheet } from 'react-native';
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { BaseToastProps } from 'react-native-toast-message';
-import COLORS from '../utils/Colors';
 import ICONS from '../assets/Icons';
+import COLORS from '../utils/Colors';
+import { horizontalScale, verticalScale } from '../utils/Metrics';
 import CustomIcon from './CustomIcon';
-import { horizontalScale } from '../utils/Metrics';
 import { CustomText } from './CustomText';
 
 const getStylesByType = (type: string) => {
@@ -45,20 +45,37 @@ const getStylesByType = (type: string) => {
   }
 };
 
-const CustomToast = ({ text1, text2, type, props }: BaseToastProps & { type?: string }) => {
+const CustomToast = ({
+  text1,
+  text2,
+  type,
+  props,
+}: BaseToastProps & { type?: string; props: any }) => {
   const toastType = type || 'info';
   const { container, icon } = getStylesByType(toastType);
   const displayIcon = props?.icon || icon;
 
   return (
     <View style={[styles.toastContainer, container]}>
-      <CustomIcon Icon={displayIcon} height={24} width={24} />
+      <CustomIcon
+        Icon={displayIcon}
+        height={verticalScale(24)}
+        width={verticalScale(24)}
+      />
       <View style={styles.textContainer}>
-        <CustomText fontFamily="GabaritoMedium" style={styles.toastTitle}>
+        <CustomText
+          fontFamily='GabaritoMedium'
+          fontSize={14}
+          style={styles.toastTitle}
+        >
           {text1}
         </CustomText>
         {text2 && (
-          <CustomText fontFamily="GabaritoMedium" style={styles.toastBody}>
+          <CustomText
+            fontFamily='GabaritoMedium'
+            fontSize={12}
+            style={styles.toastBody}
+          >
             {text2}
           </CustomText>
         )}
@@ -93,20 +110,12 @@ const styles = StyleSheet.create({
   },
   toastTitle: {
     color: COLORS.white,
-    fontSize: 14,
     fontWeight: '600',
   },
   toastBody: {
     color: COLORS.white,
-    fontSize: 12,
     marginTop: 4,
     opacity: 0.9,
-  },
-  toastText: {
-    color: COLORS.white,
-    fontSize: 16,
-    flex: 1,
-    flexWrap: 'wrap',
   },
 });
 

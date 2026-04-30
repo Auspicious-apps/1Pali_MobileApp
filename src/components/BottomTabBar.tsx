@@ -1,5 +1,5 @@
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   FlatList,
@@ -8,13 +8,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ICONS from "../assets/Icons";
-import COLORS from "../utils/Colors";
-import { horizontalScale, isAndroid, verticalScale } from "../utils/Metrics";
-import CustomIcon from "./CustomIcon";
-import { CustomText } from "./CustomText";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ICONS from '../assets/Icons';
+import COLORS from '../utils/Colors';
+import { horizontalScale, isAndroid, verticalScale } from '../utils/Metrics';
+import CustomIcon from './CustomIcon';
+import { CustomText } from './CustomText';
 
 type Tab = {
   name: string;
@@ -25,28 +25,28 @@ type Tab = {
 
 const tabs: Tab[] = [
   {
-    name: "Home",
+    name: 'Home',
     icon: ICONS.homeIcon,
     activIcon: ICONS.homeActive,
-    route: "home",
+    route: 'home',
   },
   {
-    name: "Updates",
+    name: 'Updates',
     icon: ICONS.heart,
     activIcon: ICONS.heartActive,
-    route: "updates",
+    route: 'updates',
   },
   {
-    name: "Art",
+    name: 'Art',
     icon: ICONS.artIcon,
     activIcon: ICONS.ArtActive,
-    route: "art",
+    route: 'art',
   },
   {
-    name: "Profile",
+    name: 'Profile',
     icon: ICONS.accountIcon,
     activIcon: ICONS.AccountActive,
-    route: "account",
+    route: 'account',
   },
 ];
 
@@ -57,12 +57,12 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       () => setKeyboardVisible(true),
     );
 
     const hideSub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => setKeyboardVisible(false),
     );
 
@@ -74,17 +74,17 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
 
   // Map detail/inner routes to their parent tab for highlighting
   const routeToTab: Record<string, string> = {
-    home: "home",
-    updates: "updates",
-    art: "art",
-    account: "account",
-    updateDetail: "updates",
-    artDetail: "art",
-    termsConditions: "account",
-    privacyPolicy: "account",
-    receipts: "account",
-    badges: "account",
-    manageDonation: "account",
+    home: 'home',
+    updates: 'updates',
+    art: 'art',
+    account: 'account',
+    updateDetail: 'updates',
+    artDetail: 'art',
+    termsConditions: 'account',
+    privacyPolicy: 'account',
+    receipts: 'account',
+    badges: 'account',
+    manageDonation: 'account',
   };
 
   const currentRoute = state.routes[state.index].name;
@@ -109,14 +109,14 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
         >
           <CustomIcon
             Icon={isActive ? item.activIcon : item.icon}
-            height={24}
-            width={24}
+            height={verticalScale(24)}
+            width={verticalScale(24)}
           />
           <CustomText
             fontSize={12}
-            fontWeight={isActive ? "500" : "500"}
-            fontFamily="GabaritoRegular"
-            color={isActive ? "rgba(0, 0, 0, 1)" : "rgba(165, 169, 190, 1)"}
+            fontWeight={isActive ? '500' : '500'}
+            fontFamily='GabaritoRegular'
+            color={isActive ? 'rgba(0, 0, 0, 1)' : 'rgba(165, 169, 190, 1)'}
           >
             {item.name}
           </CustomText>
@@ -130,7 +130,7 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
       style={[
         styles.mainContainer,
         keyboardVisible && {
-          display: Platform.OS === "android" ? "none" : undefined,
+          display: Platform.OS === 'android' ? 'none' : undefined,
         },
         {
           paddingBottom: isAndroid
@@ -151,7 +151,7 @@ const BottomTabBar: FC<BottomTabBarProps> = (props) => {
             scrollEnabled={false}
             bounces={false}
             alwaysBounceHorizontal={false}
-            overScrollMode="never"
+            overScrollMode='never'
             showsHorizontalScrollIndicator={false}
             style={[styles.tabBar, {}]}
             contentContainerStyle={styles.tabContent}
@@ -166,7 +166,7 @@ export default BottomTabBar;
 const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: COLORS.white,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 0,
@@ -177,9 +177,9 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: COLORS.white,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: verticalScale(15),
     borderTopLeftRadius: verticalScale(20),
     borderTopRightRadius: verticalScale(20),
@@ -194,25 +194,25 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     flexGrow: 1,
-    justifyContent: "space-around",
+    justifyContent: 'space-around',
   },
   tab: {
-    alignItems: "center",
-    justifyContent: "flex-end",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    alignSelf: 'center',
     zIndex: 99,
     gap: verticalScale(5),
     paddingHorizontal: horizontalScale(20),
   },
   middleButton: {
-    position: "absolute",
+    position: 'absolute',
     backgroundColor: COLORS.white,
     borderRadius: 30,
     height: 48,
     width: 48,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1001, // Ensure it’s above the tab bar
-    boxShadow: "0px 4px 12px 0px #FF003B80",
+    boxShadow: '0px 4px 12px 0px #FF003B80',
   },
 });

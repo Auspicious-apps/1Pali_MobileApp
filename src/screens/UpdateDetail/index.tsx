@@ -46,8 +46,7 @@ import { LikeUnlikeBlogResponse } from '../../service/ApiResponses/LikeUnlikeRes
 import { fetchData, postData } from '../../service/ApiService';
 import { UpdateDetailScreenProps } from '../../typings/routes';
 import COLORS from '../../utils/Colors';
-import { horizontalScale, hp, verticalScale, wp } from '../../utils/Metrics';
-import { hasNotch } from 'react-native-device-info';
+import { horizontalScale, hp, responsiveFontSize, verticalScale, wp } from '../../utils/Metrics';
 
 const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
   const [inputKey, setInputKey] = useState(0);
@@ -509,7 +508,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
 
   const handleMainScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
-    const shouldAddTopSafeArea = y >= HERO_IMAGE_HEIGHT  +20;
+    const shouldAddTopSafeArea = y >= HERO_IMAGE_HEIGHT + 20;
 
     if (imageVisibilityRef.current !== shouldAddTopSafeArea) {
       imageVisibilityRef.current = shouldAddTopSafeArea;
@@ -537,7 +536,6 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
               android: insets.bottom,
               ios: verticalScale(15),
             }),
-          
           },
         ]}
         edges={[]}
@@ -563,8 +561,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
         >
           <CustomIcon
             Icon={ICONS.WhiteBack}
-            height={32}
-            width={32}
+            height={verticalScale(32)}
+            width={verticalScale(32)}
           />
         </TouchableOpacity>
         <KeyboardAvoidingView
@@ -636,8 +634,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   >
                     <CustomIcon
                       Icon={isLiked ? ICONS.LikedIcon : ICONS.OnimageLike}
-                      height={20}
-                      width={20}
+                      height={verticalScale(20)}
+                      width={verticalScale(20)}
                     />
                     <CustomText
                       fontFamily='GabaritoMedium'
@@ -656,8 +654,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                   >
                     <CustomIcon
                       Icon={ICONS.OnimageChat}
-                      height={20}
-                      width={20}
+                      height={verticalScale(20)}
+                      width={verticalScale(20)}
                     />
                     <CustomText
                       fontFamily='GabaritoMedium'
@@ -799,8 +797,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                       <TouchableOpacity onPress={handleLikeUnlike}>
                         <CustomIcon
                           Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                          height={24}
-                          width={24}
+                          height={verticalScale(24)}
+                          width={verticalScale(24)}
                         />
                       </TouchableOpacity>
 
@@ -822,8 +820,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                       <TouchableOpacity onPress={handleCommentIconPress}>
                         <CustomIcon
                           Icon={ICONS.chatIcon}
-                          height={24}
-                          width={24}
+                          height={verticalScale(24)}
+                          width={verticalScale(24)}
                         />
                       </TouchableOpacity>
 
@@ -841,10 +839,7 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
                 <View ref={commentsSectionRef}>
                   {/* COMMENTS */}
                   <FlatList
-                    data={[
-                      ...pendingComments,
-                      ...comments,
-                    ]}
+                    data={[...pendingComments, ...comments]}
                     keyExtractor={(item) => item.id}
                     renderItem={renderCommentItem}
                     scrollEnabled={false}
@@ -999,7 +994,7 @@ const styles = StyleSheet.create({
   },
   commentInput: {
     fontFamily: FONTS.GabaritoRegular,
-    fontSize: 14,
+    fontSize: responsiveFontSize(14),
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
     flex: 1,

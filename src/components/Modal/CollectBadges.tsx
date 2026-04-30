@@ -1,5 +1,6 @@
 import { BlurView } from "@react-native-community/blur";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import IMAGES from "../../assets/Images";
 import { closeCollectBadgesModal } from "../../redux/slices/CollectBadgesSlice";
@@ -22,19 +24,17 @@ import {
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import ENDPOINTS from "../../service/ApiEndpoints";
 import { postData } from "../../service/ApiService";
+import {
+  BottomStackParams,
+  MainStackParams,
+  RootStackParams,
+} from "../../typings/routes";
 import COLORS from "../../utils/Colors";
 import { horizontalScale, hp, verticalScale, wp } from "../../utils/Metrics";
 import BadgeIcon from "../BadgeIcon";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
 import PrimaryButton from "../PrimaryButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import {
-  BottomStackParams,
-  MainStackParams,
-  RootStackParams,
-} from "../../typings/routes";
 
 const CollectBadges = () => {
   const insets = useSafeAreaInsets();
@@ -421,8 +421,8 @@ const styles = StyleSheet.create({
   },
 
   dot: {
-    width: 10,
-    height: 10,
+    width: verticalScale(10),
+    height: verticalScale(10),
     borderRadius: 6,
     backgroundColor: COLORS.white,
   },

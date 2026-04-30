@@ -1,29 +1,28 @@
 import React, { FC } from "react";
 import {
   Image,
+  Linking,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  ScrollView,
-  Linking,
 } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import FONTS from "../../assets/fonts";
+import ICONS from "../../assets/Icons";
+import IMAGES from "../../assets/Images";
+import CustomIcon from "../../components/CustomIcon";
+import { CustomText } from "../../components/CustomText";
 import { PrivacyPolicyScreenProps } from "../../typings/routes";
+import COLORS from "../../utils/Colors";
 import {
   horizontalScale,
   responsiveFontSize,
-  verticalScale,
-  wp,
+  verticalScale
 } from "../../utils/Metrics";
-import CustomIcon from "../../components/CustomIcon";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import { CustomText } from "../../components/CustomText";
-import COLORS from "../../utils/Colors";
-import FONTS from "../../assets/fonts";
 
 const Title = ({ children }: any) => (
   <CustomText
@@ -209,7 +208,7 @@ const PrivacyPolicy: FC<PrivacyPolicyScreenProps> = ({ navigation }) => {
             color={COLORS.darkText}
             style={{ textAlign: 'center', marginVertical: verticalScale(24) }}
           >
-            Privacy Policy
+            OnePali Privacy Policy
           </CustomText>
           <Text>
             OnePali, LLC (also referred to as “OnePali,” “us” or “we”) is a

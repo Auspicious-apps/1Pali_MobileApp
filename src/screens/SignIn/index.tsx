@@ -5,6 +5,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import React, { FC, useState } from 'react';
 import { Alert, Image, Platform, TouchableOpacity, View } from 'react-native';
+import { isTablet } from 'react-native-device-info';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -154,18 +155,8 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
           type: 'error',
           text1: 'Oops! No user found.',
           text2: 'User does not exist. Sign up required.',
+          visibilityTime: 10000,
         });
-      } else if (
-        error.status === 410 &&
-        error.message ===
-          'Your account has been deleted. Please contact support at meca@mecaforpeace.org to restore it.'
-      ) {
-        Alert.alert('Note', error.message, [
-          {
-            text: 'Ok',
-            style: 'default',
-          },
-        ]);
       }
     } finally {
       setIsLoading(false);
@@ -310,7 +301,9 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
+              ios: insets.bottom
+                ? verticalScale(isTablet() ? 10 : 0)
+                : verticalScale(15),
               android: insets.bottom ? 0 : verticalScale(15),
             }),
           },
@@ -329,13 +322,15 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
                   position: 'absolute',
                   top: 0,
                   left: 0,
-                  height: 32,
-                  width: 32,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <CustomIcon Icon={ICONS.BackArrowWithBg} />
+                <CustomIcon
+                  Icon={ICONS.BackArrowBg}
+                  height={verticalScale(32)}
+                  width={verticalScale(32)}
+                />
               </TouchableOpacity>
             )}
             <Image
@@ -386,7 +381,11 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
         >
           <PrimaryButton
             title={`Continue with Google`}
-            leftIcon={{ Icon: ICONS.GoogleIcon, width: 16, height: 16 }}
+            leftIcon={{
+              Icon: ICONS.GoogleIcon,
+              width: verticalScale(16),
+              height: verticalScale(16),
+            }}
             onPress={handleGoogleSignIn}
             isLoading={isSigningIn}
             disabled={isSigningIn}
@@ -418,7 +417,11 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
             <>
               <PrimaryButton
                 title={`Continue with Apple`}
-                leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 16 }}
+                leftIcon={{
+                  Icon: ICONS.AppleLogo,
+                  width: verticalScale(16),
+                  height: verticalScale(16),
+                }}
                 onPress={handleAppleSignIn}
                 isLoading={isLoading}
                 disabled={isLoading}

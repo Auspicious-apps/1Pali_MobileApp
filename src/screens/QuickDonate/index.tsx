@@ -56,6 +56,7 @@ import { deleteLocalStorageData, showToast } from '../../utils/Helpers';
 import {
   horizontalScale,
   hp,
+  isTablet,
   responsiveFontSize,
   verticalScale,
   wp,
@@ -732,7 +733,9 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
+              ios: insets.bottom
+                ? verticalScale(isTablet ? 10 : 0)
+                : verticalScale(15),
               android: insets.bottom ? verticalScale(10) : verticalScale(15),
             }),
           },
@@ -997,7 +1000,8 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
               marginVertical: verticalScale(16),
               flexDirection: 'row',
               alignItems: 'center',
-              padding: horizontalScale(12),
+              paddingHorizontal: horizontalScale(12),
+              paddingVertical: verticalScale(12),
               gap: horizontalScale(8),
               overflow: 'hidden',
             }}
@@ -1066,7 +1070,11 @@ const QuickDonate: FC<QuickDonateProps> = ({ navigation, route }) => {
                   hapticFeedback
                   disabled={isLoading}
                   hapticType='impactLight'
-                  leftIcon={{ Icon: ICONS.AppleLogo, width: 16, height: 16 }}
+                  leftIcon={{
+                    Icon: ICONS.AppleLogo,
+                    width: verticalScale(16),
+                    height: verticalScale(16),
+                  }}
                 />
               </View>
             ) : (

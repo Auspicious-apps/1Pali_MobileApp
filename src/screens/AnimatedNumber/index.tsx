@@ -1,5 +1,5 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Image,
@@ -7,19 +7,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import NumnerDetailModal from "../../components/Modal/NumberDetailModal";
-import PrimaryButton from "../../components/PrimaryButton";
-import { SlotMachineNumber } from "../../components/SlotMachineNumber";
+} from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import NumnerDetailModal from '../../components/Modal/NumberDetailModal';
+import PrimaryButton from '../../components/PrimaryButton';
+import { SlotMachineNumber } from '../../components/SlotMachineNumber';
+import { logEvent } from '../../Context/analyticsService';
 import {
   clearReservationToken,
   decrementReservationTimer,
@@ -27,20 +28,24 @@ import {
   selectPreviousReservationToken,
   selectReservationSeconds,
   selectReservationToken,
+  selectShouldRefreshNumber,
   setClaimedNumber,
   setReservationToken,
-  startReservationTimer,
   setShouldRefreshNumber,
-  selectShouldRefreshNumber,
-} from "../../redux/slices/UserSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import ENDPOINTS from "../../service/ApiEndpoints";
-import { ReserveNumberResponse } from "../../service/ApiResponses/ReserveNumberResponse";
-import { ReserveSpecificNumberResponse } from "../../service/APIResponses/ReserveSpecificNumber";
-import { fetchData, postData } from "../../service/ApiService";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import { logEvent } from "../../Context/analyticsService";
+  startReservationTimer,
+} from '../../redux/slices/UserSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import ENDPOINTS from '../../service/ApiEndpoints';
+import { ReserveNumberResponse } from '../../service/ApiResponses/ReserveNumberResponse';
+import { ReserveSpecificNumberResponse } from '../../service/APIResponses/ReserveSpecificNumber';
+import { fetchData, postData } from '../../service/ApiService';
+import COLORS from '../../utils/Colors';
+import {
+  horizontalScale,
+  isTablet,
+  verticalScale,
+  wp,
+} from '../../utils/Metrics';
 
 const AnimatedNumber = () => {
   const navigation: any = useNavigation();
@@ -83,7 +88,7 @@ const AnimatedNumber = () => {
         // Timer will start only when user actually claims the number
       }
     } catch (error) {
-      console.error("GetRandomNumber API Error:", error);
+      console.error('GetRandomNumber API Error:', error);
     } finally {
       setLoading(false);
     }
@@ -123,7 +128,7 @@ const AnimatedNumber = () => {
 
     if (reservationToken !== null && claimedNumber === numValue) {
       dispatch(setClaimedNumber(numValue));
-      navigation.navigate("missionIntro", { showNumber: true });
+      navigation.navigate('missionIntro', { showNumber: true });
       return;
     }
 
@@ -153,17 +158,17 @@ const AnimatedNumber = () => {
           }),
         );
 
-        navigation.navigate("missionIntro", { showNumber: true });
+        navigation.navigate('missionIntro', { showNumber: true });
       }
     } catch (e: any) {
-      console.error("Error reserving number:", e);
+      console.error('Error reserving number:', e);
 
       const message =
         e?.response?.data?.message ||
-        "Oops! Something went wrong while reserving your number.";
+        'Oops! Something went wrong while reserving your number.';
 
       Toast.show({
-        type: "error",
+        type: 'error',
         text1: message,
       });
 
@@ -174,7 +179,7 @@ const AnimatedNumber = () => {
   };
 
   useEffect(() => {
-    logEvent("Ob_Number_Claimed");
+    logEvent('Ob_Number_Claimed');
   }, []);
 
   // Timer effect to decrement reservation seconds
@@ -222,12 +227,14 @@ const AnimatedNumber = () => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
+              ios: insets.bottom
+                ? verticalScale(isTablet ? 10 : 0)
+                : verticalScale(15),
               android: insets.bottom ? 0 : verticalScale(15),
             }),
           },
         ]}
-        edges={["top", "bottom"]}
+        edges={['top', 'bottom']}
       >
         {/* Header */}
         {animationDone && (
@@ -243,8 +250,9 @@ const AnimatedNumber = () => {
             <View style={styles.header}>
               <TouchableOpacity
                 onPress={() => {
-                  dispatch(setShouldRefreshNumber(false)); 
-                  navigation.goBack()}}
+                  dispatch(setShouldRefreshNumber(false));
+                  navigation.goBack();
+                }}
                 activeOpacity={0.8}
               >
                 <CustomIcon
@@ -254,7 +262,10 @@ const AnimatedNumber = () => {
                 />
               </TouchableOpacity>
 
-              <Image source={IMAGES.OnePaliLogo} style={styles.logo} />
+              <Image
+                source={IMAGES.OnePaliLogo}
+                style={styles.logo}
+              />
 
               <TouchableOpacity
                 onPress={() => setIsModalVisible(true)}
@@ -291,11 +302,11 @@ const AnimatedNumber = () => {
           >
             {animationDone && (
               <CustomText
-                fontFamily="GabaritoSemiBold"
+                fontFamily='GabaritoSemiBold'
                 fontSize={20}
                 style={styles.subtext}
               >
-                Your identity among {"\n"} one million supporters
+                Your identity among {'\n'} one million supporters
               </CustomText>
             )}
           </Animated.View>
@@ -313,20 +324,20 @@ const AnimatedNumber = () => {
             ]}
           >
             <PrimaryButton
-              title={number ? `Claim #${number}` : "Claim Number"}
+              title={number ? `Claim #${number}` : 'Claim Number'}
               onPress={handleReserveNumber}
               isLoading={isLoading || loading}
               hapticFeedback
-              hapticType="impactLight"
+              hapticType='impactLight'
               disabled={loading}
             />
 
             <TouchableOpacity
-              onPress={() => navigation.navigate("claimSpot")}
+              onPress={() => navigation.navigate('claimSpot')}
               style={styles.chooseContainer}
             >
               <CustomText
-                fontFamily="MontserratSemiBold"
+                fontFamily='MontserratSemiBold'
                 fontSize={16}
                 style={styles.chooseText}
               >
@@ -356,51 +367,51 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: wp(100) - horizontalScale(32),
-    alignSelf: "center",
+    alignSelf: 'center',
   },
 
   logoContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: verticalScale(15),
   },
 
   appIcon: {
     width: horizontalScale(54),
     height: verticalScale(54),
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
 
   logo: {
     width: horizontalScale(54),
     height: verticalScale(54),
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
 
   centerContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   bottomContainer: {
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   chooseContainer: {
-    paddingVertical: verticalScale(18),
+    paddingTop: verticalScale(18),
     paddingHorizontal: horizontalScale(70),
   },
 
   chooseText: {
     color: COLORS.appText,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
   subtext: {
     color: COLORS.darkText,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: verticalScale(22),
   },
 });

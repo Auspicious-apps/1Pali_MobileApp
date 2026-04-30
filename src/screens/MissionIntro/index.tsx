@@ -40,7 +40,13 @@ import {
   getRandomEvenOrOdd,
   storeLocalStorageData,
 } from '../../utils/Helpers';
-import { horizontalScale, hp, verticalScale, wp } from '../../utils/Metrics';
+import {
+  horizontalScale,
+  hp,
+  isTablet,
+  verticalScale,
+  wp,
+} from '../../utils/Metrics';
 import styles from './styles';
 
 const initialTimer = 30;
@@ -404,8 +410,10 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
-              android: insets.bottom ? verticalScale(10): verticalScale(15),
+              ios: insets.bottom
+                ? verticalScale(isTablet ? 10 : 0)
+                : verticalScale(15),
+              android: insets.bottom ? verticalScale(10) : verticalScale(15),
             }),
           },
         ]}
@@ -414,7 +422,9 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
         <View style={styles.header}>
           {navigation.canGoBack() && (
             <TouchableOpacity
-              onPress={() => navigation.goBack()}
+              onPress={() => {
+                navigation.goBack();
+              }}
               activeOpacity={0.8}
               style={{
                 backgroundColor: '#E5E7EF',
@@ -422,13 +432,15 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                height: 32,
-                width: 32,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <CustomIcon Icon={ICONS.BackArrowWithBg} />
+              <CustomIcon
+                Icon={ICONS.BackArrowBg}
+                height={verticalScale(32)}
+                width={verticalScale(32)}
+              />
             </TouchableOpacity>
           )}
           <Image
@@ -490,7 +502,7 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
               <TouchableOpacity
                 style={{
                   flexDirection: 'row',
-                  gap: horizontalScale(12),
+                  gap: horizontalScale(isTablet ? 5 : 12),
                   alignSelf: 'flex-start',
                   width: '100%',
                 }}
@@ -586,7 +598,6 @@ const MissionIntro: FC<MissionIntroProps> = ({ navigation, route }) => {
                   fontFamily='SourceSansRegular'
                   fontSize={10}
                   color={COLORS.redColor}
-                  style={{ marginTop: 4 }}
                 >
                   Please accept Terms & Privacy Policy to continue
                 </CustomText>

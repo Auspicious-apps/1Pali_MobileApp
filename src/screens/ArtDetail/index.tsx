@@ -59,6 +59,7 @@ import {
   horizontalScale,
   hp,
   isAndroid,
+  responsiveFontSize,
   verticalScale,
   wp,
 } from '../../utils/Metrics';
@@ -769,8 +770,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
               <TouchableOpacity activeOpacity={0.8}>
                 <CustomIcon
                   Icon={ICONS.backArrow}
-                  height={30}
-                  width={30}
+                  height={verticalScale(30)}
+                  width={verticalScale(30)}
                   onPress={() => navigation.goBack()}
                 />
               </TouchableOpacity>
@@ -798,8 +799,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             >
               <CustomIcon
                 Icon={ICONS.fullScreen}
-                width={24}
-                height={24}
+                height={verticalScale(24)}
+                width={verticalScale(24)}
               />
             </TouchableOpacity>
           </View>
@@ -941,8 +942,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     >
                       <CustomIcon
                         Icon={isLiked ? ICONS.LikedIcon : ICONS.likeIcon}
-                        height={24}
-                        width={24}
+                        height={verticalScale(24)}
+                        width={verticalScale(24)}
                       />
                     </TouchableOpacity>
                     <CustomText
@@ -966,8 +967,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
                     >
                       <CustomIcon
                         Icon={ICONS.chatIcon}
-                        height={24}
-                        width={24}
+                        height={verticalScale(24)}
+                        width={verticalScale(24)}
                       />
                     </TouchableOpacity>
 
@@ -1502,7 +1503,7 @@ const styles = StyleSheet.create({
   },
   commentInput: {
     fontFamily: FONTS.GabaritoRegular,
-    fontSize: 14,
+    fontSize: responsiveFontSize(14),
     color: COLORS.darkText,
     paddingVertical: verticalScale(5),
     flex: 1,

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { isTablet } from 'react-native-device-info';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -160,7 +161,9 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
+              ios: insets.bottom
+                ? verticalScale(isTablet() ? 10 : 0)
+                : verticalScale(15),
               android: insets.bottom ? verticalScale(10) : verticalScale(30),
             }),
           },
@@ -215,7 +218,7 @@ const Splash: FC<SplashScreenProps> = ({ navigation }) => {
               activeOpacity={1}
               style={styles.button}
               disabled={isCheckingAuth}
-              textSize={responsiveFontSize(18)}
+              textSize={responsiveFontSize(isTablet() ? 12 : 18)}
             />
           )}
           <CustomText

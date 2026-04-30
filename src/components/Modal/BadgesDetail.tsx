@@ -1,5 +1,5 @@
-import { BlurView } from "@react-native-community/blur";
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { BlurView } from '@react-native-community/blur';
+import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import {
   Animated,
   Easing,
@@ -8,15 +8,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
-import { Grayscale } from "react-native-color-matrix-image-filters";
-import ICONS from "../../assets/Icons";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
-import BadgeIcon from "../BadgeIcon";
-import CustomIcon from "../CustomIcon";
-import { CustomText } from "../CustomText";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native';
+import { Grayscale } from 'react-native-color-matrix-image-filters';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ICONS from '../../assets/Icons';
+import COLORS from '../../utils/Colors';
+import { horizontalScale, isTablet, verticalScale } from '../../utils/Metrics';
+import BadgeIcon from '../BadgeIcon';
+import CustomIcon from '../CustomIcon';
+import { CustomText } from '../CustomText';
 
 interface BadgesDetailModalProps {
   isVisible: boolean;
@@ -36,7 +36,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
   badgeMonths,
   badgeDescription,
   isLocked,
-  sheetTitle = "Badge Details",
+  sheetTitle = 'Badge Details',
 }) => {
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(500)).current;
@@ -83,7 +83,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType='fade'
       statusBarTranslucent
       onRequestClose={closeModal}
     >
@@ -93,12 +93,12 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
         style={{ flex: 1 }}
         onPress={closeModal}
       >
-        {Platform.OS === "ios" ? (
+        {Platform.OS === 'ios' ? (
           <BlurView
             style={[StyleSheet.absoluteFill]}
-            blurType="dark"
+            blurType='dark'
             blurAmount={2}
-            pointerEvents="none"
+            pointerEvents='none'
           />
         ) : (
           <View style={styles.androidBackdrop} />
@@ -111,7 +111,10 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               {
                 transform: [{ translateY }],
                 paddingBottom: Platform.select({
-                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  ios:
+                    insets.bottom > 0
+                      ? insets.bottom + verticalScale(isTablet ? 10 : 0)
+                      : verticalScale(24),
                   android: insets.bottom + verticalScale(24),
                 }),
               },
@@ -122,7 +125,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily='GabaritoMedium'
                 fontSize={18}
                 color={COLORS.darkText}
               >
@@ -132,7 +135,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
               <TouchableOpacity
                 onPress={closeModal}
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   right: horizontalScale(8),
                   top: verticalScale(8),
                 }}
@@ -160,7 +163,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                 >
                   <Grayscale>
                     <BadgeIcon
-                      badge={badgeLabel ?? "speaker"}
+                      badge={badgeLabel ?? 'speaker'}
                       style={styles.badgeImage}
                     />
                   </Grayscale>
@@ -180,14 +183,14 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                 </View>
               ) : (
                 <BadgeIcon
-                  badge={badgeLabel ?? "speaker"}
+                  badge={badgeLabel ?? 'speaker'}
                   style={styles.badgeImage}
                 />
               )}
 
-              <View style={{ alignItems: "center" }}>
+              <View style={{ alignItems: 'center' }}>
                 <CustomText
-                  fontFamily="GabaritoSemiBold"
+                  fontFamily='GabaritoSemiBold'
                   fontSize={22}
                   color={COLORS.darkText}
                 >
@@ -195,10 +198,10 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
                 </CustomText>
 
                 <CustomText
-                  fontFamily="SourceSansMedium"
+                  fontFamily='SourceSansMedium'
                   fontSize={15}
-                  color={"#1D222B80"}
-                  style={{ textAlign: "center" }}
+                  color={'#1D222B80'}
+                  style={{ textAlign: 'center' }}
                 >
                   {badgeMonths}
                 </CustomText>
@@ -210,7 +213,7 @@ const BadgesDetail: React.FC<BadgesDetailModalProps> = ({
             {/* Description */}
             {!isLocked && (
               <CustomText
-                fontFamily="GabaritoMedium"
+                fontFamily='GabaritoMedium'
                 fontSize={18}
                 color={COLORS.darkText}
                 style={styles.description}
@@ -230,9 +233,9 @@ export default BadgesDetail;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-    shadowColor: "#000",
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 0,
@@ -243,14 +246,14 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: COLORS.white,
-    width: "100%",
+    width: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: verticalScale(10),
     paddingHorizontal: horizontalScale(16),
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
           width: 0,
           height: -2,
@@ -265,55 +268,55 @@ const styles = StyleSheet.create({
   },
   androidBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   badgeSection: {
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: verticalScale(24),
     gap: verticalScale(12),
   },
   badgeImage: {
     width: verticalScale(151),
     height: verticalScale(151),
-    resizeMode: "cover",
+    resizeMode: 'cover',
   },
   divider: {
     marginVertical: verticalScale(16),
     width: horizontalScale(100),
-    alignSelf: "center",
+    alignSelf: 'center',
     borderBottomWidth: 1,
     borderColor: COLORS.borderColor,
   },
   description: {
-    textAlign: "center",
-    alignSelf: "center",
+    textAlign: 'center',
+    alignSelf: 'center',
     paddingHorizontal: horizontalScale(20),
   },
 
   outerCircle: {
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
 
   innerCircle: {
-    overflow: "hidden",
+    overflow: 'hidden',
   },
 
   image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 
   badgeOverlay: {
-    position: "absolute",
-    backgroundColor: "rgba(25,30,40,0.55)",
+    position: 'absolute',
+    backgroundColor: 'rgba(25,30,40,0.55)',
   },
 });

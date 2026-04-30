@@ -1,11 +1,11 @@
 import React, { FC } from "react";
 import {
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  Linking,
 } from "react-native";
 import {
   SafeAreaView,
@@ -158,13 +158,13 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
             paddingTop: insets.top,
           },
         ]}
-        edges={["bottom"]}
+        edges={['bottom']}
       >
         {/* Back Button */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: 0,
             top: insets.top + 5,
             zIndex: 10,
@@ -172,7 +172,11 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
             paddingVertical: verticalScale(10),
           }}
         >
-          <CustomIcon Icon={ICONS.backArrow} height={26} width={26} />
+          <CustomIcon
+            Icon={ICONS.backArrow}
+            height={verticalScale(26)}
+            width={verticalScale(26)}
+          />
         </TouchableOpacity>
 
         {/* Content */}
@@ -182,15 +186,18 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Image source={IMAGES.LogoText} style={styles.logo} />
+            <Image
+              source={IMAGES.LogoText}
+              style={styles.logo}
+            />
           </View>
 
           <CustomText
-            fontFamily="GabaritoSemiBold"
+            fontFamily='GabaritoSemiBold'
             fontSize={32}
             color={COLORS.darkText}
             style={{
-              textAlign: "center",
+              textAlign: 'center',
               marginTop: verticalScale(32),
               marginBottom: verticalScale(24),
             }}
@@ -208,7 +215,7 @@ const FAQ: FC<FaqScreenProps> = ({ navigation }) => {
             >
               <Title>{item.title}</Title>
 
-              <View style={{ alignItems: "center" }}>
+              <View style={{ alignItems: 'center' }}>
                 {renderTextWithLinks(item.description)}
               </View>
             </View>

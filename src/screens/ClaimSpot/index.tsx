@@ -4,20 +4,22 @@ import {
   Dimensions,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+  View
 } from 'react-native';
 import HapticFeedback from 'react-native-haptic-feedback';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import ICONS from '../../assets/Icons';
 import IMAGES from '../../assets/Images';
 import CustomIcon from '../../components/CustomIcon';
 import { CustomText } from '../../components/CustomText';
+import { KeyboardAvoidingContainer } from '../../components/KeyboardAvoidingComponent';
 import PrimaryButton from '../../components/PrimaryButton';
 import { logEvent } from '../../Context/analyticsService';
 import { trackOnboardingStepCompleted } from '../../Context/klaviyoClientService';
@@ -44,6 +46,7 @@ import styles from './styles';
 const { height } = Dimensions.get('window');
 
 const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
   const [number, setNumber] = useState('');
   const [checking, setChecking] = useState(false);
@@ -313,264 +316,277 @@ const ClaimSpot: FC<ClaimSpotProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <TouchableWithoutFeedback
-          onPress={Keyboard.dismiss}
-          accessible={false}
+      <KeyboardAvoidingContainer style={styles.keyboardView}>
+        <SafeAreaView
+          style={[
+            styles.safeArea,
+            {
+              marginTop: Platform.select({
+                ios: verticalScale(15),
+                android: insets.top ? insets.top : verticalScale(30),
+              }),
+            },
+          ]}
+          edges={['top']}
         >
-          <KeyboardAvoidingView
-            style={styles.keyboardView}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+          <Image
+            source={IMAGES.OnePaliLogo}
+            style={styles.logo}
+          />
+
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
+            }}
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: '#E5E7EF',
+              borderRadius: 100,
+              position: 'absolute',
+              top: insets.top,
+              left: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <View style={styles.header}>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                activeOpacity={0.8}
+            <CustomIcon
+              Icon={ICONS.BackArrowBg}
+              height={verticalScale(32)}
+              width={verticalScale(32)}
+            />
+          </TouchableOpacity>
+
+          <View style={styles.content}>
+            <View style={styles.headingContainer}>
+              <CustomText
+                fontFamily='GabaritoSemiBold'
+                fontSize={42}
+                color={COLORS.darkText}
                 style={{
-                  backgroundColor: '#E5E7EF',
-                  borderRadius: 100,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  height: 32,
-                  width: 32,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  textAlign: 'center',
+
+                  lineHeight: isTablet
+                    ? verticalScale(45)
+                    : isIphoneSE
+                    ? verticalScale(50)
+                    : verticalScale(40),
                 }}
               >
-                <CustomIcon Icon={ICONS.BackArrowWithBg} />
-              </TouchableOpacity>
-              <Image
-                source={IMAGES.OnePaliLogo}
-                style={styles.logo}
-              />
+                Choose your{'\n'}number
+              </CustomText>
+              <CustomText
+                fontFamily='GabaritoRegular'
+                fontSize={18}
+                color={COLORS.appText}
+                style={{ textAlign: 'center' }}
+              >
+                Your identity among one million supporters
+              </CustomText>
             </View>
 
-            <View style={styles.content}>
-              <View style={styles.headingContainer}>
+            <View style={styles.inputWrapper}>
+              <View style={styles.inputContainer}>
                 <CustomText
                   fontFamily='GabaritoSemiBold'
-                  fontSize={42}
-                  color={COLORS.darkText}
-                  style={{
-                    textAlign: 'center',
-
-                    lineHeight: isTablet
-                      ? verticalScale(45)
-                      : isIphoneSE
-                      ? verticalScale(50)
-                      : verticalScale(40),
-                  }}
+                  style={styles.hashText}
                 >
-                  Choose your{'\n'}number
+                  #
                 </CustomText>
-                <CustomText
-                  fontFamily='GabaritoRegular'
-                  fontSize={18}
-                  color={COLORS.appText}
-                  style={{ textAlign: 'center' }}
-                >
-                  Your identity among one million supporters
-                </CustomText>
-              </View>
 
-              <View style={styles.inputWrapper}>
-                <View style={styles.inputContainer}>
-                  <CustomText
-                    fontFamily='GabaritoSemiBold'
-                    style={styles.hashText}
+                <TextInput
+                  ref={inputRef}
+                  style={styles.textInput}
+                  value={number}
+                  onChangeText={handleChange}
+                  keyboardType='number-pad'
+                  inputMode='numeric'
+                  maxLength={7}
+                  autoFocus
+                  // editable={!checking && !inputDisabled}
+                  editable={!inputDisabled}
+                />
+
+                {checking || !number.length ? (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleDicePress}
                   >
-                    #
-                  </CustomText>
-
-                  <TextInput
-                    ref={inputRef}
-                    style={styles.textInput}
-                    value={number}
-                    onChangeText={handleChange}
-                    keyboardType='number-pad'
-                    inputMode='numeric'
-                    maxLength={7}
-                    autoFocus
-                    // editable={!checking && !inputDisabled}
-                    editable={!inputDisabled}
-                  />
-
-                  {checking || !number.length ? (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={handleDicePress}
+                    <Animated.View
+                      style={{
+                        transform: [
+                          {
+                            rotate: diceShake.interpolate({
+                              inputRange: [-1, 1],
+                              outputRange: ['-15deg', '15deg'],
+                            }),
+                          },
+                        ],
+                      }}
                     >
-                      <Animated.View
-                        style={{
-                          transform: [
-                            {
-                              rotate: diceShake.interpolate({
-                                inputRange: [-1, 1],
-                                outputRange: ['-15deg', '15deg'],
-                              }),
-                            },
-                          ],
-                        }}
-                      >
-                        <CustomIcon
-                          Icon={ICONS.SpotDice}
-                          width={32}
-                          height={32}
-                        />
-                      </Animated.View>
-                    </TouchableOpacity>
-                  ) : available ? (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={handleDicePress}
-                    >
-                      <Animated.View
-                        style={{
-                          transform: [
-                            {
-                              rotate: diceShake.interpolate({
-                                inputRange: [-1, 1],
-                                outputRange: ['-15deg', '15deg'],
-                              }),
-                            },
-                          ],
-                        }}
-                      >
-                        <CustomIcon
-                          Icon={ICONS.SpotDice}
-                          width={32}
-                          height={32}
-                        />
-                      </Animated.View>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={handleDicePress}
-                    >
-                      <Animated.View
-                        style={{
-                          transform: [
-                            {
-                              rotate: diceShake.interpolate({
-                                inputRange: [-1, 1],
-                                outputRange: ['-15deg', '15deg'],
-                              }),
-                            },
-                          ],
-                        }}
-                      >
-                        <CustomIcon
-                          Icon={ICONS.SpotDice}
-                          width={32}
-                          height={32}
-                        />
-                      </Animated.View>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                {startsWithZero ? (
-                  <View style={styles.statusRow}>
-                    <CustomIcon
-                      Icon={ICONS.RedClose}
-                      width={16}
-                      height={16}
-                    />
-                    <CustomText
-                      fontFamily='GabaritoRegular'
-                      fontSize={15}
-                      color={COLORS.redColor}
-                    >
-                      Number cannot start with 0
-                    </CustomText>
-                  </View>
-                ) : rangeError ? (
-                  <View style={styles.statusRow}>
-                    <CustomIcon
-                      Icon={ICONS.RedClose}
-                      width={16}
-                      height={16}
-                    />
-                    <CustomText
-                      fontFamily='GabaritoRegular'
-                      fontSize={15}
-                      color={COLORS.redColor}
-                    >
-                      Number must be between 1 and 1,000,000
-                    </CustomText>
-                  </View>
-                ) : checking ? (
-                  <View style={styles.statusRow}>
-                    <CustomIcon
-                      Icon={ICONS.loader}
-                      width={16}
-                      height={16}
-                    />
-                    <CustomText
-                      fontFamily='GabaritoRegular'
-                      fontSize={15}
-                      color={COLORS.appText}
-                    >
-                      Checking...
-                    </CustomText>
-                  </View>
+                      <CustomIcon
+                        Icon={ICONS.SpotDice}
+                        width={32}
+                        height={32}
+                      />
+                    </Animated.View>
+                  </TouchableOpacity>
                 ) : available ? (
-                  <View style={styles.statusRow}>
-                    <CustomIcon
-                      Icon={ICONS.CheckMarkIcon}
-                      width={16}
-                      height={16}
-                    />
-                    <CustomText
-                      fontFamily='GabaritoRegular'
-                      fontSize={15}
-                      color={COLORS.green}
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleDicePress}
+                  >
+                    <Animated.View
+                      style={{
+                        transform: [
+                          {
+                            rotate: diceShake.interpolate({
+                              inputRange: [-1, 1],
+                              outputRange: ['-15deg', '15deg'],
+                            }),
+                          },
+                        ],
+                      }}
                     >
-                      Available
-                    </CustomText>
-                  </View>
-                ) : unavailable ? (
-                  <View style={styles.statusRow}>
-                    <CustomIcon
-                      Icon={ICONS.RedClose}
-                      width={16}
-                      height={16}
-                    />
-                    <CustomText
-                      fontFamily='GabaritoRegular'
-                      fontSize={15}
-                      color={COLORS.redColor}
-                    >
-                      Taken, try another or tap the dice
-                    </CustomText>
-                  </View>
+                      <CustomIcon
+                        Icon={ICONS.SpotDice}
+                        width={32}
+                        height={32}
+                      />
+                    </Animated.View>
+                  </TouchableOpacity>
                 ) : (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleDicePress}
+                  >
+                    <Animated.View
+                      style={{
+                        transform: [
+                          {
+                            rotate: diceShake.interpolate({
+                              inputRange: [-1, 1],
+                              outputRange: ['-15deg', '15deg'],
+                            }),
+                          },
+                        ],
+                      }}
+                    >
+                      <CustomIcon
+                        Icon={ICONS.SpotDice}
+                        width={32}
+                        height={32}
+                      />
+                    </Animated.View>
+                  </TouchableOpacity>
+                )}
+              </View>
+              {startsWithZero ? (
+                <View style={styles.statusRow}>
+                  <CustomIcon
+                    Icon={ICONS.RedClose}
+                    width={16}
+                    height={16}
+                  />
+                  <CustomText
+                    fontFamily='GabaritoRegular'
+                    fontSize={15}
+                    color={COLORS.redColor}
+                  >
+                    Number cannot start with 0
+                  </CustomText>
+                </View>
+              ) : rangeError ? (
+                <View style={styles.statusRow}>
+                  <CustomIcon
+                    Icon={ICONS.RedClose}
+                    width={16}
+                    height={16}
+                  />
+                  <CustomText
+                    fontFamily='GabaritoRegular'
+                    fontSize={15}
+                    color={COLORS.redColor}
+                  >
+                    Number must be between 1 and 1,000,000
+                  </CustomText>
+                </View>
+              ) : checking ? (
+                <View style={styles.statusRow}>
+                  <CustomIcon
+                    Icon={ICONS.loader}
+                    width={16}
+                    height={16}
+                  />
                   <CustomText
                     fontFamily='GabaritoRegular'
                     fontSize={15}
                     color={COLORS.appText}
                   >
-                    {/* {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}
-                    spots remaining */}
-                    Pick between 1 and 1,000,000
+                    Checking...
                   </CustomText>
-                )}
-              </View>
+                </View>
+              ) : available ? (
+                <View style={styles.statusRow}>
+                  <CustomIcon
+                    Icon={ICONS.CheckMarkIcon}
+                    width={16}
+                    height={16}
+                  />
+                  <CustomText
+                    fontFamily='GabaritoRegular'
+                    fontSize={15}
+                    color={COLORS.green}
+                  >
+                    Available
+                  </CustomText>
+                </View>
+              ) : unavailable ? (
+                <View style={styles.statusRow}>
+                  <CustomIcon
+                    Icon={ICONS.RedClose}
+                    width={16}
+                    height={16}
+                  />
+                  <CustomText
+                    fontFamily='GabaritoRegular'
+                    fontSize={15}
+                    color={COLORS.redColor}
+                  >
+                    Taken, try another or tap the dice
+                  </CustomText>
+                </View>
+              ) : (
+                <CustomText
+                  fontFamily='GabaritoRegular'
+                  fontSize={15}
+                  color={COLORS.appText}
+                >
+                  {/* {availableSpots ? availableSpots.toLocaleString() : "0"}{" "}
+                    spots remaining */}
+                  Pick between 1 and 1,000,000
+                </CustomText>
+              )}
             </View>
-            <PrimaryButton
-              title='Claim number'
-              onPress={handleReserveNumber}
-              disabled={!available}
-              isLoading={isLoading}
-              style={styles.button}
-              hapticFeedback
-              hapticType='impactLight'
-            />
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      </SafeAreaView>
+          </View>
+
+          <PrimaryButton
+            title='Claim number'
+            onPress={handleReserveNumber}
+            disabled={!available}
+            isLoading={isLoading}
+            hapticFeedback
+            hapticType='impactLight'
+            style={{
+              marginBottom: Platform.select({
+                ios: insets.bottom
+                  ? verticalScale(isTablet ? insets.bottom : 20)
+                  : verticalScale(15),
+                android: insets.bottom ? verticalScale(10) : verticalScale(15),
+              }),
+            }}
+          />
+        </SafeAreaView>
+      </KeyboardAvoidingContainer>
     </View>
   );
 };

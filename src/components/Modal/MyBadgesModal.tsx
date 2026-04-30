@@ -1,6 +1,5 @@
-import { BlurView } from "@react-native-community/blur";
-import { useNavigation } from "@react-navigation/native";
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { BlurView } from '@react-native-community/blur';
+import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import {
   Animated,
   Easing,
@@ -12,16 +11,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
-import ICONS from "../../assets/Icons";
-import { useAppSelector } from "../../redux/store";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, hp, verticalScale } from "../../utils/Metrics";
-import BadgeIcon from "../BadgeIcon";
-import CustomIcon from "../CustomIcon";
-import { CustomText } from "../CustomText";
-import PrimaryButton from "../PrimaryButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ICONS from '../../assets/Icons';
+import { useAppSelector } from '../../redux/store';
+import COLORS from '../../utils/Colors';
+import {
+  horizontalScale,
+  hp,
+  isTablet,
+  verticalScale,
+} from '../../utils/Metrics';
+import BadgeIcon from '../BadgeIcon';
+import CustomIcon from '../CustomIcon';
+import { CustomText } from '../CustomText';
+import PrimaryButton from '../PrimaryButton';
 
 export interface MyBadgeItem {
   id: string | number;
@@ -90,7 +94,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType='fade'
       statusBarTranslucent
       onRequestClose={closeModal}
     >
@@ -99,18 +103,21 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
         onPress={closeModal}
         style={styles.modalBackdrop}
       >
-        {Platform.OS === "ios" ? (
+        {Platform.OS === 'ios' ? (
           <BlurView
             style={[StyleSheet.absoluteFill]}
-            blurType="dark"
+            blurType='dark'
             blurAmount={2}
-            pointerEvents="none"
+            pointerEvents='none'
           />
         ) : (
           <View style={styles.androidBackdrop} />
         )}
 
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={closeModal}
+        />
 
         <View style={styles.overlay}>
           <Animated.View
@@ -119,7 +126,10 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
               {
                 transform: [{ translateY }],
                 paddingBottom: Platform.select({
-                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  ios:
+                    insets.bottom > 0
+                      ? insets.bottom + verticalScale(isTablet ? 10 : 0)
+                      : verticalScale(24),
                   android: insets.bottom + verticalScale(24),
                 }),
               },
@@ -130,15 +140,22 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoSemiBold"
+                fontFamily='GabaritoSemiBold'
                 fontSize={18}
                 color={COLORS.darkText}
               >
                 My Badges
               </CustomText>
 
-              <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
-                <CustomIcon Icon={ICONS.CloseIcon} height={30} width={30} />
+              <TouchableOpacity
+                onPress={closeModal}
+                style={styles.closeIcon}
+              >
+                <CustomIcon
+                  Icon={ICONS.CloseIcon}
+                  height={30}
+                  width={30}
+                />
               </TouchableOpacity>
             </View>
 
@@ -153,11 +170,14 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
 
                 return (
                   <View style={styles.badgeRow}>
-                    <BadgeIcon badge={badge.name} style={styles.badgeImage} />
+                    <BadgeIcon
+                      badge={badge.name}
+                      style={styles.badgeImage}
+                    />
 
                     <View style={styles.badgeTextContainer}>
                       <CustomText
-                        fontFamily="GabaritoMedium"
+                        fontFamily='GabaritoMedium'
                         fontSize={18}
                         color={COLORS.darkText}
                       >
@@ -165,9 +185,9 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
                       </CustomText>
 
                       <CustomText
-                        fontFamily="SourceSansMedium"
+                        fontFamily='SourceSansMedium'
                         fontSize={15}
-                        color="#1D222B90"
+                        color='#1D222B90'
                         numberOfLines={2}
                       >
                         {badge.milestone}
@@ -180,7 +200,7 @@ const MyBadgesModal: React.FC<MyBadgesModalProps> = ({
 
             {/* See all button */}
             <PrimaryButton
-              title="See all badges"
+              title='See all badges'
               onPress={() => {
                 setIsVisible(false);
                 navigateToBadge();
@@ -202,25 +222,25 @@ const styles = StyleSheet.create({
   },
   androidBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   overlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   modalContainer: {
     backgroundColor: COLORS.white,
-    width: "100%",
+    width: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: verticalScale(16),
     paddingHorizontal: horizontalScale(16),
     paddingBottom: verticalScale(24),
-    maxHeight: "80%",
+    maxHeight: '80%',
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
           width: 0,
           height: -2,
@@ -234,12 +254,12 @@ const styles = StyleSheet.create({
     }),
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingHorizontal: horizontalScale(16),
     paddingVertical: verticalScale(8),
   },
   closeIcon: {
-    position: "absolute",
+    position: 'absolute',
     right: horizontalScale(8),
     top: verticalScale(5),
   },
@@ -247,15 +267,15 @@ const styles = StyleSheet.create({
     paddingTop: verticalScale(24),
   },
   badgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingBottom: verticalScale(8),
   },
   badgeImage: {
     width: horizontalScale(75),
     height: verticalScale(75),
     marginRight: horizontalScale(12),
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
   badgeTextContainer: {
     flex: 1,

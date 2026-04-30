@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Platform, StyleSheet, View } from "react-native";
+import { isTablet } from "react-native-device-info";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import FONTS from "../assets/fonts";
 import COLORS from "../utils/Colors";
@@ -186,7 +187,7 @@ export function SlotMachineNumber({
               style={[
                 styles.digitContainer,
                 {
-                  width: visibleSlots[index] ? horizontalScale(40) : 0,
+                  width: visibleSlots[index] ? horizontalScale(isTablet() ? 30 : 40) : 0,
                   opacity: visibleSlots[index] ? 1 : 0,
                 },
               ]}

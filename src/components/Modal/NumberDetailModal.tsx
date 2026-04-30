@@ -9,12 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ICONS from "../../assets/Icons";
 import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale } from "../../utils/Metrics";
+import { horizontalScale, isTablet, verticalScale } from "../../utils/Metrics";
 import CustomIcon from "../CustomIcon";
 import { CustomText } from "../CustomText";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface NumnerDetailModalProps {
   isVisible: boolean;
@@ -70,7 +70,7 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType='fade'
       statusBarTranslucent
       onRequestClose={closeModal}
     >
@@ -79,12 +79,12 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
         style={{ flex: 1 }}
         onPress={closeModal}
       >
-        {Platform.OS === "ios" ? (
+        {Platform.OS === 'ios' ? (
           <BlurView
             style={StyleSheet.absoluteFill}
-            blurType="dark"
+            blurType='dark'
             blurAmount={2}
-            pointerEvents="none"
+            pointerEvents='none'
           />
         ) : (
           <View style={styles.androidBackdrop} />
@@ -97,7 +97,10 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
               {
                 transform: [{ translateY }],
                 paddingBottom: Platform.select({
-                  ios: insets.bottom > 0 ? insets.bottom : verticalScale(24),
+                  ios:
+                    insets.bottom > 0
+                      ? insets.bottom + verticalScale(isTablet ? 30 : 0)
+                      : verticalScale(24),
                   android: insets.bottom + verticalScale(24),
                 }),
               },
@@ -108,14 +111,17 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
             {/* Header */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoSemiBold"
+                fontFamily='GabaritoSemiBold'
                 fontSize={18}
                 color={COLORS.darkText}
               >
                 Your OnePali Number
               </CustomText>
 
-              <TouchableOpacity onPress={closeModal} style={styles.closeBtn}>
+              <TouchableOpacity
+                onPress={closeModal}
+                style={styles.closeBtn}
+              >
                 <CustomIcon
                   Icon={ICONS.CloseIcon}
                   height={verticalScale(30)}
@@ -127,21 +133,24 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
             {/* Info Content (New UI) */}
             <View style={styles.infoContainer}>
               <View style={styles.row}>
-                <CustomText fontFamily="GabaritoRegular" fontSize={28}>
+                <CustomText
+                  fontFamily='GabaritoRegular'
+                  fontSize={28}
+                >
                   🔢
                 </CustomText>
                 <View style={styles.textWrap}>
                   <CustomText
-                    fontFamily="GabaritoMedium"
+                    fontFamily='GabaritoMedium'
                     fontSize={18}
                     color={COLORS.darkText}
                   >
                     It’s uniquely yours.
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
+                    fontFamily='GabaritoRegular'
                     fontSize={15}
-                    color="#6B7280"
+                    color='#6B7280'
                   >
                     No one else in the movement will ever have this number.
                   </CustomText>
@@ -149,21 +158,24 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
               </View>
 
               <View style={styles.row}>
-                <CustomText fontFamily="GabaritoRegular" fontSize={28}>
+                <CustomText
+                  fontFamily='GabaritoRegular'
+                  fontSize={28}
+                >
                   🌐
                 </CustomText>
                 <View style={styles.textWrap}>
                   <CustomText
-                    fontFamily="GabaritoMedium"
+                    fontFamily='GabaritoMedium'
                     fontSize={18}
                     color={COLORS.darkText}
                   >
                     Every number is a person.
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
+                    fontFamily='GabaritoRegular'
                     fontSize={15}
-                    color="#6B7280"
+                    color='#6B7280'
                   >
                     Together, one million numbers means one million stands for
                     Palestine.
@@ -172,21 +184,24 @@ const NumnerDetailModal: React.FC<NumnerDetailModalProps> = ({
               </View>
 
               <View style={styles.row}>
-                <CustomText fontFamily="GabaritoRegular" fontSize={28}>
+                <CustomText
+                  fontFamily='GabaritoRegular'
+                  fontSize={28}
+                >
                   🎲
                 </CustomText>
                 <View style={styles.textWrap}>
                   <CustomText
-                    fontFamily="GabaritoMedium"
+                    fontFamily='GabaritoMedium'
                     fontSize={18}
                     color={COLORS.darkText}
                   >
                     Don’t love it?
                   </CustomText>
                   <CustomText
-                    fontFamily="GabaritoRegular"
+                    fontFamily='GabaritoRegular'
                     fontSize={15}
-                    color="#6B7280"
+                    color='#6B7280'
                   >
                     Tap ‘Choose my own number’ to pick one that means something
                     to you.

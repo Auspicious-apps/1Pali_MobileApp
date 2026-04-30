@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect } from 'react';
 import {
   Dimensions,
   Image,
@@ -6,43 +6,43 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import ICONS from "../../assets/Icons";
-import IMAGES from "../../assets/Images";
-import CustomIcon from "../../components/CustomIcon";
-import { CustomText } from "../../components/CustomText";
-import PrimaryButton from "../../components/PrimaryButton";
-import { logEvent } from "../../Context/analyticsService";
-import { HowItWorksScreenProps } from "../../typings/routes";
-import COLORS from "../../utils/Colors";
+} from 'react-native-safe-area-context';
+import ICONS from '../../assets/Icons';
+import IMAGES from '../../assets/Images';
+import CustomIcon from '../../components/CustomIcon';
+import { CustomText } from '../../components/CustomText';
+import PrimaryButton from '../../components/PrimaryButton';
+import { logEvent } from '../../Context/analyticsService';
+import { HowItWorksScreenProps } from '../../typings/routes';
+import COLORS from '../../utils/Colors';
 import {
   horizontalScale,
   isTablet,
   responsiveFontSize,
   verticalScale,
   wp,
-} from "../../utils/Metrics";
+} from '../../utils/Metrics';
 
 const supportItems = [
   {
     icon: ICONS.soup,
-    text: "Hot meals, food parcels, & nutrition",
+    text: 'Hot meals, food parcels, & nutrition',
   },
   {
     icon: ICONS.droplets,
-    text: "Clean water & hygiene",
+    text: 'Clean water & hygiene',
   },
   {
     icon: ICONS.brush,
-    text: "Arts, play & creative programs",
+    text: 'Arts, play & creative programs',
   },
   {
     icon: ICONS.WorkHeart,
-    text: "Psychological support & more",
+    text: 'Psychological support & more',
   },
 ];
 
@@ -50,7 +50,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    logEvent("Ob_How_It_Works");
+    logEvent('Ob_How_It_Works');
   }, []);
 
   return (
@@ -64,63 +64,66 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
+              ios: insets.bottom
+                ? verticalScale(isTablet ? 10 : 0)
+                : verticalScale(15),
               android: insets.bottom ? verticalScale(10) : verticalScale(15),
             }),
           },
         ]}
-        edges={["bottom", "top"]}
+        edges={['bottom', 'top']}
       >
-        <View style={{ flex: 1, justifyContent: "space-between" }}>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <View style={styles.contentContainer}>
             {/* LOGO */}
-            <Image source={IMAGES.OnePaliLogo} style={styles.appIcon} />
+            <Image
+              source={IMAGES.OnePaliLogo}
+              style={styles.appIcon}
+            />
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               activeOpacity={0.8}
               style={{
-                backgroundColor: "#E5E7EF",
+                backgroundColor: '#E5E7EF',
                 borderRadius: 100,
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: horizontalScale(20),
-                height: horizontalScale(32),
-                width: horizontalScale(32),
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <CustomIcon
                 Icon={ICONS.BackArrowBg}
-                height={horizontalScale(32)}
-                width={horizontalScale(32)}
+                height={verticalScale(32)}
+                width={verticalScale(32)}
               />
             </TouchableOpacity>
             {/* HEADER */}
             <View style={styles.header}>
               <CustomText
-                fontFamily="GabaritoSemiBold"
+                fontFamily='GabaritoSemiBold'
                 fontSize={42}
                 color={COLORS.darkText}
                 style={[
                   styles.headerTitle,
                   {
                     lineHeight:
-                      Platform.OS === "ios"
+                      Platform.OS === 'ios'
                         ? responsiveFontSize(42)
                         : responsiveFontSize(46),
                   },
                 ]}
               >
-                What your $1 {"\n"} supports
+                What your $1 {'\n'} supports
               </CustomText>
               <CustomText
-                fontFamily="GabaritoRegular"
+                fontFamily='GabaritoRegular'
                 fontSize={18}
                 color={COLORS.appText}
-                style={{ lineHeight: verticalScale(20), textAlign: "center" }}
+                style={{ lineHeight: verticalScale(20), textAlign: 'center' }}
               >
-                Every dollar is delivered through MECA,{"\n"} our humanitarian
+                Every dollar is delivered through MECA,{'\n'} our humanitarian
                 partner.
               </CustomText>
             </View>
@@ -128,7 +131,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
             <View style={styles.card}>
               <View
                 style={{
-                  backgroundColor: "#F2F3F790",
+                  backgroundColor: '#F2F3F790',
                   paddingHorizontal: horizontalScale(12),
                   paddingVertical: verticalScale(20),
                   borderRadius: 20,
@@ -137,14 +140,14 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
               >
                 <View
                   style={{
-                    alignItems: "center",
+                    alignItems: 'center',
                     gap: horizontalScale(8),
-                    width: "100%",
+                    width: '100%',
                   }}
                 >
                   <Image
                     source={IMAGES.MECA}
-                    resizeMode="contain"
+                    resizeMode='contain'
                     style={{
                       width: horizontalScale(140),
                       height: verticalScale(32),
@@ -152,22 +155,22 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                   />
                   <View style={{ gap: verticalScale(4) }}>
                     <CustomText
-                      fontFamily="GabaritoMedium"
+                      fontFamily='GabaritoMedium'
                       fontSize={20}
                       style={{
                         color: COLORS.darkText,
-                        textAlign: "center",
+                        textAlign: 'center',
                       }}
                     >
                       Middle East Children’s Alliance
                     </CustomText>
                     <CustomText
-                      fontFamily="GabaritoRegular"
+                      fontFamily='GabaritoRegular'
                       fontSize={15}
                       style={{
                         color: COLORS.appText,
                         flexShrink: 1,
-                        textAlign: "center",
+                        textAlign: 'center',
                       }}
                     >
                       On the ground in Palestine since 1988
@@ -186,8 +189,8 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                   <View
                     key={item.text + index}
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
+                      flexDirection: 'row',
+                      alignItems: 'center',
                       gap: horizontalScale(8),
                       paddingTop:
                         index === 0 ? verticalScale(0) : verticalScale(10),
@@ -206,7 +209,7 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
                       width={horizontalScale(24)}
                     />
                     <CustomText
-                      fontFamily="GabaritoRegular"
+                      fontFamily='GabaritoRegular'
                       fontSize={15}
                       color={COLORS.darkText}
                     >
@@ -217,11 +220,11 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
               </View>
             </View>
             <CustomText
-              fontFamily="SourceSansRegular"
+              fontFamily='SourceSansRegular'
               fontSize={13}
               style={{
                 color: COLORS.appText,
-                textAlign: "center",
+                textAlign: 'center',
                 lineHeight: verticalScale(16),
                 width: wp(63),
                 marginVertical: verticalScale(15),
@@ -234,17 +237,17 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
           </View>
           <View
             style={{
-              justifyContent: "flex-end",
+              justifyContent: 'flex-end',
               paddingHorizontal: horizontalScale(16),
             }}
           >
             <PrimaryButton
-              title="Join OnePali"
+              title='Join OnePali'
               onPress={() => {
-                navigation.navigate("animatedNumber");
+                navigation.navigate('animatedNumber');
               }}
               hapticFeedback
-              hapticType="impactLight"
+              hapticType='impactLight'
             />
           </View>
         </View>
@@ -255,8 +258,8 @@ const HowItWorks: FC<HowItWorksScreenProps> = ({ navigation }) => {
 
 export default HowItWorks;
 
-const { height, width } = Dimensions.get("window");
-const isIphoneSE = Platform.OS === "ios" && height <= 667;
+const { height, width } = Dimensions.get('window');
+const isIphoneSE = Platform.OS === 'ios' && height <= 667;
 
 const styles = StyleSheet.create({
   container: {
@@ -269,14 +272,14 @@ const styles = StyleSheet.create({
   appIcon: {
     width: horizontalScale(54),
     height: verticalScale(54),
-    alignSelf: "center",
-    resizeMode: "contain",
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
   header: {
     paddingHorizontal: horizontalScale(20),
   },
   headerTitle: {
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: verticalScale(12),
     marginBottom: verticalScale(8),
     // lineHeight: isTablet
@@ -286,18 +289,18 @@ const styles = StyleSheet.create({
     //   : verticalScale(40),
   },
   contentContainer: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   primaryButton: {},
   sectionDescription: {
     lineHeight: verticalScale(18),
-    textAlign: "center",
+    textAlign: 'center',
   },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: 24,
     paddingVertical: verticalScale(4),
-    shadowColor: "#757A97",
+    shadowColor: '#757A97',
     shadowOffset: {
       width: 0,
       height: 0,
@@ -312,13 +315,13 @@ const styles = StyleSheet.create({
   },
   centerText: {
     color: COLORS.darkText,
-    textAlign: "center",
+    textAlign: 'center',
   },
   dividers: {
-    width: "100%",
+    width: '100%',
     borderBottomWidth: 1,
     borderColor: COLORS.greyish,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginVertical: verticalScale(12),
   },
 });

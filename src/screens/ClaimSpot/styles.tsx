@@ -1,83 +1,80 @@
-import { Platform, StyleSheet } from "react-native";
-import COLORS from "../../utils/Colors";
-import { horizontalScale, verticalScale, wp } from "../../utils/Metrics";
-import FONTS from "../../assets/fonts";
+import { Platform, StyleSheet } from 'react-native';
+import FONTS from '../../assets/fonts';
+import COLORS from '../../utils/Colors';
+import { horizontalScale, verticalScale, wp } from '../../utils/Metrics';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     backgroundColor: COLORS.appBackground,
   },
   safeArea: {
     flex: 1,
-    alignItems: "center",
-    paddingHorizontal: horizontalScale(20),
-    marginTop: verticalScale(15),
   },
   keyboardView: {
     flex: 1,
   },
   header: {
     width: wp(90),
-    flexDirection: "row",
-    marginTop: Platform.OS === "android" ? verticalScale(10) : verticalScale(0),
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    marginTop: Platform.OS === 'android' ? verticalScale(10) : verticalScale(0),
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   logo: {
     width: horizontalScale(54),
     height: verticalScale(54),
-    resizeMode: "contain",
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
-  side: { width: horizontalScale(40), alignItems: "flex-start" },
-  center: { flex: 1, alignItems: "center" },
+  side: { width: horizontalScale(40), alignItems: 'flex-start' },
+  center: { flex: 1, alignItems: 'center' },
   content: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
   headingContainer: {
-    marginTop: Platform.OS === "ios" ? verticalScale(40) : verticalScale(40),
+    marginTop: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(40),
     gap: verticalScale(8),
-    alignItems: "center",
+    alignItems: 'center',
   },
   inputWrapper: {
-    marginTop: Platform.OS === "ios" ? verticalScale(40) : verticalScale(40),
+    marginTop: Platform.OS === 'ios' ? verticalScale(40) : verticalScale(40),
     gap: verticalScale(8),
+    width: wp(90),
   },
   inputContainer: {
     paddingHorizontal: horizontalScale(14),
     paddingVertical:
-      Platform.OS === "ios" ? verticalScale(10) : verticalScale(0),
+      Platform.OS === 'ios' ? verticalScale(10) : verticalScale(0),
     backgroundColor: COLORS.inputBackground,
     borderRadius: 12,
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: horizontalScale(10),
   },
   hashText: {
     fontSize: 32,
     color: COLORS.grey,
-    lineHeight: 40
+    lineHeight: 40,
   },
   textInput: {
     fontFamily: FONTS.MontserratSemiBold,
     fontSize: 32,
     color: COLORS.darkText,
-    width: "80%",
+    flex:1
   },
   statusRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
-  button: {
-    marginTop: verticalScale(30),
-    marginBottom: verticalScale(20),
-  },
+
   signInText: {
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: verticalScale(6),
   },
 });

@@ -9,6 +9,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { isTablet } from 'react-native-device-info';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -37,14 +38,14 @@ type FundCard = {
 };
 
 const CARD_CONFIG: Omit<FundCard, 'height'>[] = [
-  { id: '1', image: IMAGES.Carousel1, width: wp(78.8) },
-  { id: '2', image: IMAGES.Carousel2, width: wp(84) },
-  { id: '3', image: IMAGES.Carousel3, width: wp(82) },
-  { id: '4', image: IMAGES.Carousel4, width: wp(84.9) },
-  { id: '5', image: IMAGES.Carousel5, width: wp(78) },
-  { id: '6', image: IMAGES.Carousel6, width: wp(82.4) },
-  { id: '7', image: IMAGES.Carousel7, width: wp(79.2) },
-  { id: '8', image: IMAGES.Carousel8, width: wp(82) },
+  { id: '1', image: IMAGES.Carousel1, width: wp(isTablet() ? 68.8 : 78.8) },
+  { id: '2', image: IMAGES.Carousel2, width: wp(isTablet() ? 74 : 84) },
+  { id: '3', image: IMAGES.Carousel3, width: wp(isTablet() ? 72 : 82) },
+  { id: '4', image: IMAGES.Carousel4, width: wp(isTablet() ? 74.9 : 84.9) },
+  { id: '5', image: IMAGES.Carousel5, width: wp(isTablet() ? 68 : 78) },
+  { id: '6', image: IMAGES.Carousel6, width: wp(isTablet() ? 72.4 : 82.4) },
+  { id: '7', image: IMAGES.Carousel7, width: wp(isTablet() ? 69.2 : 79.2) },
+  { id: '8', image: IMAGES.Carousel8, width: wp(isTablet() ? 72 : 82) },
 ];
 
 const defaultCardHeight = hp(26);
@@ -182,7 +183,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
               android: insets.top ? insets.top : verticalScale(30),
             }),
             marginBottom: Platform.select({
-              ios: insets.bottom ? 0 : verticalScale(15),
+              ios: insets.bottom ? verticalScale(isTablet() ? 10 : 0) : verticalScale(15),
               android: insets.bottom ? verticalScale(10) : verticalScale(30),
             }),
           },
@@ -259,7 +260,7 @@ const AidSupportScreen: FC<AidSupportScreenProps> = ({ navigation }) => {
             fontFamily='GabaritoRegular'
             fontSize={18}
             color={COLORS.greyText}
-            style={{ textAlign: 'center' }}
+            style={{ textAlign: 'center', width: wp(90), alignSelf: 'center' }}
           >
             Over 80% of Gaza's population relies on humanitarian aid. Half are
             children.
