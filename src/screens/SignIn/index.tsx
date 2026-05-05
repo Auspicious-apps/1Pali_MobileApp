@@ -3,8 +3,19 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import React, { FC, useState } from 'react';
-import { Alert, Image, Platform, TouchableOpacity, View } from 'react-native';
+import React, { FC, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { isTablet } from 'react-native-device-info';
 import {
   SafeAreaView,
@@ -25,8 +36,9 @@ import {
 import { useAppDispatch } from '../../redux/store';
 import ENDPOINTS from '../../service/ApiEndpoints';
 import { AppleSigninResponse } from '../../service/ApiResponses/AppleSignin';
+import { DemoLoginApiResponse } from '../../service/ApiResponses/DemoLoginApiResponse';
 import { GoogleSigninResponse } from '../../service/ApiResponses/GoogleSignin';
-import { postData } from '../../service/ApiService';
+import { fetchData, postData } from '../../service/ApiService';
 import { SignInProps } from '../../typings/routes';
 import COLORS from '../../utils/Colors';
 import STORAGE_KEYS from '../../utils/Constants';
@@ -39,7 +51,109 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const insets = useSafeAreaInsets();
 
+  // Demo / reviewer access
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [demoCode, setDemoCode] = useState('');
+  const [demoError, setDemoError] = useState('');
+  const [isDemoSigningIn, setIsDemoSigningIn] = useState(false);
+  const logoPressCountRef = useRef(0);
+  const logoPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const dispatch = useAppDispatch();
+
+  const handleLogoPress = () => {
+    logoPressCountRef.current += 1;
+
+    if (logoPressTimerRef.current) {
+      clearTimeout(logoPressTimerRef.current);
+    }
+
+    if (logoPressCountRef.current >= 5) {
+      logoPressCountRef.current = 0;
+      // Lazily check demo availability on the 5th tap
+      void checkDemoStatusAndShow();
+    } else {
+      logoPressTimerRef.current = setTimeout(() => {
+        logoPressCountRef.current = 0;
+      }, 2000);
+    }
+  };
+
+  const checkDemoStatusAndShow = async () => {
+    try {
+      const response = await fetchData<{ available: boolean }>(
+        ENDPOINTS.DemoStatus,
+      );
+      if (response.data?.data?.available === true) {
+        setDemoCode('');
+        setDemoError('');
+        setShowDemoModal(true);
+      }
+      // If available is false — do nothing silently
+    } catch {
+      // Network error or 404 — do nothing silently
+    }
+  };
+
+  const handleDemoCancel = () => {
+    setShowDemoModal(false);
+    setDemoCode('');
+    setDemoError('');
+  };
+
+  const handleDemoLogin = async () => {
+    if (!demoCode.trim() || isDemoSigningIn) return;
+
+    setIsDemoSigningIn(true);
+    setDemoError('');
+
+    try {
+      const response = await postData<DemoLoginApiResponse>(
+        ENDPOINTS.DemoLogin,
+        {
+          secret: demoCode,
+        },
+      );
+
+      const { tokens, user } = response.data?.data ?? {};
+
+      await storeLocalStorageData(
+        STORAGE_KEYS.accessToken,
+        tokens?.accessToken,
+      );
+      await storeLocalStorageData(
+        STORAGE_KEYS.refreshToken,
+        tokens?.refreshToken,
+      );
+      await storeLocalStorageData(STORAGE_KEYS.expiresIn, tokens?.expiresIn);
+      await storeLocalStorageData('userData', user);
+
+      dispatch(setUserData(user?.user as any));
+      dispatch(setBadges(user?.user?.badges as any));
+      dispatch(setClaimedNumber(user?.assignedNumber));
+
+      setShowDemoModal(false);
+      setDemoCode('');
+
+      navigation.replace('MainStack', {
+        screen: 'tabs',
+        params: { screen: 'home' },
+      });
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        setDemoError('Invalid access code');
+        setDemoCode('');
+        // keep modal open
+      } else {
+        // 404 or any other error — dismiss silently (feature disabled server-side)
+        setShowDemoModal(false);
+        setDemoCode('');
+        setDemoError('');
+      }
+    } finally {
+      setIsDemoSigningIn(false);
+    }
+  };
 
   const handleAppleSignIn = async () => {
     try {
@@ -333,10 +447,16 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
                 />
               </TouchableOpacity>
             )}
-            <Image
-              source={IMAGES.OnePaliLogo}
-              style={styles.logo}
-            />
+            <Pressable
+              onPress={handleLogoPress}
+              style={{ alignSelf: 'center' }}
+              disabled={Platform.OS === 'android'}
+            >
+              <Image
+                source={IMAGES.OnePaliLogo}
+                style={styles.logo}
+              />
+            </Pressable>
           </View>
 
           <View style={styles.headingContainer}>
@@ -433,6 +553,132 @@ const SignIn: FC<SignInProps> = ({ navigation, route }) => {
           )}
         </View>
       </SafeAreaView>
+
+      {/* Reviewer access modal — no visible entry point when isDemoAvailable is false */}
+      <Modal
+        visible={showDemoModal}
+        transparent
+        animationType='fade'
+        onRequestClose={handleDemoCancel}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: COLORS.white,
+              borderRadius: 16,
+              padding: 24,
+              width: '85%',
+            }}
+          >
+            <CustomText
+              fontFamily='GabaritoSemiBold'
+              fontSize={20}
+              color={COLORS.darkText}
+              style={{ marginBottom: 16 }}
+            >
+              Reviewer Access
+            </CustomText>
+
+            <TextInput
+              secureTextEntry
+              placeholder='Enter access code'
+              placeholderTextColor={COLORS.appText}
+              value={demoCode}
+              onChangeText={(text) => {
+                setDemoCode(text);
+                if (demoError) setDemoError('');
+              }}
+              autoFocus
+              style={{
+                backgroundColor: COLORS.inputBackground,
+                borderRadius: 10,
+                paddingHorizontal: 14,
+                paddingVertical: Platform.OS === 'ios' ? 14 : 10,
+                fontSize: 16,
+                color: COLORS.darkText,
+              }}
+            />
+
+            {demoError !== '' && (
+              <CustomText
+                fontFamily='GabaritoRegular'
+                fontSize={13}
+                color={COLORS.redColor}
+                style={{ marginTop: 8 }}
+              >
+                {demoError}
+              </CustomText>
+            )}
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                gap: 12,
+                marginTop: 20,
+              }}
+            >
+              <TouchableOpacity
+                onPress={handleDemoCancel}
+                activeOpacity={0.7}
+                style={{
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: COLORS.borderColor,
+                }}
+              >
+                <CustomText
+                  fontFamily='GabaritoSemiBold'
+                  fontSize={15}
+                  color={COLORS.appText}
+                >
+                  Cancel
+                </CustomText>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleDemoLogin}
+                activeOpacity={0.7}
+                disabled={isDemoSigningIn || !demoCode.trim()}
+                style={{
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  backgroundColor: COLORS.darkText,
+                  opacity: isDemoSigningIn || !demoCode.trim() ? 0.5 : 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                {isDemoSigningIn && (
+                  <ActivityIndicator
+                    size='small'
+                    color={COLORS.white}
+                  />
+                )}
+                <CustomText
+                  fontFamily='GabaritoSemiBold'
+                  fontSize={15}
+                  color={COLORS.white}
+                >
+                  Sign In
+                </CustomText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 };

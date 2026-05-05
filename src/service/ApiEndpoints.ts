@@ -39,6 +39,8 @@ const ENDPOINTS = {
   mySubscription: 'api/v1/subscription/my-subscription',
   storeFcmTokenDuringOnBoarding: '/api/v1/onboarding/fcm-token',
   DeleteAccount: 'api/v1/auth/delete-account',
+  DemoStatus: 'api/v1/auth/demo-status',
+  DemoLogin: 'api/v1/auth/demo-login',
 };
 
 export default ENDPOINTS;
