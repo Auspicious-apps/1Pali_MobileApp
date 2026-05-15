@@ -183,7 +183,7 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
     {
       id: 'terms',
       icon: ICONS.TermIcon,
-      label: "Onepali Privacy Policy",
+      label: 'Onepali Privacy Policy',
       arrow: true,
       onPress: () => navigation.navigate('privacyPolicy'),
     },
@@ -592,7 +592,10 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
                     ].map((item) => (
                       <View
                         key={item}
-                        style={{ flexDirection: 'row', alignItems: 'flex-start' }}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'flex-start',
+                        }}
                       >
                         <CustomText
                           fontFamily='GabaritoMedium'
@@ -623,8 +626,8 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
                     color={COLORS.darkRed}
                     style={{ marginTop: verticalScale(12), lineHeight: 22 }}
                   >
-                    This is non-recoverable. You will not be able to restore your
-                    account or data after deletion.
+                    This is non-recoverable. You will not be able to restore
+                    your account or data after deletion.
                   </CustomText>
 
                   <CustomText
@@ -649,53 +652,53 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
                 </ScrollView>
 
                 <View style={styles.deleteModalActions}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  disabled={isDeletingAccount}
-                  onPress={() => {
-                    setDeleteConfirmText('');
-                    setIsDeleteAccountModalVisible(false);
-                  }}
-                  style={styles.cancelButton}
-                >
-                  <CustomText
-                    fontFamily='GabaritoMedium'
-                    fontSize={15}
-                    color={COLORS.darkText}
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    disabled={isDeletingAccount}
+                    onPress={() => {
+                      setDeleteConfirmText('');
+                      setIsDeleteAccountModalVisible(false);
+                    }}
+                    style={styles.cancelButton}
                   >
-                    Cancel
-                  </CustomText>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  disabled={
-                    isDeletingAccount || deleteConfirmText.trim() !== 'DELETE'
-                  }
-                  onPress={handleDeleteAccount}
-                  style={[
-                    styles.confirmDeleteButton,
-                    (isDeletingAccount ||
-                      deleteConfirmText.trim() !== 'DELETE') &&
-                      styles.confirmDeleteButtonDisabled,
-                  ]}
-                >
-                  {isDeletingAccount ? (
-                    <ActivityIndicator
-                      color={COLORS.white}
-                      size='small'
-                    />
-                  ) : (
                     <CustomText
                       fontFamily='GabaritoMedium'
                       fontSize={15}
-                      color={COLORS.white}
+                      color={COLORS.darkText}
                     >
-                      Delete permanently
+                      Cancel
                     </CustomText>
-                  )}
-                </TouchableOpacity>
-              </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    disabled={
+                      isDeletingAccount || deleteConfirmText.trim() !== 'DELETE'
+                    }
+                    onPress={handleDeleteAccount}
+                    style={[
+                      styles.confirmDeleteButton,
+                      (isDeletingAccount ||
+                        deleteConfirmText.trim() !== 'DELETE') &&
+                        styles.confirmDeleteButtonDisabled,
+                    ]}
+                  >
+                    {isDeletingAccount ? (
+                      <ActivityIndicator
+                        color={COLORS.white}
+                        size='small'
+                      />
+                    ) : (
+                      <CustomText
+                        fontFamily='GabaritoMedium'
+                        fontSize={15}
+                        color={COLORS.white}
+                      >
+                        Delete permanently
+                      </CustomText>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
             </KeyboardAvoidingView>
           </View>
@@ -706,11 +709,12 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
             activeOpacity={0.7}
             onPress={async () => {
               try {
-                const inviteLink = Platform.select({
-                  android:
-                    'https://play.google.com/store/apps/details?id=com.onepali',
-                  ios: 'https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916',
-                });
+                // const inviteLink = Platform.select({
+                //   android:
+                //     'https://play.google.com/store/apps/details?id=com.onepali',
+                //   ios: 'https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916',
+                // });
+                const inviteLink = 'https://onepali.app/';
 
                 await ShareLib.open({
                   title: 'OnePali - $1 for Palestine',

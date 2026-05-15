@@ -83,8 +83,8 @@ android {
         applicationId 'com.onepali'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 52
-        versionName '1.5'
+        versionCode 53
+        versionName '1.6' // Need to check this everytime before release, as it nee dto be in sync with the backend environment variable
     }
     signingConfigs {
         debug {

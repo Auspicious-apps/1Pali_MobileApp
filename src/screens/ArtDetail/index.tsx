@@ -198,7 +198,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
           const result = await NativeShare.shareWithCallback(
             shareFilePath, // Send the raw path
             customFileName,
-            `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/in/app/onepali-%241-for-palestine/id6758080916 \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+            `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/us/app/onepali-%241-for-palestine/id6758080916 \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
           );
 
           if (result) {
@@ -228,7 +228,7 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             filename: customFileName,
             title: customFileName,
             type: 'image/png',
-            message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/app/onepali \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
+            message: `I'm supporter #${user?.assignedNumber} on OnePali, and I'm inviting you to join me. \n\n\nWe're building a community of 1 million people each giving $1/month to provide direct aid to Palestinian families. One million people, one dollar, one mission. \n\n Be one of the million: \n iOS: https://apps.apple.com/us/app/onepali-%241-for-palestine/id6758080916 \n Android: https://play.google.com/store/apps/details?id=com.onepali `,
           });
 
           console.log(result, 'opopo');
