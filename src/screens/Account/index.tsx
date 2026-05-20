@@ -435,9 +435,18 @@ const Account: FC<AccountScreenProps> = ({ navigation }) => {
                       color={COLORS.darkText}
                     >
                       {`$${
-                        user?.hasIncludeProcessingFees
-                          ? user?.totalDonationsExcludingFees
-                          : user?.totalDonations
+                        Number.isInteger(
+                          user?.hasIncludeProcessingFees
+                            ? user?.totalDonationsExcludingFees
+                            : user?.totalDonations,
+                        )
+                          ? user?.hasIncludeProcessingFees
+                            ? user?.totalDonationsExcludingFees
+                            : user?.totalDonations
+                          : (user?.hasIncludeProcessingFees
+                              ? user?.totalDonationsExcludingFees
+                              : user?.totalDonations
+                            )?.toFixed(2)
                       }`}
                     </CustomText>
                     <CustomText

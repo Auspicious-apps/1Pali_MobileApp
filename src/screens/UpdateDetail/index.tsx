@@ -489,6 +489,8 @@ const UpdateDetail: FC<UpdateDetailScreenProps> = ({ navigation, route }) => {
             fontFamily='SourceSansRegular'
             fontSize={14}
             color={COLORS.darkText}
+            lineHeight={verticalScale(19)}
+            style={{ paddingVertical: verticalScale(2) }}
           >
             {item.content}
           </CustomText>

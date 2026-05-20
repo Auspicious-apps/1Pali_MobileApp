@@ -65,7 +65,11 @@ const MecaPrivacyPolicy: FC<MecaPrivacyPolicyScreenProps> = ({
       fontFamily='SourceSansRegular'
       fontSize={15}
       color={COLORS.appText}
-      style={{ marginTop: verticalScale(8), lineHeight: 22 }}
+      style={{
+        marginTop: verticalScale(8),
+        lineHeight: 22,
+        textAlign: 'justify',
+      }}
     >
       {children}
     </CustomText>
@@ -76,7 +80,10 @@ const MecaPrivacyPolicy: FC<MecaPrivacyPolicyScreenProps> = ({
       fontFamily='SourceSansRegular'
       fontSize={15}
       color={COLORS.appText}
-      style={{ marginTop: verticalScale(8), lineHeight: 22 }}
+      style={{
+        marginTop: verticalScale(8),
+        lineHeight: 22,
+      }}
     >
       {children}
     </CustomText>

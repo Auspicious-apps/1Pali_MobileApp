@@ -647,7 +647,8 @@ const ArtDetail: FC<ArtDetailScreenProps> = ({ navigation, route }) => {
             fontFamily='SourceSansRegular'
             fontSize={14}
             color={COLORS.darkText}
-            style={{ width: '100%' }}
+            lineHeight={verticalScale(19)}
+            style={{ width: '100%', paddingVertical: verticalScale(2) }}
           >
             {item?.content}
           </CustomText>
